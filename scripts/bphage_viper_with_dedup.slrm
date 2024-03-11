@@ -1,0 +1,60 @@
+#!/bin/bash -l
+#SBATCH --job-name="bphage_viper"
+#SBATCH --cluster=genius
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=36
+#SBATCH --time=24:00:00
+#SBATCH --account=lp_jm_virome_group
+
+# Submit this as a job array (from output/slurm_log)
+# sbatch --array=1-118 --export=ALL ../../scripts/bphage_viper_with_dedup.slrm
+
+line=$(head -n $SLURM_ARRAY_TASK_ID $VSC_STAGING/BPhage/data/BPhage.sample.list | tail -n1)
+
+# Move to wherever your files are
+mkdir -p $VSC_SCRATCH/BPhage/
+cd $VSC_SCRATCH/BPhage/
+
+# Activate conda environment
+source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
+conda activate viper_bphage
+
+# Make sure programs in conda viper environment are found first in PATH 
+PATH="$CONDA_PREFIX/bin:$PATH"
+
+# Add SPAdes module
+module load SPAdes/3.15.5-GCC-10.3.0-mi-override-off
+
+# Make sure you use the right metaspades, just shows which metaspades is present
+# This command should return: /apps/leuven/rocky8/skylake/2021a/software/SPAdes/3.15.5-GCC-10.3.0-mi-override-off/bin/metaspades.py
+which metaspades.py
+
+# Make sure you also unload the python of the module system
+# Otherwise the clustering will fail with error message "ModuleNotFoundError: No module named 'Bio"
+module unload Python/3.9.5-GCCcore-10.3.0
+
+# Deduplicate reads with clumpify
+clumpify.sh reorder dedupe=t overwrite=t in=raw/${line}.R1.fastq.gz in2=raw/${line}.R2.fastq.gz out=raw/${line}.dedup.R1.fastq.gz out2=raw/$line.dedup.R2.fastq.gz
+
+# Way to check if clumpifying went well
+if [[ ! $? -eq 0 ]]; then
+	printf "ERROR with clumpifying\n"
+	exit 1
+fi
+
+printf "\n"
+
+seqkit stat -T raw/$line.*.gz > raw/${line}_reads.tsv
+
+printf "\n"
+
+# Run viper.sh script with desired options
+viper.sh -1 raw/$line.dedup.R1.fastq.gz -2 raw/$line.dedup.R2.fastq.gz \
+    -p /staging/leuven/stg_00029/DB/trimmomatic/primer_WTA2_Nextera.fa --triple-assembly -o viper_output/${line} \
+    -d /staging/leuven/stg_00029/DB/nr/nr_20231025/nr.dmnd -t $SLURM_JOB_CPUS_PER_NODE --cluster-cover 85 \
+    --cluster-identity 95 --keep-reads --name $line --identify-proviruses --checkv-db /staging/leuven/stg_00029/DB/CheckV/checkv-db-v1.5 \
+    --genomad-db /staging/leuven/stg_00029/DB/genomad/genomad_db_1.7
+
+echo "========================================================================"
+duration=$SECONDS
+printf 'Runtime: %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))
