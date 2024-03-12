@@ -2,9 +2,9 @@
 #SBATCH --job-name="bee_ref_genome"
 #SBATCH --cluster=genius
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=36
+#SBATCH --ntasks-per-node=12
 #SBATCH --mem-per-cpu=4G
-#SBATCH --time=4:00:00
+#SBATCH --time=30:00
 #SBATCH --account=lp_jm_virome_group
 
 ###############################################################################
@@ -27,7 +27,7 @@ rm -r ncbi_dataset*
 rm README.md
 
 conda activate viper_bphage
-bowtie2-build --threads 36 GCF_003254395.2_Amel_HAv3.1_genomic.fna GCF_003254395.2_Amel_HAv3.1_genomic.fna
+bowtie2-build --threads 12 GCF_003254395.2_Amel_HAv3.1_genomic.fna GCF_003254395.2_Amel_HAv3.1_genomic.fna
 
 echo "========================================================================"
 duration=$SECONDS
