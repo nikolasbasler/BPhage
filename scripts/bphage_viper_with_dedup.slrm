@@ -3,7 +3,7 @@
 #SBATCH --cluster=genius
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=36
-#SBATCH --time=24:00:00
+#SBATCH --time=8:00:00
 #SBATCH --account=lp_jm_virome_group
 
 # Submit this as a job array (from output/slurm_log)
