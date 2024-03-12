@@ -1,0 +1,33 @@
+#!/bin/bash -l
+#SBATCH --job-name="bee_ref_genome"
+#SBATCH --cluster=genius
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=36
+#SBATCH --mem-per-cpu=4G
+#SBATCH --time=4:00:00
+#SBATCH --account=lp_jm_virome_group
+
+###############################################################################
+
+# Submit (from output/slurm_log)
+# sbatch ../../scripts/download_bee_ref_genome.slrm
+
+source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
+conda activate ncbi
+
+
+mkdir -p $VSC_SCRATCH/BPhage/ref
+cd $VSC_SCRATCH/BPhage/ref
+
+## Download from NCBI
+datasets download genome accession GCF_003254395.2
+unzip ncbi_dataset.zip
+mv ncbi_dataset/data/GCF_003254395.2/GCF_003254395.2_Amel_HAv3.1_genomic.fna .
+rm -r ncbi_dataset*
+rm README.md
+
+bowtie2-build --threads 36 GCF_003254395.2_Amel_HAv3.1_genomic.fna GCF_003254395.2_Amel_HAv3.1_genomic.fna
+
+echo "========================================================================"
+duration=$SECONDS
+printf 'Job finished in: %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))

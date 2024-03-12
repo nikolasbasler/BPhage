@@ -50,11 +50,12 @@ printf "\n"
 
 # Run viper.sh script with desired options
 viper.sh -1 raw/$line.dedup.R1.fastq.gz -2 raw/$line.dedup.R2.fastq.gz \
-    -p /staging/leuven/stg_00029/DB/trimmomatic/primer_WTA2_Nextera.fa --triple-assembly -o viper_output/${line} \
+    -g $VSC_SCRATCH/BPhage/ref/Amel_HAv3.1_genomic.fna \
+    -p /staging/leuven/stg_00029/DB/trimmomatic/primer_WTA2_Nextera.fa --triple-assembly -o viper_output/bphage_${line} \
     -d /staging/leuven/stg_00029/DB/nr/nr_20231025/nr.dmnd -t $SLURM_JOB_CPUS_PER_NODE --cluster-cover 85 \
     --cluster-identity 95 --keep-reads --name $line --identify-proviruses --checkv-db /staging/leuven/stg_00029/DB/CheckV/checkv-db-v1.5 \
     --genomad-db /staging/leuven/stg_00029/DB/genomad/genomad_db_1.7
 
 echo "========================================================================"
 duration=$SECONDS
-printf 'Runtime: %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))
+printf 'Job finished in: %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))
