@@ -26,6 +26,7 @@ mv ncbi_dataset/data/GCF_003254395.2/GCF_003254395.2_Amel_HAv3.1_genomic.fna .
 rm -r ncbi_dataset*
 rm README.md
 
+conda activate viper_bphage
 bowtie2-build --threads 36 GCF_003254395.2_Amel_HAv3.1_genomic.fna GCF_003254395.2_Amel_HAv3.1_genomic.fna
 
 echo "========================================================================"
