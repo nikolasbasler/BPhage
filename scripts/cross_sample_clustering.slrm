@@ -1,0 +1,32 @@
+#!/bin/bash -l
+#SBATCH --job-name="cross_sample_clustering"
+#SBATCH --cluster=genius
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=36
+#SBATCH --mem-per-cpu=4G
+#SBATCH --time=72:00:00
+#SBATCH --account=lp_jm_virome_group
+
+###############################################################################
+
+# Submit (from output/slurm_log)
+# sbatch ../../scripts/cross_sample_clustering.slrm
+
+source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
+conda activate viper_bphage
+
+mkdir -p $VSC_SCRATCH/BPhage/clustering/
+cd $VSC_SCRATCH/BPhage/clustering/
+
+unpigz -p 34 $VSC_STAGING/BPhage/bphage_viper_output/CONTIG/*500.contigs.fasta.gz | \
+    seqkit seq --min-len 1000 > temp.bphage_ALL_1kb.fasta
+unpigz -p 34 $VSC_STAGING/BPhage/bphage_viper_output/CONTIG/*500_re-include.fasta.gz | \
+    seqkit seq --min-len 1000 > temp.bphage_ALL_1kb.re-include.fasta
+
+viper_cluster_study.py -c temp.bphage_ALL_1kb.fasta -r temp.bphage_ALL_1kb.re-include.fasta \
+    -t 36 -o bphage_ALL_1kb_cross
+
+
+echo "========================================================================"
+duration=$SECONDS
+printf 'Job finished in: %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))

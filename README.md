@@ -1,7 +1,7 @@
 # BPhage data analysis
 ## Versions
-- Viper
-- etc.
+- Viper version 2 (commit 8244c2eeeebeb2c1fbe4082034ca329e6f0a4a10 13 March 2024)
+- For software versions see [data/viper_bphage_env.yml](data/viper_bphage_env.yml)
 
 ## 
 ## Script order

@@ -1,0 +1,20 @@
+#!/bin/bash -l
+#SBATCH --job-name="job_name"
+#SBATCH --cluster=genius
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=8
+#SBATCH --mem-per-cpu=4G
+#SBATCH --time=6:00:00
+#SBATCH --account=lp_jm_virome_group
+
+###############################################################################
+
+# Submit (from output/slurm_log)
+# sbatch ../../scripts/slurm_template.slrm
+
+source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
+conda activate viper_bphage
+
+echo "========================================================================"
+duration=$SECONDS
+printf 'Job finished in: %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))

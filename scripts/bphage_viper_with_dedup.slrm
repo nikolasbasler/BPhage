@@ -12,7 +12,7 @@
 line=$(head -n $SLURM_ARRAY_TASK_ID $VSC_STAGING/BPhage/data/BPhage.sample.list | tail -n1)
 
 # Move to wherever your files are
-mkdir -p $VSC_SCRATCH/BPhage/viper_output
+mkdir -p $VSC_SCRATCH/BPhage/bphage_viper_output
 cd $VSC_SCRATCH/BPhage/
 
 # Activate conda environment
