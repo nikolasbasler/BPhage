@@ -1,6 +1,6 @@
 # BPhage data analysis
 ## Versions
-- Viper version 2 (commit 8244c2eeeebeb2c1fbe4082034ca329e6f0a4a10 13 March 2024)
+- Viper version 2.1 (commit 8244c2eeeebeb2c1fbe4082034ca329e6f0a4a10 13 March 2024)
 - For software versions see [data/viper_bphage_env.yml](data/viper_bphage_env.yml)
 
 ## 
@@ -16,5 +16,10 @@
         - Raw read data in `$VSC_SCRATCH/BPhage/raw`
     - Output: Trimmed reads, trimmed host-removed reads, assembly. No Krona (done before with previous version).
 - Re-organise ViPER output: `reorganise_viper_output.slrm`
-    - Requires: `data/BPhage.sample.list`
+    - Requires: 
+        - `data/BPhage.sample.list`
+        - ViPER output
     - Output: Oririnal files from each sample's viper output are moved into a common `CONTIG`, `QC/FASTQC` (also with multiqc) `QC/QUAST` and `READ` (containing deduped trimmed and hostout reads) folders. 
+- Cross sample clustering: `cross_sample_clustering.slrm`
+    - Requires: Re-organised ViPER assemblies in `$VSC_STAGING/BPhage/bphage_viper_output/CONTIG/`
+    - Output: Cross-sampled file: `bphage_ALL_1kb_cross_95-85.fasta.gz`, `bphage_ALL_1kb_cross_95-85_clusters.tsv.gz`

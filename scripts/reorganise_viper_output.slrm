@@ -17,35 +17,34 @@ conda activate viper_bphage
 
 
 cd $VSC_SCRATCH/BPhage/bphage_viper_output
-# mkdir -p CONTIGS
-# mkdir -p QC/FASTQC
-# mkdir -p QC/QUAST
-# mkdir -p READ
+mkdir -p CONTIGS
+mkdir -p QC/FASTQC
+mkdir -p QC/QUAST
+mkdir -p READ
 
-# while read sample; do
-#     # CONTIG
-#     pigz -p 8 --best $sample/CONTIGS/*fasta
-#     mv $sample/CONTIGS/*fasta.gz CONTIGS
-#     mv $sample/CONTIGS/*.tsv CONTIGS
+while read sample; do
+    # CONTIG
+    pigz -p 8 --best $sample/CONTIGS/*fasta
+    mv $sample/CONTIGS/*fasta.gz CONTIGS
+    mv $sample/CONTIGS/*.tsv CONTIGS
     
-#     # QC
-#     mv $sample/QC/FASTQC/* QC/FASTQC
-#     mv $sample/QC/QUAST/report.tsv QC/QUAST/${sample}.quast.report.tsv
+    # QC
+    mv $sample/QC/FASTQC/* QC/FASTQC
+    mv $sample/QC/QUAST/report.tsv QC/QUAST/${sample}.quast.report.tsv
 
-#     # READ
-#     mv $sample/READ/TRIMMED/*Hostout* READ/
-#     mv $sample/READ/TRIMMED/*trimmed* READ/
+    # READ
+    mv $sample/READ/TRIMMED/*Hostout* READ/
+    mv $sample/READ/TRIMMED/*trimmed* READ/
     
-# done < $VSC_STAGING/BPhage/data/temp.list
+done < $VSC_STAGING/BPhage/data/BPhage.sample.list
 
 multiqc --outdir QC/FASTQC/ QC/FASTQC
 
 # Copy re-organised output to staging
-# mkdir -p $VSC_STAGING/BPhage/output/bphage_viper_output
-# cp -r CONTIGS $VSC_STAGING/BPhage/output/bphage_viper_output
-# cp -r QC $VSC_STAGING/BPhage/output/bphage_viper_output
-# cp -r READ $VSC_STAGING/BPhage/output/bphage_viper_output
-
+mkdir -p $VSC_STAGING/BPhage/output/bphage_viper_output
+cp -r CONTIGS $VSC_STAGING/BPhage/output/bphage_viper_output
+cp -r QC $VSC_STAGING/BPhage/output/bphage_viper_output
+cp -r READ $VSC_STAGING/BPhage/output/bphage_viper_output
 
 echo "========================================================================"
 duration=$SECONDS

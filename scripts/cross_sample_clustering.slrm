@@ -18,14 +18,18 @@ conda activate viper_bphage
 mkdir -p $VSC_SCRATCH/BPhage/clustering/
 cd $VSC_SCRATCH/BPhage/clustering/
 
-unpigz -p 34 $VSC_STAGING/BPhage/bphage_viper_output/CONTIG/*500.contigs.fasta.gz | \
+unpigz -c -p 34 $VSC_STAGING/BPhage/output/bphage_viper_output/CONTIGS/*500.contigs.fasta.gz | \
     seqkit seq --min-len 1000 > temp.bphage_ALL_1kb.fasta
-unpigz -p 34 $VSC_STAGING/BPhage/bphage_viper_output/CONTIG/*500_re-include.fasta.gz | \
+unpigz -c -p 34 $VSC_STAGING/BPhage/output/bphage_viper_output/CONTIGS/*500_re-include.fasta.gz | \
     seqkit seq --min-len 1000 > temp.bphage_ALL_1kb.re-include.fasta
 
 viper_cluster_study.py -c temp.bphage_ALL_1kb.fasta -r temp.bphage_ALL_1kb.re-include.fasta \
     -t 36 -o bphage_ALL_1kb_cross
 
+rm temp.*
+
+pigz -c -p 36 bphage_ALL_1kb_cross_95-85.fasta > $VSC_STAGING/BPhage/output/bphage_ALL_1kb_cross_95-85.fasta.gz
+pigz -c -p 36 bphage_ALL_1kb_cross_95-85_clusters.tsv > $VSC_STAGING/BPhage/output/bphage_ALL_1kb_cross_95-85_clusters.tsv.gz
 
 echo "========================================================================"
 duration=$SECONDS
