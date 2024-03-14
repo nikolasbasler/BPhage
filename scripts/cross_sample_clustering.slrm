@@ -5,7 +5,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=36
 #SBATCH --mem-per-cpu=20G
-#SBATCH --time=72:00:00
+#SBATCH --time=6:00:00
 #SBATCH --account=lp_jm_virome_group
 
 ###############################################################################
@@ -28,6 +28,8 @@ viper_cluster_study.py -c temp.bphage_ALL_1kb.fasta -r temp.bphage_ALL_1kb.re-in
     -t 36 -o bphage_ALL_1kb_cross
 
 rm temp.*
+
+mv bphage_ALL_1kb_cross_clusters.tsv bphage_ALL_1kb_cross_95-85_clusters.tsv # Not necessary with newest ViPER version
 
 pigz -c -p 36 bphage_ALL_1kb_cross_95-85.fasta > $VSC_STAGING/BPhage/output/bphage_ALL_1kb_cross_95-85.fasta.gz
 pigz -c -p 36 bphage_ALL_1kb_cross_95-85_clusters.tsv > $VSC_STAGING/BPhage/output/bphage_ALL_1kb_cross_95-85_clusters.tsv.gz
