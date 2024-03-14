@@ -4,7 +4,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=36
 #SBATCH --mem-per-cpu=4G
-#SBATCH --time=12:00:00
+#SBATCH --time=3:00:00
 #SBATCH --account=lp_jm_virome_group
 
 ###############################################################################
@@ -22,6 +22,7 @@ checkv end_to_end $VSC_STAGING/BPhage/output/bphage_ALL_1kb_cross_95-85.fasta.gz
     bphage_ALL_1kb_checkv -d /staging/leuven/stg_00029/DB/CheckV/checkv-db-v1.5 \
     --remove_tmp -t 36 
 
+pigz --best -p 36 bphage_ALL_1kb_checkv/*
 cp -r bphage_ALL_1kb_checkv $VSC_STAGING/BPhage/output
 
 echo "========================================================================"

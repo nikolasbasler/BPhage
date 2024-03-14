@@ -29,3 +29,12 @@
 - geNomad (can be done in parallel with CheckV): `genomad.slrm`
     - Requires: Cross-sample clustered contigs: `output/bphage_ALL_1kb_cross_95-85.fasta.gz`
     - Output: `output/bphage_ALL_1kb_genomad`
+- Filter for >= 50% complete phages: `filter_classification.slrm`
+    - Requires: 
+        - Cross-sample clustered contigs: `output/bphage_ALL_1kb_cross_95-85.fasta.gz`
+        - CheckV output
+        - geNomad output
+        - List of phage-exclusive taxonomic ranks. Derived from ICTV's VMR table (`VMR_MSL38_v2.xlsx` downloaded from https://ictv.global/vmr on 14 March 2024). The list contains the highest taxonomic rank that exclusively contains bacteria-infecting viruses (2 kingdoms, 3 classes, 3 orders, 42 families)
+    - Output: 
+        - Fasta file with >= 50%-complete phages
+        - Fasta file with >= 50%-complete unclassified viruses (containing contigs that are either "Unclassified" or classified only as "Viruses")
