@@ -34,7 +34,7 @@
         - Cross-sample clustered contigs: `output/bphage_ALL_1kb_cross_95-85.fasta.gz`
         - CheckV output
         - geNomad output
-        - ICTV's VMR table: `data/VMR_MSL38_v2.csv` (derived from `VMR_MSL38_v2.xlsx`, downloaded from https://ictv.global/vmr on 14 March 2024)
+        - ICTV's VMR table: `data/VMR_19-250422_MSL37.xlsx` (downloaded from https://ictv.global/vmr on 14 March 2024)
         - R script to do the actual filtering: `filter_classification.R` (called by the slrum script)
     - Output: 
         - Fasta file and merged genomad and checkv table with >= 50%-complete phages
