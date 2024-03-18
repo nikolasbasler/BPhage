@@ -18,6 +18,9 @@
 source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate viper_bphage
 
+#line=$(head -n $SLURM_ARRAY_TASK_ID sample.list | tail -n1)
+
+
 echo "========================================================================"
 duration=$SECONDS
 printf 'Job finished in: %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))
