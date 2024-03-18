@@ -1,0 +1,11 @@
+name: ncbi
+channels:
+  - bioconda
+  - defaults
+  - conda-forge
+  - nodefaults
+dependencies:
+  - ca-certificates=2023.12.12=h06a4308_0
+  - ncbi-datasets-cli=16.6.0=ha770c72_0
+  - taxonkit=0.16.0=h9ee0642_0
+prefix: /data/leuven/341/vsc34111/mambaforge/envs/ncbi
