@@ -45,6 +45,7 @@ mkdir -p $VSC_STAGING/BPhage/output/bphage_viper_output
 cp -r CONTIGS $VSC_STAGING/BPhage/output/bphage_viper_output
 cp -r QC $VSC_STAGING/BPhage/output/bphage_viper_output
 cp -r READ $VSC_STAGING/BPhage/output/bphage_viper_output
+cp ../raw/*_reads.tsv $VSC_STAGING/BPhage/output/bphage_viper_output/READ
 
 echo "========================================================================"
 duration=$SECONDS
