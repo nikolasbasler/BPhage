@@ -10,9 +10,6 @@ suppressMessages(library(tidyverse))
 args <- commandArgs(trailingOnly = TRUE)
 
 # Load genomad output and append lowest classified taxon 
-# bphage_ALL_1kb_cross_95.85_virus_summary.tsv <- read.delim("~/Desktop/temp/bphage_ALL_1kb_cross_95-85_virus_summary.tsv.gz") %>%
-#   mutate(lowest_taxon = str_split(taxonomy, ";") %>% sapply(function(x) tail(x, n = 1)))
-
 bphage_ALL_1kb_cross_95.85_virus_summary.tsv <- read.delim(args[1]) %>%
   mutate(lowest_taxon = str_split(taxonomy, ";") %>% sapply(function(x) tail(x, n = 1)))
 
