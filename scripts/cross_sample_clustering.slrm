@@ -15,13 +15,14 @@
 
 source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate viper_bphage
+repo_location="$VSC_STAGING/BPhage"
 
 mkdir -p $VSC_SCRATCH/BPhage/clustering/
 cd $VSC_SCRATCH/BPhage/clustering/
 
-unpigz -c -p 34 $VSC_STAGING/BPhage/output/bphage_viper_output/CONTIGS/*500.contigs.fasta.gz | \
+unpigz -c -p 34 $repo_location/output/bphage_viper_output/CONTIGS/*500.contigs.fasta.gz | \
     seqkit seq --min-len 1000 > temp.bphage_ALL_1kb.fasta
-unpigz -c -p 34 $VSC_STAGING/BPhage/output/bphage_viper_output/CONTIGS/*500_re-include.fasta.gz | \
+unpigz -c -p 34 $repo_location/output/bphage_viper_output/CONTIGS/*500_re-include.fasta.gz | \
     seqkit seq --min-len 1000 > temp.bphage_ALL_1kb.re-include.fasta
 
 viper_cluster_study.py -c temp.bphage_ALL_1kb.fasta -r temp.bphage_ALL_1kb.re-include.fasta \
@@ -31,8 +32,8 @@ rm temp.*
 
 mv bphage_ALL_1kb_cross_clusters.tsv bphage_ALL_1kb_cross_95-85_clusters.tsv # Not necessary with newest ViPER version
 
-pigz -c -p 36 bphage_ALL_1kb_cross_95-85.fasta > $VSC_STAGING/BPhage/output/bphage_ALL_1kb_cross_95-85.fasta.gz
-pigz -c -p 36 bphage_ALL_1kb_cross_95-85_clusters.tsv > $VSC_STAGING/BPhage/output/bphage_ALL_1kb_cross_95-85_clusters.tsv.gz
+pigz -c -p 36 bphage_ALL_1kb_cross_95-85.fasta > $repo_location/output/bphage_ALL_1kb_cross_95-85.fasta.gz
+pigz -c -p 36 bphage_ALL_1kb_cross_95-85_clusters.tsv > $repo_location/output/bphage_ALL_1kb_cross_95-85_clusters.tsv.gz
 
 echo "========================================================================"
 duration=$SECONDS

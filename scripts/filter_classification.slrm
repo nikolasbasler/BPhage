@@ -15,6 +15,7 @@
 
 source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate r_bphage
+repo_location="$VSC_STAGING/BPhage"
 
 mkdir -p $VSC_SCRATCH/BPhage/filter_classification
 cd $VSC_SCRATCH/BPhage/filter_classification
@@ -23,26 +24,26 @@ cd $VSC_SCRATCH/BPhage/filter_classification
 # Caudoviricetes are included in the phage output table although some Caudos infect archaea. I have no
 # indication of archaea present in my dataset, though. 
 # Mind the order of these arguments and ignore weird warning messages about the timezone not being configured...
-Rscript $VSC_STAGING/BPhage/scripts/filter_classification.R \
-    $VSC_STAGING/BPhage/output/bphage_ALL_1kb_genomad/bphage_ALL_1kb_cross_95-85_summary/bphage_ALL_1kb_cross_95-85_virus_summary.tsv.gz \
-    $VSC_STAGING/BPhage/output/bphage_ALL_1kb_checkv/quality_summary.tsv.gz \
-    $VSC_STAGING/BPhage/data/VMR_19-250422_MSL37.xlsx \
+Rscript $repo_location/scripts/filter_classification.R \
+    $repo_location/output/bphage_ALL_1kb_genomad/bphage_ALL_1kb_cross_95-85_summary/bphage_ALL_1kb_cross_95-85_virus_summary.tsv.gz \
+    $repo_location/output/bphage_ALL_1kb_checkv/quality_summary.tsv.gz \
+    $repo_location/data/VMR_19-250422_MSL37.xlsx \
     bphage_ALL_1kb
 
 conda activate viper_bphage
 
 # Make fasta file for phages
 cut -d',' -f1 bphage_ALL_1kb_phages.csv | sed 1d > temp.phage.contigs
-zcat $VSC_STAGING/BPhage/output/bphage_ALL_1kb_cross_95-85.fasta.gz | seqkit grep -f temp.phage.contigs > bphage_ALL_1kb_phages.fasta
+zcat $repo_location/output/bphage_ALL_1kb_cross_95-85.fasta.gz | seqkit grep -f temp.phage.contigs > bphage_ALL_1kb_phages.fasta
 
 # Make fasta file for unclassified viruses
 cut -d',' -f1 bphage_ALL_1kb_unclassified_viruses.csv | sed 1d > temp.unclassified.contigs
-zcat $VSC_STAGING/BPhage/output/bphage_ALL_1kb_cross_95-85.fasta.gz | seqkit grep -f temp.unclassified.contigs > bphage_ALL_1kb_unclassified_viruses.fasta
+zcat $repo_location/output/bphage_ALL_1kb_cross_95-85.fasta.gz | seqkit grep -f temp.unclassified.contigs > bphage_ALL_1kb_unclassified_viruses.fasta
 
 # Copy output
 gzip *fasta
-cp *.fasta.gz $VSC_STAGING/BPhage/output
-cp *.csv $VSC_STAGING/BPhage/output
+cp *.fasta.gz $repo_location/output
+cp *.csv $repo_location/output
 
 # Clean up
 rm temp.*

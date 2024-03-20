@@ -9,7 +9,9 @@
 # Submit this as a job array (from output/slurm_log)
 # sbatch --array=1-471 --export=ALL ../../scripts/bphage_viper_with_dedup.slrm
 
-line=$(head -n $SLURM_ARRAY_TASK_ID $VSC_STAGING/BPhage/data/BPhage.sample.list | tail -n1)
+repo_location="$VSC_STAGING/BPhage"
+
+line=$(head -n $SLURM_ARRAY_TASK_ID $repo_location/data/BPhage.sample.list | tail -n1)
 
 # Move to wherever your files are
 mkdir -p $VSC_SCRATCH/BPhage/bphage_viper_output

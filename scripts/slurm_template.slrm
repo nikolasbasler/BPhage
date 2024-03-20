@@ -18,6 +18,7 @@
 
 source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate viper_bphage
+repo_location="$VSC_STAGING/BPhage"
 
 #line=$(head -n $SLURM_ARRAY_TASK_ID sample.list | tail -n1)
 
