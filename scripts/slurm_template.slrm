@@ -7,7 +7,7 @@
 #SBATCH --time=6:00:00
 #SBATCH --account=lp_jm_virome_group
 #SBATCH --output=slurm-%x_%j.out # <------- Normal Job. CHOSE ONE! 
-#SBATCH --output=slurm-%x_%A_%a.out# <-------Array. CHOSE ONE! 
+#SBATCH --output=slurm-%x_%a_%A.out # <-------Array. CHOSE ONE! 
 
 ###############################################################################
 

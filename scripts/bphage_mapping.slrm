@@ -1,0 +1,59 @@
+#!/bin/bash -l
+#SBATCH --job-name="bphage_mapping"
+#SBATCH --cluster=genius
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=12
+#SBATCH --mem-per-cpu=4G
+#SBATCH --time=30:00
+#SBATCH --account=lp_jm_virome_group
+#SBATCH --output=slurm-%x_%a_%A.out
+
+###############################################################################
+
+# Submit (from output/slurm_log)
+# sbatch --array=1-471 --export=ALL ../../scripts/bphage_mapping.slrm
+
+source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
+conda activate viper_bphage
+repo_location="$VSC_STAGING/BPhage"
+line=$(head -n $SLURM_ARRAY_TASK_ID $repo_location/data/BPhage.sample.list | tail -n1)
+threads=12
+
+mkdir -p $VSC_SCRATCH/BPhage/mapped
+cd $VSC_SCRATCH/BPhage/mapped
+
+ref="$VSC_SCRATCH/BPhage/ref/bphage_mapping_ref.fasta"
+read_folder="$repo_location/output/bphage_viper_output/READ"
+
+# Map paired reads
+bwa-mem2 mem "$ref" \
+    $repo_location/output/bphage_viper_output/READ/${line}.Hostout.R1.fastq.gz \
+    $repo_location/output/bphage_viper_output/READ/${line}.Hostout.R2.fastq.gz \
+    -t $threads | samtools sort -o ${line}.R.sort.bam
+
+# Map unpaired reads
+bwa-mem2 mem "$ref" \
+    $repo_location/output/bphage_viper_output/READ/${line}.Hostout.unpaired.fastq.gz \
+    -t $threads | samtools sort -o ${line}.un.sort.bam
+
+# Merge bam files from paired and unpaired reads
+samtools merge -@ $threads -f ${line}.bphage.bam \
+    ${line}.R.sort.bam ${line}.un.sort.bam
+
+# Index bam files and record stats
+samtools index -@ $threads ${line}.bphage.bam
+samtools coverage ${line}.bphage.bam | pigz -c -p 12 > ${line}.bphage.coverage.gz
+
+# Copy restults to staging
+mkdir -p $repo_location/output/mapped
+cp ${line}.bphage.bam* $repo_location/output/mapped
+cp ${line}.bphage.coverage.gz $repo_location/output/mapped
+
+# Clean up
+rm ${line}.R.sort.bam 
+rm ${line}.un.sort.bam
+
+
+echo "========================================================================"
+duration=$SECONDS
+printf 'Job finished in: %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))

@@ -37,6 +37,18 @@
         - ICTV's VMR table: `data/VMR_19-250422_MSL37.xlsx` (downloaded from https://ictv.global/vmr on 14 March 2024)
         - R script to do the actual filtering: `filter_classification.R` (called by the slrum script)
     - Output: 
-        - Fasta file and merged genomad and checkv table with >= 50%-complete phages
-        - Fasta file and merged genomad and checkv table with >= 50%-complete unclassified viruses (containing contigs that are either "Unclassified" or classified only as "Viruses")
-- Mapping (can be done in parallel with geNomad and CheckV):
+        - Fasta file and merged genomad and checkv table with >= 50%-complete phages: `bphage_ALL_1kb_phages`
+        - Fasta file and merged genomad and checkv table with >= 50%-complete unclassified viruses (containing contigs that are either "Unclassified" or classified only as "Viruses"): `bphage_ALL_1kb_unclassified_viruses`
+- Prepare mapping: `prepare_mapping.slrm`
+    - Requires: 
+        - Phage contigs at `output/bphage_ALL_1kb_phages.fasta.gz`
+        - Unclassified virus contigs at `output/bphage_ALL_1kb_unclassified_viruses.fasta.gz`
+        - Genomad summary to get a list of Picobirnaviridae contigs: `output/bphage_ALL_1kb_genomad/bphage_ALL_1kb_cross_95-85_summary/bphage_ALL_1kb_cross_95-85_virus_summary.tsv.gz`
+        - Entire assembly to filter out Picornavirales contigs: `output/bphage_ALL_1kb_cross_95-85.fasta.gz`
+    - Output: bwa-indexed mapping ref containing all contigs identified as phage, unclassified viruses and Picovridae contigs: `$VSC_SCRATCH/BPhage/ref/bphage_mapping_ref.fasta`
+- Mapping: `bphage_mapping.slrm`
+    - Requires: 
+        - bwa-indexed mapping ref at `$VSC_SCRATCH/BPhage/ref/bphage_mapping_ref.fasta`
+    - Output: 
+        - Mapping alignments in `output/mapped`
+        - Mapping stats in `output/mapped`
