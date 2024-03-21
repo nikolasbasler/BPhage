@@ -48,7 +48,16 @@
     - Output: bwa-indexed mapping ref containing all contigs identified as phage, unclassified viruses and Picovridae contigs: `$VSC_SCRATCH/BPhage/ref/bphage_mapping_ref.fasta`
 - Mapping: `bphage_mapping.slrm`
     - Requires: 
+        - `data/BPhage.sample.list`
         - bwa-indexed mapping ref at `$VSC_SCRATCH/BPhage/ref/bphage_mapping_ref.fasta`
     - Output: 
         - Mapping alignments in `output/mapped`
         - Mapping stats in `output/mapped`
+- Gather mapping stats: `gather_mapping_stats.slrm`
+    - Requires:
+        - `data/BPhage.sample.list`
+        - Mapping stats of individual samples in `output/mapped/`
+        - Mapping ref to get the complete contig list: `$VSC_SCRATCH/BPhage/ref/bphage_mapping_ref.fasta`
+    - Output:
+        - Separate tables for mapped reads, horizontal coverage and mean depth (samples in columns, contigs in rows) and a table with all contig lengths in `output/mapping_stats`
+    
