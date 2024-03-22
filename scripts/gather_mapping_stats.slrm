@@ -47,7 +47,7 @@ done < $repo_location/data/BPhage.sample.list
 
 # Contig lengths
 zcat ../mapped/$(head -n1 $repo_location/data/BPhage.sample.list).bphage.coverage.gz | \
-    cut -f1,3 | sed 1d | sort -k1,1 | sed 's/\t/,/g' | sed "1s/^/contig,length\n/" > contig_lentghs.csv
+    cut -f1,3 | sed 1d | sort -k1,1 | sed 's/\t/,/g' | sed "1s/^/contig,length\n/" > phages.contig_lentghs.csv
 
 # Clean up
 rm temp.*
