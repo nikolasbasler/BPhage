@@ -22,27 +22,27 @@ cd $repo_location/output/phages/mapping_stats_phages
 
 echo "contig" > temp.contig.list
 grep ">" $VSC_SCRATCH/BPhage/ref/bphage_mapping_ref.fasta | sed 's/^>//' | sort >> temp.contig.list
-cp temp.contig.list stats.mapped_reads.csv
-cp temp.contig.list stats.horizontal_coverage.csv
-cp temp.contig.list stats.mean_depth.csv
+cp temp.contig.list stats.phages.mapped_reads.csv
+cp temp.contig.list stats.phages.horizontal_coverage.csv
+cp temp.contig.list stats.phages.mean_depth.csv
 
 while read line; do 
     echo $line
 
     # Mapped reads
     zcat ../mapped/${line}.bphage.coverage.gz | cut -f1,4 | sed 1d | sort -k1,1 | sed 's/\t/,/g' | \
-        sed "1s/^/contig,${line}\n/" | join --header -t "," stats.mapped_reads.csv - > temp.stats
-    mv temp.stats stats.mapped_reads.csv
+        sed "1s/^/contig,${line}\n/" | join --header -t "," stats.phages.mapped_reads.csv - > temp.stats
+    mv temp.stats stats.phages.mapped_reads.csv
 
     # Horizontal coverage
     zcat ../mapped/${line}.bphage.coverage.gz | cut -f1,6 | sed 1d | sort -k1,1 | sed 's/\t/,/g' | \
-        sed "1s/^/contig,${line}\n/" | join --header -t "," stats.horizontal_coverage.csv - > temp.stats
-    mv temp.stats stats.horizontal_coverage.csv
+        sed "1s/^/contig,${line}\n/" | join --header -t "," stats.phages.horizontal_coverage.csv - > temp.stats
+    mv temp.stats stats.phages.horizontal_coverage.csv
 
     # Mean depth
     zcat ../mapped/${line}.bphage.coverage.gz | cut -f1,7 | sed 1d | sort -k1,1 | sed 's/\t/,/g' | \
-        sed "1s/^/contig,${line}\n/" | join --header -t "," stats.mean_depth.csv - > temp.stats
-    mv temp.stats stats.mean_depth.csv    
+        sed "1s/^/contig,${line}\n/" | join --header -t "," stats.phages.mean_depth.csv - > temp.stats
+    mv temp.stats stats.phages.mean_depth.csv    
 done < $repo_location/data/BPhage.sample.list
 
 # Contig lengths
