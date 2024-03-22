@@ -44,7 +44,7 @@
         - Phage contigs at `output/phages/bphage_ALL_1kb_phages.fasta.gz`
         - Unclassified virus contigs at `output/phages/bphage_ALL_1kb_unclassified_viruses.fasta.gz`
         - Genomad summary to get a list of Picobirnaviridae contigs: `output/phages/bphage_ALL_1kb_genomad/bphage_ALL_1kb_cross_95-85_summary/bphage_ALL_1kb_cross_95-85_virus_summary.tsv.gz`
-        - Entire assembly to add Picornavirales contigs: `output/bphage_ALL_1kb_cross_95-85.fasta.gz`
+        - Entire assembly to add Picornaviridae contigs: `output/bphage_ALL_1kb_cross_95-85.fasta.gz`
     - Output: bwa-indexed mapping ref containing all contigs identified as phage, unclassified viruses and Picovridae contigs: `$VSC_SCRATCH/BPhage/ref/bphage_mapping_ref.fasta`
 - Mapping: `bphage_mapping.slrm`
     - Requires: 
