@@ -19,11 +19,10 @@ repo_location="$VSC_STAGING/BPhage"
 line=$(head -n $SLURM_ARRAY_TASK_ID $repo_location/data/BPhage.sample.list | tail -n1)
 threads=12
 
-mkdir -p $VSC_SCRATCH/BPhage/mapped
-cd $VSC_SCRATCH/BPhage/mapped
+mkdir -p $VSC_SCRATCH/BPhage/phages/mapped_phages
+cd $VSC_SCRATCH/BPhage/phages/mapped_phages
 
 ref="$VSC_SCRATCH/BPhage/ref/bphage_mapping_ref.fasta"
-read_folder="$repo_location/output/bphage_viper_output/READ"
 
 # Map paired reads
 bwa-mem2 mem "$ref" \
@@ -45,9 +44,9 @@ samtools index -@ $threads ${line}.bphage.bam
 samtools coverage ${line}.bphage.bam | pigz -c -p 12 > ${line}.bphage.coverage.gz
 
 # Copy restults to staging
-mkdir -p $repo_location/output/mapped
-cp ${line}.bphage.bam* $repo_location/output/mapped
-cp ${line}.bphage.coverage.gz $repo_location/output/mapped
+mkdir -p $repo_location/output/phages/mapped_phages
+cp ${line}.bphage.bam* $repo_location/output/phages/mapped_phages
+cp ${line}.bphage.coverage.gz $repo_location/output/phages/mapped_phages
 
 # Clean up
 rm ${line}.R.sort.bam 

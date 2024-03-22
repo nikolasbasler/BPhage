@@ -25,7 +25,7 @@ checkv end_to_end $repo_location/output/bphage_ALL_1kb_cross_95-85.fasta.gz \
     --remove_tmp -t 36 
 
 pigz --best -p 36 bphage_ALL_1kb_checkv/*
-cp -r bphage_ALL_1kb_checkv $repo_location/output
+cp -r bphage_ALL_1kb_checkv $repo_location/output/phages
 
 echo "========================================================================"
 duration=$SECONDS

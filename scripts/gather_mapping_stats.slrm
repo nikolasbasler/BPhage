@@ -17,8 +17,8 @@ source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate viper_bphage
 repo_location="$VSC_STAGING/BPhage"
 
-mkdir -p $repo_location/output/mapping_stats
-cd $repo_location/output/mapping_stats
+mkdir -p $repo_location/output/phages/mapping_stats_phages
+cd $repo_location/output/phages/mapping_stats_phages
 
 echo "contig" > temp.contig.list
 grep ">" $VSC_SCRATCH/BPhage/ref/bphage_mapping_ref.fasta | sed 's/^>//' | sort >> temp.contig.list
