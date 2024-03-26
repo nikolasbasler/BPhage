@@ -11,7 +11,7 @@
 ###############################################################################
 
 # Submit (from output/slurm_log)
-# sbatch ../../scripts/filter_classification.slrm
+# sbatch ../../scripts/HPC/filter_classification.slrm
 
 source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate r_bphage
@@ -24,7 +24,7 @@ cd $VSC_SCRATCH/BPhage/filter_classification
 # Caudoviricetes are included in the phage output table although some Caudos infect archaea. I have no
 # indication of archaea present in my dataset, though. 
 # Mind the order of these arguments and ignore weird warning messages about the timezone not being configured...
-Rscript $repo_location/scripts/filter_classification.R \
+Rscript $repo_location/scripts/HPC/filter_classification.R \
     $repo_location/output/phages/bphage_ALL_1kb_genomad/bphage_ALL_1kb_cross_95-85_summary/bphage_ALL_1kb_cross_95-85_virus_summary.tsv.gz \
     $repo_location/output/phages/bphage_ALL_1kb_checkv/quality_summary.tsv.gz \
     $repo_location/data/VMR_19-250422_MSL37.xlsx \

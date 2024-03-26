@@ -11,7 +11,7 @@
 ###############################################################################
 
 # Submit (from output/slurm_log)
-# sbatch --export=ALL ../../scripts/prepare_mapping.slrm
+# sbatch --export=ALL ../../scripts/HPC/prepare_mapping.slrm
 
 source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate viper_bphage

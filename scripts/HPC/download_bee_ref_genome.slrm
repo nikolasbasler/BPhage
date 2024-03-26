@@ -10,7 +10,7 @@
 ###############################################################################
 
 # Submit (from output/slurm_log)
-# sbatch ../../scripts/download_bee_ref_genome.slrm
+# sbatch ../../scripts/HPC/download_bee_ref_genome.slrm
 
 source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate ncbi

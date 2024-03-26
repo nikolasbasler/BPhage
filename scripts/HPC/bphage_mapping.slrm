@@ -11,7 +11,7 @@
 ###############################################################################
 
 # Submit (from output/slurm_log)
-# sbatch --array=1-471 --export=ALL ../../scripts/bphage_mapping.slrm
+# sbatch --array=1-471 --export=ALL ../../scripts/HPC/bphage_mapping.slrm
 
 source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate viper_bphage

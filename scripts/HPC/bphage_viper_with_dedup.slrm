@@ -7,7 +7,7 @@
 #SBATCH --account=lp_jm_virome_group
 
 # Submit this as a job array (from output/slurm_log)
-# sbatch --array=1-471 --export=ALL ../../scripts/bphage_viper_with_dedup.slrm
+# sbatch --array=1-471 --export=ALL ../../scripts/HPC/bphage_viper_with_dedup.slrm
 
 repo_location="$VSC_STAGING/BPhage"
 

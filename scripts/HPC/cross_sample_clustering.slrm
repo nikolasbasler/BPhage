@@ -11,7 +11,7 @@
 ###############################################################################
 
 # Submit (from output/slurm_log)
-# sbatch ../../scripts/cross_sample_clustering.slrm
+# sbatch ../../scripts/HPC/cross_sample_clustering.slrm
 
 source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate viper_bphage
