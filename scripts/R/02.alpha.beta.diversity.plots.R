@@ -42,187 +42,62 @@ sample_order <- metadata %>%
 metadata <- metadata %>%
   mutate(Sample_ID = factor(Sample_ID, levels=sample_order))
 row.names(metadata) = metadata$Sample_ID
-classification <- read.csv("output/R/euk_filtered/euk.diamond.and.blast.classification.csv")
-contig_order <- classification %>%
-  arrange(Phylum, Class, Order, Family, Subfamily, Genus, Species) %>% 
-  select(contig) %>%
-  unlist(use.names = FALSE)
+classification <- read.csv("output/R/phage.filt.gnmd.classification.csv")
 
-classification <- classification %>%
-  mutate(contig = factor(contig, levels=contig_order)) %>%
-  filter(Species!="Apis mellifera filamentous virus")
-
-euk_abundance <- read.csv("output/R/euk_filtered/euk.abundance.contig.csv") %>%
+phage_abundance <- list()
+phage_abundance$contig <- read.csv("output/R/phage.filt.abundance.contig.csv") %>%
   select(!contains("Blank"))
-blanks_abundance <- read.csv("output/R/euk_filtered/euk.abundance.contig.csv") %>%
-  select(contig, contains("Blank"))
 
+contig_lengths <- classification %>%
+  mutate(length_kb = contig_length/1000) %>%
+  select(contig, length_kb) 
 
-## Generate abundance tables for different taxonomic levels.####
-taxlevels <- c("contig", "Species", "Genus", "Subfamily", "Family", "Order", "Class", "Phylum", "Host_group")
-euk_ab <- list()
-euk_ab = taxlevels %>%
-  set_names() %>%
-  map(~tax_sum(., ab_table=euk_abundance,
-               classif = classification))
-
-euk_lengths <- list()
-euk_lengths <- taxlevels %>%
-  set_names() %>%
-  map(~tax_lengths(., classif = classification))
-
-taxlevels <- c("contig", "Species", "Genus", "Family")
-hostgroups <- classification$Host_group %>% unique()
-euk_ab_hostgroup <- list()
-for (hostg in hostgroups) {
-  hostg_filt <- hostg_filter(hg=hostg, ab_table=euk_ab$contig,
-          classif = classification)
-  euk_ab_hostgroup[[hostg]] <- taxlevels %>%
-    set_names() %>%
-    map(~tax_sum(., ab_table=hostg_filt,
-                 classif = classification))
-}
-
-## Generate TPM tables for different taxonomic levels. ####
-euk_tpm <- list()
-for (lvl in names(euk_ab)) {
-  euk_tpm[[lvl]] <- euk_ab[[lvl]] %>% 
-    inner_join(., euk_lengths[[lvl]], by=lvl) %>%
-    calc_tpm(., lvl)
-}
-euk_tpm_hostgroup <- list()
-for (hostg in hostgroups) {
-  for (lvl in names(euk_ab_hostgroup[[hostg]])) {
-    euk_tpm_hostgroup[[hostg]][[lvl]] <- euk_ab_hostgroup[[hostg]][[lvl]] %>%
-      inner_join(., euk_lengths[[lvl]], by=lvl) %>% 
-      calc_tpm(., lvl)
-  }
-}
-
-## Make additional abundance tables with all read counts where the TPM table is below the threshold is set to 0. ####
-tpm_thresh <- 0.01
-euk_ab_filt <- list()
-for (lvl in names(euk_ab)) {
-  euk_ab_filt[[lvl]] <- euk_ab[[lvl]]
-  if (!identical(rownames(euk_tpm[[lvl]]), rownames(euk_ab_filt[[lvl]])) |
-      !identical(colnames(euk_tpm[[lvl]]), colnames(euk_ab_filt[[lvl]]))
-      ) 
-  {
-    stop("Row or column names don't match up!")
-  }
-  euk_ab_filt[[lvl]][euk_tpm[[lvl]] < tpm_thresh] <- 0
-}
-euk_ab_hostgroup_filt <- list()
-for (hostg in hostgroups) {
-  for (lvl in names(euk_ab_hostgroup[[hostg]])) {
-    euk_ab_hostgroup_filt[[hostg]][[lvl]] <- euk_ab_hostgroup[[hostg]][[lvl]]
-    if (!identical(rownames(euk_tpm_hostgroup[[hostg]][[lvl]]), rownames(euk_ab_hostgroup_filt[[hostg]][[lvl]])) |
-        !identical(colnames(euk_tpm_hostgroup[[hostg]][[lvl]]), colnames(euk_ab_hostgroup_filt[[hostg]][[lvl]]))
-        ) 
-    {
-      stop("Row or column names don't match up!")
-    }
-    euk_ab_hostgroup_filt[[hostg]][[lvl]][euk_tpm_hostgroup[[hostg]][[lvl]] < tpm_thresh] <- 0
-    
-  }
-}
-
-#------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------#
-# Cross-contamination plot from extraction plates using DWV ####
-
-spec_tpm_with_blanks <- blanks_abundance %>%
-  tax_sum("Species", ab_table=., classif = classification) %>%
-  inner_join(., euk_lengths$Species, by="Species") %>%
-  calc_tpm(., "Species") %>% 
-  inner_join(., euk_tpm$Species, by="Species")
-
-ccontam_tax <- "Deformed wing virus"
-ccontam_p <- crosscontam_plot(spec_tpm_with_blanks, classification, ccontam_tax)
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 # Set min seq thresholds for rarefaction. ####
 
-# count_stats_all <- report_stats(df = euk_ab$contig, 
-#                             thresholds=c(5069, 5740)) # First number: quantile_90_ratio < 1000, second number: quantile_95_ratio < 2500
-# min_seq_all <- 5740 # For quantile_90_ratio < 1000. 18 discarded samples (1 mid, 15 ile, 2 rec). If done on species level, the thresholds are exactly the same.
-# discarded_on_all <- discards(count_stats_all$ratios, min_seq_all)$discarded
-# lost_bees_on_all <- discards(count_stats_all$ratios, min_seq_all)$lost_bees # No bee pool lost completely. Only gut parts from differenct locations/time points.
-
-count_stats_arthro <- report_stats(df = euk_ab_hostgroup$arthropod$contig,
-                                 thresholds=c(8177, 8586)) # First number: quantile_90_ratio < 1000, second number: quantile_95_ratio < 2500
-min_seq_arthro <- 8586 # For quantile_90_ratio < 1000. 34 discarded samples (2 mid 24 ile 8 rec). If done on species level, the thresholds are again exactly the same.
-discarded_on_arthro <- discards(count_stats_arthro$ratios, min_seq_arthro)$discarded
-lost_bees_on_arthro <- discards(count_stats_arthro$ratios, min_seq_arthro)$lost_bees # Again, no bee pool lost completely. Only gut parts from differenct locations/time points.
-
-##
-# 1% TPM filter: Same thrsholds as no TPM filter
-# 2% TPM filter: Thresholds both 7752
-#       min_seq_arthro_filt <- 8177 # For quantile_90_ratio < 1000. 35 discarded samples (3 mid 24 ile 8 rec). 
-# 3% TPM filter: Thresholds both 7430
-#       min_seq_arthro_filt <- 7752 # For quantile_90_ratio < 1000. 35 discarded samples (3 mid 25 ile 7 rec). 
-
-# count_stats_arthro_filt <- report_stats(df = euk_ab_hostgroup_filt$arthropod$contig,
-#                                    thresholds=c(7430, 7430)) # First number: quantile_90_ratio < 1000, second number: quantile_95_ratio < 2500
-# min_seq_arthro_filt <- 7752 # For quantile_90_ratio < 1000. 35 discarded samples (3 mid 25 ile 7 rec). 
-# discarded_on_arthro_filt <- discards(count_stats_arthro_filt$ratios, min_seq_arthro)$discarded
-# lost_bees_on_arthro_filt <- discards(count_stats_arthro_filt$ratios, min_seq_arthro)$lost_bees # Here, one bee pool gets lost completely: BE_16562_spr
-
-
+count_stats <- report_stats(df = phage_abundance$contig,
+                                 thresholds=c(2689, 1002)) # First number: quantile_90_ratio < 1000, second number: quantile_95_ratio < 2500
+min_seq_count <- 2689 # For quantile_90_ratio < 1000. 11 discarded samples (10 mid, 1 ile).
+discarded <- discards(count_stats$ratios, min_seq_count)$discarded
+lost_bees <- discards(count_stats$ratios, min_seq_count)$lost_bees # No bee pool lost completely. Only gut parts from different locations/time points.
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 # Alpha ####
 
+iterations <- 2
+
 met_v <- c("Country", "Season", "Gut_part", "Health")
-taxlevels <- c("contig", "Species", "Genus", "Family")
-alpha_arthro <- list()
+taxlevels <- c("contig")
+alpha <- list()
 for (tlvl in taxlevels) {
-alpha_arthro[[tlvl]] <- alpha_stats(df = euk_ab_hostgroup_filt$arthropod[[tlvl]], 
+  alpha[[tlvl]] <- alpha_stats(df = phage_abundance[[tlvl]], 
                                   meta_vars = met_v, 
-                                  min_seq = min_seq_arthro, # For 1% TPM filter
-                                  df_lengths = euk_lengths[[tlvl]])
+                                  min_seq = min_seq_count,
+                                  df_lengths = contig_lengths)
 }
-
-##
-# richest <- alpha_arthro_species$table %>%
-#   filter(Richness>=10)
-# euk_tpm_hostgroup$arthropod$Species %>%
-#   select(Species, all_of(richest$Sample_ID)) %>%
-#   mutate(across(-Species, ~round(., digits=3))) %>% View()
-
-##
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 # Beta ####
 
 met_v <- c("Country", "Season", "Gut_part", "Health")
-taxlevels <- c("contig", "Species", "Genus", "Family")
-beta_dist_arthro <- list()
-beta_plot_list_arthro <- list()
+taxlevels <- c("contig")
+beta_dist <- list()
+beta_plot_list <- list()
 for (tlvl in taxlevels) {
-  beta_dist_arthro[[tlvl]] <- rared_ordination(df = euk_ab_hostgroup_filt$arthropod[[tlvl]], 
+  beta_dist[[tlvl]] <- rared_ordination(df = phage_abundance[[tlvl]], 
                                       meta_vars = met_v, 
-                                      min_seq = min_seq_arthro, # For 1% TPM filter
-                                      df_lengths = euk_lengths[[tlvl]])
+                                      min_seq = min_seq_count,
+                                      df_lengths = contig_lengths)
   
-  beta_plot_list_arthro[[tlvl]] <- beta_plot(beta_dist_arthro[[tlvl]]$ord_list, met_v)
+  beta_plot_list[[tlvl]] <- beta_plot(beta_dist[[tlvl]]$ord_list, met_v)
 }
 
-# beta_dist_arthro_contig <- rared_ordination(df = euk_ab_hostgroup_filt$arthropod$contig, 
-#                                             meta_vars = met_v, 
-#                                             min_seq = min_seq_arthro, # For 1% TPM filter
-#                                             df_lengths = euk_lengths$contig)
-# beta_dist_arthro_species <- rared_ordination(df = euk_ab_hostgroup_filt$arthropod$Species, 
-#                                              meta_vars = met_v, 
-#                                              min_seq = min_seq_arthro, # For 1% TPM filter
-#                                              df_lengths = euk_lengths$Species)
-# 
-# 
-# beta_plot_list_arthro_contig <- beta_plot(beta_dist_arthro_contig$ord_list, met_v)
-# beta_plot_list_arthro_species <- beta_plot(beta_dist_arthro_species$ord_list, met_v)
+## CONTINUE HERE
+# ALSO FIND OUT WHY ALPHA AND BETA SCRIPTS REPORT 10 DISCARDED SAMPLES, IT SHOULD BE 11.
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
