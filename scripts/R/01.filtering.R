@@ -26,18 +26,14 @@ python_path="/Users/nikolasbasler/miniforge3/envs/co_occurrence/bin/python3"
 #   BLASTn_anicalc.py
 # Also, a sample metadata file needs to be provided.
 
-abundance.table <- read.csv("output/mapping_stats_eukvir/stats.eukvir.mapped_reads.csv.gz", row.names=1)
-horizontal.cov.table <- read.csv("output/mapping_stats_eukvir/stats.eukvir.horizontal_coverage.csv.gz", row.names=1)
-mean_depth_table <- read.csv("output/mapping_stats_eukvir/stats.eukvir.mean_depth.csv.gz", row.names=1)
+abundance.table <- read.csv("output/mapping_stats_phages/stats.phages.mapped_reads.csv", row.names=1)
+horizontal.cov.table <- read.csv("output/mapping_stats_phages/stats.phages.horizontal_coverage.csv", row.names=1)
+mean_depth_table <- read.csv("output/mapping_stats_phages/stats.phages.mean_depth.csv", row.names=1)
+genomad_classification <- read.csv("output/bphage_ALL_1kb_phages.csv") %>%
+  rename(contig=contig_id)
 
 metadata=metadata <- read.csv("data/metadata.csv")
 row.names(metadata) = metadata$Sample_ID
-eukaryotic_diamond <- read.csv("output/classification/ALL.SAMPLES_1kb_gnmd_cross_95-85_diamond.eukaryotic.csv", row.names = 1) %>%
-  mutate(Classified_by = "diamond")
-eukaryotic_blast <- read.csv("output/classification/ALL.SAMPLES_1kb_gnmd_cross_95-85_blastn.eukaryotic.csv", row.names = 1) %>%
-  mutate(Classified_by = "blast")
-Cressdnaviricota <- read.table("data/Cressdnaviricota.taxIDs")$V1
-host_groups_df <- read.csv("data/host_groups.csv")
 
 contig_lengths_in_kb = abundance.table %>%
   rownames() %>%
@@ -47,56 +43,20 @@ contig_lengths_in_kb = abundance.table %>%
   as.numeric()/1000
 contig_length_df = data.frame(contig=rownames(abundance.table), length_kb=contig_lengths_in_kb)
 
+
+# contig_length_df %>%
+#   ggplot(aes(x=length_kb)) +
+#   geom_histogram(binwidth=0.5) +
+#   geom_vline(xintercept = 3, color="red")
+
 # Min contig length filter
-min_kb_filter = 3
-abundance.table <- contig_length_df %>%
-  filter(length_kb >= min_kb_filter) %>%
-  inner_join(., rownames_to_column(abundance.table, "contig"), by="contig") %>% 
-  select(-length_kb) %>%
-  column_to_rownames("contig")
+# min_kb_filter = 3
+# abundance.table <- contig_length_df %>%
+#   filter(length_kb >= min_kb_filter) %>%
+#   inner_join(., rownames_to_column(abundance.table, "contig"), by="contig") %>% 
+#   select(-length_kb) %>%
+#   column_to_rownames("contig")
 
-
-# Filter blast results by query coverage
-qcov_filter = 50
-eukaryotic_blast_qfilt = eukaryotic_blast %>%
-  filter(qcov>=qcov_filter)
-
-# Combine remaining blast results with diamond results
-unique_to_blast = setdiff(row.names(eukaryotic_blast_qfilt), row.names(eukaryotic_diamond))
-euk_diamond_and_blast = eukaryotic_blast_qfilt[unique_to_blast,] %>%
-  select(-tname, -num_alns, -pid, -qcov, -tcov) %>%
-  rbind(eukaryotic_diamond, .)
-
-# Filter out some phages that are still in the list for some reason
-filter_out_families <- c("Ackermannviridae", "Autographiviridae", 
-                         "Drexlerviridae", "Herelleviridae", 
-                         "Mesyanzhinovviridae", "Microviridae", 
-                         "Rountreeviridae", "Straboviridae", "Zobellviridae",
-                         "Autolykiviridae") # Autolykiviridae was classified by diamond. They are vibrio phages that are in division 9 for some reason...
-filter_out_orders <- c("Crassvirales")
-filter_out_classes <- c("Caudoviricetes", "Leviviricetes")
-
-# euk_dia_bla_refined %>%
-#   filter(if_all(c(Phylum, Class, Order, Family, Subfamily, Genus), ~. =="")) %>%
-#   rownames_to_column("contig") %>% 
-#   select(taxID, Species) %>% 
-#   distinct() %>%
-#   filter(str_detect(Species, fixed("sp.")))
-
-# These are manually reviewed from the species list of all classifications
-# It concerns most of the species classifications that have
-# a "sp." in their name.
-filter_out_species <- c("Riboviria sp.", "Virus sp.", 
-                        "Circular genetic element sp.", "ssDNA virus sp.",
-                        "Circular ssDNA virus sp.", 
-                        "Prokaryotic dsDNA virus sp.") # taxID 2591644. No idea why this is here. NCBI taxonomy considers this to be part of division 9 "Viruses", instead of 3 "Phages" or 11 "Environmental samples"
-
-euk_dia_bla_refined <- euk_diamond_and_blast %>% 
-  filter(!Species %in% filter_out_species,
-         !Family %in% filter_out_families,
-         !Order %in% filter_out_orders,
-         !Class %in% filter_out_classes) %>%
-  filter(!if_all(c(Phylum, Class, Order, Family, Subfamily, Genus, Species), ~. ==""))
 
 ##################################################################
 # Filter down the abundance, hzc amd mean depth tables
