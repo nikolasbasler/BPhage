@@ -26,7 +26,7 @@ genomad end-to-end --disable-find-proviruses --cleanup --enable-score-calibratio
 pigz --best -p 12 bphage_ALL_1kb_genomad/*/*.faa
 pigz --best -p 12 bphage_ALL_1kb_genomad/*/*.tsv
 
-cp -r bphage_ALL_1kb_genomad $repo_location/output/phages
+cp -r bphage_ALL_1kb_genomad $repo_location/output/
 
 echo "========================================================================"
 duration=$SECONDS
