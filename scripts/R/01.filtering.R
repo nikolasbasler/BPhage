@@ -261,3 +261,10 @@ ggsave("output/R/max_tpm_and_prev.pdf", max_tpm_and_prev_hist, width=8, height=5
 # Raw abundance tables
 write_csv(rownames_to_column(abundance_table_filt, "contig"), file = "output/R/phage.filt.abundance.contig.csv")
 
+# Classification table
+gnmd_classification_refined %>%
+  filter(contig %in% rownames(abundance_table_filt)) %>%
+  write_csv(file = "output/R/phage.filt.gnmd.classification.csv")
+
+
+
