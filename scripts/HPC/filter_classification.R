@@ -65,4 +65,10 @@ quality_summary.tsv %>%
   filter(completeness>=50) %>%
   filter(lowest_taxon=="Unclassified" | lowest_taxon=="Viruses") %>%
   write_csv(paste0(args[4], "_unclassified_viruses.csv"))
-  
+
+# Filter genomad output for Picobirnaviridae irrespective of CheckV's completeness estimate
+# (because they are segemented)
+quality_summary.tsv %>%
+  inner_join(., bphage_ALL_1kb_cross_95.85_virus_summary.tsv, by=join_by("contig_id"=="seq_name")) %>%
+  filter(lowest_taxon=="Picobirnaviridae") %>%
+  write_csv(paste0(args[4], "_picobirna.csv"))
