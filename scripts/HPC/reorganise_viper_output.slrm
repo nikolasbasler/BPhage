@@ -1,5 +1,5 @@
 #!/bin/bash -l
-#SBATCH --job-name="bee_ref_genome"
+#SBATCH --job-name="reorganise_viper_output"
 #SBATCH --cluster=genius
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=8
