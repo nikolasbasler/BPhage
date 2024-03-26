@@ -21,13 +21,13 @@ mkdir -p $VSC_SCRATCH/BPhage/ref
 cd $VSC_SCRATCH/BPhage/ref
 
 # Sequences identified as phages
-zcat $repo_location/output//bphage_ALL_1kb_phages.fasta.gz > bphage_mapping_ref.fasta
+zcat $repo_location/output/bphage_ALL_1kb_phages.fasta.gz > bphage_mapping_ref.fasta
 
 # Unidentified viral sequences
-zcat $repo_location/output//bphage_ALL_1kb_unclassified_viruses.fasta.gz >> bphage_mapping_ref.fasta
+zcat $repo_location/output/bphage_ALL_1kb_unclassified_viruses.fasta.gz >> bphage_mapping_ref.fasta
 
 # Picobirnaviridae
-zcat $repo_location/output//bphage_ALL_1kb_genomad/bphage_ALL_1kb_cross_95-85_summary/bphage_ALL_1kb_cross_95-85_virus_summary.tsv.gz | \
+zcat $repo_location/output/bphage_ALL_1kb_genomad/bphage_ALL_1kb_cross_95-85_summary/bphage_ALL_1kb_cross_95-85_virus_summary.tsv.gz | \
     grep "Picobirnaviridae" | cut -f1 > temp.picobirna
 seqkit grep -f temp.picobirna <(zcat $repo_location/output/bphage_ALL_1kb_cross_95-85.fasta.gz) >> bphage_mapping_ref.fasta
 
