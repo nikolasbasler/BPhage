@@ -42,16 +42,27 @@ sample_order <- metadata %>%
 metadata <- metadata %>%
   mutate(Sample_ID = factor(Sample_ID, levels=sample_order))
 row.names(metadata) = metadata$Sample_ID
-classification <- read.csv("output/R/phage.filt.gnmd.classification.csv")
+classification <- read.csv("output/R/phage.filt.gnmd.classification.csv") %>%
+  mutate(contig_length = contig_length/1000) %>%
+  rename(length_kb = contig_length)
 
 phage_abundance <- list()
 phage_abundance$contig <- read.csv("output/R/phage.filt.abundance.contig.csv") %>%
   select(!contains("Blank"))
 
-contig_lengths <- classification %>%
-  mutate(length_kb = contig_length/1000) %>%
-  select(contig, length_kb) 
+taxlevels <- c("contig")
+phage_lengths <- list()
+phage_lengths <- taxlevels %>%
+  set_names() %>%
+  map(~tax_lengths(., classif = classification))
 
+## Generate TPM tables for different taxonomic levels. ####
+phage_tpm <- list()
+for (lvl in names(phage_abundance)) {
+  phage_tpm[[lvl]] <- phage_abundance[[lvl]] %>% 
+    inner_join(., phage_lengths[[lvl]], by=lvl) %>% 
+    calc_tpm(., lvl)
+}
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
@@ -59,7 +70,8 @@ contig_lengths <- classification %>%
 
 count_stats <- report_stats(df = phage_abundance$contig,
                                  thresholds=c(2689, 1002)) # First number: quantile_90_ratio < 1000, second number: quantile_95_ratio < 2500
-min_seq_count <- 2689 # For quantile_90_ratio < 1000. 11 discarded samples (10 mid, 1 ile).
+count_stats
+min_seq_count <- 2690 # For quantile_90_ratio < 1000. 11 discarded samples (10 mid, 1 ile).
 discarded <- discards(count_stats$ratios, min_seq_count)$discarded
 lost_bees <- discards(count_stats$ratios, min_seq_count)$lost_bees # No bee pool lost completely. Only gut parts from different locations/time points.
 
@@ -76,7 +88,7 @@ for (tlvl in taxlevels) {
   alpha[[tlvl]] <- alpha_stats(df = phage_abundance[[tlvl]], 
                                   meta_vars = met_v, 
                                   min_seq = min_seq_count,
-                                  df_lengths = contig_lengths)
+                                  df_lengths = phage_lengths$contig)
 }
 
 #------------------------------------------------------------------------------#
@@ -91,108 +103,101 @@ for (tlvl in taxlevels) {
   beta_dist[[tlvl]] <- rared_ordination(df = phage_abundance[[tlvl]], 
                                       meta_vars = met_v, 
                                       min_seq = min_seq_count,
-                                      df_lengths = contig_lengths)
+                                      df_lengths = phage_lengths$contig)
   
   beta_plot_list[[tlvl]] <- beta_plot(beta_dist[[tlvl]]$ord_list, met_v)
 }
 
-## CONTINUE HERE
-# ALSO FIND OUT WHY ALPHA AND BETA SCRIPTS REPORT 10 DISCARDED SAMPLES, IT SHOULD BE 11.
-
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 # Contig overview heatmap ####
-
-family_heatmaps_row <- list()
-plotted_samples <- list()
-plotted_contigs <- list()
-for (fam in unique(classification$Family)) {
-  if (fam == "") {
-    next
-  }
-  # All countries in one row:
-    fam_tpm <- euk_tpm$contig %>%
-      inner_join(., classification, by="contig") %>% 
-      filter(Family==fam) %>%
-      select(colnames(euk_tpm$contig)) %>%
-      select(which(colSums(. != 0) > 0))
-    plotted_samples[[fam]] <- ncol(fam_tpm)
-    plotted_contigs[[fam]] <- nrow(fam_tpm)
-    family_heatmaps_row[[fam]] <- contig_heatmap(df = fam_tpm,
-                                                   classif = classification)
-}
-split_families <- c("", "Parvoviridae", "Dicistroviridae")
-for (fam in split_families) {
-  species_names <- classification %>% 
-    filter(Species!="Apis mellifera filamentous virus") %>%
-    filter(Family==fam) %>%
-    select(Species) %>%
-    unlist(use.names=FALSE) %>%
-    unique()
-  fam_tpm <- euk_tpm$contig %>%
-    inner_join(., classification, by="contig") %>% 
-    filter(Family==fam) %>%
-    select(colnames(euk_tpm$contig))
-  if (fam=="") {
-    fam <- "NoFamily"
-  }
-  for (speci in species_names) {
-    spec_tpm <- fam_tpm %>%
-      inner_join(., classification, by="contig") %>% 
-      filter(Species==speci) %>%
-      select(colnames(fam_tpm)) %>%
-      select(which(colSums(. != 0) > 0))
-    if (speci=="") {
-      speci <- paste0(fam, "_NoSpecies")
-    } else {
-      speci <- paste0(fam, "_", speci)
-    }
-    plotted_samples[[speci]] <- ncol(spec_tpm)
-    plotted_contigs[[speci]] <- nrow(spec_tpm)
-    family_heatmaps_row[[speci]] <- contig_heatmap(df = spec_tpm,
-                                                 classif = classification)
-  }
-}
+# 
+# family_heatmaps_row <- list()
+# plotted_samples <- list()
+# plotted_contigs <- list()
+# for (fam in unique(classification$Family)) {
+#   if (fam == "") {
+#     next
+#   }
+#   # All countries in one row:
+#     fam_tpm <- euk_tpm$contig %>%
+#       inner_join(., classification, by="contig") %>% 
+#       filter(Family==fam) %>%
+#       select(colnames(euk_tpm$contig)) %>%
+#       select(which(colSums(. != 0) > 0))
+#     plotted_samples[[fam]] <- ncol(fam_tpm)
+#     plotted_contigs[[fam]] <- nrow(fam_tpm)
+#     family_heatmaps_row[[fam]] <- contig_heatmap(df = fam_tpm,
+#                                                    classif = classification)
+# }
+# split_families <- c("", "Parvoviridae", "Dicistroviridae")
+# for (fam in split_families) {
+#   species_names <- classification %>% 
+#     filter(Species!="Apis mellifera filamentous virus") %>%
+#     filter(Family==fam) %>%
+#     select(Species) %>%
+#     unlist(use.names=FALSE) %>%
+#     unique()
+#   fam_tpm <- euk_tpm$contig %>%
+#     inner_join(., classification, by="contig") %>% 
+#     filter(Family==fam) %>%
+#     select(colnames(euk_tpm$contig))
+#   if (fam=="") {
+#     fam <- "NoFamily"
+#   }
+#   for (speci in species_names) {
+#     spec_tpm <- fam_tpm %>%
+#       inner_join(., classification, by="contig") %>% 
+#       filter(Species==speci) %>%
+#       select(colnames(fam_tpm)) %>%
+#       select(which(colSums(. != 0) > 0))
+#     if (speci=="") {
+#       speci <- paste0(fam, "_NoSpecies")
+#     } else {
+#       speci <- paste0(fam, "_", speci)
+#     }
+#     plotted_samples[[speci]] <- ncol(spec_tpm)
+#     plotted_contigs[[speci]] <- nrow(spec_tpm)
+#     family_heatmaps_row[[speci]] <- contig_heatmap(df = spec_tpm,
+#                                                  classif = classification)
+#   }
+# }
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 # Host group histrograms: ####
-hostgroup_hist <- list()
-for (hostgroup in euk_tpm$Host_group$Host_group) {
-  hostgroup_hist[[hostgroup]] <- euk_tpm$Host_group %>%
-    # rename(group=name) %>%
-    pivot_longer(-Host_group) %>%
-    filter(Host_group==hostgroup) %>%
-    ggplot(aes(x=value)) +
-    geom_histogram(binwidth = 0.01) +
-    ggtitle(paste0("TPMs of hostgroup ",hostgroup))
-}
+# hostgroup_hist <- list()
+# for (hostgroup in euk_tpm$Host_group$Host_group) {
+#   hostgroup_hist[[hostgroup]] <- euk_tpm$Host_group %>%
+#     # rename(group=name) %>%
+#     pivot_longer(-Host_group) %>%
+#     filter(Host_group==hostgroup) %>%
+#     ggplot(aes(x=value)) +
+#     geom_histogram(binwidth = 0.01) +
+#     ggtitle(paste0("TPMs of hostgroup ",hostgroup))
+# }
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 # Average TPM ####
-met_v <- c("Country", "Season", "Gut_part", "Health", "Sample_ID")
-tax_levels <- c("Species", "Genus", "Family")
+met_v <- c("Country", "Season", "Gut_part", "Health")
+tax_levels <- c("contig")
 average_tpm_plots <- list()
-average_tpm_plots$Host_group <- average_tpm_bar_plot(tpm_table=euk_tpm$Host_group,
-                        tl="Host_group", hg="all",
-                        meta_vars=met_v)
-for (hgr in names(euk_tpm_hostgroup)) {
-  for (tlvl in tax_levels) {
-    average_tpm_plots[[hgr]][[tlvl]] <- average_tpm_bar_plot(
-      tpm_table = euk_tpm_hostgroup[[hgr]][[tlvl]],
-      tl = tlvl,
-      hg = hgr,
-      meta_vars = met_v,
-      threshold_for_other=0.03)
-  }
+
+for (tlvl in tax_levels) {
+  average_tpm_plots[[tlvl]] <- average_tpm_bar_plot(
+    tpm_table = phage_tpm[[tlvl]],
+    tl = tlvl,
+    hg = "all",
+    meta_vars = met_v,
+    threshold_for_other=0.02)
 }
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 # Prevalence ####
 met_v <- c("Country", "Season", "Gut_part", "Health")
-tax_levels <- c("Species", "Genus", "Family")
+tax_levels <- c("contig")
 prevalence_plots <- list()
 for (hgr in names(euk_ab_hostgroup_filt)) {
   for (tlvl in tax_levels) {
