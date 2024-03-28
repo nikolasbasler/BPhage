@@ -31,16 +31,17 @@ split_gnmd_classification <- function(gnmd_classif) {
     separate(sep=";", fill="right", taxonomy, into=c("Classification", "Realm", "Kingdom", "Phylum", "Class", "Order", "Family")) %>% 
     select(contig_id, Classification, Realm, Kingdom, Phylum, Class, Order, Family) %>%
     pivot_longer(-contig_id, names_to = "rank", values_to = "taxon") %>% 
-    mutate(rank = ifelse(str_ends(taxon, "viria"), "Realm", rank),
-           rank = ifelse(str_ends(taxon, "virae"), "Kingdom", rank),
-           rank = ifelse(str_ends(taxon, "viricota"), "Phylum", rank),
-           rank = ifelse(str_ends(taxon, "viricetes"), "Class", rank),
-           rank = ifelse(str_ends(taxon, "virales"), "Order", rank),
-           rank = ifelse(str_ends(taxon, "viridae"), "Family", rank)
-           ) %>%
-    group_by(contig_id) %>%
+    mutate(
+      rank = ifelse(str_ends(taxon, "viria"), "Realm", rank),
+      rank = ifelse(str_ends(taxon, "virae"), "Kingdom", rank),
+      rank = ifelse(str_ends(taxon, "viricota"), "Phylum", rank),
+      rank = ifelse(str_ends(taxon, "viricetes"), "Class", rank),
+      rank = ifelse(str_ends(taxon, "virales"), "Order", rank),
+      rank = ifelse(str_ends(taxon, "viridae"), "Family", rank)
+      ) %>%
+    group_by(contig_id) %>% 
     complete(rank = c("Classification", "Realm", "Kingdom", "Phylum", "Class", "Order", "Family")) %>% # This takes a few seconds
-    filter(!is.na(rank)) %>%
+    filter(!is.na(rank)) %>% 
     mutate(taxon = ifelse(is.na(taxon), "Unclassified", taxon)) %>%
     pivot_wider(names_from = rank, values_from = taxon) %>%
     select(contig_id, Classification, Realm, Kingdom, Phylum, Class, Order, Family) %>%
@@ -51,12 +52,16 @@ split_gnmd_classification <- function(gnmd_classif) {
 abundance.table <- read.csv("output/mapping_stats_phages/stats.phages.mapped_reads.csv", row.names=1)
 horizontal.cov.table <- read.csv("output/mapping_stats_phages/stats.phages.horizontal_coverage.csv", row.names=1)
 mean_depth_table <- read.csv("output/mapping_stats_phages/stats.phages.mean_depth.csv", row.names=1)
-gnmd_classification <- read.csv("output/bphage_ALL_1kb_phages.csv") %>%
+gnmd_classification <- read.csv("output/bphage_ALL_1kb_phages.csv") %>% 
   rbind(read.csv("output/bphage_ALL_1kb_unclassified_viruses.csv")) %>%
   rbind(read.csv("output/bphage_ALL_1kb_picobirna.csv")) %>% 
   split_gnmd_classification() %>%
+  mutate(Genus = "Unclassified",
+         Species= "Unclassified") %>%
+  select(-taxonomy) %>%
   rename(contig=contig_id)
 
+host_groups_df<- read_csv("data/host_groups.csv", show_col_types = FALSE)
 
 metadata=metadata <- read.csv("data/metadata.csv")
 row.names(metadata) <- metadata$Sample_ID
@@ -68,6 +73,17 @@ contig_lengths_in_kb = abundance.table %>%
   str_replace(".*[HV]","") %>%
   as.numeric()/1000
 contig_length_df = data.frame(contig=rownames(abundance.table), length_kb=contig_lengths_in_kb)
+
+
+################################################################################
+################################################################################
+## Add host group information to classification table
+
+gnmd_classification <- host_groups_df %>%
+  select(Rank, Taxon, Host_group) %>%
+  left_join(gnmd_classification, ., by=join_by(Classification==Taxon)) %>%
+  select(-Rank) %>%
+  mutate(Host_group = ifelse(is.na(Host_group), "unassigned", Host_group))
 
 
 # contig_length_df %>%
