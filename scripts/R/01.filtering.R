@@ -26,13 +26,37 @@ python_path="/Users/nikolasbasler/miniforge3/envs/co_occurrence/bin/python3"
 #   BLASTn_anicalc.py
 # Also, a sample metadata file needs to be provided.
 
+split_gnmd_classification <- function(gnmd_classif) {
+  gnmd_classif %>%
+    separate(sep=";", fill="right", taxonomy, into=c("Classification", "Realm", "Kingdom", "Phylum", "Class", "Order", "Family")) %>% 
+    select(contig_id, Classification, Realm, Kingdom, Phylum, Class, Order, Family) %>%
+    pivot_longer(-contig_id, names_to = "rank", values_to = "taxon") %>% 
+    mutate(rank = ifelse(str_ends(taxon, "viria"), "Realm", rank),
+           rank = ifelse(str_ends(taxon, "virae"), "Kingdom", rank),
+           rank = ifelse(str_ends(taxon, "viricota"), "Phylum", rank),
+           rank = ifelse(str_ends(taxon, "viricetes"), "Class", rank),
+           rank = ifelse(str_ends(taxon, "virales"), "Order", rank),
+           rank = ifelse(str_ends(taxon, "viridae"), "Family", rank)
+           ) %>%
+    group_by(contig_id) %>%
+    complete(rank = c("Classification", "Realm", "Kingdom", "Phylum", "Class", "Order", "Family")) %>% # This takes a few seconds
+    filter(!is.na(rank)) %>%
+    mutate(taxon = ifelse(is.na(taxon), "Unclassified", taxon)) %>%
+    pivot_wider(names_from = rank, values_from = taxon) %>%
+    select(contig_id, Classification, Realm, Kingdom, Phylum, Class, Order, Family) %>%
+    ungroup() %>%
+    inner_join(gnmd_classif, ., by="contig_id")
+}
+
 abundance.table <- read.csv("output/mapping_stats_phages/stats.phages.mapped_reads.csv", row.names=1)
 horizontal.cov.table <- read.csv("output/mapping_stats_phages/stats.phages.horizontal_coverage.csv", row.names=1)
 mean_depth_table <- read.csv("output/mapping_stats_phages/stats.phages.mean_depth.csv", row.names=1)
 gnmd_classification <- read.csv("output/bphage_ALL_1kb_phages.csv") %>%
   rbind(read.csv("output/bphage_ALL_1kb_unclassified_viruses.csv")) %>%
-  rbind(read.csv("output/bphage_ALL_1kb_picobirna.csv")) %>%
+  rbind(read.csv("output/bphage_ALL_1kb_picobirna.csv")) %>% 
+  split_gnmd_classification() %>%
   rename(contig=contig_id)
+
 
 metadata=metadata <- read.csv("data/metadata.csv")
 row.names(metadata) <- metadata$Sample_ID
