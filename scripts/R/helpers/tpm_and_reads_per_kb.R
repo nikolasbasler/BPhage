@@ -16,9 +16,9 @@
 #     mutate(across(-contig, ~round(.)))
 # }
 
-
-calc_tpm <- function(abtable_with_lengths, level) {
-  abtable_with_lengths %>%
+calc_tpm <- function(abtable, level, lengths_df) {
+  abtable %>%
+    inner_join(., lengths_df, by=level) %>%
     mutate(across(-all_of(level), ~./length_kb)) %>% 
     select(-length_kb) %>% 
     mutate(across(-all_of(level), ~./sum(.)))
