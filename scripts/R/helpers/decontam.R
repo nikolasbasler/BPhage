@@ -43,8 +43,8 @@ decontam_identification <- function(abtable, classification) {
   print(paste(sum(contamdf.prev$contaminant),"contaminant contigs detected:"))
   contamdf.prev %>% 
     filter(contaminant) %>%
-    merge(., classification, by=0) %>%
-    column_to_rownames("Row.names") %>%
+    rownames_to_column("contig") %>%
+    left_join(., classification, by="contig") %>%
     print()
   
   contaminants <- contamdf.prev %>%

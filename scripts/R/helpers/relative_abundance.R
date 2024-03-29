@@ -211,8 +211,8 @@ average_tpm_bar_plot <- function(tpm_table, tl, hg, meta_vars, title_prefix="", 
       ggplot(aes(x=.data[[m_var]], y=mean_tpm, fill=group)) +
       geom_col() +
       ggtitle(paste0(title_prefix, "Host group: \"", hg,"\"")) +
-      labs(fill=tl) +
-      scale_fill_manual(values = c_vec)
+      labs(fill=tl) # +
+      # scale_fill_manual(values = c_vec)
     if (m_var=="Sample_ID") {
       plot_list[[m_var]] <- plot_list[[m_var]] +
         theme(axis.text.x = element_text(angle = 45, hjust=1)) +

@@ -41,82 +41,54 @@ sample_order <- metadata %>%
   unlist(use.names = FALSE)
 metadata <- metadata %>%
   mutate(Sample_ID = factor(Sample_ID, levels=sample_order))
-row.names(metadata) <- metadata$Sample_ID
+row.names(metadata) = metadata$Sample_ID
 classification <- read.csv("output/R/phage.filt.gnmd.classification.csv") %>%
   mutate(contig_length = contig_length/1000) %>%
   rename(length_kb = contig_length)
-contig_order <- classification %>%
-  arrange(Realm, Kingdom, Phylum, Class, Order, Family, Genus, Species) %>% 
-  select(contig) %>%
-  unlist(use.names = FALSE)
 
-classification <- classification %>%
-  mutate(contig = factor(contig, levels=contig_order))
-
-phage_abundance <- read.csv("output/R/phage.filt.abundance.contig.csv") %>%
+phage_abundance <- list()
+phage_abundance$contig <- read.csv("output/R/phage.filt.abundance.contig.csv") %>%
   select(!contains("Blank"))
 
-## Generate abundance tables for different taxonomic levels.####
-taxlevels <- c("contig", "Species", "Genus", "Family", "Order", "Class", "Phylum", "Kingdom", "Realm", "Host_group")
-phage_ab <- list()
-phage_ab <- taxlevels %>%
-  set_names() %>%
-  map(~tax_sum(., ab_table=phage_abundance,
-               classif = classification))
+taxlevels <- c("contig")
 phage_lengths <- list()
 phage_lengths <- taxlevels %>%
   set_names() %>%
   map(~tax_lengths(., classif = classification))
 
-taxlevels <- c("contig", "Species", "Genus", "Family", "Order", "Class", "Phylum", "Kingdom", "Realm")
-hostgroups <- classification$Host_group %>% unique()
-phage_ab_hostgroup <- list()
-for (hostg in hostgroups) {
-  hostg_filt <- hostg_filter(hg = hostg, ab_table = phage_ab$contig,
-          classif = classification)
-  phage_ab_hostgroup[[hostg]] <- taxlevels %>%
-    set_names() %>%
-    map(~tax_sum(., ab_table=hostg_filt,
-                 classif = classification))
-}
-
 ## Generate TPM tables for different taxonomic levels. ####
 phage_tpm <- list()
-for (lvl in names(phage_ab)) {
-  phage_tpm[[lvl]] <- calc_tpm(abtable = phage_ab[[lvl]], level = lvl, lengths_df = phage_lengths[[lvl]])
-}
-
-phage_tpm_hostgroup <- list()
-for (hostg in hostgroups) {
-  for (lvl in names(phage_ab_hostgroup[[hostg]])) {
-    phage_tpm_hostgroup[[hostg]][[lvl]] <- calc_tpm(abtable = phage_ab_hostgroup[[hostg]][[lvl]], level = lvl, lengths_df = phage_lengths[[lvl]])
-  }
+for (lvl in names(phage_abundance)) {
+  phage_tpm[[lvl]] <- phage_abundance[[lvl]] %>% 
+    inner_join(., phage_lengths[[lvl]], by=lvl) %>% 
+    calc_tpm(., lvl)
 }
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 # Set min seq thresholds for rarefaction. ####
 
-count_stats <- report_stats(df = phage_abundance,
-                            thresholds=c(2689, 1002)) # First number: quantile_90_ratio < 1000, second number: quantile_95_ratio < 2500
-min_seq_count <- 2713 # For quantile_90_ratio < 1000. 11 discarded samples (10 mid, 1 ile).
+count_stats <- report_stats(df = phage_abundance$contig,
+                                 thresholds=c(2689, 1002)) # First number: quantile_90_ratio < 1000, second number: quantile_95_ratio < 2500
+count_stats
+min_seq_count <- 2690 # For quantile_90_ratio < 1000. 11 discarded samples (10 mid, 1 ile).
 discarded <- discards(count_stats$ratios, min_seq_count)$discarded
 lost_bees <- discards(count_stats$ratios, min_seq_count)$lost_bees # No bee pool lost completely. Only gut parts from different locations/time points.
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 # Alpha ####
+
 iterations <- 2
 
 met_v <- c("Country", "Season", "Gut_part", "Health")
-# taxlevels <- c("contig", "Species", "Genus", "Family")
 taxlevels <- c("contig")
 alpha <- list()
 for (tlvl in taxlevels) {
-  alpha[[tlvl]] <- alpha_stats(df = phage_ab[[tlvl]], 
-                               meta_vars = met_v, 
-                               min_seq = min_seq_count,
-                               df_lengths = phage_lengths[[tlvl]])
+  alpha[[tlvl]] <- alpha_stats(df = phage_abundance[[tlvl]], 
+                                  meta_vars = met_v, 
+                                  min_seq = min_seq_count,
+                                  df_lengths = phage_lengths$contig)
 }
 
 #------------------------------------------------------------------------------#
@@ -124,15 +96,14 @@ for (tlvl in taxlevels) {
 # Beta ####
 
 met_v <- c("Country", "Season", "Gut_part", "Health")
-# taxlevels <- c("contig", "Species", "Genus", "Family")
 taxlevels <- c("contig")
 beta_dist <- list()
 beta_plot_list <- list()
 for (tlvl in taxlevels) {
-  beta_dist[[tlvl]] <- rared_ordination(df = phage_ab[[tlvl]], 
-                                        meta_vars = met_v, 
-                                        min_seq = min_seq_count,
-                                        df_lengths = phage_lengths[[tlvl]])
+  beta_dist[[tlvl]] <- rared_ordination(df = phage_abundance[[tlvl]], 
+                                      meta_vars = met_v, 
+                                      min_seq = min_seq_count,
+                                      df_lengths = phage_lengths$contig)
   
   beta_plot_list[[tlvl]] <- beta_plot(beta_dist[[tlvl]]$ord_list, met_v)
 }
@@ -140,8 +111,7 @@ for (tlvl in taxlevels) {
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 # Contig overview heatmap ####
-# Not adapted to phage dataset yet.
-
+# 
 # family_heatmaps_row <- list()
 # plotted_samples <- list()
 # plotted_contigs <- list()
@@ -196,55 +166,49 @@ for (tlvl in taxlevels) {
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 # Host group histrograms: ####
-hostgroup_hist <- list()
-for (hostgroup in phage_tpm$Host_group$Host_group) {
-  hostgroup_hist[[hostgroup]] <- phage_tpm$Host_group %>%
-    pivot_longer(-Host_group) %>%
-    filter(Host_group==hostgroup) %>%
-    ggplot(aes(x=value)) +
-    geom_histogram(binwidth = 0.01) +
-    ggtitle(paste0("TPMs of hostgroup ",hostgroup))
-}
+# hostgroup_hist <- list()
+# for (hostgroup in euk_tpm$Host_group$Host_group) {
+#   hostgroup_hist[[hostgroup]] <- euk_tpm$Host_group %>%
+#     # rename(group=name) %>%
+#     pivot_longer(-Host_group) %>%
+#     filter(Host_group==hostgroup) %>%
+#     ggplot(aes(x=value)) +
+#     geom_histogram(binwidth = 0.01) +
+#     ggtitle(paste0("TPMs of hostgroup ",hostgroup))
+# }
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 # Average TPM ####
-met_v <- c("Country", "Season", "Gut_part", "Health", "Sample_ID")
-tax_levels <- c("contig", "Species", "Genus", "Family", "Order", "Class", "Phylum", "Kingdom", "Realm")
+met_v <- c("Country", "Season", "Gut_part", "Health")
+tax_levels <- c("contig")
 average_tpm_plots <- list()
-average_tpm_plots$Host_group <- average_tpm_bar_plot(tpm_table = phage_tpm$Host_group,
-                        tl="Host_group", hg="all",
-                        meta_vars=met_v)
-for (hgr in names(phage_tpm_hostgroup)) {
-  for (tlvl in tax_levels) {
-    average_tpm_plots[[hgr]][[tlvl]] <- average_tpm_bar_plot(
-      tpm_table = phage_tpm_hostgroup[[hgr]][[tlvl]],
-      tl = tlvl,
-      hg = hgr,
-      meta_vars = met_v,
-      threshold_for_other=0.01)
-  }
+
+for (tlvl in tax_levels) {
+  average_tpm_plots[[tlvl]] <- average_tpm_bar_plot(
+    tpm_table = phage_tpm[[tlvl]],
+    tl = tlvl,
+    hg = "all",
+    meta_vars = met_v,
+    threshold_for_other=0.02)
 }
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 # Prevalence ####
-
-# CONTINUE HERE!
-
 met_v <- c("Country", "Season", "Gut_part", "Health")
-tax_levels <- c("contig", "Species", "Genus", "Family", "Order", "Class", "Phylum", "Kingdom", "Realm")
+tax_levels <- c("contig")
 prevalence_plots <- list()
-for (hgr in names(phage_tpm_hostgroup)) {
+for (hgr in names(euk_ab_hostgroup_filt)) {
   for (tlvl in tax_levels) {
-    # trsh <- 3
-    if (tlvl=="contig") {
-      trsh <- 20
-    } else {
-      trsh <- 1
-    }
+    trsh <- 3
+    # if (tlvl=="Species") {
+    #   trsh <- 10
+    # } else {
+    #   trsh <- 3
+    # }
     prevalence_plots[[hgr]][[tlvl]] <- prevalence_bar_plot(
-      abtable = phage_tpm_hostgroup[[hgr]][[tlvl]],
+      abtable = euk_ab_hostgroup_filt[[hgr]][[tlvl]],
       tl = tlvl, 
       hg = hgr,
       meta_vars = met_v,

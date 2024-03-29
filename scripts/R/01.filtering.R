@@ -26,14 +26,45 @@ python_path="/Users/nikolasbasler/miniforge3/envs/co_occurrence/bin/python3"
 #   BLASTn_anicalc.py
 # Also, a sample metadata file needs to be provided.
 
+split_gnmd_classification <- function(gnmd_classif) {
+  gnmd_classif %>%
+    separate(sep=";", fill="right", taxonomy, into=c("Classification", "Realm", "Kingdom", "Phylum", "Class", "Order", "Family")) %>% 
+    select(contig_id, Classification, Realm, Kingdom, Phylum, Class, Order, Family) %>%
+    pivot_longer(-contig_id, names_to = "rank", values_to = "taxon") %>% 
+    mutate(
+      rank = ifelse(str_ends(taxon, "viria"), "Realm", rank),
+      rank = ifelse(str_ends(taxon, "virae"), "Kingdom", rank),
+      rank = ifelse(str_ends(taxon, "viricota"), "Phylum", rank),
+      rank = ifelse(str_ends(taxon, "viricetes"), "Class", rank),
+      rank = ifelse(str_ends(taxon, "virales"), "Order", rank),
+      rank = ifelse(str_ends(taxon, "viridae"), "Family", rank)
+      ) %>%
+    group_by(contig_id) %>% 
+    complete(rank = c("Classification", "Realm", "Kingdom", "Phylum", "Class", "Order", "Family")) %>% # This takes a few seconds
+    filter(!is.na(rank)) %>% 
+    mutate(taxon = ifelse(is.na(taxon), "Unclassified", taxon)) %>%
+    pivot_wider(names_from = rank, values_from = taxon) %>%
+    select(contig_id, Classification, Realm, Kingdom, Phylum, Class, Order, Family) %>%
+    ungroup() %>%
+    inner_join(gnmd_classif, ., by="contig_id")
+}
+
 abundance.table <- read.csv("output/mapping_stats_phages/stats.phages.mapped_reads.csv", row.names=1)
 horizontal.cov.table <- read.csv("output/mapping_stats_phages/stats.phages.horizontal_coverage.csv", row.names=1)
 mean_depth_table <- read.csv("output/mapping_stats_phages/stats.phages.mean_depth.csv", row.names=1)
-genomad_classification <- read.csv("output/bphage_ALL_1kb_phages.csv") %>%
+gnmd_classification <- read.csv("output/bphage_ALL_1kb_phages.csv") %>% 
+  rbind(read.csv("output/bphage_ALL_1kb_unclassified_viruses.csv")) %>%
+  rbind(read.csv("output/bphage_ALL_1kb_picobirna.csv")) %>% 
+  split_gnmd_classification() %>%
+  mutate(Genus = "Unclassified",
+         Species= "Unclassified") %>%
+  select(-taxonomy) %>%
   rename(contig=contig_id)
 
+host_groups_df<- read_csv("data/host_groups.csv", show_col_types = FALSE)
+
 metadata=metadata <- read.csv("data/metadata.csv")
-row.names(metadata) = metadata$Sample_ID
+row.names(metadata) <- metadata$Sample_ID
 
 contig_lengths_in_kb = abundance.table %>%
   rownames() %>%
@@ -42,6 +73,17 @@ contig_lengths_in_kb = abundance.table %>%
   str_replace(".*[HV]","") %>%
   as.numeric()/1000
 contig_length_df = data.frame(contig=rownames(abundance.table), length_kb=contig_lengths_in_kb)
+
+
+################################################################################
+################################################################################
+## Add host group information to classification table
+
+gnmd_classification <- host_groups_df %>%
+  select(Rank, Taxon, Host_group) %>%
+  left_join(gnmd_classification, ., by=join_by(Classification==Taxon)) %>%
+  select(-Rank) %>%
+  mutate(Host_group = ifelse(is.na(Host_group), "unassigned", Host_group))
 
 
 # contig_length_df %>%
@@ -57,74 +99,57 @@ contig_length_df = data.frame(contig=rownames(abundance.table), length_kb=contig
 #   select(-length_kb) %>%
 #   column_to_rownames("contig")
 
-
-##################################################################
-# Filter down the abundance, hzc amd mean depth tables
-abundance_table_euk <- rownames_to_column(abundance.table, "contig") %>%
-  filter(contig %in% row.names(euk_dia_bla_refined)) %>%
-  column_to_rownames("contig")
-hzc_table_euk <- rownames_to_column(horizontal.cov.table, "contig") %>%
-  filter(contig %in% row.names(abundance_table_euk)) %>%
-  column_to_rownames("contig")
-mean_depth_table_euk <- rownames_to_column(mean_depth_table, "contig") %>%
-  filter(contig %in% row.names(abundance_table_euk)) %>%
-  column_to_rownames("contig")
-
-cat(paste0(nrow(euk_dia_bla_refined),
-          ' eukaryotic contigs with a classification on Phylum, Class, Order, Family, Genus or Species level.',
-          'of which ', nrow(abundance_table_euk), ' are above the threshold of ', min_kb_filter, 'kb.'))
-rownames_to_column(euk_dia_bla_refined, "contig") %>%
-  inner_join(., rownames_to_column(abundance_table_euk, "contig"), by="contig") %>% 
-  select(Classified_by) %>%
-  table()
-
-
 # Filtering by horizontal coverage and mean depth
 hzc.filter=50
 mean.depth.filter = 1
 
-if (!identical(rownames(abundance_table_euk), rownames(hzc_table_euk)) |
-    !identical(colnames(abundance_table_euk), colnames(hzc_table_euk)) |
-    !identical(rownames(abundance_table_euk), rownames(mean_depth_table_euk)) |
-    !identical(colnames(abundance_table_euk), colnames(mean_depth_table_euk))) 
+if (!identical(rownames(abundance.table), rownames(horizontal.cov.table)) |
+    !identical(colnames(abundance.table), colnames(horizontal.cov.table)) |
+    !identical(rownames(abundance.table), rownames(mean_depth_table)) |
+    !identical(colnames(abundance.table), colnames(mean_depth_table))) 
 {
   stop("Row or column names in hzc or mean depth table don't match up!")
 }
 
-abundance_table_euk[hzc_table_euk < hzc.filter]=0
-abundance_table_euk[mean_depth_table_euk < mean.depth.filter]=0
+abundance_table_filt <- abundance.table
+abundance_table_filt[horizontal.cov.table < hzc.filter] <- 0
+abundance_table_filt[mean_depth_table < mean.depth.filter] <- 0
 
 # Filter out contaminants
-decontam <- decontam_identification(abtable=abundance_table_euk, 
-                                    classification=euk_dia_bla_refined)
-# The only found contaminant contig (3kb lentgh filter) is a Lake sinai virus, 
-# so it's not filtered out!
-# abundance_table_euk <- abundance_table_euk %>% 
-#   rownames_to_column("contig") %>%
-#   filter(!contig %in% decontam$contaminants) %>%
-#   column_to_rownames("contig")
+decontam <- decontam_identification(abtable=abundance_table_filt, 
+                                    classification=gnmd_classification)
+
+# NODE_A1_length_19355_cov_19.948802_Blank_pool_01 found in all blank pools
+# (except WTA blanks) and in 73 samples
+# NODE_A1_length_30014_cov_53.072886_Blank_pool_12 found in 3 blank pools
+# and 1 sample.
+
+abundance_table_filt <- abundance_table_filt %>%
+  rownames_to_column("contig") %>%
+  filter(!contig %in% decontam$contaminants) %>%
+  column_to_rownames("contig") 
 
 
 # Filter out contigs that, after the hzc filter, are only present in blanks,
 # then filter out contigs and samples that only have zeros.
-contigs_before_hzc = rownames(abundance_table_euk)
-samples_before_hzc = colnames(abundance_table_euk)
+contigs_before_hzc <- rownames(abundance_table_filt)
+samples_before_hzc <- colnames(abundance_table_filt)
 
-contigs_only_in_blanks <- abundance_table_euk %>%
+contigs_only_in_blanks <- abundance_table_filt %>%
   select(!contains("Blank")) %>%
   filter(rowSums(.)==0) %>%
   rownames()
-abundance_table_euk <- abundance_table_euk %>%
+abundance_table_filt <- abundance_table_filt %>%
   rownames_to_column("contig") %>%
   filter(!contig %in% contigs_only_in_blanks) %>%
   column_to_rownames("contig") %>%
   select(!names(.)[colSums(.) == 0]) %>%
   filter(rowSums(.)>0) 
 
-contigs_after_hzc = rownames(abundance_table_euk)
+contigs_after_hzc = rownames(abundance_table_filt)
 removed_contigs = setdiff(contigs_before_hzc, contigs_after_hzc)
 
-samples_after_hzc = colnames(abundance_table_euk)
+samples_after_hzc = colnames(abundance_table_filt)
 removed_samples = setdiff(samples_before_hzc, samples_after_hzc)
 
 cat(length(contigs_before_hzc)-length(contigs_after_hzc), "of", length(contigs_before_hzc),
@@ -133,21 +158,22 @@ cat(length(contigs_before_hzc)-length(contigs_after_hzc), "of", length(contigs_b
           "\nRemoved contigs:\n", removed_contigs, "\n",
           "\nRemoved samples:\n", removed_samples)
 
-cat("Lowest number of mapped reads (>0) to any contig:", min(abundance_table_euk[abundance_table_euk>0]),"\n")
+cat("Lowest number of mapped reads (>0) to any contig:", min(abundance_table_filt[abundance_table_filt>0]),"\n")
+
 
 ################################################################################
 ################################################################################
 ## Co-occurrence analysis
 
 system("mkdir -p output/R/co_occurrence/")
-abundance_table_euk %>%
+abundance_table_filt %>%
   rownames_to_column("contig") %>% 
   select(contig, contains("_rec_")) %>% 
   arrange(contig) %>%
   write_tsv("output/R/co_occurrence/euk.abundances.for.co-occ.tsv")
 
 contig_length_df %>%
-  filter(contig %in% rownames(abundance_table_euk)) %>%
+  filter(contig %in% rownames(abundance_table_filt)) %>%
   arrange(contig) %>%
   write_tsv("output/R/co_occurrence/euk.contig.lengths.tsv", col_names = FALSE)
 
@@ -160,21 +186,25 @@ system(paste0(python_path,
 co_occurrences_related_contigs <- read.delim("output/R/co_occurrence/co_occurrences_related_contigs.tsv")
 
 co_occ_join <- co_occurrences_related_contigs %>%
-  inner_join(., rownames_to_column(euk_dia_bla_refined, "contig"), by=join_by(Contig1==contig)) %>%
-  inner_join(., rownames_to_column(euk_dia_bla_refined, "contig"), by=join_by(Contig2==contig)) %>%
+  inner_join(., gnmd_classification, by=join_by(Contig1==contig)) %>%
+  inner_join(., gnmd_classification, by=join_by(Contig2==contig)) %>%
   select(-contains(c("Avg_log_e.value", "Classification", 
                      "Classified_by"))) %>%
-  rename(taxID_Contig1 = taxID.x, taxID_Contig2 = taxID.y,
-         Phylum_Contig1 = Phylum.x, Phylum_Contig2 = Phylum.y,
-         Class_Contig1 = Class.x, Class_Contig2 = Class.y,
-         Order_Contig1 = Order.x, Order_Contig2 = Order.y,
-         Family_Contig1 = Family.x, Family_Contig2 = Family.y,
-         Subfamily_Contig1 = Subfamily.x, Subfamily_Contig2 = Subfamily.y,
-         Genus_Contig1 = Genus.x, Genus_Contig2 = Genus.y,
-         Species_Contig1 = Species.x, Species_Contig2 = Species.y)
-  
+  select(Contig1, Contig2, Correlation, completeness.x, topology.x, virus_score.x, n_hallmarks.x, lowest_taxon.x,
+         completeness.y, topology.y, virus_score.y, n_hallmarks.y, lowest_taxon.y) %>%
+  rename(completeness_1 = completeness.x,
+         topology_1 = topology.x,
+         virus_score_1 = virus_score.x,
+         n_hallmarks_1 = n_hallmarks.x,
+         lowest_taxon_1 = lowest_taxon.x,
+         completeness_2 = completeness.y,
+         topology_2 = topology.y,
+         virus_score_2 = virus_score.y,
+         n_hallmarks_2 = n_hallmarks.y,
+         lowest_taxon_2 = lowest_taxon.y)
+
 co_occ_stats <- co_occ_join %>%
-  select(Family_Contig1, Species_Contig1, Family_Contig2, Species_Contig2) %>%
+  select(lowest_taxon_1, lowest_taxon_2) %>%
   group_by_all() %>%
   mutate(number_of_correlations=n()) %>% 
   unique() %>%
@@ -184,117 +214,62 @@ co_occ_stats <- co_occ_join %>%
 ################################################################################
 # TPM and prevalence filter
 
-euk_contig_tpm_temp <- rownames_to_column(abundance_table_euk, "contig") %>%
+contig_tpm_temp <- rownames_to_column(abundance_table_filt, "contig") %>%
   inner_join(., contig_length_df, by="contig") %>%
   calc_tpm(., "contig")
   
-tpm_thresh <- 0.05
-prev_thresh <- 1
+gnmd_classification_refined <- gnmd_classification
 
-passed_tpm_and_prevalence_filters <- euk_contig_tpm_temp %>%
-  select(!contains("Blank")) %>%
-  column_to_rownames("contig") %>%
-  filter(if_any(everything(), ~ . >= tpm_thresh)) %>%
-  filter(rowSums(. > 0) >= prev_thresh) %>%
-  rownames_to_column("contig") %>%
-  inner_join(., rownames_to_column(euk_dia_bla_refined, "contig"), by="contig") %>%
-  select(contig) %>%
-  unlist(use.names = FALSE)
-
-euk_dia_bla_refined <- rownames_to_column(euk_dia_bla_refined, "contig") %>%
-  filter(contig %in% passed_tpm_and_prevalence_filters) %>%
-  column_to_rownames("contig")
-
-abundance_table_euk <- rownames_to_column(abundance_table_euk, "contig") %>%
-  filter(contig %in% passed_tpm_and_prevalence_filters) %>%
-  column_to_rownames("contig")
+# tpm_thresh <- 0.01
+# prev_thresh <- 1
+# 
+# passed_tpm_and_prevalence_filters <- contig_tpm_temp %>%
+#   select(!contains("Blank")) %>%
+#   column_to_rownames("contig") %>%
+#   filter(if_any(everything(), ~ . >= tpm_thresh)) %>%
+#   filter(rowSums(. > 0) >= prev_thresh) %>%
+#   rownames_to_column("contig") %>%
+#   inner_join(., gnmd_classification, by="contig") %>%
+#   select(contig) %>%
+#   unlist(use.names = FALSE)
+# 
+# gnmd_classification_refined <- gnmd_classification %>%
+#   filter(contig %in% passed_tpm_and_prevalence_filters) %>%
+#   column_to_rownames("contig")
+# 
+# abundance_table_filt <- rownames_to_column(abundance_table_filt, "contig") %>%
+#   filter(contig %in% passed_tpm_and_prevalence_filters) %>%
+#   column_to_rownames("contig")
 
 ##
-max_tpm_and_prev_df <- euk_contig_tpm_temp %>%
+max_tpm_and_prev_df <- contig_tpm_temp %>%
   select(!contains("Blank")) %>%
   rowwise() %>%
   mutate(max_tpm = max(c_across(-contig)),
          mean_tpm_where_present = rowMeans(across(-c(contig, max_tpm), ~ifelse(. > 0, ., NA)), na.rm = TRUE),
          prevalence = sum(c_across(-c(contig, max_tpm, mean_tpm_where_present)) > 0),
-         prevalence_of_tpm_5perc = sum(c_across(-c(contig, max_tpm, mean_tpm_where_present, prevalence)) > 0.05)) %>%
-  select(contig, max_tpm, mean_tpm_where_present, prevalence, prevalence_of_tpm_5perc) %>%
-  inner_join(rownames_to_column(euk_dia_bla_refined, "contig"),. , by="contig")
+         # prevalence_of_tpm_5perc = sum(c_across(-c(contig, max_tpm, mean_tpm_where_present, prevalence)) > 0.05),
+         prevalence_of_tpm_1perc = sum(c_across(-c(contig, max_tpm, mean_tpm_where_present, prevalence)) > 0.01)) %>%
+  select(contig, max_tpm, mean_tpm_where_present, prevalence, prevalence_of_tpm_1perc) %>%
+  inner_join(gnmd_classification_refined,. , by="contig")
 
 max_tpm_and_prev_hist <- max_tpm_and_prev_df %>%
-  select(contig, max_tpm, mean_tpm_where_present, prevalence, prevalence_of_tpm_5perc) %>%
+  select(contig, max_tpm, mean_tpm_where_present, prevalence, prevalence_of_tpm_1perc) %>%
   pivot_longer(-contig) %>%
   ggplot(aes(x=value)) +
   geom_histogram(bins=50) +
   facet_wrap(~name, scales="free")
 
-
 ################################################################################
 ################################################################################
-# Collapse AMFV contigs and append the artificial entry to dataframes
+# Generate absolute count table. Be aware that RNA genomes will not stain well with SYBER green.
 
-AMFV_contigs <- rownames_to_column(euk_dia_bla_refined, "contig") %>%
-  filter(Species=="Apis mellifera filamentous virus") %>%
-  select(contig) %>%
-  unlist(use.names = FALSE)
-
-AMFV_total_length <- contig_length_df %>%
-  filter(contig %in% AMFV_contigs) %>%
-  select(length_kb) %>%
-  summarise(sum(length_kb)) %>%
-  unlist(use.names = FALSE)
-
-AMFV_supercontig_name <- paste0("AMFV_allcontigs_length_", AMFV_total_length*1000, "_cov_NA_xx_xxxxx_xxx_xxx_x")
-contig_length_df <- add_row(contig_length_df, contig = AMFV_supercontig_name, length_kb=AMFV_total_length)
-
-euk_dia_bla_refined <- rownames_to_column(euk_dia_bla_refined, "contig") %>%
-  add_row(contig = AMFV_supercontig_name, taxID = 1100043,
-          Classification = "Viruses", Phylum = "", Class = "", Order = "",
-          Family = "", Subfamily = "", Genus = "",
-          Species = "Apis mellifera filamentous virus (all contigs)",
-          Classified_by = "diamond") %>%
-  column_to_rownames("contig")
-
-abundance_table_euk <- rownames_to_column(abundance_table_euk, "contig") %>%
-  filter(contig %in% AMFV_contigs) %>%
-  pivot_longer(-contig) %>%
-  group_by(name) %>%
-  mutate(value = sum(value), contig=AMFV_supercontig_name) %>%
-  unique() %>%
-  pivot_wider() %>%
-  bind_rows(rownames_to_column(abundance_table_euk, "contig"), .) %>%
-  filter(!contig %in% AMFV_contigs) %>%
-  column_to_rownames("contig")
-
-################################################################################
-################################################################################
-## Add host group information to classification table
-
-euk_dia_bla_refined <- host_groups_df %>%
-  select(Rank, Taxon, Host_group) %>%
-  left_join(rownames_to_column(euk_dia_bla_refined, "contig"), ., by=join_by(Family==Taxon)) %>%
-  
-  left_join(., host_groups_df, by=join_by(Species==Taxon)) %>% 
-  mutate(Host_group = coalesce(Host_group.x, Host_group.y)) %>% 
-  select(-c(Host_group.x, Host_group.y),
-         -contains(c("Rank", "Associated_family","Comment"))) %>% 
-  
-  mutate(Host_group = ifelse(taxID %in% Cressdnaviricota, 
-                             "unknown_or_nonsensical", Host_group)) %>%
-  column_to_rownames("contig") %>%
-  mutate(Host_group = ifelse(is.na(Host_group), "unassigned", Host_group))
-
-################################################################################
-################################################################################
-# Generate absolute count table .Be aware that most eukaryotic viruses will have
-# an RNA genome and virus counting was done with a flow cytometer and SYBR green
-# staining. RNA genomes will not stain well with SYBER green.
-
-samples_with_vlp_counts = metadata %>%
+samples_with_vlp_counts <- metadata %>%
   filter(!is.na(VLPs_per_ul)) %>%
   rownames()
 
-viral_loads <- euk_contig_tpm_temp %>%
-  select(contig, all_of(samples_with_vlp_counts)) %>%
+viral_loads <- contig_tpm_temp %>%
+  select(contig, any_of(samples_with_vlp_counts)) %>%
   filter(!if_all(-contig, ~. == 0)) %>%
   pivot_longer(-contig) %>%
   rename(Sample_ID = name) %>%
@@ -302,24 +277,6 @@ viral_loads <- euk_contig_tpm_temp %>%
   mutate(viral_load = value * VLPs_per_ul) %>%
   select(-c(value, VLPs_per_ul)) %>%
   pivot_wider(names_from = Sample_ID, values_from = viral_load)
-
-###
-
-subfam_but_no_fam = euk_dia_bla_refined %>%
-  select(Family, Subfamily) %>%
-  filter(Subfamily!="unclassified" & Family=="unclassified") %>%
-  nrow()
-
-taxlevels <- c("Species", "Genus", "Subfamily", "Family", "Order", "Class", "Phylum")
-for (lvl in taxlevels) {
-  number <- euk_dia_bla_refined %>%
-    select(all_of(lvl)) %>%
-    filter(.data[[lvl]]!="") %>%
-    unique() %>% nrow()
-    
-  cat(paste0(number," ", lvl, "-level classifications.\n"))
-}
-cat(paste("There are", subfam_but_no_fam, "subfamily designations without a corresponding family."))
 
 
 ################################################################################
@@ -331,14 +288,7 @@ cat(paste("There are", subfam_but_no_fam, "subfamily designations without a corr
 ggsave("output/R/decontam.library.size.by.control.or.sample.pdf", decontam$plot, width=30, height=10)
 
 # Viral load table
-system("mkdir -p output/R/euk_filtered/")
-write_csv(viral_loads, file="output/R/euk_filtered/euk.viral.load.VLPs.per.ul.csv")
-
-# Eukaryotic viral classification table
-rownames_to_column(euk_dia_bla_refined, "contig") %>%
-  inner_join(., contig_length_df, by="contig") %>% 
-  write_csv(., 
-          file="output/R/euk_filtered/euk.diamond.and.blast.classification.csv")
+write_csv(viral_loads, file="output/R/phage.viral.load.VLPs.per.ul.csv")
 
 # Co-occurrence
 write.csv(co_occ_join, "output/R/co_occurrence/co_occ_joined.csv", row.names=FALSE)
@@ -348,7 +298,13 @@ write.csv(co_occ_stats, "output/R/co_occurrence/co_occ_stats.csv", row.names=FAL
 write.csv(max_tpm_and_prev_df, "output/R/max_tpm_and_prev.csv", row.names=FALSE)
 ggsave("output/R/max_tpm_and_prev.pdf", max_tpm_and_prev_hist, width=8, height=5)
 
-
 # Raw abundance tables
-write_csv(rownames_to_column(abundance_table_euk, "contig"), file = "output/R/euk_filtered/euk.abundance.contig.csv")
+write_csv(rownames_to_column(abundance_table_filt, "contig"), file = "output/R/phage.filt.abundance.contig.csv")
+
+# Classification table
+gnmd_classification_refined %>%
+  filter(contig %in% rownames(abundance_table_filt)) %>%
+  write_csv(file = "output/R/phage.filt.gnmd.classification.csv")
+
+
 
