@@ -1,7 +1,7 @@
 # BPhage data analysis
 ## Versions
 - Viper version 2.1 (commit 8244c2eeeebeb2c1fbe4082034ca329e6f0a4a10 13 March 2024)
-- For software versions see [data/env_viper_bphage.yml](data/env_viper_bphage.yml), [data/env_r_bphage.yml](data/env_r_bphage.yml) and [data/env_ncbi.yml](data/env_ncbi.yml)
+- For software versions see [data/env_viper_bphage.yml](data/env_viper_bphage.yml) and [data/env_ncbi.yml](data/env_ncbi.yml)
 - R 4.3.1
     - `phyloseq 1.44.0`, `decontam 1.20.0`, `tidyverse 2.0.0`, `vegan 2.6-4`, `furrr 0.3.1`, `patchwork 1.1.3`, `ape 5.7-1`, `ggpubr 0.6.0`, `gridExtra 2.3`, `VennDiagram 1.7.3`, `ggforce 0.4.1`, `RColorBrewer 1.1-3`, `readxl 1.4.3`
 - RStudio 2023.12.1+402 (2023.12.1+402)
