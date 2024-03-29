@@ -14,7 +14,7 @@
 # sbatch ../../scripts/HPC/filter_classification.slrm
 
 source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
-conda activate r_bphage
+conda activate viper_bphage
 repo_location="$VSC_STAGING/BPhage"
 
 mkdir -p $VSC_SCRATCH/BPhage/filter_classification
@@ -23,14 +23,12 @@ cd $VSC_SCRATCH/BPhage/filter_classification
 # Generate merged table from checkv and genomad outputs, filtered down to at least 50% complete genomes.
 # Caudoviricetes are included in the phage output table although some Caudos infect archaea. I have no
 # indication of archaea present in my dataset, though. 
-# Mind the order of these arguments and ignore weird warning messages about the timezone not being configured...
-Rscript $repo_location/scripts/HPC/filter_classification.R \
+# Mind the order of these arguments.
+python3 $repo_location/scripts/HPC/filter_classification.py \
     $repo_location/output/bphage_ALL_1kb_genomad/bphage_ALL_1kb_cross_95-85_summary/bphage_ALL_1kb_cross_95-85_virus_summary.tsv.gz \
     $repo_location/output/bphage_ALL_1kb_checkv/quality_summary.tsv.gz \
-    $repo_location/data/VMR_19-250422_MSL37.xlsx \
+    $repo_location/data/VMR_19-250422_MSL37.csv \
     bphage_ALL_1kb
-
-conda activate viper_bphage
 
 # Make fasta file for phages
 cut -d',' -f1 bphage_ALL_1kb_phages.csv | sed 1d > temp.phage.contigs
