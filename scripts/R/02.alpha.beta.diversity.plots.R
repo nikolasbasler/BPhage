@@ -1,3 +1,4 @@
+start_time <- Sys.time()
 library(phyloseq)
 library(furrr)
 library(patchwork)
@@ -10,7 +11,6 @@ library(tidyverse)
 library(ggforce)
 library(RColorBrewer)
 
-start_time <- Sys.time()
 source("scripts/R/helpers/tpm_and_reads_per_kb.R")
 source("scripts/R/helpers/read_count_stats.R")
 source("scripts/R/helpers/relative_abundance.R")
@@ -80,6 +80,18 @@ for (hostg in hostgroups) {
                  classif = classification))
 }
 
+## Generate contig abundance table with merged metadata variables 
+# (e.g. all gut parts or all samples from the same country merged). Used 
+# for prealenve plots
+meta_merges <- list(Bee_pools = "Gut_part", 
+                    Countries = c("Season", "Gut_part", "Hive_ID"),
+                    Hives = c("Season", "Gut_part"))
+phage_ab_meta_merges <- list()
+for (merge in names(meta_merges)) {
+  phage_ab_meta_merges[[merge]] <- meta_sum(ab_table = phage_ab$contig, 
+                                            meta_vars = meta_merges[[merge]])
+}
+
 ## Generate TPM tables for different taxonomic levels. ####
 phage_tpm <- list()
 for (lvl in names(phage_ab)) {
@@ -97,17 +109,22 @@ for (hostg in hostgroups) {
 #------------------------------------------------------------------------------#
 # Set min seq thresholds for rarefaction. ####
 
+# 50% horizontal coverage cutoff
+# count_stats <- report_stats(df = phage_abundance,
+#                             thresholds=c(2689, 1002)) # First number: quantile_90_ratio < 1000, second number: quantile_95_ratio < 2500
+# min_seq_count <- 2713 # For quantile_90_ratio < 1000. 11 discarded samples (10 mid, 1 ile).
+
+# 70% horizontal coverage cutoff
 count_stats <- report_stats(df = phage_abundance,
-                            thresholds=c(2689, 1002)) # First number: quantile_90_ratio < 1000, second number: quantile_95_ratio < 2500
-min_seq_count <- 2713 # For quantile_90_ratio < 1000. 11 discarded samples (10 mid, 1 ile).
+                            thresholds=c(2445, 522)) # First number: quantile_90_ratio < 1000, second number: quantile_95_ratio < 2500
+count_stats
+min_seq_count <- 2460 # For quantile_90_ratio < 1000. 12 discarded samples (9 mid, 3 ile).
 discarded <- discards(count_stats$ratios, min_seq_count)$discarded
 lost_bees <- discards(count_stats$ratios, min_seq_count)$lost_bees # No bee pool lost completely. Only gut parts from different locations/time points.
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 # Alpha ####
-iterations <- 2
-
 met_v <- c("Country", "Season", "Gut_part", "Health")
 # taxlevels <- c("contig", "Species", "Genus", "Family")
 taxlevels <- c("contig")
@@ -122,7 +139,6 @@ for (tlvl in taxlevels) {
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 # Beta ####
-
 met_v <- c("Country", "Season", "Gut_part", "Health")
 # taxlevels <- c("contig", "Species", "Genus", "Family")
 taxlevels <- c("contig")
@@ -229,28 +245,34 @@ for (hgr in names(phage_tpm_hostgroup)) {
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 # Prevalence ####
-
-# CONTINUE HERE!
-
-met_v <- c("Country", "Season", "Gut_part", "Health")
-tax_levels <- c("contig", "Species", "Genus", "Family", "Order", "Class", "Phylum", "Kingdom", "Realm")
-prevalence_plots <- list()
-for (hgr in names(phage_tpm_hostgroup)) {
-  for (tlvl in tax_levels) {
-    # trsh <- 3
-    if (tlvl=="contig") {
-      trsh <- 20
-    } else {
-      trsh <- 1
-    }
-    prevalence_plots[[hgr]][[tlvl]] <- prevalence_bar_plot(
-      abtable = phage_tpm_hostgroup[[hgr]][[tlvl]],
-      tl = tlvl, 
-      hg = hgr,
-      meta_vars = met_v,
-      threshold_for_other = trsh)
-  }
+prevalence_histo <- list()
+for (merge in names(phage_ab_meta_merges)) {
+  prevalence_histo[[merge]] <- prevalence_histogram(abtable = phage_ab_meta_merges[[merge]],
+                                                          plot_title = merge)
 }
+
+# 
+# met_v <- c("Country", "Season", "Gut_part", "Health")
+# tax_levels <- c("contig", "Species", "Genus", "Family", "Order", "Class", "Phylum", "Kingdom", "Realm")
+# prevalence_plots <- list()
+# for (hgr in names(phage_tpm_hostgroup)) {
+#   for (tlvl in tax_levels) {
+#     # trsh <- 3
+#     if (tlvl=="contig") {
+#       trsh <- 20
+#     } else {
+#       trsh <- 1
+#     }
+#     prevalence_plots[[hgr]][[tlvl]] <- prevalence_bar_plot(
+#       abtable = phage_tpm_hostgroup[[hgr]][[tlvl]],
+#       tl = tlvl, 
+#       hg = hgr,
+#       meta_vars = met_v,
+#       threshold_for_other = trsh)
+#   }
+# }
+
+
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
@@ -260,12 +282,12 @@ average_tpm_plots_per_country <- list()
 prevalence_plots_per_country <- list()
 for (tlvl in tax_levels) {
   for (countr in levels(metadata$Country)) {
-    tpm_filt <- euk_tpm_hostgroup$arthropod[[tlvl]] %>%
+    tpm_filt <- phage_tpm_hostgroup$all[[tlvl]] %>%
       select(all_of(tlvl), starts_with(countr))
     country_tpm_plots <- average_tpm_bar_plot(
       tpm_table = tpm_filt, 
       tl = tlvl, 
-      hg = "arthropod", 
+      hg = "all", 
       meta_vars = c("Season", "Gut_part", "Health", "Sample_ID"),
       title_prefix = paste0(countr, " - "),
       threshold_for_other=0.03)
@@ -273,13 +295,13 @@ for (tlvl in tax_levels) {
         country_tpm_plots$Sample_ID /
         (country_tpm_plots$Season + country_tpm_plots$Gut_part + country_tpm_plots$Health)
       
-      ab_filt <- euk_ab_hostgroup_filt$arthropod[[tlvl]] %>%
+      ab_filt <- phage_ab_hostgroup$all[[tlvl]] %>%
           select(all_of(tlvl), starts_with(countr))
       number_of_samples <- ncol(ab_filt)-1
       prevalence_plots_per_country[[tlvl]][[countr]] <- prevalence_bar_plot(
         abtable = ab_filt,
         tl = tlvl, 
-        hg = "arthropod",
+        hg = "all",
         meta_vars = c("Season", "Gut_part", "Health"),
         title_prefix = paste0(countr, " (",number_of_samples," samples) - "),
         threshold_for_other=3)
@@ -298,7 +320,7 @@ for (tlvl in tax_levels) {
     system(paste0("mkdir -p output/R/venns/",tlvl,"/",m_var))
     for (cntr in c("all", levels(metadata$Country))) {
       venn_stats[[tlvl]][[m_var]][[cntr]] <- prevalence_venn(
-        abtable = euk_ab_hostgroup_filt$arthropod[[tlvl]],
+        abtable = phage_ab_hostgroup$all[[tlvl]],
         meta_var = m_var,
         country=cntr)
     }
@@ -309,24 +331,20 @@ for (tlvl in tax_levels) {
 #------------------------------------------------------------------------------#
 # Save files ####
 
-## Cross-contamination DWV plot ####
-ggsave(paste0("output/R/plate.cross.",ccontam_tax,".pdf"), ccontam_p, 
-       width = 15, height = 10)
-
 ## Alpha diversity plots and tables ####
 system("mkdir -p output/R/alpha")
-for (tax in names(alpha_arthro)) {
-  ggsave(paste0("output/R/alpha/alpha.arthro.",tax,".pdf"),
-         alpha_arthro[[tax]]$plot, width = 12, height=10)
-  write_csv(alpha_arthro[[tax]]$table,
-            paste0("output/R/alpha/alpha.arthro.",tax,".csv"))
+for (tax in names(alpha)) {
+  ggsave(paste0("output/R/alpha/alpha.",tax,".pdf"),
+         alpha[[tax]]$plot, width = 12, height=10)
+  write_csv(alpha[[tax]]$table,
+            paste0("output/R/alpha/alpha.",tax,".csv"))
 }
 
 ## Beta diversity plots and tables ####
-for (tax in names(beta_plot_list_arthro)) {
+for (tax in names(beta_plot_list)) {
   path <- paste0("output/R/beta/", tax, "_plots")
   system(paste0("mkdir -p ", path))
-  for (p in names(beta_plot_list_arthro[[tax]])) {
+  for (p in names(beta_plot_list[[tax]])) {
     if (p=="all") {
       width <- 17
       height <- 15
@@ -334,24 +352,24 @@ for (tax in names(beta_plot_list_arthro)) {
       width <- 17
       height <- 5
     }
-    for (q in names(beta_plot_list_arthro[[tax]][[p]])) {
-      ggsave(paste0(path,"/beta.arthro.", tax,".", p, ".", q, ".pdf"),
-             beta_plot_list_arthro[[tax]][[p]][[q]], width = width, height=height)
+    for (q in names(beta_plot_list[[tax]][[p]])) {
+      ggsave(paste0(path,"/beta.", tax,".", p, ".", q, ".pdf"),
+             beta_plot_list[[tax]][[p]][[q]], width = width, height=height)
     }
   }
   
-  write_csv(rownames_to_column(beta_dist_arthro[[tax]]$avg_dist, "Sample_ID"),
-            paste0("output/R/beta/beta_dist_arthro_", tax,".csv"))
+  write_csv(rownames_to_column(beta_dist[[tax]]$avg_dist, "Sample_ID"),
+            paste0("output/R/beta/beta_dist_", tax,".csv"))
 }
 
-## Heatmaps ####
-system("mkdir -p output/R/heatmaps/")
-for (tax in names(family_heatmaps_row)) {
-  ggsave(paste0("output/R/heatmaps/", tax, ".pdf"),
-         family_heatmaps_row[[tax]], 
-         width = 10+plotted_samples[[tax]]/5, height =2+plotted_contigs[[tax]]/5, 
-         limitsize = FALSE)
-}
+# ## Heatmaps ####
+# system("mkdir -p output/R/heatmaps/")
+# for (tax in names(family_heatmaps_row)) {
+#   ggsave(paste0("output/R/heatmaps/", tax, ".pdf"),
+#          family_heatmaps_row[[tax]], 
+#          width = 10+plotted_samples[[tax]]/5, height =2+plotted_contigs[[tax]]/5, 
+#          limitsize = FALSE)
+# }
 
 ## TPM ####
 system("mkdir -p output/R/relative_abundance_overall/")
@@ -364,15 +382,15 @@ for (tl in names(average_tpm_plots$Host_group)) {
          average_tpm_plots$Host_group[[tl]], width=15, height=8)
 }
 
-for (tl in names(average_tpm_plots$arthropod)) {
-  for (me in names(average_tpm_plots$arthropod[[tl]])) {
+for (tl in names(average_tpm_plots$all)) {
+  for (me in names(average_tpm_plots$all[[tl]])) {
     if (tl=="Species" && me=="Sample_ID") {
       wid=30
     } else {
       wid=15
     }
-    ggsave(paste0("output/R/relative_abundance_overall/average.TPM.arthropod.",tl,".",me,".pdf"),
-           average_tpm_plots$arthropod[[tl]][[me]], width=wid, height=8)
+    ggsave(paste0("output/R/relative_abundance_overall/average.TPM.all.",tl,".",me,".pdf"),
+           average_tpm_plots$all[[tl]][[me]], width=wid, height=8)
   }
 }
 
@@ -394,33 +412,23 @@ for (tl in names(average_tpm_plots_per_country)) {
 }
 
 ## Prevalence ####
-system("mkdir -p output/R/prevalence_overall/")
-for (tl in names(prevalence_plots$arthropod)) {
-  if (tl=="Species") {
-    wid=15
-  } else {
-    wid=10
-  }
-  ggsave(paste0("output/R/prevalence_overall/prevalence.arthropod.",tl,".pdf"),
-         prevalence_plots$arthropod[[tl]], width=wid, height=20,
-         limitsize = FALSE)
-}
-
-## Prevalence per country ####
-for (tl in names(prevalence_plots_per_country)) {
-  system(paste0("mkdir -p output/R/prevalence_per_country/",tl))
-  if (tl=="Species") {
+system("mkdir -p output/R/prevalence/")
+for (tl in names(prevalence_histo)) {
+  if (tl=="Bee_pools") {
+    wid=20
+    plot <- prevalence_histo[[tl]]$plot # + scale_x_continuous(breaks = seq(3,150,3))
+  } else if (tl=="Hives") {
     wid=12
-    hei=12
+    plot <- prevalence_histo[[tl]]$plot 
   } else {
     wid=8
-    hei=12  
+    plot <- prevalence_histo[[tl]]$plot
   }
-  for (countr in names(prevalence_plots_per_country[[tl]])) {
-    ggsave(paste0("output/R/prevalence_per_country/", tl,"/prevalence.arthropod.country.",
-                  countr,".",tl,".pdf"),
-           prevalence_plots_per_country[[tl]][[countr]], width=wid, height=hei)
-  }
+  ggsave(paste0("output/R/prevalence/prevalence.",tl,".pdf"),
+         plot, width=wid, height=5)
+  write_csv(prevalence_histo[[tl]]$table, paste0("output/R/prevalence/prevalence.",tl,".csv"))
 }
-Sys.time() - start_time
+
+end_time <- Sys.time()
+end_time - start_time
 

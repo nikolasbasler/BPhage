@@ -41,8 +41,10 @@ prevalence_venn <- function(abtable, meta_var, country) {
   colors <- c("#E69F00", "#56B4E9", "#009E73", "#999999")[1:n_cats]
   png_file <- paste0("output/R/venns/",tax,"/",meta_var,"/prevalence.Venn.",country,".",meta_var,".",tax,".png")
   
-  display_venn(contained_taxes, 
-               fill = colors, euler.d = FALSE, scaled=FALSE,
+  display_venn(cat_list = contained_taxes, 
+               fill = colors, 
+               euler.d = FALSE, 
+               scaled=FALSE,
                main = paste0(country," - ", meta_var," (",tax,")"),
                f_name = png_file
                )

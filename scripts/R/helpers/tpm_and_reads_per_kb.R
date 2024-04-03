@@ -63,6 +63,24 @@ tax_sum = function(tax_level, ab_table, classif) {
     summarize_at(vars(all_of(sample_names)), sum)
 }
 
+meta_sum <- function(ab_table, meta_vars) {
+  remaining_metas <- c("Country", "Hive_ID", "Season", "Gut_part") %>%
+    tibble(meta = .) %>%
+    filter(!meta %in% meta_vars) %>%
+    pull(meta) 
+  ab_table %>%
+    pivot_longer(-contig, names_to = "Sample_ID", values_to = "count") %>%
+    left_join(., metadata, by="Sample_ID") %>%
+    mutate(Hive_ID = as.character(Hive_ID)) %>%
+    select(contig, Sample_ID, count, all_of(remaining_metas)) %>%
+    unite(merged, all_of(remaining_metas), sep = "_", remove = FALSE) %>%
+    group_by(contig, merged) %>%
+    mutate(merged_count = sum(count)) %>% 
+    select(contig, merged, merged_count) %>%
+    unique() %>%
+    pivot_wider(names_from = merged, values_from = merged_count)
+}
+
 tax_lengths <- function(tax_level, classif) {
   classif %>%
     mutate(contig = as.character(contig)) %>%

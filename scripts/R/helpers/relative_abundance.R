@@ -222,6 +222,24 @@ average_tpm_bar_plot <- function(tpm_table, tl, hg, meta_vars, title_prefix="", 
   return(plot_list)
 }
 
+prevalence_histogram <- function(abtable, plot_title) {
+  tax <- colnames(abtable)[1]
+  plot_tbl <- abtable %>%
+    rename(group = all_of(tax)) %>%
+    pivot_longer(-group) %>%
+    mutate(value = ifelse(value>0, 1, 0)) %>%
+    group_by(group) %>%
+    summarise(prevalence_abs = sum(value),
+              prevalence_prop = sum(value) / (ncol(abtable)-1))
+  hist_plot <- plot_tbl %>%
+    ggplot(aes(x=prevalence_abs)) +
+    geom_histogram(binwidth = 1, color="white") +
+    geom_text(stat = "count", aes(label = after_stat(count)), vjust = -0.5) +
+    scale_x_continuous(breaks = 1:(ncol(abtable)-1)) +
+    labs(title=plot_title)
+  return(list(table = plot_tbl, plot = hist_plot))
+}
+
 prevalence_bar_plot <- function(abtable, tl, hg, meta_vars, title_prefix="", threshold_for_other=1) {
   label_for_other <- paste0("other (<", threshold_for_other,")")
   tax <- colnames(abtable)[1]

@@ -100,7 +100,7 @@ gnmd_classification <- host_groups_df %>%
 #   column_to_rownames("contig")
 
 # Filtering by horizontal coverage and mean depth
-hzc.filter=50
+hzc.filter=70
 mean.depth.filter = 1
 
 if (!identical(rownames(abundance.table), rownames(horizontal.cov.table)) |
@@ -152,11 +152,20 @@ removed_contigs = setdiff(contigs_before_hzc, contigs_after_hzc)
 samples_after_hzc = colnames(abundance_table_filt)
 removed_samples = setdiff(samples_before_hzc, samples_after_hzc)
 
+remaining_pools <- metadata %>%
+  mutate(pool = paste(Country, Hive_ID, Season, sep="_")) %>%
+  select(Sample_ID, pool) %>%
+  filter(!Sample_ID %in% removed_samples) %>%
+  select(pool) %>%
+  distinct() %>%
+  nrow()
+
 cat(length(contigs_before_hzc)-length(contigs_after_hzc), "of", length(contigs_before_hzc),
           "contigs and", length(samples_before_hzc)-length(samples_after_hzc), "of", length(samples_before_hzc),
           "samples removed due to horizontal coverage filter of", hzc.filter,", mean depth filter of", mean.depth.filter, "or because only present in blanks.\n",
           "\nRemoved contigs:\n", removed_contigs, "\n",
-          "\nRemoved samples:\n", removed_samples)
+          "\nRemoved samples:\n", removed_samples, "\n",
+          "\nRemaining bee pools:", remaining_pools)
 
 cat("Lowest number of mapped reads (>0) to any contig:", min(abundance_table_filt[abundance_table_filt>0]),"\n")
 
@@ -215,8 +224,7 @@ co_occ_stats <- co_occ_join %>%
 # TPM and prevalence filter
 
 contig_tpm_temp <- rownames_to_column(abundance_table_filt, "contig") %>%
-  inner_join(., contig_length_df, by="contig") %>%
-  calc_tpm(., "contig")
+  calc_tpm(., "contig", contig_length_df)
   
 gnmd_classification_refined <- gnmd_classification
 
