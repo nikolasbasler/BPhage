@@ -27,7 +27,7 @@ cd $VSC_SCRATCH/BPhage/filter_classification
 python3 $repo_location/scripts/HPC/filter_classification.py \
     $repo_location/output/bphage_ALL_1kb_genomad/bphage_ALL_1kb_cross_95-85_summary/bphage_ALL_1kb_cross_95-85_virus_summary.tsv.gz \
     $repo_location/output/bphage_ALL_1kb_checkv/quality_summary.tsv.gz \
-    $repo_location/data/VMR_19-250422_MSL37.csv \
+    $repo_location/data/VMR_19-250422_MSL37.xlsx \
     bphage_ALL_1kb
 
 # Make fasta file for phages
