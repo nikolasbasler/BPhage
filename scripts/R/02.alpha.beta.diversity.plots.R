@@ -56,6 +56,22 @@ classification <- classification %>%
 phage_abundance <- read.csv("output/R/phage.filt.abundance.contig.csv") %>%
   select(!contains("Blank"))
 
+# Make a pie chart of the different taxons
+taxon_pie <- table(classification$lowest_taxon) %>%
+  as.data.frame() %>%
+  rename(Lowest_taxon = Var1, Genomes = Freq) %>%
+  arrange(desc(Genomes)) %>%
+  mutate(Lowest_taxon = factor(Lowest_taxon, levels = Lowest_taxon)) %>%
+  ggplot(aes(x = "", y=Genomes, fill = Lowest_taxon)) +
+  geom_bar(stat = "identity", color="black", size=0.2) +
+  coord_polar("y") +
+  theme_classic() +
+  labs(x = NULL, y = NULL) +
+  theme(axis.line = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  scale_fill_brewer(palette="Set3")
+
 ## Generate abundance tables for different taxonomic levels.####
 taxlevels <- c("contig", "Species", "Genus", "Family", "Order", "Class", "Phylum", "Kingdom", "Realm", "Host_group")
 phage_ab <- list()
@@ -330,6 +346,9 @@ for (tlvl in tax_levels) {
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 # Save files ####
+
+## Taxon pie
+ggsave("output/R/taxon_pie.pdf", taxon_pie, width = 7, height = 5)
 
 ## Alpha diversity plots and tables ####
 system("mkdir -p output/R/alpha")
