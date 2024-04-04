@@ -63,7 +63,7 @@ taxon_pie <- table(classification$lowest_taxon) %>%
   arrange(desc(Genomes)) %>%
   mutate(Lowest_taxon = factor(Lowest_taxon, levels = Lowest_taxon)) %>%
   ggplot(aes(x = "", y=Genomes, fill = Lowest_taxon)) +
-  geom_bar(stat = "identity", color="black", size=0.2) +
+  geom_bar(stat = "identity", color="black", linewidth=0.2) +
   coord_polar("y") +
   theme_classic() +
   labs(x = NULL, y = NULL) +
@@ -160,6 +160,7 @@ met_v <- c("Country", "Season", "Gut_part", "Health")
 taxlevels <- c("contig")
 beta_dist <- list()
 beta_plot_list <- list()
+dist_hist_list <- list()
 for (tlvl in taxlevels) {
   beta_dist[[tlvl]] <- rared_ordination(df = phage_ab[[tlvl]], 
                                         meta_vars = met_v, 
@@ -361,8 +362,10 @@ for (tax in names(alpha)) {
 
 ## Beta diversity plots and tables ####
 for (tax in names(beta_plot_list)) {
-  path <- paste0("output/R/beta/", tax, "_plots")
-  system(paste0("mkdir -p ", path))
+  pcoa_path <- paste0("output/R/beta/", tax, "_pcoa")
+  hist_path <- paste0("output/R/beta/", tax, "_hist")
+  system(paste0("mkdir -p ", pcoa_path))
+  system(paste0("mkdir -p ", hist_path))
   for (p in names(beta_plot_list[[tax]])) {
     if (p=="all") {
       width <- 17
@@ -372,8 +375,12 @@ for (tax in names(beta_plot_list)) {
       height <- 5
     }
     for (q in names(beta_plot_list[[tax]][[p]])) {
-      ggsave(paste0(path,"/beta.", tax,".", p, ".", q, ".pdf"),
-             beta_plot_list[[tax]][[p]][[q]], width = width, height=height)
+      ggsave(paste0(pcoa_path,"/beta.", tax,".", p, ".", q, ".pcoa.pdf"),
+             beta_plot_list[[tax]][[p]][[q]], width = width, height = height)
+      
+      if (q == "control") { next }
+      ggsave(paste0(hist_path,"/beta.", tax,".", p, ".", q, ".hist.pdf"),
+             beta_dist[[tax]]$dist_hist_list[[p]][[q]], width = 8, height = 6)
     }
   }
   

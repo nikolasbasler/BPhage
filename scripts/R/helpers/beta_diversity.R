@@ -27,6 +27,16 @@ beta_rarified <- function(ab_table, sampling_depth, lengths, seed) {
   return(df)
 }
 
+distance_histogram <- function(dist_df, metadata_var, metadata_value) {
+  dist_df %>%
+    rownames_to_column("Sample_ID") %>%
+    pivot_longer(-Sample_ID, values_to = "distance") %>%
+    filter(Sample_ID > name) %>%
+    ggplot(aes(x=distance)) +
+    geom_histogram(binwidth = 0.01) +
+    labs(title = paste0(metadata_var, " - ", metadata_value))
+}
+
 rared_ordination = function(df, min_seq, meta_vars, df_lengths, seed) {
   tax <- colnames(df)[1]
   df_t = df %>% 
@@ -47,6 +57,12 @@ rared_ordination = function(df, min_seq, meta_vars, df_lengths, seed) {
   ord_list <- list()
   ord_list$all$all <- pcoa(beta_average_dist)
   
+  distances_plots <- list()
+  distances_plots$all$all <- beta_average_dist %>%
+    as.matrix() %>% 
+    as.data.frame() %>% 
+    distance_histogram(metadata_var = "all", metadata_value = "all")
+  
   for (m_var in meta_vars) {
     for (m_value in levels(metadata[[m_var]])) {
       filter_vector <- metadata %>%
@@ -55,19 +71,22 @@ rared_ordination = function(df, min_seq, meta_vars, df_lengths, seed) {
         unlist() %>%
         as.character()
       
-      ord_list[[m_var]][[m_value]] <- beta_average_dist %>%
+        beta_average_filt <- beta_average_dist %>%
         as.matrix() %>% 
         as.data.frame() %>% 
         rownames_to_column("Sample_ID") %>%
         select(Sample_ID, any_of(filter_vector)) %>%
         filter(Sample_ID %in% filter_vector) %>%
-        column_to_rownames("Sample_ID") %>%
-        pcoa()
+        column_to_rownames("Sample_ID")
+      
+        ord_list[[m_var]][[m_value]] <- pcoa(beta_average_filt)
+        
+        distances_plots[[m_var]][[m_value]] <- beta_average_filt %>%
+          distance_histogram(metadata_var = m_var, metadata_value = m_value)
     }
   }
-  return(list(ord_list = ord_list, avg_dist = beta_average_df))
+  return(list(ord_list = ord_list, avg_dist = beta_average_df, dist_hist_list = distances_plots))
 }
-
 
 beta_plot = function(ordination_list, meta_vars) {
   final_plotlist <- list()
@@ -119,4 +138,3 @@ beta_plot = function(ordination_list, meta_vars) {
   }
   return(final_plotlist)
 }
-
