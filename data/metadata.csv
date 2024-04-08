@@ -1,472 +1,472 @@
-Sample_ID,Tube_ID,Sample_or_control,BGOOD_sample_code,Apiary_name,Apiary_ID,Hive_name,Hive_ID,Country,Latitude,Longitude,Season,Gut_part,Health,Number_of_queens,VLPs_per_ul,Extraction_plate,Extraction_plate_row,Extraction_plate_col,Average_Qubit,Mapped_reads
-BE_16556_aut_ile_d,4337,sample,ZFPFLNCJ,Merendree,3386,KM 1,16556,BE,51.074,51.074,aut,ile,bad,2,NA,7,D,X3,4.7,1115503
-BE_16556_aut_mid_d,4329,sample,ZFPFLNCJ,Merendree,3386,KM 1,16556,BE,51.074,51.074,aut,mid,bad,2,NA,7,C,X3,20.2,439961
-BE_16556_aut_rec_d,4345,sample,ZFPFLNCJ,Merendree,3386,KM 1,16556,BE,51.074,51.074,aut,rec,bad,2,187747.9518,7,E,X3,10.1,16540984
-BE_16556_spr_ile_d,612,sample,MYYMKPFS,Merendree,3386,KM 1,16556,BE,51.074,51.074,spr,ile,bad,2,NA,1,F,X6,4,362261
-BE_16556_spr_mid_d,604,sample,MYYMKPFS,Merendree,3386,KM 1,16556,BE,51.074,51.074,spr,mid,bad,2,NA,1,E,X6,7.5,2104041
-BE_16556_spr_rec_d,620,sample,MYYMKPFS,Merendree,3386,KM 1,16556,BE,51.074,51.074,spr,rec,bad,2,117059.5208,1,G,X6,4.1,15490593
-BE_16556_sum_ile_d,362,sample,AGPPLNZG,Merendree,3386,KM 1,16556,BE,51.074,51.074,sum,ile,bad,2,NA,1,A,X3,4.9,439620
-BE_16556_sum_mid_d,354,sample,AGPPLNZG,Merendree,3386,KM 1,16556,BE,51.074,51.074,sum,mid,bad,2,NA,1,H,X2,7.5,3252897
-BE_16556_sum_rec_d,370,sample,AGPPLNZG,Merendree,3386,KM 1,16556,BE,51.074,51.074,sum,rec,bad,2,171457.4572,1,B,X3,7.3,16079678
-BE_16557_aut_ile_d,4362,sample,NHYTDADT,Merendree,3386,KM 2 a,16557,BE,51.074,51.074,aut,ile,bad,1,NA,7,H,X3,3.9,1170004
-BE_16557_aut_mid_d,4354,sample,NHYTDADT,Merendree,3386,KM 2 a,16557,BE,51.074,51.074,aut,mid,bad,1,NA,7,G,X3,12.3,134578
-BE_16557_aut_rec_d,4370,sample,NHYTDADT,Merendree,3386,KM 2 a,16557,BE,51.074,51.074,aut,rec,bad,1,233208.3956,7,A,X4,6.8,22307555
-BE_16557_spr_ile_d,487,sample,PFHDFAKZ,Merendree,3386,KM 2 a,16557,BE,51.074,51.074,spr,ile,bad,1,NA,1,G,X4,6.6,367730
-BE_16557_spr_mid_d,479,sample,PFHDFAKZ,Merendree,3386,KM 2 a,16557,BE,51.074,51.074,spr,mid,bad,1,NA,1,E,X4,9,221146
-BE_16557_spr_rec_d,495,sample,PFHDFAKZ,Merendree,3386,KM 2 a,16557,BE,51.074,51.074,spr,rec,bad,1,77108.56646,1,H,X4,12.9,17470879
-BE_16557_sum_ile_d,237,sample,KLAMUDTN,Merendree,3386,KM 2 a,16557,BE,51.074,51.074,sum,ile,bad,1,NA,1,B,X1,4.3,424587
-BE_16557_sum_mid_d,229,sample,KLAMUDTN,Merendree,3386,KM 2 a,16557,BE,51.074,51.074,sum,mid,bad,1,NA,1,A,X1,8.1,7351908
-BE_16557_sum_rec_d,245,sample,KLAMUDTN,Merendree,3386,KM 2 a,16557,BE,51.074,51.074,sum,rec,bad,1,80282.09677,1,C,X1,4.8,23032664
-BE_16558_aut_ile_d,4312,sample,PCHXNGBR,Merendree,3386,KM 3 a,16558,BE,51.074,51.074,aut,ile,very_bad,2,NA,7,A,X3,4.7,292360
-BE_16558_aut_mid_d,4304,sample,PCHXNGBR,Merendree,3386,KM 3 a,16558,BE,51.074,51.074,aut,mid,very_bad,2,NA,7,H,X2,11,400306
-BE_16558_aut_rec_d,4320,sample,PCHXNGBR,Merendree,3386,KM 3 a,16558,BE,51.074,51.074,aut,rec,very_bad,2,361300.4933,7,B,X3,7,20791479
-BE_16558_spr_ile_d,537,sample,KAJSHJSS,Merendree,3386,KM 3 a,16558,BE,51.074,51.074,spr,ile,very_bad,2,NA,1,E,X5,2.8,297664
-BE_16558_spr_mid_d,529,sample,KAJSHJSS,Merendree,3386,KM 3 a,16558,BE,51.074,51.074,spr,mid,very_bad,2,NA,1,D,X5,5.9,1435465
-BE_16558_spr_rec_d,545,sample,KAJSHJSS,Merendree,3386,KM 3 a,16558,BE,51.074,51.074,spr,rec,very_bad,2,83933.9148,1,F,X5,4.4,21637179
-BE_16558_sum_ile_d,437,sample,XNMDFDCH,Merendree,3386,KM 3 a,16558,BE,51.074,51.074,sum,ile,very_bad,2,NA,1,G,X3,4.8,215201
-BE_16558_sum_mid_d,429,sample,XNMDFDCH,Merendree,3386,KM 3 a,16558,BE,51.074,51.074,sum,mid,very_bad,2,NA,1,F,X3,6.3,18811215
-BE_16558_sum_rec_d,445,sample,XNMDFDCH,Merendree,3386,KM 3 a,16558,BE,51.074,51.074,sum,rec,very_bad,2,299057.4751,1,H,X3,7.6,11486093
-BE_16559_aut_ile_d,4212,sample,MNAZYZTL,Merendree,3386,KM 4 a,16559,BE,51.074,51.074,aut,ile,very_good,1,NA,7,E,X1,5.1,461306
-BE_16559_aut_mid_d,4204,sample,MNAZYZTL,Merendree,3386,KM 4 a,16559,BE,51.074,51.074,aut,mid,very_good,1,NA,7,D,X1,17.8,236819
-BE_16559_aut_rec_d,4220,sample,MNAZYZTL,Merendree,3386,KM 4 a,16559,BE,51.074,51.074,aut,rec,very_good,1,483599.4136,7,F,X1,6.5,22158082
-BE_16559_spr_ile_d,462,sample,ZPKXNZDS,Merendree,3386,KM 4 a,16559,BE,51.074,51.074,spr,ile,very_good,1,NA,1,B,X4,5.8,10898233
-BE_16559_spr_mid_d,454,sample,ZPKXNZDS,Merendree,3386,KM 4 a,16559,BE,51.074,51.074,spr,mid,very_good,1,NA,1,A,X4,8,505165
-BE_16559_spr_rec_d,470,sample,ZPKXNZDS,Merendree,3386,KM 4 a,16559,BE,51.074,51.074,spr,rec,very_good,1,125762.4911,1,D,X4,7,10118684
-BE_16559_sum_ile_d,287,sample,LTZDMHMK,Merendree,3386,KM 4 a,16559,BE,51.074,51.074,sum,ile,very_good,1,NA,1,H,X1,5.5,1299323
-BE_16559_sum_mid_d,279,sample,LTZDMHMK,Merendree,3386,KM 4 a,16559,BE,51.074,51.074,sum,mid,very_good,1,NA,1,G,X1,8,328194
-BE_16559_sum_rec_d,295,sample,LTZDMHMK,Merendree,3386,KM 4 a,16559,BE,51.074,51.074,sum,rec,very_good,1,605270.6697,1,A,X2,8.4,2344108
-BE_16560_aut_ile_d,4387,sample,HBALKRBG,Merendree,3386,KM 5,16560,BE,51.074,51.074,aut,ile,bad,1,NA,7,C,X4,8.2,21207912
-BE_16560_aut_mid_d,4379,sample,HBALKRBG,Merendree,3386,KM 5,16560,BE,51.074,51.074,aut,mid,bad,1,NA,7,B,X4,10.9,233768
-BE_16560_aut_rec_d,4395,sample,HBALKRBG,Merendree,3386,KM 5,16560,BE,51.074,51.074,aut,rec,bad,1,427193.1314,7,D,X4,3.8,129742
-BE_16560_spr_ile_d,587,sample,AZPNADHG,Merendree,3386,KM 5,16560,BE,51.074,51.074,spr,ile,bad,1,NA,1,C,X6,7.2,4586381
-BE_16560_spr_mid_d,579,sample,AZPNADHG,Merendree,3386,KM 5,16560,BE,51.074,51.074,spr,mid,bad,1,NA,1,B,X6,11.7,1338430
-BE_16560_spr_rec_d,595,sample,AZPNADHG,Merendree,3386,KM 5,16560,BE,51.074,51.074,spr,rec,bad,1,357432.0171,1,D,X6,12,19126314
-BE_16560_sum_ile_d,337,sample,BSHXDTFA,Merendree,3386,KM 5,16560,BE,51.074,51.074,sum,ile,bad,1,NA,1,F,X2,4.6,606327
-BE_16560_sum_mid_d,329,sample,BSHXDTFA,Merendree,3386,KM 5,16560,BE,51.074,51.074,sum,mid,bad,1,NA,1,E,X2,5.9,4165459
-BE_16560_sum_rec_d,345,sample,BSHXDTFA,Merendree,3386,KM 5,16560,BE,51.074,51.074,sum,rec,bad,1,134436.6981,1,G,X2,8.5,10327834
-BE_16561_aut_ile_d,4287,sample,JUBYFMXH,Merendree,3386,KM 6,16561,BE,51.074,51.074,aut,ile,very_good,1,NA,7,F,X2,6.2,1899284
-BE_16561_aut_mid_d,4279,sample,JUBYFMXH,Merendree,3386,KM 6,16561,BE,51.074,51.074,aut,mid,very_good,1,NA,7,E,X2,12.3,398030
-BE_16561_aut_rec_d,4295,sample,JUBYFMXH,Merendree,3386,KM 6,16561,BE,51.074,51.074,aut,rec,very_good,1,107352.7911,7,G,X2,20.9,12493061
-BE_16561_spr_ile_d,562,sample,HAHKPZPH,Merendree,3386,KM 6,16561,BE,51.074,51.074,spr,ile,very_good,1,NA,1,H,X5,9.7,312800
-BE_16561_spr_mid_d,554,sample,HAHKPZPH,Merendree,3386,KM 6,16561,BE,51.074,51.074,spr,mid,very_good,1,NA,1,G,X5,8.8,48860
-BE_16561_spr_rec_d,570,sample,HAHKPZPH,Merendree,3386,KM 6,16561,BE,51.074,51.074,spr,rec,very_good,1,66466.51473,1,A,X6,8.3,751757
-BE_16561_sum_ile_d,412,sample,LKZTTGUM,Merendree,3386,KM 6,16561,BE,51.074,51.074,sum,ile,very_good,1,NA,1,D,X3,4.7,541937
-BE_16561_sum_mid_d,404,sample,LKZTTGUM,Merendree,3386,KM 6,16561,BE,51.074,51.074,sum,mid,very_good,1,NA,1,C,X3,5.7,4180774
-BE_16561_sum_rec_d,420,sample,LKZTTGUM,Merendree,3386,KM 6,16561,BE,51.074,51.074,sum,rec,very_good,1,350697.3806,1,E,X3,8.9,21528496
-BE_16562_aut_ile_d,4412,sample,DZTYNYAA,Merendree,3386,KM 7,16562,BE,51.074,51.074,aut,ile,bad,2,NA,7,F,X4,11.8,16830782
-BE_16562_aut_mid_d,4404,sample,DZTYNYAA,Merendree,3386,KM 7,16562,BE,51.074,51.074,aut,mid,bad,2,NA,7,E,X4,7,4226810
-BE_16562_aut_rec_d,4420,sample,DZTYNYAA,Merendree,3386,KM 7,16562,BE,51.074,51.074,aut,rec,bad,2,91928.9317,7,G,X4,4.5,768416
-BE_16562_spr_ile_d,637,sample,JLNBASGF,Merendree,3386,KM 7,16562,BE,51.074,51.074,spr,ile,bad,2,NA,1,A,X7,3.1,447917
-BE_16562_spr_mid_d,629,sample,JLNBASGF,Merendree,3386,KM 7,16562,BE,51.074,51.074,spr,mid,bad,2,NA,1,H,X6,4.9,267596
-BE_16562_spr_rec_d,645,sample,JLNBASGF,Merendree,3386,KM 7,16562,BE,51.074,51.074,spr,rec,bad,2,117052.0301,1,B,X7,7.2,19523579
-BE_16562_sum_ile_d,312,sample,TDCKMJYY,Merendree,3386,KM 7,16562,BE,51.074,51.074,sum,ile,bad,2,NA,1,C,X2,4.5,2490611
-BE_16562_sum_mid_d,304,sample,TDCKMJYY,Merendree,3386,KM 7,16562,BE,51.074,51.074,sum,mid,bad,2,NA,1,B,X2,7.1,3493819
-BE_16562_sum_rec_d,320,sample,TDCKMJYY,Merendree,3386,KM 7,16562,BE,51.074,51.074,sum,rec,bad,2,89714.54027,1,D,X2,11.4,16002817
-BE_16563_aut_ile_d,4237,sample,LUJBUMSU,Merendree,3386,KM 8,16563,BE,51.074,51.074,aut,ile,good,1,NA,7,H,X1,4.7,461410
-BE_16563_aut_mid_d,4229,sample,LUJBUMSU,Merendree,3386,KM 8,16563,BE,51.074,51.074,aut,mid,good,1,NA,7,G,X1,8.9,567386
-BE_16563_aut_rec_d,4245,sample,LUJBUMSU,Merendree,3386,KM 8,16563,BE,51.074,51.074,aut,rec,good,1,67974.17667,7,A,X2,15.8,28610749
-BE_16563_spr_ile_d,662,sample,TSXGKXLR,Merendree,3386,KM 8,16563,BE,51.074,51.074,spr,ile,good,1,NA,1,D,X7,4.4,1094602
-BE_16563_spr_mid_d,654,sample,TSXGKXLR,Merendree,3386,KM 8,16563,BE,51.074,51.074,spr,mid,good,1,NA,1,C,X7,12,319863
-BE_16563_spr_rec_d,670,sample,TSXGKXLR,Merendree,3386,KM 8,16563,BE,51.074,51.074,spr,rec,good,1,162462.3695,1,E,X7,7.7,12965697
-BE_16563_sum_ile_d,4437,sample,UXZKXRBK,Merendree,3386,KM 8,16563,BE,51.074,51.074,sum,ile,good,1,NA,7,A,X5,18.6,22446096
-BE_16563_sum_mid_d,4429,sample,UXZKXRBK,Merendree,3386,KM 8,16563,BE,51.074,51.074,sum,mid,good,1,NA,7,H,X4,9,884499
-BE_16563_sum_rec_d,4445,sample,UXZKXRBK,Merendree,3386,KM 8,16563,BE,51.074,51.074,sum,rec,good,1,64800.68348,7,B,X5,22.2,17869758
-CH_17685_aut_ile_d,3687,sample,YFGRKCMC,BGOOD - University of Bern,3577,BGOOD_Ubern_A,17685,CH,46.967,46.967,aut,ile,very_good,1,NA,5,B,X8,4.1,499362
-CH_17685_aut_mid_d,3679,sample,YFGRKCMC,BGOOD - University of Bern,3577,BGOOD_Ubern_A,17685,CH,46.967,46.967,aut,mid,very_good,1,NA,5,A,X8,10.8,174043
-CH_17685_aut_rec_d,3695,sample,YFGRKCMC,BGOOD - University of Bern,3577,BGOOD_Ubern_A,17685,CH,46.967,46.967,aut,rec,very_good,1,401455.559,5,C,X8,8.5,23286515
-CH_17685_sum_ile_d,3387,sample,KNHDZSGB,BGOOD - University of Bern,3577,BGOOD_Ubern_A,17685,CH,46.967,46.967,sum,ile,very_good,1,NA,5,D,X3,5.3,194055
-CH_17685_sum_mid_d,3379,sample,KNHDZSGB,BGOOD - University of Bern,3577,BGOOD_Ubern_A,17685,CH,46.967,46.967,sum,mid,very_good,1,NA,5,C,X3,9.2,328207
-CH_17685_sum_rec_d,3395,sample,KNHDZSGB,BGOOD - University of Bern,3577,BGOOD_Ubern_A,17685,CH,46.967,46.967,sum,rec,very_good,1,118272.3375,5,E,X3,7.2,21313173
-CH_17686_sum_ile_d,3462,sample,NNAFLYSD,BGOOD - University of Bern,3577,[Dead] BGOOD_Ubern_B,17686,CH,46.967,46.967,sum,ile,bad,1,NA,5,F,X4,5.9,1938763
-CH_17686_sum_mid_d,3454,sample,NNAFLYSD,BGOOD - University of Bern,3577,[Dead] BGOOD_Ubern_B,17686,CH,46.967,46.967,sum,mid,bad,1,NA,5,E,X4,13.6,134973
-CH_17686_sum_rec_d,3470,sample,NNAFLYSD,BGOOD - University of Bern,3577,[Dead] BGOOD_Ubern_B,17686,CH,46.967,46.967,sum,rec,bad,1,135624.1793,5,G,X4,17,11118482
-CH_17687_aut_ile_d,3587,sample,XNCZFFCA,BGOOD - University of Bern,3577,BGOOD_Ubern_C,17687,CH,46.967,46.967,aut,ile,very_good,1,NA,5,F,X6,7.3,579564
-CH_17687_aut_mid_d,3579,sample,XNCZFFCA,BGOOD - University of Bern,3577,BGOOD_Ubern_C,17687,CH,46.967,46.967,aut,mid,very_good,1,NA,5,E,X6,7.1,2555922
-CH_17687_aut_rec_d,3595,sample,XNCZFFCA,BGOOD - University of Bern,3577,BGOOD_Ubern_C,17687,CH,46.967,46.967,aut,rec,very_good,1,138541.7456,5,G,X6,11.1,22457173
-CH_17687_sum_ile_d,3362,sample,BTMXLZBR,BGOOD - University of Bern,3577,BGOOD_Ubern_C,17687,CH,46.967,46.967,sum,ile,very_good,1,NA,5,A,X3,6.3,718771
-CH_17687_sum_mid_d,3354,sample,BTMXLZBR,BGOOD - University of Bern,3577,BGOOD_Ubern_C,17687,CH,46.967,46.967,sum,mid,very_good,1,NA,5,H,X2,13,435404
-CH_17687_sum_rec_d,3370,sample,BTMXLZBR,BGOOD - University of Bern,3577,BGOOD_Ubern_C,17687,CH,46.967,46.967,sum,rec,very_good,1,200814.487,5,B,X3,7,6377443
-CH_17688_aut_ile_d,3612,sample,BHATRJTX,BGOOD - University of Bern,3577,BGOOD_Ubern_D,17688,CH,46.967,46.967,aut,ile,good,1,NA,5,A,X7,5.5,432423
-CH_17688_aut_mid_d,3604,sample,BHATRJTX,BGOOD - University of Bern,3577,BGOOD_Ubern_D,17688,CH,46.967,46.967,aut,mid,good,1,NA,5,H,X6,10.6,5754499
-CH_17688_aut_rec_d,3620,sample,BHATRJTX,BGOOD - University of Bern,3577,BGOOD_Ubern_D,17688,CH,46.967,46.967,aut,rec,good,1,99228.02198,5,B,X7,7.9,8657156
-CH_17688_sum_ile_d,3537,sample,PHDNYKAL,BGOOD - University of Bern,3577,BGOOD_Ubern_D,17688,CH,46.967,46.967,sum,ile,good,1,NA,5,G,X5,4.9,389044
-CH_17688_sum_mid_d,3529,sample,PHDNYKAL,BGOOD - University of Bern,3577,BGOOD_Ubern_D,17688,CH,46.967,46.967,sum,mid,good,1,NA,5,F,X5,11.8,199866
-CH_17688_sum_rec_d,3545,sample,PHDNYKAL,BGOOD - University of Bern,3577,BGOOD_Ubern_D,17688,CH,46.967,46.967,sum,rec,good,1,207404.2543,5,H,X5,6.7,12570617
-CH_17689_aut_ile_d,3712,sample,LNZMUJUC,BGOOD - University of Bern,3577,BGOOD_Ubern_E,17689,CH,46.967,46.967,aut,ile,bad,1,NA,6,B,X1,7.6,378706
-CH_17689_aut_mid_d,3704,sample,LNZMUJUC,BGOOD - University of Bern,3577,BGOOD_Ubern_E,17689,CH,46.967,46.967,aut,mid,bad,1,NA,6,A,X1,6.1,439366
-CH_17689_aut_rec_d,3720,sample,LNZMUJUC,BGOOD - University of Bern,3577,BGOOD_Ubern_E,17689,CH,46.967,46.967,aut,rec,bad,1,61149.46014,6,C,X1,7.5,12017272
-CH_17690_aut_ile_d,3637,sample,XGMXBTJN,BGOOD - University of Bern,3577,[Dead] BGOOD_Ubern_F,17690,CH,46.967,46.967,aut,ile,good,1,NA,5,D,X7,4.3,137651
-CH_17690_aut_mid_d,3629,sample,XGMXBTJN,BGOOD - University of Bern,3577,[Dead] BGOOD_Ubern_F,17690,CH,46.967,46.967,aut,mid,good,1,NA,5,C,X7,6.4,1882663
-CH_17690_aut_rec_d,3645,sample,XGMXBTJN,BGOOD - University of Bern,3577,[Dead] BGOOD_Ubern_F,17690,CH,46.967,46.967,aut,rec,good,1,824449.2522,5,E,X7,14.3,19956181
-CH_17690_sum_ile_d,3437,sample,KFUXDSJJ,BGOOD - University of Bern,3577,[Dead] BGOOD_Ubern_F,17690,CH,46.967,46.967,sum,ile,good,1,NA,5,C,X4,4.1,108379
-CH_17690_sum_mid_d,3429,sample,KFUXDSJJ,BGOOD - University of Bern,3577,[Dead] BGOOD_Ubern_F,17690,CH,46.967,46.967,sum,mid,good,1,NA,5,B,X4,8.7,785180
-CH_17690_sum_rec_d,3445,sample,KFUXDSJJ,BGOOD - University of Bern,3577,[Dead] BGOOD_Ubern_F,17690,CH,46.967,46.967,sum,rec,good,1,181742.2013,5,D,X4,25.2,17423512
-CH_17691_aut_ile_d,3662,sample,YHBTXPTR,BGOOD - University of Bern,3577,BGOOD_Ubern_G,17691,CH,46.967,46.967,aut,ile,good,1,NA,5,G,X7,6.4,6411848
-CH_17691_aut_mid_d,3654,sample,YHBTXPTR,BGOOD - University of Bern,3577,BGOOD_Ubern_G,17691,CH,46.967,46.967,aut,mid,good,1,NA,5,F,X7,4.6,291467
-CH_17691_aut_rec_d,3670,sample,YHBTXPTR,BGOOD - University of Bern,3577,BGOOD_Ubern_G,17691,CH,46.967,46.967,aut,rec,good,1,166304.9162,5,H,X7,4.9,11799549
-CH_17691_sum_ile_d,3412,sample,UASRHMPX,BGOOD - University of Bern,3577,BGOOD_Ubern_G,17691,CH,46.967,46.967,sum,ile,good,1,NA,5,H,X3,4.8,596905
-CH_17691_sum_mid_d,3404,sample,UASRHMPX,BGOOD - University of Bern,3577,BGOOD_Ubern_G,17691,CH,46.967,46.967,sum,mid,good,1,NA,5,G,X3,26.5,837461
-CH_17691_sum_rec_d,3420,sample,UASRHMPX,BGOOD - University of Bern,3577,BGOOD_Ubern_G,17691,CH,46.967,46.967,sum,rec,good,1,96834.89597,5,A,X4,7.8,18752812
-CH_17692_aut_ile_d,3562,sample,KGKRJZBF,BGOOD - University of Bern,3577,BGOOD_Ubern_H,17692,CH,46.967,46.967,aut,ile,good,1,NA,5,B,X6,4.6,444805
-CH_17692_aut_mid_d,3554,sample,KGKRJZBF,BGOOD - University of Bern,3577,BGOOD_Ubern_H,17692,CH,46.967,46.967,aut,mid,good,1,NA,5,A,X6,6.1,291025
-CH_17692_aut_rec_d,3570,sample,KGKRJZBF,BGOOD - University of Bern,3577,BGOOD_Ubern_H,17692,CH,46.967,46.967,aut,rec,good,1,98139.42375,5,D,X6,7.3,11657474
-CH_17692_sum_ile_d,3487,sample,GYTBRBMR,BGOOD - University of Bern,3577,BGOOD_Ubern_H,17692,CH,46.967,46.967,sum,ile,good,1,NA,5,A,X5,5.5,944596
-CH_17692_sum_mid_d,3479,sample,GYTBRBMR,BGOOD - University of Bern,3577,BGOOD_Ubern_H,17692,CH,46.967,46.967,sum,mid,good,1,NA,5,H,X4,19.8,258438
-CH_17692_sum_rec_d,3495,sample,GYTBRBMR,BGOOD - University of Bern,3577,BGOOD_Ubern_H,17692,CH,46.967,46.967,sum,rec,good,1,45278.63778,5,B,X5,13,13260857
-DE_18027_aut_ile_d,2312,sample,TKXMSRJL,MLU B-GOOD mini apiary,3603,R 2,18027,DE,51.505321,51.505321,aut,ile,very_good,1,NA,3,E,X8,6.3,704803
-DE_18027_aut_mid_d,2304,sample,TKXMSRJL,MLU B-GOOD mini apiary,3603,R 2,18027,DE,51.505321,51.505321,aut,mid,very_good,1,NA,3,D,X8,6.5,2357576
-DE_18027_aut_rec_d,2320,sample,TKXMSRJL,MLU B-GOOD mini apiary,3603,R 2,18027,DE,51.505321,51.505321,aut,rec,very_good,1,39390.02924,3,F,X8,11.6,8106153
-DE_18027_spr_ile_d,1937,sample,TBFTZTPP,MLU B-GOOD mini apiary,3603,R 2,18027,DE,51.505321,51.505321,spr,ile,very_good,1,NA,3,F,X2,5.3,733046
-DE_18027_spr_mid_d,1929,sample,TBFTZTPP,MLU B-GOOD mini apiary,3603,R 2,18027,DE,51.505321,51.505321,spr,mid,very_good,1,NA,3,E,X2,7.5,324307
-DE_18027_spr_rec_d,1945,sample,TBFTZTPP,MLU B-GOOD mini apiary,3603,R 2,18027,DE,51.505321,51.505321,spr,rec,very_good,1,33982.29259,3,G,X2,7.2,7966708
-DE_18027_sum_ile_d,2162,sample,GXNBHRTN,MLU B-GOOD mini apiary,3603,R 2,18027,DE,51.505321,51.505321,sum,ile,very_good,1,NA,3,C,X6,17.1,682085
-DE_18027_sum_mid_d,2154,sample,GXNBHRTN,MLU B-GOOD mini apiary,3603,R 2,18027,DE,51.505321,51.505321,sum,mid,very_good,1,NA,3,B,X6,5,78396
-DE_18027_sum_rec_d,2170,sample,GXNBHRTN,MLU B-GOOD mini apiary,3603,R 2,18027,DE,51.505321,51.505321,sum,rec,very_good,1,89857.42915,3,D,X6,9.8,3713395
-DE_18028_aut_ile_g,2290,sample,XCSNXRAL,MLU B-GOOD mini apiary,3603,R 3,18028,DE,51.505321,51.505321,aut,ile,very_good,2,NA,7,C,X7,5.5,1812179
-DE_18028_aut_mid_g,2282,sample,XCSNXRAL,MLU B-GOOD mini apiary,3603,R 3,18028,DE,51.505321,51.505321,aut,mid,very_good,2,NA,7,B,X7,12.9,25717685
-DE_18028_aut_rec_d,2295,sample,XCSNXRAL,MLU B-GOOD mini apiary,3603,R 3,18028,DE,51.505321,51.505321,aut,rec,very_good,2,106321.5902,3,C,X8,8,15835377
-DE_18028_spr_ile_d,1987,sample,KBADLAAK,MLU B-GOOD mini apiary,3603,R 3,18028,DE,51.505321,51.505321,spr,ile,very_good,2,NA,3,D,X3,7.1,893379
-DE_18028_spr_mid_d,1979,sample,KBADLAAK,MLU B-GOOD mini apiary,3603,R 3,18028,DE,51.505321,51.505321,spr,mid,very_good,2,NA,3,C,X3,11.9,300793
-DE_18028_spr_rec_d,1995,sample,KBADLAAK,MLU B-GOOD mini apiary,3603,R 3,18028,DE,51.505321,51.505321,spr,rec,very_good,2,22778.96704,3,E,X3,6.8,5795046
-DE_18029_spr_ile_d,2062,sample,JRZULUUA,MLU B-GOOD mini apiary,3603,R 4,18029,DE,51.505321,51.505321,spr,ile,bad,2,NA,3,G,X4,4.8,499934
-DE_18029_spr_mid_d,2054,sample,JRZULUUA,MLU B-GOOD mini apiary,3603,R 4,18029,DE,51.505321,51.505321,spr,mid,bad,2,NA,3,E,X4,5.4,1420786
-DE_18029_spr_rec_d,2070,sample,JRZULUUA,MLU B-GOOD mini apiary,3603,R 4,18029,DE,51.505321,51.505321,spr,rec,bad,2,46795.01072,3,H,X4,9.8,11948730
-DE_18029_sum_ile_d,2112,sample,GNTTBMKS,MLU B-GOOD mini apiary,3603,R 4,18029,DE,51.505321,51.505321,sum,ile,bad,2,NA,3,E,X5,4.2,675130
-DE_18029_sum_mid_d,2104,sample,GNTTBMKS,MLU B-GOOD mini apiary,3603,R 4,18029,DE,51.505321,51.505321,sum,mid,bad,2,NA,3,D,X5,10.1,160551
-DE_18029_sum_rec_d,2120,sample,GNTTBMKS,MLU B-GOOD mini apiary,3603,R 4,18029,DE,51.505321,51.505321,sum,rec,bad,2,NA,3,F,X5,4.7,15697902
-DE_18030_aut_ile_d,2237,sample,TCTXNLUA,MLU B-GOOD mini apiary,3603,R 5,18030,DE,51.505321,51.505321,aut,ile,very_good,2,NA,3,D,X7,8.7,605581
-DE_18030_aut_mid_d,2229,sample,TCTXNLUA,MLU B-GOOD mini apiary,3603,R 5,18030,DE,51.505321,51.505321,aut,mid,very_good,2,NA,3,C,X7,12.7,263151
-DE_18030_aut_rec_d,2245,sample,TCTXNLUA,MLU B-GOOD mini apiary,3603,R 5,18030,DE,51.505321,51.505321,aut,rec,very_good,2,144908.8652,3,E,X7,21.5,7094001
-DE_18030_spr_ile_d,2087,sample,FGMUSLZR,MLU B-GOOD mini apiary,3603,R 5,18030,DE,51.505321,51.505321,spr,ile,very_good,2,NA,3,B,X5,4.7,896124
-DE_18030_spr_mid_d,2079,sample,FGMUSLZR,MLU B-GOOD mini apiary,3603,R 5,18030,DE,51.505321,51.505321,spr,mid,very_good,2,NA,3,A,X5,8.6,940126
-DE_18030_spr_rec_d,2095,sample,FGMUSLZR,MLU B-GOOD mini apiary,3603,R 5,18030,DE,51.505321,51.505321,spr,rec,very_good,2,17390.09588,3,C,X5,16.9,13154586
-DE_18031_spr_ile_d,1912,sample,YSPLSSAX,MLU B-GOOD mini apiary,3603,R 6,18031,DE,51.505321,51.505321,spr,ile,good,1,NA,3,C,X2,7.7,995162
-DE_18031_spr_mid_d,1904,sample,YSPLSSAX,MLU B-GOOD mini apiary,3603,R 6,18031,DE,51.505321,51.505321,spr,mid,good,1,NA,3,B,X2,22,32982
-DE_18031_spr_rec_d,1920,sample,YSPLSSAX,MLU B-GOOD mini apiary,3603,R 6,18031,DE,51.505321,51.505321,spr,rec,good,1,25046.70968,3,D,X2,16.7,1651545
-DE_18031_sum_ile_d,2137,sample,ZTJYJGAH,MLU B-GOOD mini apiary,3603,R 6,18031,DE,51.505321,51.505321,sum,ile,good,1,NA,3,H,X5,5.3,1892076
-DE_18031_sum_mid_d,2129,sample,ZTJYJGAH,MLU B-GOOD mini apiary,3603,R 6,18031,DE,51.505321,51.505321,sum,mid,good,1,NA,3,G,X5,8.1,139475
-DE_18031_sum_rec_d,2145,sample,ZTJYJGAH,MLU B-GOOD mini apiary,3603,R 6,18031,DE,51.505321,51.505321,sum,rec,good,1,202798.4475,3,A,X6,10.6,15446342
-DE_18032_spr_ile_d,1962,sample,GRAALCYY,MLU B-GOOD mini apiary,3603,R 7,18032,DE,51.505321,51.505321,spr,ile,good,1,NA,3,A,X3,6,873407
-DE_18032_spr_mid_d,1954,sample,GRAALCYY,MLU B-GOOD mini apiary,3603,R 7,18032,DE,51.505321,51.505321,spr,mid,good,1,NA,3,H,X2,4.7,108988
-DE_18032_spr_rec_d,1970,sample,GRAALCYY,MLU B-GOOD mini apiary,3603,R 7,18032,DE,51.505321,51.505321,spr,rec,good,1,22474.3449,3,B,X3,6.3,9145083
-DE_18032_sum_ile_d,2187,sample,LLKSBZJU,MLU B-GOOD mini apiary,3603,R 7,18032,DE,51.505321,51.505321,sum,ile,good,1,NA,3,F,X6,5.3,1282810
-DE_18032_sum_mid_d,2179,sample,LLKSBZJU,MLU B-GOOD mini apiary,3603,R 7,18032,DE,51.505321,51.505321,sum,mid,good,1,NA,3,E,X6,15.6,2922358
-DE_18032_sum_rec_d,2195,sample,LLKSBZJU,MLU B-GOOD mini apiary,3603,R 7,18032,DE,51.505321,51.505321,sum,rec,good,1,192684.3265,3,G,X6,11.1,19725494
-DE_18033_aut_ile_g,2215,sample,PYBLHADT,MLU B-GOOD mini apiary,3603,R 8 (K18),18033,DE,51.505321,51.505321,aut,ile,good,1,NA,7,H,X6,17.4,167056
-DE_18033_aut_mid_d,2204,sample,PYBLHADT,MLU B-GOOD mini apiary,3603,R 8 (K18),18033,DE,51.505321,51.505321,aut,mid,good,1,NA,3,H,X6,10,1646145
-DE_18033_aut_rec_g,2223,sample,PYBLHADT,MLU B-GOOD mini apiary,3603,R 8 (K18),18033,DE,51.505321,51.505321,aut,rec,good,1,111633.751,7,A,X7,6.3,561996
-DE_18033_spr_ile_d,2037,sample,NRRKUKFP,MLU B-GOOD mini apiary,3603,R 8 (K18),18033,DE,51.505321,51.505321,spr,ile,good,1,NA,3,B,X4,10.7,567590
-DE_18033_spr_mid_d,2029,sample,NRRKUKFP,MLU B-GOOD mini apiary,3603,R 8 (K18),18033,DE,51.505321,51.505321,spr,mid,good,1,NA,3,A,X4,2.9,128429
-DE_18033_spr_rec_d,2045,sample,NRRKUKFP,MLU B-GOOD mini apiary,3603,R 8 (K18),18033,DE,51.505321,51.505321,spr,rec,good,1,55846.97705,3,D,X4,7.6,10432641
-FR_19767_aut_ile_d,2887,sample,AXXDSBFK,Rucher INRAE,3899,Ruche 452,19767,FR,43.917,43.917,aut,ile,good,1,NA,4,H,X5,9.4,263838
-FR_19767_aut_mid_d,2879,sample,AXXDSBFK,Rucher INRAE,3899,Ruche 452,19767,FR,43.917,43.917,aut,mid,good,1,NA,4,G,X5,13.5,218445
-FR_19767_aut_rec_d,2895,sample,AXXDSBFK,Rucher INRAE,3899,Ruche 452,19767,FR,43.917,43.917,aut,rec,good,1,114774.8548,4,A,X6,10.3,957315
-FR_19767_spr_ile_g,2465,sample,RFNZUTGS,Rucher INRAE,3899,Ruche 452,19767,FR,43.917,43.917,spr,ile,good,1,NA,7,H,X7,4.4,203096
-FR_19767_spr_mid_d,2454,sample,RFNZUTGS,Rucher INRAE,3899,Ruche 452,19767,FR,43.917,43.917,spr,mid,good,1,NA,3,H,X10,14.2,176345
-FR_19767_spr_rec_g,2473,sample,RFNZUTGS,Rucher INRAE,3899,Ruche 452,19767,FR,43.917,43.917,spr,rec,good,1,170469.9369,7,A,X8,16,256612
-FR_19767_sum_ile_d,2587,sample,LCTAMYZT,Rucher INRAE,3899,Ruche 452,19767,FR,43.917,43.917,sum,ile,good,1,NA,4,B,X1,4.8,905627
-FR_19767_sum_mid_d,2579,sample,LCTAMYZT,Rucher INRAE,3899,Ruche 452,19767,FR,43.917,43.917,sum,mid,good,1,NA,4,A,X1,11.5,4091127
-FR_19767_sum_rec_d,2595,sample,LCTAMYZT,Rucher INRAE,3899,Ruche 452,19767,FR,43.917,43.917,sum,rec,good,1,61059.81656,4,C,X1,8.6,13231670
-FR_19768_aut_ile_d,2912,sample,RXFBCJBL,Rucher INRAE,3899,Ruche 405,19768,FR,43.917,43.917,aut,ile,bad,1,NA,4,C,X6,15.3,365511
-FR_19768_aut_mid_d,2904,sample,RXFBCJBL,Rucher INRAE,3899,Ruche 405,19768,FR,43.917,43.917,aut,mid,bad,1,NA,4,B,X6,8.3,19996
-FR_19768_aut_rec_d,2920,sample,RXFBCJBL,Rucher INRAE,3899,Ruche 405,19768,FR,43.917,43.917,aut,rec,bad,1,72656.54302,4,D,X6,9.7,682846
-FR_19768_spr_ile_d,2412,sample,XLFGKPJZ,Rucher INRAE,3899,Ruche 405,19768,FR,43.917,43.917,spr,ile,bad,1,NA,3,C,X10,6.8,279213
-FR_19768_spr_mid_g,2407,sample,XLFGKPJZ,Rucher INRAE,3899,Ruche 405,19768,FR,43.917,43.917,spr,mid,bad,1,NA,7,G,X7,10.1,264782
-FR_19768_spr_rec_d,2420,sample,XLFGKPJZ,Rucher INRAE,3899,Ruche 405,19768,FR,43.917,43.917,spr,rec,bad,1,97005.22964,3,D,X10,10.5,162764
-FR_19768_sum_ile_d,2737,sample,UAJBRFBM,Rucher INRAE,3899,Ruche 405,19768,FR,43.917,43.917,sum,ile,bad,1,NA,4,D,X3,4,637303
-FR_19768_sum_mid_d,2729,sample,UAJBRFBM,Rucher INRAE,3899,Ruche 405,19768,FR,43.917,43.917,sum,mid,bad,1,NA,4,C,X3,6.7,701127
-FR_19768_sum_rec_d,2745,sample,UAJBRFBM,Rucher INRAE,3899,Ruche 405,19768,FR,43.917,43.917,sum,rec,bad,1,106245.4347,4,E,X3,14.9,14937724
-FR_19769_aut_ile_d,2937,sample,SYSFZXJB,Rucher INRAE,3899,Ruche 402,19769,FR,43.917,43.917,aut,ile,very_good,1,NA,4,F,X6,4.7,298083
-FR_19769_aut_mid_d,2929,sample,SYSFZXJB,Rucher INRAE,3899,Ruche 402,19769,FR,43.917,43.917,aut,mid,very_good,1,NA,4,E,X6,6.4,318829
-FR_19769_aut_rec_d,2945,sample,SYSFZXJB,Rucher INRAE,3899,Ruche 402,19769,FR,43.917,43.917,aut,rec,very_good,1,79622.90191,4,G,X6,10.8,2621649
-FR_19769_spr_ile_d,2487,sample,RCPUKZHB,Rucher INRAE,3899,Ruche 402,19769,FR,43.917,43.917,spr,ile,very_good,1,NA,3,D,X11,5,725138
-FR_19769_spr_mid_d,2479,sample,RCPUKZHB,Rucher INRAE,3899,Ruche 402,19769,FR,43.917,43.917,spr,mid,very_good,1,NA,3,C,X11,9.4,256940
-FR_19769_spr_rec_d,2495,sample,RCPUKZHB,Rucher INRAE,3899,Ruche 402,19769,FR,43.917,43.917,spr,rec,very_good,1,162032.3474,3,E,X11,5.4,5831390
-FR_19769_sum_ile_d,2562,sample,UZNJSJFX,Rucher INRAE,3899,Ruche 402,19769,FR,43.917,43.917,sum,ile,very_good,1,NA,3,E,X12,5.3,649736
-FR_19769_sum_mid_d,2554,sample,UZNJSJFX,Rucher INRAE,3899,Ruche 402,19769,FR,43.917,43.917,sum,mid,very_good,1,NA,3,D,X12,7.4,167341
-FR_19769_sum_rec_d,2570,sample,UZNJSJFX,Rucher INRAE,3899,Ruche 402,19769,FR,43.917,43.917,sum,rec,very_good,1,94669.7932,3,F,X12,6.5,681556
-FR_19770_aut_ile_d,2837,sample,XNGMCPGZ,Rucher INRAE,3899,Ruche 416,19770,FR,43.917,43.917,aut,ile,good,1,NA,4,B,X5,7.5,361154
-FR_19770_aut_mid_d,2829,sample,XNGMCPGZ,Rucher INRAE,3899,Ruche 416,19770,FR,43.917,43.917,aut,mid,good,1,NA,4,A,X5,15.9,1116734
-FR_19770_aut_rec_d,2845,sample,XNGMCPGZ,Rucher INRAE,3899,Ruche 416,19770,FR,43.917,43.917,aut,rec,good,1,67840.2949,4,C,X5,7.6,3783372
-FR_19770_spr_ile_g,2540,sample,SKLRARCR,Rucher INRAE,3899,Ruche 416,19770,FR,43.917,43.917,spr,ile,good,1,NA,7,C,X8,9.3,669170
-FR_19770_spr_mid_g,2532,sample,SKLRARCR,Rucher INRAE,3899,Ruche 416,19770,FR,43.917,43.917,spr,mid,good,1,NA,7,B,X8,28.4,68428
-FR_19770_spr_rec_d,2545,sample,SKLRARCR,Rucher INRAE,3899,Ruche 416,19770,FR,43.917,43.917,spr,rec,good,1,70214.01719,3,C,X12,5.2,1180767
-FR_19770_sum_ile_d,2637,sample,UNJCNTPX,Rucher INRAE,3899,Ruche 416,19770,FR,43.917,43.917,sum,ile,good,1,NA,4,H,X1,4.8,251091
-FR_19770_sum_mid_d,2629,sample,UNJCNTPX,Rucher INRAE,3899,Ruche 416,19770,FR,43.917,43.917,sum,mid,good,1,NA,4,G,X1,7.9,165587
-FR_19770_sum_rec_d,2645,sample,UNJCNTPX,Rucher INRAE,3899,Ruche 416,19770,FR,43.917,43.917,sum,rec,good,1,190591.9219,4,A,X2,8.5,6470394
-FR_19771_aut_ile_d,2862,sample,XGZSGKCD,Rucher INRAE,3899,Ruche 446,19771,FR,43.917,43.917,aut,ile,good,1,NA,4,E,X5,8.5,356367
-FR_19771_aut_mid_d,2854,sample,XGZSGKCD,Rucher INRAE,3899,Ruche 446,19771,FR,43.917,43.917,aut,mid,good,1,NA,4,D,X5,6.1,335349
-FR_19771_aut_rec_d,2870,sample,XGZSGKCD,Rucher INRAE,3899,Ruche 446,19771,FR,43.917,43.917,aut,rec,good,1,121188.8432,4,F,X5,6.9,324631
-FR_19771_spr_ile_d,2337,sample,HXSDGDKY,Rucher INRAE,3899,Ruche 446,19771,FR,43.917,43.917,spr,ile,good,1,NA,3,H,X8,15.7,224902
-FR_19771_spr_mid_d,2329,sample,HXSDGDKY,Rucher INRAE,3899,Ruche 446,19771,FR,43.917,43.917,spr,mid,good,1,NA,3,G,X8,16.2,196766
-FR_19771_spr_rec_g,2348,sample,HXSDGDKY,Rucher INRAE,3899,Ruche 446,19771,FR,43.917,43.917,spr,rec,good,1,95651.35344,7,D,X7,4.5,659011
-FR_19771_sum_ile_d,2662,sample,UZHCRGPF,Rucher INRAE,3899,Ruche 446,19771,FR,43.917,43.917,sum,ile,good,1,NA,4,C,X2,5.1,1181009
-FR_19771_sum_mid_d,2654,sample,UZHCRGPF,Rucher INRAE,3899,Ruche 446,19771,FR,43.917,43.917,sum,mid,good,1,NA,4,B,X2,7.9,236356
-FR_19771_sum_rec_d,2670,sample,UZHCRGPF,Rucher INRAE,3899,Ruche 446,19771,FR,43.917,43.917,sum,rec,good,1,80637.75419,4,D,X2,22.3,242300
-FR_19772_aut_ile_d,2812,sample,GKMDTUFM,Rucher INRAE,3899,Ruche 435,19772,FR,43.917,43.917,aut,ile,bad,1,NA,4,G,X4,7.1,746750
-FR_19772_aut_mid_d,2804,sample,GKMDTUFM,Rucher INRAE,3899,Ruche 435,19772,FR,43.917,43.917,aut,mid,bad,1,NA,4,E,X4,9.4,549872
-FR_19772_aut_rec_d,2820,sample,GKMDTUFM,Rucher INRAE,3899,Ruche 435,19772,FR,43.917,43.917,aut,rec,bad,1,61973.683,4,H,X4,7,9621091
-FR_19772_spr_ile_d,2437,sample,TMRPZGLP,Rucher INRAE,3899,Ruche 435,19772,FR,43.917,43.917,spr,ile,bad,1,NA,3,F,X10,7.8,145044
-FR_19772_spr_mid_d,2429,sample,TMRPZGLP,Rucher INRAE,3899,Ruche 435,19772,FR,43.917,43.917,spr,mid,bad,1,NA,3,E,X10,9,13593
-FR_19772_spr_rec_d,2445,sample,TMRPZGLP,Rucher INRAE,3899,Ruche 435,19772,FR,43.917,43.917,spr,rec,bad,1,82366.44324,3,G,X10,10.1,117979
-FR_19772_sum_ile_d,2712,sample,LJDNDYSP,Rucher INRAE,3899,Ruche 435,19772,FR,43.917,43.917,sum,ile,bad,1,NA,4,A,X3,6.2,303686
-FR_19772_sum_mid_d,2704,sample,LJDNDYSP,Rucher INRAE,3899,Ruche 435,19772,FR,43.917,43.917,sum,mid,bad,1,NA,4,H,X2,15.9,70377
-FR_19772_sum_rec_d,2720,sample,LJDNDYSP,Rucher INRAE,3899,Ruche 435,19772,FR,43.917,43.917,sum,rec,bad,1,49710.56092,4,B,X3,7.1,813235
-FR_19773_aut_ile_d,2787,sample,KYTUARJP,Rucher INRAE,3899,Ruche 115,19773,FR,43.917,43.917,aut,ile,very_good,1,NA,4,B,X4,5.5,288818
-FR_19773_aut_mid_d,2779,sample,KYTUARJP,Rucher INRAE,3899,Ruche 115,19773,FR,43.917,43.917,aut,mid,very_good,1,NA,4,A,X4,5.2,263227
-FR_19773_aut_rec_d,2795,sample,KYTUARJP,Rucher INRAE,3899,Ruche 115,19773,FR,43.917,43.917,aut,rec,very_good,1,101168.399,4,D,X4,8.8,1302742
-FR_19773_spr_ile_d,2387,sample,XDXDUCYY,Rucher INRAE,3899,Ruche 115,19773,FR,43.917,43.917,spr,ile,very_good,1,NA,3,H,X9,6,307127
-FR_19773_spr_mid_d,2379,sample,XDXDUCYY,Rucher INRAE,3899,Ruche 115,19773,FR,43.917,43.917,spr,mid,very_good,1,NA,3,G,X9,6.2,158616
-FR_19773_spr_rec_g,2398,sample,XDXDUCYY,Rucher INRAE,3899,Ruche 115,19773,FR,43.917,43.917,spr,rec,very_good,1,59119.44564,7,F,X7,14.6,54219
-FR_19773_sum_ile_d,2687,sample,RRMUZUBR,Rucher INRAE,3899,Ruche 115,19773,FR,43.917,43.917,sum,ile,very_good,1,NA,4,F,X2,8,514545
-FR_19773_sum_mid_d,2679,sample,RRMUZUBR,Rucher INRAE,3899,Ruche 115,19773,FR,43.917,43.917,sum,mid,very_good,1,NA,4,E,X2,17.6,107345
-FR_19773_sum_rec_d,2695,sample,RRMUZUBR,Rucher INRAE,3899,Ruche 115,19773,FR,43.917,43.917,sum,rec,very_good,1,50110.34281,4,G,X2,15,4095667
-FR_19774_spr_ile_d,2362,sample,MUDAXHCG,Rucher INRAE,3899,Ruche 403,19774,FR,43.917,43.917,spr,ile,bad,1,NA,3,D,X9,15.8,187635
-FR_19774_spr_mid_g,2357,sample,MUDAXHCG,Rucher INRAE,3899,Ruche 403,19774,FR,43.917,43.917,spr,mid,bad,1,NA,7,E,X7,5.2,229945
-FR_19774_spr_rec_d,2370,sample,MUDAXHCG,Rucher INRAE,3899,Ruche 403,19774,FR,43.917,43.917,spr,rec,bad,1,91234.33235,3,E,X9,11.4,79104
-FR_19774_sum_ile_d,2612,sample,MJCCGNUK,Rucher INRAE,3899,Ruche 403,19774,FR,43.917,43.917,sum,ile,bad,1,NA,4,E,X1,3.6,513606
-FR_19774_sum_mid_d,2604,sample,MJCCGNUK,Rucher INRAE,3899,Ruche 403,19774,FR,43.917,43.917,sum,mid,bad,1,NA,4,D,X1,4.4,192993
-FR_19774_sum_rec_d,2620,sample,MJCCGNUK,Rucher INRAE,3899,Ruche 403,19774,FR,43.917,43.917,sum,rec,bad,1,93246.00372,4,F,X1,10.9,3745880
-NL_19100_aut_ile_d,4162,sample,TNXYXSHD,Mini-apiary,3761,MA 4a,19100,NL,51.655,51.655,aut,ile,good,1,NA,6,B,X8,4,229585
-NL_19100_aut_mid_d,4154,sample,TNXYXSHD,Mini-apiary,3761,MA 4a,19100,NL,51.655,51.655,aut,mid,good,1,NA,6,A,X8,8.1,622914
-NL_19100_aut_rec_d,4170,sample,TNXYXSHD,Mini-apiary,3761,MA 4a,19100,NL,51.655,51.655,aut,rec,good,1,73468.07348,6,C,X8,10.7,6011169
-NL_19100_sum_ile_d,3912,sample,SXPUGXYF,Mini-apiary,3761,MA 4a,19100,NL,51.655,51.655,sum,ile,good,1,NA,6,C,X4,5.5,165310
-NL_19100_sum_mid_d,3904,sample,SXPUGXYF,Mini-apiary,3761,MA 4a,19100,NL,51.655,51.655,sum,mid,good,1,NA,6,B,X4,5.5,1738156
-NL_19100_sum_rec_d,3920,sample,SXPUGXYF,Mini-apiary,3761,MA 4a,19100,NL,51.655,51.655,sum,rec,good,1,79815.05986,6,D,X4,5.8,4353033
-NL_19101_aut_ile_d,4112,sample,MGYBKRZR,Mini-apiary,3761,MA 5,19101,NL,51.655,51.655,aut,ile,good,2,NA,6,D,X7,3.9,159539
-NL_19101_aut_mid_d,4104,sample,MGYBKRZR,Mini-apiary,3761,MA 5,19101,NL,51.655,51.655,aut,mid,good,2,NA,6,C,X7,4.7,91624
-NL_19101_aut_rec_d,4120,sample,MGYBKRZR,Mini-apiary,3761,MA 5,19101,NL,51.655,51.655,aut,rec,good,2,100233.8286,6,E,X7,10.3,18534136
-NL_19101_spr_ile_d,3787,sample,NSMXYCKY,Mini-apiary,3761,MA 5,19101,NL,51.655,51.655,spr,ile,good,2,NA,6,C,X2,5.9,406145
-NL_19101_spr_mid_d,3779,sample,NSMXYCKY,Mini-apiary,3761,MA 5,19101,NL,51.655,51.655,spr,mid,good,2,NA,6,B,X2,4.4,1939439
-NL_19101_spr_rec_d,3795,sample,NSMXYCKY,Mini-apiary,3761,MA 5,19101,NL,51.655,51.655,spr,rec,good,2,36426.9245,6,D,X2,9.8,10415144
-NL_19101_sum_ile_d,4037,sample,FSGCXXDY,Mini-apiary,3761,MA 5,19101,NL,51.655,51.655,sum,ile,good,2,NA,6,B,X6,4.8,446092
-NL_19101_sum_mid_d,4029,sample,FSGCXXDY,Mini-apiary,3761,MA 5,19101,NL,51.655,51.655,sum,mid,good,2,NA,6,A,X6,4.6,1126363
-NL_19101_sum_rec_d,4045,sample,FSGCXXDY,Mini-apiary,3761,MA 5,19101,NL,51.655,51.655,sum,rec,good,2,66540.9862,6,D,X6,4.5,5709736
-NL_19102_aut_ile_d,4062,sample,DFBZRKSP,Mini-apiary,3761,MA 6a,19102,NL,51.655,51.655,aut,ile,good,2,NA,6,F,X6,6.5,586687
-NL_19102_aut_mid_d,4054,sample,DFBZRKSP,Mini-apiary,3761,MA 6a,19102,NL,51.655,51.655,aut,mid,good,2,NA,6,E,X6,9.4,626544
-NL_19102_aut_rec_d,4070,sample,DFBZRKSP,Mini-apiary,3761,MA 6a,19102,NL,51.655,51.655,aut,rec,good,2,153453.7513,6,G,X6,4.5,3222638
-NL_19102_spr_ile_d,3837,sample,LTRUYCXB,Mini-apiary,3761,MA 6a,19102,NL,51.655,51.655,spr,ile,good,2,NA,6,A,X3,10.4,313543
-NL_19102_spr_mid_d,3829,sample,LTRUYCXB,Mini-apiary,3761,MA 6a,19102,NL,51.655,51.655,spr,mid,good,2,NA,6,H,X2,6.9,2318413
-NL_19102_spr_rec_d,3845,sample,LTRUYCXB,Mini-apiary,3761,MA 6a,19102,NL,51.655,51.655,spr,rec,good,2,179950.7132,6,B,X3,7.5,6029961
-NL_19102_sum_ile_d,3937,sample,BRGYZFTH,Mini-apiary,3761,MA 6a,19102,NL,51.655,51.655,sum,ile,good,2,NA,6,F,X4,6.2,846953
-NL_19102_sum_mid_d,3929,sample,BRGYZFTH,Mini-apiary,3761,MA 6a,19102,NL,51.655,51.655,sum,mid,good,2,NA,6,E,X4,7.7,9624886
-NL_19102_sum_rec_d,3945,sample,BRGYZFTH,Mini-apiary,3761,MA 6a,19102,NL,51.655,51.655,sum,rec,good,2,507412.0802,6,G,X4,6.5,14199093
-NL_19103_aut_ile_d,4137,sample,KHAZYKBT,Mini-apiary,3761,MA 7,19103,NL,51.655,51.655,aut,ile,very_good,1,NA,6,G,X7,5.7,324054
-NL_19103_aut_mid_d,4129,sample,KHAZYKBT,Mini-apiary,3761,MA 7,19103,NL,51.655,51.655,aut,mid,very_good,1,NA,6,F,X7,6.2,497823
-NL_19103_aut_rec_d,4145,sample,KHAZYKBT,Mini-apiary,3761,MA 7,19103,NL,51.655,51.655,aut,rec,very_good,1,110257.2114,6,H,X7,10.4,13996070
-NL_19103_spr_ile_d,3812,sample,ZZDUHMMZ,Mini-apiary,3761,MA 7,19103,NL,51.655,51.655,spr,ile,very_good,1,NA,6,F,X2,4.8,773233
-NL_19103_spr_mid_d,3804,sample,ZZDUHMMZ,Mini-apiary,3761,MA 7,19103,NL,51.655,51.655,spr,mid,very_good,1,NA,6,E,X2,6.7,2730402
-NL_19103_spr_rec_d,3820,sample,ZZDUHMMZ,Mini-apiary,3761,MA 7,19103,NL,51.655,51.655,spr,rec,very_good,1,65446.79394,6,G,X2,19.5,11313124
-NL_19103_sum_ile_d,3987,sample,UFALLKYT,Mini-apiary,3761,MA 7,19103,NL,51.655,51.655,sum,ile,very_good,1,NA,6,D,X5,5.4,1062053
-NL_19103_sum_mid_d,3979,sample,UFALLKYT,Mini-apiary,3761,MA 7,19103,NL,51.655,51.655,sum,mid,very_good,1,NA,6,C,X5,8.6,735682
-NL_19103_sum_rec_d,3995,sample,UFALLKYT,Mini-apiary,3761,MA 7,19103,NL,51.655,51.655,sum,rec,very_good,1,131136.3688,6,E,X5,9.8,20520684
-NL_19104_aut_ile_d,4087,sample,TZLMAAMY,Mini-apiary,3761,MA 8,19104,NL,51.655,51.655,aut,ile,good,1,NA,6,A,X7,5,1231789
-NL_19104_aut_mid_d,4079,sample,TZLMAAMY,Mini-apiary,3761,MA 8,19104,NL,51.655,51.655,aut,mid,good,1,NA,6,H,X6,6.3,1167132
-NL_19104_aut_rec_d,4095,sample,TZLMAAMY,Mini-apiary,3761,MA 8,19104,NL,51.655,51.655,aut,rec,good,1,130997.6368,6,B,X7,6.8,17527221
-NL_19104_spr_ile_d,3737,sample,TTZYYUKL,Mini-apiary,3761,MA 8,19104,NL,51.655,51.655,spr,ile,good,1,NA,6,E,X1,6.3,608621
-NL_19104_spr_mid_d,3729,sample,TTZYYUKL,Mini-apiary,3761,MA 8,19104,NL,51.655,51.655,spr,mid,good,1,NA,6,D,X1,6,2732436
-NL_19104_spr_rec_d,3745,sample,TTZYYUKL,Mini-apiary,3761,MA 8,19104,NL,51.655,51.655,spr,rec,good,1,32983.51936,6,F,X1,5.8,11983959
-NL_19104_sum_ile_d,3887,sample,JNDUGKCM,Mini-apiary,3761,MA 8,19104,NL,51.655,51.655,sum,ile,good,1,NA,6,H,X3,5.6,319085
-NL_19104_sum_mid_d,3879,sample,JNDUGKCM,Mini-apiary,3761,MA 8,19104,NL,51.655,51.655,sum,mid,good,1,NA,6,G,X3,6.9,183232
-NL_19104_sum_rec_d,3895,sample,JNDUGKCM,Mini-apiary,3761,MA 8,19104,NL,51.655,51.655,sum,rec,good,1,120558.6176,6,A,X4,16.5,15006193
-NL_20378_aut_ile_d,4187,sample,XBGTJDLT,Mini-apiary,3761,MA 3b,20378,NL,51.655,51.655,aut,ile,very_bad,1,NA,7,B,X1,5.9,304922
-NL_20378_aut_mid_d,4179,sample,XBGTJDLT,Mini-apiary,3761,MA 3b,20378,NL,51.655,51.655,aut,mid,very_bad,1,NA,7,A,X1,7.6,723942
-NL_20378_aut_rec_d,4195,sample,XBGTJDLT,Mini-apiary,3761,MA 3b,20378,NL,51.655,51.655,aut,rec,very_bad,1,348026.4196,7,C,X1,8.6,19347697
-NL_20378_spr_ile_d,3862,sample,HJHDLLZG,Mini-apiary,3761,MA 3b,20378,NL,51.655,51.655,spr,ile,very_bad,1,NA,6,D,X3,4.2,681947
-NL_20378_spr_mid_d,3854,sample,HJHDLLZG,Mini-apiary,3761,MA 3b,20378,NL,51.655,51.655,spr,mid,very_bad,1,NA,6,C,X3,4.5,1804940
-NL_20378_spr_rec_d,3870,sample,HJHDLLZG,Mini-apiary,3761,MA 3b,20378,NL,51.655,51.655,spr,rec,very_bad,1,64630.06557,6,E,X3,9.4,8420077
-NL_20378_sum_ile_d,3962,sample,FLPGNAMP,Mini-apiary,3761,MA 3b,20378,NL,51.655,51.655,sum,ile,very_bad,1,NA,6,A,X5,6.3,372382
-NL_20378_sum_mid_d,3954,sample,FLPGNAMP,Mini-apiary,3761,MA 3b,20378,NL,51.655,51.655,sum,mid,very_bad,1,NA,6,H,X4,6.2,503859
-NL_20378_sum_rec_d,3970,sample,FLPGNAMP,Mini-apiary,3761,MA 3b,20378,NL,51.655,51.655,sum,rec,very_bad,1,61180.78671,6,B,X5,6.9,6517600
-PT_19407_aut_ile_d,1762,sample,DXBHFTZU,UC Apiary (Portugal) - B-GOOD,3818,Hive 1,19407,PT,41.1545749,-7.6942246,aut,ile,good,3,NA,2,B,X12,4.2,393662
-PT_19407_aut_mid_d,1754,sample,DXBHFTZU,UC Apiary (Portugal) - B-GOOD,3818,Hive 1,19407,PT,41.1545749,-7.6942246,aut,mid,good,3,NA,2,A,X12,8.3,2649000
-PT_19407_aut_rec_d,1770,sample,DXBHFTZU,UC Apiary (Portugal) - B-GOOD,3818,Hive 1,19407,PT,41.1545749,-7.6942246,aut,rec,good,3,55214.84448,2,C,X12,7.1,11038662
-PT_19407_spr_ile_d,1437,sample,FZXKPDAC,UC Apiary (Portugal) - B-GOOD,3818,Hive 1,19407,PT,41.1545749,-7.6942246,spr,ile,good,3,NA,2,A,X7,2.9,610743
-PT_19407_spr_mid_d,1429,sample,FZXKPDAC,UC Apiary (Portugal) - B-GOOD,3818,Hive 1,19407,PT,41.1545749,-7.6942246,spr,mid,good,3,NA,2,H,X6,5.1,473156
-PT_19407_spr_rec_d,1445,sample,FZXKPDAC,UC Apiary (Portugal) - B-GOOD,3818,Hive 1,19407,PT,41.1545749,-7.6942246,spr,rec,good,3,50144.18971,2,B,X7,14.9,20473873
-PT_19407_sum_ile_d,1487,sample,PRZNCDKD,UC Apiary (Portugal) - B-GOOD,3818,Hive 1,19407,PT,41.1545749,-7.6942246,sum,ile,good,3,NA,2,G,X7,5.7,370181
-PT_19407_sum_mid_d,1479,sample,PRZNCDKD,UC Apiary (Portugal) - B-GOOD,3818,Hive 1,19407,PT,41.1545749,-7.6942246,sum,mid,good,3,NA,2,F,X7,6.1,726421
-PT_19407_sum_rec_d,1495,sample,PRZNCDKD,UC Apiary (Portugal) - B-GOOD,3818,Hive 1,19407,PT,41.1545749,-7.6942246,sum,rec,good,3,79106.87532,2,H,X7,10.1,6916424
-PT_19408_aut_ile_d,1887,sample,HZZTLGHG,UC Apiary (Portugal) - B-GOOD,3818,Hive 2,19408,PT,41.1545749,-7.6942246,aut,ile,very_good,1,NA,3,H,X1,18.1,369417
-PT_19408_aut_mid_d,1879,sample,HZZTLGHG,UC Apiary (Portugal) - B-GOOD,3818,Hive 2,19408,PT,41.1545749,-7.6942246,aut,mid,very_good,1,NA,3,G,X1,6.9,41822
-PT_19408_aut_rec_d,1895,sample,HZZTLGHG,UC Apiary (Portugal) - B-GOOD,3818,Hive 2,19408,PT,41.1545749,-7.6942246,aut,rec,very_good,1,69352.30828,3,A,X2,12.8,84325
-PT_19408_spr_ile_d,1387,sample,DGSDJSAZ,UC Apiary (Portugal) - B-GOOD,3818,Hive 2,19408,PT,41.1545749,-7.6942246,spr,ile,very_good,1,NA,2,F,X6,4.5,692765
-PT_19408_spr_mid_d,1379,sample,DGSDJSAZ,UC Apiary (Portugal) - B-GOOD,3818,Hive 2,19408,PT,41.1545749,-7.6942246,spr,mid,very_good,1,NA,2,E,X6,5.3,9475433
-PT_19408_spr_rec_d,1395,sample,DGSDJSAZ,UC Apiary (Portugal) - B-GOOD,3818,Hive 2,19408,PT,41.1545749,-7.6942246,spr,rec,very_good,1,173195.7225,2,G,X6,7.7,17533609
-PT_19408_sum_ile_d,1637,sample,KGXZGFFF,UC Apiary (Portugal) - B-GOOD,3818,Hive 2,19408,PT,41.1545749,-7.6942246,sum,ile,very_good,1,NA,2,C,X10,2.8,567566
-PT_19408_sum_mid_d,1629,sample,KGXZGFFF,UC Apiary (Portugal) - B-GOOD,3818,Hive 2,19408,PT,41.1545749,-7.6942246,sum,mid,very_good,1,NA,2,B,X10,7.4,204015
-PT_19408_sum_rec_d,1645,sample,KGXZGFFF,UC Apiary (Portugal) - B-GOOD,3818,Hive 2,19408,PT,41.1545749,-7.6942246,sum,rec,very_good,1,94174.85157,2,D,X10,7.3,4593151
-PT_19409_aut_ile_d,1837,sample,XANSABFN,UC Apiary (Portugal) - B-GOOD,3818,Hive 3a,19409,PT,41.1545749,-7.6942246,aut,ile,bad,2,NA,3,B,X1,6.8,414877
-PT_19409_aut_mid_d,1829,sample,XANSABFN,UC Apiary (Portugal) - B-GOOD,3818,Hive 3a,19409,PT,41.1545749,-7.6942246,aut,mid,bad,2,NA,3,A,X1,5.8,397211
-PT_19409_aut_rec_d,1845,sample,XANSABFN,UC Apiary (Portugal) - B-GOOD,3818,Hive 3a,19409,PT,41.1545749,-7.6942246,aut,rec,bad,2,NA,3,C,X1,8.9,6071032
-PT_19409_spr_ile_d,1337,sample,GFTGSHLP,UC Apiary (Portugal) - B-GOOD,3818,Hive 3a,19409,PT,41.1545749,-7.6942246,spr,ile,bad,2,NA,2,H,X5,6.7,268703
-PT_19409_spr_mid_d,1329,sample,GFTGSHLP,UC Apiary (Portugal) - B-GOOD,3818,Hive 3a,19409,PT,41.1545749,-7.6942246,spr,mid,bad,2,NA,2,G,X5,13.5,5987835
-PT_19409_spr_rec_d,1345,sample,GFTGSHLP,UC Apiary (Portugal) - B-GOOD,3818,Hive 3a,19409,PT,41.1545749,-7.6942246,spr,rec,bad,2,34917.79885,2,A,X6,5.3,5277242
-PT_19409_sum_ile_d,1662,sample,FXUKRXHS,UC Apiary (Portugal) - B-GOOD,3818,Hive 3a,19409,PT,41.1545749,-7.6942246,sum,ile,bad,2,NA,2,F,X10,5.8,262848
-PT_19409_sum_mid_d,1654,sample,FXUKRXHS,UC Apiary (Portugal) - B-GOOD,3818,Hive 3a,19409,PT,41.1545749,-7.6942246,sum,mid,bad,2,NA,2,E,X10,6,330400
-PT_19409_sum_rec_d,1670,sample,FXUKRXHS,UC Apiary (Portugal) - B-GOOD,3818,Hive 3a,19409,PT,41.1545749,-7.6942246,sum,rec,bad,2,100418.7732,2,G,X10,10.7,2369799
-PT_19410_aut_ile_d,4537,sample,UGUNZTRB,UC Apiary (Portugal) - B-GOOD,3818,Hive 4,19410,PT,41.1545749,-7.6942246,aut,ile,good,1,NA,7,F,X6,4.3,406339
-PT_19410_aut_mid_d,4529,sample,UGUNZTRB,UC Apiary (Portugal) - B-GOOD,3818,Hive 4,19410,PT,41.1545749,-7.6942246,aut,mid,good,1,NA,7,E,X6,13,1178446
-PT_19410_aut_rec_d,4545,sample,UGUNZTRB,UC Apiary (Portugal) - B-GOOD,3818,Hive 4,19410,PT,41.1545749,-7.6942246,aut,rec,good,1,45708.53898,7,G,X6,5.1,7235965
-PT_19410_spr_ile_d,1362,sample,FJUYULNN,UC Apiary (Portugal) - B-GOOD,3818,Hive 4,19410,PT,41.1545749,-7.6942246,spr,ile,good,1,NA,2,C,X6,4,363072
-PT_19410_spr_mid_d,1354,sample,FJUYULNN,UC Apiary (Portugal) - B-GOOD,3818,Hive 4,19410,PT,41.1545749,-7.6942246,spr,mid,good,1,NA,2,B,X6,6,10080074
-PT_19410_spr_rec_d,1370,sample,FJUYULNN,UC Apiary (Portugal) - B-GOOD,3818,Hive 4,19410,PT,41.1545749,-7.6942246,spr,rec,good,1,43948.26407,2,D,X6,6.6,18380862
-PT_19410_sum_ile_d,1587,sample,TZFLGFNU,UC Apiary (Portugal) - B-GOOD,3818,Hive 4,19410,PT,41.1545749,-7.6942246,sum,ile,good,1,NA,2,D,X9,3.5,375703
-PT_19410_sum_mid_d,1579,sample,TZFLGFNU,UC Apiary (Portugal) - B-GOOD,3818,Hive 4,19410,PT,41.1545749,-7.6942246,sum,mid,good,1,NA,2,B,X9,6,375916
-PT_19410_sum_rec_d,1595,sample,TZFLGFNU,UC Apiary (Portugal) - B-GOOD,3818,Hive 4,19410,PT,41.1545749,-7.6942246,sum,rec,good,1,NA,2,E,X9,8,501440
-PT_19411_aut_ile_d,1737,sample,MHHCRRRC,UC Apiary (Portugal) - B-GOOD,3818,Hive 5,19411,PT,41.1545749,-7.6942246,aut,ile,good,2,NA,2,G,X11,5.2,456088
-PT_19411_aut_mid_d,1729,sample,MHHCRRRC,UC Apiary (Portugal) - B-GOOD,3818,Hive 5,19411,PT,41.1545749,-7.6942246,aut,mid,good,2,NA,2,F,X11,18.2,263606
-PT_19411_aut_rec_d,1745,sample,MHHCRRRC,UC Apiary (Portugal) - B-GOOD,3818,Hive 5,19411,PT,41.1545749,-7.6942246,aut,rec,good,2,NA,2,H,X11,8.2,2076798
-PT_19411_spr_ile_d,1312,sample,FNSRGMAC,UC Apiary (Portugal) - B-GOOD,3818,Hive 5,19411,PT,41.1545749,-7.6942246,spr,ile,good,2,NA,2,E,X5,3.6,304304
-PT_19411_spr_mid_d,1304,sample,FNSRGMAC,UC Apiary (Portugal) - B-GOOD,3818,Hive 5,19411,PT,41.1545749,-7.6942246,spr,mid,good,2,NA,2,D,X5,6.2,2955472
-PT_19411_spr_rec_d,1320,sample,FNSRGMAC,UC Apiary (Portugal) - B-GOOD,3818,Hive 5,19411,PT,41.1545749,-7.6942246,spr,rec,good,2,24869.01343,2,F,X5,4,9074937
-PT_19411_sum_ile_d,1512,sample,FJLYLJPF,UC Apiary (Portugal) - B-GOOD,3818,Hive 5,19411,PT,41.1545749,-7.6942246,sum,ile,good,2,NA,2,B,X8,3.1,650911
-PT_19411_sum_mid_d,1504,sample,FJLYLJPF,UC Apiary (Portugal) - B-GOOD,3818,Hive 5,19411,PT,41.1545749,-7.6942246,sum,mid,good,2,NA,2,A,X8,7.3,189605
-PT_19411_sum_rec_d,1520,sample,FJLYLJPF,UC Apiary (Portugal) - B-GOOD,3818,Hive 5,19411,PT,41.1545749,-7.6942246,sum,rec,good,2,76240.15344,2,C,X8,7.7,2002948
-PT_19412_aut_ile_d,1862,sample,UTYBTKUM,UC Apiary (Portugal) - B-GOOD,3818,Hive 6a,19412,PT,41.1545749,-7.6942246,aut,ile,good,1,NA,3,E,X1,5.8,177902
-PT_19412_aut_mid_d,1854,sample,UTYBTKUM,UC Apiary (Portugal) - B-GOOD,3818,Hive 6a,19412,PT,41.1545749,-7.6942246,aut,mid,good,1,NA,3,D,X1,9.3,66029
-PT_19412_aut_rec_d,1870,sample,UTYBTKUM,UC Apiary (Portugal) - B-GOOD,3818,Hive 6a,19412,PT,41.1545749,-7.6942246,aut,rec,good,1,NA,3,F,X1,9.2,9500537
-PT_19412_spr_ile_d,1237,sample,FJJHBPXD,UC Apiary (Portugal) - B-GOOD,3818,Hive 6a,19412,PT,41.1545749,-7.6942246,spr,ile,good,1,NA,2,B,X4,5,640179
-PT_19412_spr_mid_d,1229,sample,FJJHBPXD,UC Apiary (Portugal) - B-GOOD,3818,Hive 6a,19412,PT,41.1545749,-7.6942246,spr,mid,good,1,NA,2,A,X4,6.5,418301
-PT_19412_spr_rec_d,1245,sample,FJJHBPXD,UC Apiary (Portugal) - B-GOOD,3818,Hive 6a,19412,PT,41.1545749,-7.6942246,spr,rec,good,1,39296.25667,2,D,X4,8.7,11412071
-PT_19412_sum_ile_d,1562,sample,BNSBAUYX,UC Apiary (Portugal) - B-GOOD,3818,Hive 6a,19412,PT,41.1545749,-7.6942246,sum,ile,good,1,NA,2,H,X8,4.9,772046
-PT_19412_sum_mid_d,1554,sample,BNSBAUYX,UC Apiary (Portugal) - B-GOOD,3818,Hive 6a,19412,PT,41.1545749,-7.6942246,sum,mid,good,1,NA,2,G,X8,4.3,507091
-PT_19412_sum_rec_d,1570,sample,BNSBAUYX,UC Apiary (Portugal) - B-GOOD,3818,Hive 6a,19412,PT,41.1545749,-7.6942246,sum,rec,good,1,155496.0106,2,A,X9,9,16663847
-PT_19413_aut_ile_d,1712,sample,BNBGXKPH,UC Apiary (Portugal) - B-GOOD,3818,Hive 7,19413,PT,41.1545749,-7.6942246,aut,ile,very_good,2,NA,2,D,X11,13.1,301625
-PT_19413_aut_mid_d,1704,sample,BNBGXKPH,UC Apiary (Portugal) - B-GOOD,3818,Hive 7,19413,PT,41.1545749,-7.6942246,aut,mid,very_good,2,NA,2,C,X11,13.5,297863
-PT_19413_aut_rec_d,1720,sample,BNBGXKPH,UC Apiary (Portugal) - B-GOOD,3818,Hive 7,19413,PT,41.1545749,-7.6942246,aut,rec,very_good,2,84439.15002,2,E,X11,13.5,606874
-PT_19413_spr_ile_d,4487,sample,XFFGKSRU,UC Apiary (Portugal) - B-GOOD,3818,Hive 7,19413,PT,41.1545749,-7.6942246,spr,ile,very_good,2,NA,7,G,X5,6.4,395887
-PT_19413_spr_mid_d,4479,sample,XFFGKSRU,UC Apiary (Portugal) - B-GOOD,3818,Hive 7,19413,PT,41.1545749,-7.6942246,spr,mid,very_good,2,NA,7,F,X5,7.2,8277218
-PT_19413_spr_rec_d,4495,sample,XFFGKSRU,UC Apiary (Portugal) - B-GOOD,3818,Hive 7,19413,PT,41.1545749,-7.6942246,spr,rec,very_good,2,236766.4783,7,H,X5,9.5,20862598
-PT_19413_sum_ile_d,1612,sample,KJUDTYUN,UC Apiary (Portugal) - B-GOOD,3818,Hive 7,19413,PT,41.1545749,-7.6942246,sum,ile,very_good,2,NA,2,H,X9,1.7,182004
-PT_19413_sum_mid_d,1604,sample,KJUDTYUN,UC Apiary (Portugal) - B-GOOD,3818,Hive 7,19413,PT,41.1545749,-7.6942246,sum,mid,very_good,2,NA,2,G,X9,3,942846
-PT_19413_sum_rec_d,1620,sample,KJUDTYUN,UC Apiary (Portugal) - B-GOOD,3818,Hive 7,19413,PT,41.1545749,-7.6942246,sum,rec,very_good,2,63746.48401,2,A,X10,11,14592711
-PT_19414_aut_ile_d,1687,sample,CNUAKUZP,UC Apiary (Portugal) - B-GOOD,3818,Hive 8,19414,PT,41.1545749,-7.6942246,aut,ile,very_good,1,NA,2,A,X11,9,378748
-PT_19414_aut_mid_d,1679,sample,CNUAKUZP,UC Apiary (Portugal) - B-GOOD,3818,Hive 8,19414,PT,41.1545749,-7.6942246,aut,mid,very_good,1,NA,2,H,X10,19.6,403272
-PT_19414_aut_rec_d,1695,sample,CNUAKUZP,UC Apiary (Portugal) - B-GOOD,3818,Hive 8,19414,PT,41.1545749,-7.6942246,aut,rec,very_good,1,132395.2206,2,B,X11,6.9,1589497
-PT_19414_spr_ile_d,1287,sample,ZAFMMNFR,UC Apiary (Portugal) - B-GOOD,3818,Hive 8,19414,PT,41.1545749,-7.6942246,spr,ile,very_good,1,NA,2,B,X5,5.1,85824
-PT_19414_spr_mid_d,1279,sample,ZAFMMNFR,UC Apiary (Portugal) - B-GOOD,3818,Hive 8,19414,PT,41.1545749,-7.6942246,spr,mid,very_good,1,NA,2,A,X5,7,917680
-PT_19414_spr_rec_d,1295,sample,ZAFMMNFR,UC Apiary (Portugal) - B-GOOD,3818,Hive 8,19414,PT,41.1545749,-7.6942246,spr,rec,very_good,1,122661.1836,2,C,X5,2.4,16913109
-PT_19414_sum_ile_d,1462,sample,AHUFASPJ,UC Apiary (Portugal) - B-GOOD,3818,Hive 8,19414,PT,41.1545749,-7.6942246,sum,ile,very_good,1,NA,2,D,X7,4.3,539274
-PT_19414_sum_mid_d,1454,sample,AHUFASPJ,UC Apiary (Portugal) - B-GOOD,3818,Hive 8,19414,PT,41.1545749,-7.6942246,sum,mid,very_good,1,NA,2,C,X7,4.4,2150254
-PT_19414_sum_rec_d,1470,sample,AHUFASPJ,UC Apiary (Portugal) - B-GOOD,3818,Hive 8,19414,PT,41.1545749,-7.6942246,sum,rec,very_good,1,65392.2204,2,E,X7,3.4,12519238
-RO_17363_spr_ile_d,3037,sample,GUXSFCSD,USAMV Cluj Campus,3188,Hive 3a,17363,RO,46.7598,46.7598,spr,ile,bad,1,NA,4,B,X8,6.7,838907
-RO_17363_spr_mid_d,3029,sample,GUXSFCSD,USAMV Cluj Campus,3188,Hive 3a,17363,RO,46.7598,46.7598,spr,mid,bad,1,NA,4,A,X8,5.8,868369
-RO_17363_spr_rec_d,3045,sample,GUXSFCSD,USAMV Cluj Campus,3188,Hive 3a,17363,RO,46.7598,46.7598,spr,rec,bad,1,59401.31822,4,C,X8,8.2,14792719
-RO_17363_sum_ile_d,3162,sample,HXKRCNAY,USAMV Cluj Campus,3188,Hive 3a,17363,RO,46.7598,46.7598,sum,ile,bad,1,NA,4,C,X10,3.8,621799
-RO_17363_sum_mid_d,3154,sample,HXKRCNAY,USAMV Cluj Campus,3188,Hive 3a,17363,RO,46.7598,46.7598,sum,mid,bad,1,NA,4,B,X10,11,407628
-RO_17363_sum_rec_d,3170,sample,HXKRCNAY,USAMV Cluj Campus,3188,Hive 3a,17363,RO,46.7598,46.7598,sum,rec,bad,1,103019.0961,4,D,X10,7.9,3776278
-RO_17371_sum_ile_d,3087,sample,JJAMYPTX,USAMV Cluj Campus,3188,Hive 12a,17371,RO,46.7598,46.7598,sum,ile,good,1,NA,4,H,X8,6.3,256382
-RO_17371_sum_mid_d,3079,sample,JJAMYPTX,USAMV Cluj Campus,3188,Hive 12a,17371,RO,46.7598,46.7598,sum,mid,good,1,NA,4,G,X8,5.4,158427
-RO_17371_sum_rec_d,3095,sample,JJAMYPTX,USAMV Cluj Campus,3188,Hive 12a,17371,RO,46.7598,46.7598,sum,rec,good,1,133644.5043,4,A,X9,14.8,6575477
-RO_17377_sum_ile_d,3187,sample,YNBKTRGM,USAMV Cluj Campus,3188,Stup 1a,17377,RO,46.7598,46.7598,sum,ile,good,1,NA,4,F,X10,6.4,2354967
-RO_17377_sum_mid_d,3179,sample,YNBKTRGM,USAMV Cluj Campus,3188,Stup 1a,17377,RO,46.7598,46.7598,sum,mid,good,1,NA,4,E,X10,4.6,12676273
-RO_17377_sum_rec_d,3195,sample,YNBKTRGM,USAMV Cluj Campus,3188,Stup 1a,17377,RO,46.7598,46.7598,sum,rec,good,1,111379.3738,4,G,X10,6.2,14775380
-RO_17378_aut_ile_d,3312,sample,RRBYHJBU,USAMV Cluj Campus,3188,Stup 6a,17378,RO,46.7598,46.7598,aut,ile,bad,2,NA,5,C,X2,6.7,194685
-RO_17378_aut_mid_d,3304,sample,RRBYHJBU,USAMV Cluj Campus,3188,Stup 6a,17378,RO,46.7598,46.7598,aut,mid,bad,2,NA,5,B,X2,9.4,205455
-RO_17378_aut_rec_d,3320,sample,RRBYHJBU,USAMV Cluj Campus,3188,Stup 6a,17378,RO,46.7598,46.7598,aut,rec,bad,2,94597.84339,5,D,X2,10,19553621
-RO_17378_spr_ile_d,2987,sample,NZHBNLLG,USAMV Cluj Campus,3188,Stup 6a,17378,RO,46.7598,46.7598,spr,ile,bad,2,NA,4,D,X7,8.3,673824
-RO_17378_spr_mid_d,2979,sample,NZHBNLLG,USAMV Cluj Campus,3188,Stup 6a,17378,RO,46.7598,46.7598,spr,mid,bad,2,NA,4,C,X7,5.7,204549
-RO_17378_spr_rec_d,2995,sample,NZHBNLLG,USAMV Cluj Campus,3188,Stup 6a,17378,RO,46.7598,46.7598,spr,rec,bad,2,39734.04696,4,E,X7,7.1,1897190
-RO_17378_sum_ile_d,3137,sample,AHJTRZLZ,USAMV Cluj Campus,3188,Stup 6a,17378,RO,46.7598,46.7598,sum,ile,bad,2,NA,4,H,X9,4.3,817855
-RO_17378_sum_mid_d,3129,sample,AHJTRZLZ,USAMV Cluj Campus,3188,Stup 6a,17378,RO,46.7598,46.7598,sum,mid,bad,2,NA,4,G,X9,4.9,2539301
-RO_17378_sum_rec_d,3145,sample,AHJTRZLZ,USAMV Cluj Campus,3188,Stup 6a,17378,RO,46.7598,46.7598,sum,rec,bad,2,82788.28677,4,A,X10,5.1,8909238
-RO_17380_sum_ile_d,3112,sample,JXTMBZPS,USAMV Cluj Campus,3188,Stup 28a,17380,RO,46.7598,46.7598,sum,ile,good,1,NA,4,D,X9,8.9,905220
-RO_17380_sum_mid_d,3104,sample,JXTMBZPS,USAMV Cluj Campus,3188,Stup 28a,17380,RO,46.7598,46.7598,sum,mid,good,1,NA,4,B,X9,4.8,3160655
-RO_17380_sum_rec_d,3120,sample,JXTMBZPS,USAMV Cluj Campus,3188,Stup 28a,17380,RO,46.7598,46.7598,sum,rec,good,1,94195.93653,4,E,X9,4,15615894
-RO_17381_sum_ile_d,3062,sample,FASURUSH,USAMV Cluj Campus,3188,Stup 29a,17381,RO,46.7598,46.7598,sum,ile,good,1,NA,4,E,X8,3.7,431890
-RO_17381_sum_mid_d,3054,sample,FASURUSH,USAMV Cluj Campus,3188,Stup 29a,17381,RO,46.7598,46.7598,sum,mid,good,1,NA,4,D,X8,9.3,16684570
-RO_17381_sum_rec_d,3070,sample,FASURUSH,USAMV Cluj Campus,3188,Stup 29a,17381,RO,46.7598,46.7598,sum,rec,good,1,NA,4,F,X8,9,15829335
-RO_17382_aut_ile_d,3262,sample,CYXUCRUN,USAMV Cluj Campus,3188,Stup 30a,17382,RO,46.7598,46.7598,aut,ile,good,1,NA,5,E,X1,4.3,240177
-RO_17382_aut_mid_d,3254,sample,CYXUCRUN,USAMV Cluj Campus,3188,Stup 30a,17382,RO,46.7598,46.7598,aut,mid,good,1,NA,5,D,X1,8.6,90510
-RO_17382_aut_rec_d,3270,sample,CYXUCRUN,USAMV Cluj Campus,3188,Stup 30a,17382,RO,46.7598,46.7598,aut,rec,good,1,NA,5,F,X1,4.1,12530402
-RO_17382_sum_ile_d,3212,sample,BKKFJXTH,USAMV Cluj Campus,3188,Stup 30a,17382,RO,46.7598,46.7598,sum,ile,good,1,NA,4,A,X11,9.8,624953
-RO_17382_sum_mid_d,3204,sample,BKKFJXTH,USAMV Cluj Campus,3188,Stup 30a,17382,RO,46.7598,46.7598,sum,mid,good,1,NA,4,H,X10,10.8,172878
-RO_17382_sum_rec_d,3220,sample,BKKFJXTH,USAMV Cluj Campus,3188,Stup 30a,17382,RO,46.7598,46.7598,sum,rec,good,1,132107.4924,4,B,X11,8.5,11671353
-RO_17383_spr_ile_d,2962,sample,SZPYTKGM,USAMV Cluj Campus,3188,Stup 36a,17383,RO,46.7598,46.7598,spr,ile,good,1,NA,4,A,X7,9.6,124011
-RO_17383_spr_mid_d,2954,sample,SZPYTKGM,USAMV Cluj Campus,3188,Stup 36a,17383,RO,46.7598,46.7598,spr,mid,good,1,NA,4,H,X6,11.6,6584
-RO_17383_spr_rec_d,2970,sample,SZPYTKGM,USAMV Cluj Campus,3188,Stup 36a,17383,RO,46.7598,46.7598,spr,rec,good,1,40531.6687,4,B,X7,11.8,145103
-RO_26022_aut_ile_d,3337,sample,CKTSXSMR,USAMV Cluj Campus,3188,Hive 23,26022,RO,46.7598,46.7598,aut,ile,good,1,NA,5,F,X2,11.5,10373297
-RO_26022_aut_mid_d,3329,sample,CKTSXSMR,USAMV Cluj Campus,3188,Hive 23,26022,RO,46.7598,46.7598,aut,mid,good,1,NA,5,E,X2,5.8,276262
-RO_26022_aut_rec_d,3345,sample,CKTSXSMR,USAMV Cluj Campus,3188,Hive 23,26022,RO,46.7598,46.7598,aut,rec,good,1,230520.4642,5,G,X2,4.8,13205936
-RO_26024_aut_ile_d,3237,sample,UAKMCLMN,USAMV Cluj Campus,3188,Hive 8,26024,RO,46.7598,46.7598,aut,ile,very_good,1,NA,5,B,X1,4.7,196335
-RO_26024_aut_mid_d,3229,sample,UAKMCLMN,USAMV Cluj Campus,3188,Hive 8,26024,RO,46.7598,46.7598,aut,mid,very_good,1,NA,5,A,X1,9.8,75012
-RO_26024_aut_rec_d,3245,sample,UAKMCLMN,USAMV Cluj Campus,3188,Hive 8,26024,RO,46.7598,46.7598,aut,rec,very_good,1,148165.7147,5,C,X1,8.3,10448863
-UK_14498_aut_ile_d,1162,sample,AUSUXNUA,Holme Pierrepont,3060,HPP 1,14498,UK,52.94762169541472,52.94762169541472,aut,ile,very_good,2,NA,2,D,X3,2.3,399204
-UK_14498_aut_mid_d,1154,sample,AUSUXNUA,Holme Pierrepont,3060,HPP 1,14498,UK,52.94762169541472,52.94762169541472,aut,mid,very_good,2,NA,2,C,X3,11.2,820870
-UK_14498_aut_rec_d,1170,sample,AUSUXNUA,Holme Pierrepont,3060,HPP 1,14498,UK,52.94762169541472,52.94762169541472,aut,rec,very_good,2,67874.69668,2,E,X3,5.8,1810775
-UK_14498_spr_ile_d,762,sample,MCCTYNTN,Holme Pierrepont,3060,HPP 1,14498,UK,52.94762169541472,52.94762169541472,spr,ile,very_good,2,NA,1,H,X8,8.4,401109
-UK_14498_spr_mid_d,754,sample,MCCTYNTN,Holme Pierrepont,3060,HPP 1,14498,UK,52.94762169541472,52.94762169541472,spr,mid,very_good,2,NA,1,G,X8,8.9,184154
-UK_14498_spr_rec_d,770,sample,MCCTYNTN,Holme Pierrepont,3060,HPP 1,14498,UK,52.94762169541472,52.94762169541472,spr,rec,very_good,2,48384.15065,1,A,X9,5.6,1043887
-UK_14498_sum_ile_d,837,sample,MSBRYKBL,Holme Pierrepont,3060,HPP 1,14498,UK,52.94762169541472,52.94762169541472,sum,ile,very_good,2,NA,1,C,X10,5.7,173776
-UK_14498_sum_mid_d,829,sample,MSBRYKBL,Holme Pierrepont,3060,HPP 1,14498,UK,52.94762169541472,52.94762169541472,sum,mid,very_good,2,NA,1,B,X10,11.7,303187
-UK_14498_sum_rec_d,845,sample,MSBRYKBL,Holme Pierrepont,3060,HPP 1,14498,UK,52.94762169541472,52.94762169541472,sum,rec,very_good,2,NA,1,D,X10,12,656621
-UK_14500_aut_ile_d,1137,sample,PBYFKBRU,Holme Pierrepont,3060,HPP 3,14500,UK,52.94762169541472,52.94762169541472,aut,ile,good,1,NA,2,A,X3,4.3,72118
-UK_14500_aut_mid_d,1129,sample,PBYFKBRU,Holme Pierrepont,3060,HPP 3,14500,UK,52.94762169541472,52.94762169541472,aut,mid,good,1,NA,2,H,X2,15.4,271073
-UK_14500_aut_rec_d,1145,sample,PBYFKBRU,Holme Pierrepont,3060,HPP 3,14500,UK,52.94762169541472,52.94762169541472,aut,rec,good,1,51667.30044,2,B,X3,13.8,10702953
-UK_14500_sum_ile_d,987,sample,NHNUADBS,Holme Pierrepont,3060,HPP 3,14500,UK,52.94762169541472,52.94762169541472,sum,ile,good,1,NA,1,E,X12,9.4,781197
-UK_14500_sum_mid_d,979,sample,NHNUADBS,Holme Pierrepont,3060,HPP 3,14500,UK,52.94762169541472,52.94762169541472,sum,mid,good,1,NA,1,D,X12,13.5,246244
-UK_14500_sum_rec_d,995,sample,NHNUADBS,Holme Pierrepont,3060,HPP 3,14500,UK,52.94762169541472,52.94762169541472,sum,rec,good,1,142079.3195,1,F,X12,8,21601018
-UK_14501_aut_ile_d,1012,sample,RKPDRHMF,Holme Pierrepont,3060,HPP 4,14501,UK,52.94762169541472,52.94762169541472,aut,ile,very_good,1,NA,2,B,X1,5.4,220285
-UK_14501_aut_mid_d,1004,sample,RKPDRHMF,Holme Pierrepont,3060,HPP 4,14501,UK,52.94762169541472,52.94762169541472,aut,mid,very_good,1,NA,2,A,X1,22,110104
-UK_14501_aut_rec_d,1020,sample,RKPDRHMF,Holme Pierrepont,3060,HPP 4,14501,UK,52.94762169541472,52.94762169541472,aut,rec,very_good,1,68923.95073,2,C,X1,16.6,248195
-UK_14501_spr_ile_d,737,sample,GMRLNFBN,Holme Pierrepont,3060,HPP 4,14501,UK,52.94762169541472,52.94762169541472,spr,ile,very_good,1,NA,1,E,X8,6,350386
-UK_14501_spr_mid_d,729,sample,GMRLNFBN,Holme Pierrepont,3060,HPP 4,14501,UK,52.94762169541472,52.94762169541472,spr,mid,very_good,1,NA,1,D,X8,10.1,156100
-UK_14501_spr_rec_d,745,sample,GMRLNFBN,Holme Pierrepont,3060,HPP 4,14501,UK,52.94762169541472,52.94762169541472,spr,rec,very_good,1,261095.0249,1,F,X8,7.4,5606406
-UK_14501_sum_ile_d,887,sample,ZXZGKBKK,Holme Pierrepont,3060,HPP 4,14501,UK,52.94762169541472,52.94762169541472,sum,ile,very_good,1,NA,1,A,X11,4.5,162924
-UK_14501_sum_mid_d,879,sample,ZXZGKBKK,Holme Pierrepont,3060,HPP 4,14501,UK,52.94762169541472,52.94762169541472,sum,mid,very_good,1,NA,1,H,X10,8.4,184169
-UK_14501_sum_rec_d,895,sample,ZXZGKBKK,Holme Pierrepont,3060,HPP 4,14501,UK,52.94762169541472,52.94762169541472,sum,rec,very_good,1,NA,1,B,X11,8.4,14635892
-UK_14502_aut_ile_d,1062,sample,YJJPDSPL,Holme Pierrepont,3060,HPP 5A,14502,UK,52.94762169541472,52.94762169541472,aut,ile,very_good,1,NA,2,H,X1,6.7,522357
-UK_14502_aut_mid_d,1054,sample,YJJPDSPL,Holme Pierrepont,3060,HPP 5A,14502,UK,52.94762169541472,52.94762169541472,aut,mid,very_good,1,NA,2,G,X1,5,78678
-UK_14502_aut_rec_d,1070,sample,YJJPDSPL,Holme Pierrepont,3060,HPP 5A,14502,UK,52.94762169541472,52.94762169541472,aut,rec,very_good,1,294117.952,2,A,X2,9.9,16897445
-UK_14502_sum_ile_d,937,sample,NAXTKLPA,Holme Pierrepont,3060,HPP 5A,14502,UK,52.94762169541472,52.94762169541472,sum,ile,very_good,1,NA,1,G,X11,5,547718
-UK_14502_sum_mid_d,929,sample,NAXTKLPA,Holme Pierrepont,3060,HPP 5A,14502,UK,52.94762169541472,52.94762169541472,sum,mid,very_good,1,NA,1,F,X11,18.4,3978758
-UK_14502_sum_rec_d,945,sample,NAXTKLPA,Holme Pierrepont,3060,HPP 5A,14502,UK,52.94762169541472,52.94762169541472,sum,rec,very_good,1,22508.1918,1,H,X11,8.4,6090689
-UK_15140_aut_ile_d,1212,sample,URURUPKD,Holme Pierrepont,3060,HPP 7a,15140,UK,52.94762169541472,52.94762169541472,aut,ile,very_bad,1,NA,2,G,X3,3.2,205617
-UK_15140_aut_mid_d,1204,sample,URURUPKD,Holme Pierrepont,3060,HPP 7a,15140,UK,52.94762169541472,52.94762169541472,aut,mid,very_bad,1,NA,2,F,X3,6.8,106104
-UK_15140_aut_rec_d,1220,sample,URURUPKD,Holme Pierrepont,3060,HPP 7a,15140,UK,52.94762169541472,52.94762169541472,aut,rec,very_bad,1,108692.3995,2,H,X3,7.7,223828
-UK_15140_sum_ile_d,862,sample,KJNAYRTN,Holme Pierrepont,3060,HPP 7a,15140,UK,52.94762169541472,52.94762169541472,sum,ile,very_bad,1,NA,1,F,X10,7.8,294518
-UK_15140_sum_mid_d,854,sample,KJNAYRTN,Holme Pierrepont,3060,HPP 7a,15140,UK,52.94762169541472,52.94762169541472,sum,mid,very_bad,1,NA,1,E,X10,7.6,281335
-UK_15140_sum_rec_d,870,sample,KJNAYRTN,Holme Pierrepont,3060,HPP 7a,15140,UK,52.94762169541472,52.94762169541472,sum,rec,very_bad,1,NA,1,G,X10,8,5400775
-UK_15141_aut_ile_d,4462,sample,PSZPKJCX,Holme Pierrepont,3060,HPP 8a,15141,UK,52.94762169541472,52.94762169541472,aut,ile,bad,1,NA,7,D,X5,25,216796
-UK_15141_aut_mid_d,4454,sample,PSZPKJCX,Holme Pierrepont,3060,HPP 8a,15141,UK,52.94762169541472,52.94762169541472,aut,mid,bad,1,NA,7,C,X5,26.3,65274
-UK_15141_aut_rec_d,4470,sample,PSZPKJCX,Holme Pierrepont,3060,HPP 8a,15141,UK,52.94762169541472,52.94762169541472,aut,rec,bad,1,78040.63356,7,E,X5,9.2,349425
-UK_15141_spr_ile_d,712,sample,JDKAHNXH,Holme Pierrepont,3060,HPP 8a,15141,UK,52.94762169541472,52.94762169541472,spr,ile,bad,1,NA,1,B,X8,6,239300
-UK_15141_spr_mid_d,704,sample,JDKAHNXH,Holme Pierrepont,3060,HPP 8a,15141,UK,52.94762169541472,52.94762169541472,spr,mid,bad,1,NA,1,A,X8,7.6,166034
-UK_15141_spr_rec_d,720,sample,JDKAHNXH,Holme Pierrepont,3060,HPP 8a,15141,UK,52.94762169541472,52.94762169541472,spr,rec,bad,1,63073.70741,1,C,X8,8.1,1249095
-UK_15141_sum_ile_d,812,sample,GBAYKFPL,Holme Pierrepont,3060,HPP 8a,15141,UK,52.94762169541472,52.94762169541472,sum,ile,bad,1,NA,1,H,X9,5.1,414430
-UK_15141_sum_mid_d,804,sample,GBAYKFPL,Holme Pierrepont,3060,HPP 8a,15141,UK,52.94762169541472,52.94762169541472,sum,mid,bad,1,NA,1,G,X9,8.5,129033
-UK_15141_sum_rec_d,820,sample,GBAYKFPL,Holme Pierrepont,3060,HPP 8a,15141,UK,52.94762169541472,52.94762169541472,sum,rec,bad,1,307499.1316,1,A,X10,9.5,8638670
-UK_23922_aut_ile_d,1087,sample,FHKCKTKH,Holme Pierrepont,3060,HPP 6B,23922,UK,52.94762169541472,52.94762169541472,aut,ile,good,2,NA,2,C,X2,10.2,643008
-UK_23922_aut_mid_d,1079,sample,FHKCKTKH,Holme Pierrepont,3060,HPP 6B,23922,UK,52.94762169541472,52.94762169541472,aut,mid,good,2,NA,2,B,X2,11.6,247252
-UK_23922_aut_rec_d,1095,sample,FHKCKTKH,Holme Pierrepont,3060,HPP 6B,23922,UK,52.94762169541472,52.94762169541472,aut,rec,good,2,200593.6823,2,D,X2,7.7,12667712
-UK_23922_sum_ile_d,962,sample,SCKNCZRX,Holme Pierrepont,3060,HPP 6B,23922,UK,52.94762169541472,52.94762169541472,sum,ile,good,2,NA,1,B,X12,9.7,98496
-UK_23922_sum_mid_d,954,sample,SCKNCZRX,Holme Pierrepont,3060,HPP 6B,23922,UK,52.94762169541472,52.94762169541472,sum,mid,good,2,NA,1,A,X12,12.7,214
-UK_23922_sum_rec_d,970,sample,SCKNCZRX,Holme Pierrepont,3060,HPP 6B,23922,UK,52.94762169541472,52.94762169541472,sum,rec,good,2,116771.8221,1,C,X12,13,356250
-UK_24337_aut_ile_d,1112,sample,ADBYNMMN,Holme Pierrepont,3060,HPP 2C,24337,UK,52.94762169541472,52.94762169541472,aut,ile,good,1,NA,2,F,X2,4,308111
-UK_24337_aut_mid_d,1104,sample,ADBYNMMN,Holme Pierrepont,3060,HPP 2C,24337,UK,52.94762169541472,52.94762169541472,aut,mid,good,1,NA,2,E,X2,8.5,157051
-UK_24337_aut_rec_d,1120,sample,ADBYNMMN,Holme Pierrepont,3060,HPP 2C,24337,UK,52.94762169541472,52.94762169541472,aut,rec,good,1,110154.7522,2,G,X2,7.9,1569974
-UK_24337_sum_ile_d,912,sample,RNBXJFLJ,Holme Pierrepont,3060,HPP 2C,24337,UK,52.94762169541472,52.94762169541472,sum,ile,good,1,NA,1,D,X11,5,201881
-UK_24337_sum_mid_d,904,sample,RNBXJFLJ,Holme Pierrepont,3060,HPP 2C,24337,UK,52.94762169541472,52.94762169541472,sum,mid,good,1,NA,1,C,X11,4.1,116219
-UK_24337_sum_rec_d,920,sample,RNBXJFLJ,Holme Pierrepont,3060,HPP 2C,24337,UK,52.94762169541472,52.94762169541472,sum,rec,good,1,112390.59,1,E,X11,4.5,18492750
-Blank_pool_01,NA,sample_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,1,NA,NA,5.3,48272
-Blank_pool_02,NA,extraction_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,1,NA,NA,6.9,292547
-Blank_pool_03,NA,sample_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2,NA,NA,12.1,68175
-Blank_pool_04,NA,extraction_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2,NA,NA,5,72644
-Blank_pool_05,NA,sample_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,3,NA,NA,5.1,68650
-Blank_pool_06,NA,extraction_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,3,NA,NA,5.3,74017
-Blank_pool_07,NA,extraction_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,3,NA,NA,6,15963
-Blank_pool_08,NA,sample_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,3,NA,NA,4.7,8699
-Blank_pool_09,NA,sample_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,4,NA,NA,3.9,6954
-Blank_pool_10,NA,extraction_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,4,NA,NA,10.8,22062
-Blank_pool_11,NA,extraction_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,4,NA,NA,3.6,8558
-Blank_pool_12,NA,sample_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,4,NA,NA,5.7,121896
-Blank_pool_13,NA,sample_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,5,NA,NA,5.3,24919
-Blank_pool_14,NA,extraction_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,5,NA,NA,4.3,19069
-Blank_pool_15,NA,sample_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,5,NA,NA,4.2,13416
-Blank_pool_16,NA,sample_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,6,NA,NA,10.6,95102
-Blank_pool_17,NA,sample_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,6,NA,NA,5.4,28984
-Blank_pool_18,NA,sample_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,7,NA,NA,6.6,128548
-Blank_pool_19,NA,extraction_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,7,NA,NA,4.4,57613
-Blank_pool_20,NA,WTA_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,4.4,4735
-Blank_pool_21,NA,WTA_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,5.9,13799
+Sample_ID,Tube_ID,Sample_or_control,BGOOD_sample_code,Apiary_name,Apiary_ID,Hive_name,Hive_ID,Country,Latitude,Longitude,Season,Gut_part,Health,Number_of_queens,VLPs_per_ul,Extraction_plate,Extraction_plate_row,Extraction_plate_col,Average_Qubit,Mapped_reads,Bee_Pool,Date
+BE_16556_aut_ile_d,4337,sample,ZFPFLNCJ,Merendree,3386,KM 1,16556,BE,51.074,51.074,aut,ile,bad,2,NA,7,D,X3,4.7,1115503,BE_16556_aut,2020-10-12
+BE_16556_aut_mid_d,4329,sample,ZFPFLNCJ,Merendree,3386,KM 1,16556,BE,51.074,51.074,aut,mid,bad,2,NA,7,C,X3,20.2,439961,BE_16556_aut,2020-10-12
+BE_16556_aut_rec_d,4345,sample,ZFPFLNCJ,Merendree,3386,KM 1,16556,BE,51.074,51.074,aut,rec,bad,2,187747.9518,7,E,X3,10.1,16540984,BE_16556_aut,2020-10-12
+BE_16556_spr_ile_d,612,sample,MYYMKPFS,Merendree,3386,KM 1,16556,BE,51.074,51.074,spr,ile,bad,2,NA,1,F,X6,4,362261,BE_16556_spr,2020-04-06
+BE_16556_spr_mid_d,604,sample,MYYMKPFS,Merendree,3386,KM 1,16556,BE,51.074,51.074,spr,mid,bad,2,NA,1,E,X6,7.5,2104041,BE_16556_spr,2020-04-06
+BE_16556_spr_rec_d,620,sample,MYYMKPFS,Merendree,3386,KM 1,16556,BE,51.074,51.074,spr,rec,bad,2,117059.5208,1,G,X6,4.1,15490593,BE_16556_spr,2020-04-06
+BE_16556_sum_ile_d,362,sample,AGPPLNZG,Merendree,3386,KM 1,16556,BE,51.074,51.074,sum,ile,bad,2,NA,1,A,X3,4.9,439620,BE_16556_sum,2020-07-07
+BE_16556_sum_mid_d,354,sample,AGPPLNZG,Merendree,3386,KM 1,16556,BE,51.074,51.074,sum,mid,bad,2,NA,1,H,X2,7.5,3252897,BE_16556_sum,2020-07-07
+BE_16556_sum_rec_d,370,sample,AGPPLNZG,Merendree,3386,KM 1,16556,BE,51.074,51.074,sum,rec,bad,2,171457.4572,1,B,X3,7.3,16079678,BE_16556_sum,2020-07-07
+BE_16557_aut_ile_d,4362,sample,NHYTDADT,Merendree,3386,KM 2 a,16557,BE,51.074,51.074,aut,ile,bad,1,NA,7,H,X3,3.9,1170004,BE_16557_aut,2020-10-12
+BE_16557_aut_mid_d,4354,sample,NHYTDADT,Merendree,3386,KM 2 a,16557,BE,51.074,51.074,aut,mid,bad,1,NA,7,G,X3,12.3,134578,BE_16557_aut,2020-10-12
+BE_16557_aut_rec_d,4370,sample,NHYTDADT,Merendree,3386,KM 2 a,16557,BE,51.074,51.074,aut,rec,bad,1,233208.3956,7,A,X4,6.8,22307555,BE_16557_aut,2020-10-12
+BE_16557_spr_ile_d,487,sample,PFHDFAKZ,Merendree,3386,KM 2 a,16557,BE,51.074,51.074,spr,ile,bad,1,NA,1,G,X4,6.6,367730,BE_16557_spr,2020-04-06
+BE_16557_spr_mid_d,479,sample,PFHDFAKZ,Merendree,3386,KM 2 a,16557,BE,51.074,51.074,spr,mid,bad,1,NA,1,E,X4,9,221146,BE_16557_spr,2020-04-06
+BE_16557_spr_rec_d,495,sample,PFHDFAKZ,Merendree,3386,KM 2 a,16557,BE,51.074,51.074,spr,rec,bad,1,77108.56646,1,H,X4,12.9,17470879,BE_16557_spr,2020-04-06
+BE_16557_sum_ile_d,237,sample,KLAMUDTN,Merendree,3386,KM 2 a,16557,BE,51.074,51.074,sum,ile,bad,1,NA,1,B,X1,4.3,424587,BE_16557_sum,2020-07-07
+BE_16557_sum_mid_d,229,sample,KLAMUDTN,Merendree,3386,KM 2 a,16557,BE,51.074,51.074,sum,mid,bad,1,NA,1,A,X1,8.1,7351908,BE_16557_sum,2020-07-07
+BE_16557_sum_rec_d,245,sample,KLAMUDTN,Merendree,3386,KM 2 a,16557,BE,51.074,51.074,sum,rec,bad,1,80282.09677,1,C,X1,4.8,23032664,BE_16557_sum,2020-07-07
+BE_16558_aut_ile_d,4312,sample,PCHXNGBR,Merendree,3386,KM 3 a,16558,BE,51.074,51.074,aut,ile,very_bad,2,NA,7,A,X3,4.7,292360,BE_16558_aut,2020-10-12
+BE_16558_aut_mid_d,4304,sample,PCHXNGBR,Merendree,3386,KM 3 a,16558,BE,51.074,51.074,aut,mid,very_bad,2,NA,7,H,X2,11,400306,BE_16558_aut,2020-10-12
+BE_16558_aut_rec_d,4320,sample,PCHXNGBR,Merendree,3386,KM 3 a,16558,BE,51.074,51.074,aut,rec,very_bad,2,361300.4933,7,B,X3,7,20791479,BE_16558_aut,2020-10-12
+BE_16558_spr_ile_d,537,sample,KAJSHJSS,Merendree,3386,KM 3 a,16558,BE,51.074,51.074,spr,ile,very_bad,2,NA,1,E,X5,2.8,297664,BE_16558_spr,2020-04-06
+BE_16558_spr_mid_d,529,sample,KAJSHJSS,Merendree,3386,KM 3 a,16558,BE,51.074,51.074,spr,mid,very_bad,2,NA,1,D,X5,5.9,1435465,BE_16558_spr,2020-04-06
+BE_16558_spr_rec_d,545,sample,KAJSHJSS,Merendree,3386,KM 3 a,16558,BE,51.074,51.074,spr,rec,very_bad,2,83933.9148,1,F,X5,4.4,21637179,BE_16558_spr,2020-04-06
+BE_16558_sum_ile_d,437,sample,XNMDFDCH,Merendree,3386,KM 3 a,16558,BE,51.074,51.074,sum,ile,very_bad,2,NA,1,G,X3,4.8,215201,BE_16558_sum,2020-07-07
+BE_16558_sum_mid_d,429,sample,XNMDFDCH,Merendree,3386,KM 3 a,16558,BE,51.074,51.074,sum,mid,very_bad,2,NA,1,F,X3,6.3,18811215,BE_16558_sum,2020-07-07
+BE_16558_sum_rec_d,445,sample,XNMDFDCH,Merendree,3386,KM 3 a,16558,BE,51.074,51.074,sum,rec,very_bad,2,299057.4751,1,H,X3,7.6,11486093,BE_16558_sum,2020-07-07
+BE_16559_aut_ile_d,4212,sample,MNAZYZTL,Merendree,3386,KM 4 a,16559,BE,51.074,51.074,aut,ile,very_good,1,NA,7,E,X1,5.1,461306,BE_16559_aut,2020-10-12
+BE_16559_aut_mid_d,4204,sample,MNAZYZTL,Merendree,3386,KM 4 a,16559,BE,51.074,51.074,aut,mid,very_good,1,NA,7,D,X1,17.8,236819,BE_16559_aut,2020-10-12
+BE_16559_aut_rec_d,4220,sample,MNAZYZTL,Merendree,3386,KM 4 a,16559,BE,51.074,51.074,aut,rec,very_good,1,483599.4136,7,F,X1,6.5,22158082,BE_16559_aut,2020-10-12
+BE_16559_spr_ile_d,462,sample,ZPKXNZDS,Merendree,3386,KM 4 a,16559,BE,51.074,51.074,spr,ile,very_good,1,NA,1,B,X4,5.8,10898233,BE_16559_spr,2020-04-06
+BE_16559_spr_mid_d,454,sample,ZPKXNZDS,Merendree,3386,KM 4 a,16559,BE,51.074,51.074,spr,mid,very_good,1,NA,1,A,X4,8,505165,BE_16559_spr,2020-04-06
+BE_16559_spr_rec_d,470,sample,ZPKXNZDS,Merendree,3386,KM 4 a,16559,BE,51.074,51.074,spr,rec,very_good,1,125762.4911,1,D,X4,7,10118684,BE_16559_spr,2020-04-06
+BE_16559_sum_ile_d,287,sample,LTZDMHMK,Merendree,3386,KM 4 a,16559,BE,51.074,51.074,sum,ile,very_good,1,NA,1,H,X1,5.5,1299323,BE_16559_sum,2020-07-07
+BE_16559_sum_mid_d,279,sample,LTZDMHMK,Merendree,3386,KM 4 a,16559,BE,51.074,51.074,sum,mid,very_good,1,NA,1,G,X1,8,328194,BE_16559_sum,2020-07-07
+BE_16559_sum_rec_d,295,sample,LTZDMHMK,Merendree,3386,KM 4 a,16559,BE,51.074,51.074,sum,rec,very_good,1,605270.6697,1,A,X2,8.4,2344108,BE_16559_sum,2020-07-07
+BE_16560_aut_ile_d,4387,sample,HBALKRBG,Merendree,3386,KM 5,16560,BE,51.074,51.074,aut,ile,bad,1,NA,7,C,X4,8.2,21207912,BE_16560_aut,2020-10-12
+BE_16560_aut_mid_d,4379,sample,HBALKRBG,Merendree,3386,KM 5,16560,BE,51.074,51.074,aut,mid,bad,1,NA,7,B,X4,10.9,233768,BE_16560_aut,2020-10-12
+BE_16560_aut_rec_d,4395,sample,HBALKRBG,Merendree,3386,KM 5,16560,BE,51.074,51.074,aut,rec,bad,1,427193.1314,7,D,X4,3.8,129742,BE_16560_aut,2020-10-12
+BE_16560_spr_ile_d,587,sample,AZPNADHG,Merendree,3386,KM 5,16560,BE,51.074,51.074,spr,ile,bad,1,NA,1,C,X6,7.2,4586381,BE_16560_spr,2020-04-06
+BE_16560_spr_mid_d,579,sample,AZPNADHG,Merendree,3386,KM 5,16560,BE,51.074,51.074,spr,mid,bad,1,NA,1,B,X6,11.7,1338430,BE_16560_spr,2020-04-06
+BE_16560_spr_rec_d,595,sample,AZPNADHG,Merendree,3386,KM 5,16560,BE,51.074,51.074,spr,rec,bad,1,357432.0171,1,D,X6,12,19126314,BE_16560_spr,2020-04-06
+BE_16560_sum_ile_d,337,sample,BSHXDTFA,Merendree,3386,KM 5,16560,BE,51.074,51.074,sum,ile,bad,1,NA,1,F,X2,4.6,606327,BE_16560_sum,2020-07-07
+BE_16560_sum_mid_d,329,sample,BSHXDTFA,Merendree,3386,KM 5,16560,BE,51.074,51.074,sum,mid,bad,1,NA,1,E,X2,5.9,4165459,BE_16560_sum,2020-07-07
+BE_16560_sum_rec_d,345,sample,BSHXDTFA,Merendree,3386,KM 5,16560,BE,51.074,51.074,sum,rec,bad,1,134436.6981,1,G,X2,8.5,10327834,BE_16560_sum,2020-07-07
+BE_16561_aut_ile_d,4287,sample,JUBYFMXH,Merendree,3386,KM 6,16561,BE,51.074,51.074,aut,ile,very_good,1,NA,7,F,X2,6.2,1899284,BE_16561_aut,2020-10-12
+BE_16561_aut_mid_d,4279,sample,JUBYFMXH,Merendree,3386,KM 6,16561,BE,51.074,51.074,aut,mid,very_good,1,NA,7,E,X2,12.3,398030,BE_16561_aut,2020-10-12
+BE_16561_aut_rec_d,4295,sample,JUBYFMXH,Merendree,3386,KM 6,16561,BE,51.074,51.074,aut,rec,very_good,1,107352.7911,7,G,X2,20.9,12493061,BE_16561_aut,2020-10-12
+BE_16561_spr_ile_d,562,sample,HAHKPZPH,Merendree,3386,KM 6,16561,BE,51.074,51.074,spr,ile,very_good,1,NA,1,H,X5,9.7,312800,BE_16561_spr,2020-04-06
+BE_16561_spr_mid_d,554,sample,HAHKPZPH,Merendree,3386,KM 6,16561,BE,51.074,51.074,spr,mid,very_good,1,NA,1,G,X5,8.8,48860,BE_16561_spr,2020-04-06
+BE_16561_spr_rec_d,570,sample,HAHKPZPH,Merendree,3386,KM 6,16561,BE,51.074,51.074,spr,rec,very_good,1,66466.51473,1,A,X6,8.3,751757,BE_16561_spr,2020-04-06
+BE_16561_sum_ile_d,412,sample,LKZTTGUM,Merendree,3386,KM 6,16561,BE,51.074,51.074,sum,ile,very_good,1,NA,1,D,X3,4.7,541937,BE_16561_sum,2020-07-07
+BE_16561_sum_mid_d,404,sample,LKZTTGUM,Merendree,3386,KM 6,16561,BE,51.074,51.074,sum,mid,very_good,1,NA,1,C,X3,5.7,4180774,BE_16561_sum,2020-07-07
+BE_16561_sum_rec_d,420,sample,LKZTTGUM,Merendree,3386,KM 6,16561,BE,51.074,51.074,sum,rec,very_good,1,350697.3806,1,E,X3,8.9,21528496,BE_16561_sum,2020-07-07
+BE_16562_aut_ile_d,4412,sample,DZTYNYAA,Merendree,3386,KM 7,16562,BE,51.074,51.074,aut,ile,bad,2,NA,7,F,X4,11.8,16830782,BE_16562_aut,2020-10-12
+BE_16562_aut_mid_d,4404,sample,DZTYNYAA,Merendree,3386,KM 7,16562,BE,51.074,51.074,aut,mid,bad,2,NA,7,E,X4,7,4226810,BE_16562_aut,2020-10-12
+BE_16562_aut_rec_d,4420,sample,DZTYNYAA,Merendree,3386,KM 7,16562,BE,51.074,51.074,aut,rec,bad,2,91928.9317,7,G,X4,4.5,768416,BE_16562_aut,2020-10-12
+BE_16562_spr_ile_d,637,sample,JLNBASGF,Merendree,3386,KM 7,16562,BE,51.074,51.074,spr,ile,bad,2,NA,1,A,X7,3.1,447917,BE_16562_spr,2020-04-06
+BE_16562_spr_mid_d,629,sample,JLNBASGF,Merendree,3386,KM 7,16562,BE,51.074,51.074,spr,mid,bad,2,NA,1,H,X6,4.9,267596,BE_16562_spr,2020-04-06
+BE_16562_spr_rec_d,645,sample,JLNBASGF,Merendree,3386,KM 7,16562,BE,51.074,51.074,spr,rec,bad,2,117052.0301,1,B,X7,7.2,19523579,BE_16562_spr,2020-04-06
+BE_16562_sum_ile_d,312,sample,TDCKMJYY,Merendree,3386,KM 7,16562,BE,51.074,51.074,sum,ile,bad,2,NA,1,C,X2,4.5,2490611,BE_16562_sum,2020-07-07
+BE_16562_sum_mid_d,304,sample,TDCKMJYY,Merendree,3386,KM 7,16562,BE,51.074,51.074,sum,mid,bad,2,NA,1,B,X2,7.1,3493819,BE_16562_sum,2020-07-07
+BE_16562_sum_rec_d,320,sample,TDCKMJYY,Merendree,3386,KM 7,16562,BE,51.074,51.074,sum,rec,bad,2,89714.54027,1,D,X2,11.4,16002817,BE_16562_sum,2020-07-07
+BE_16563_aut_ile_d,4237,sample,LUJBUMSU,Merendree,3386,KM 8,16563,BE,51.074,51.074,aut,ile,good,1,NA,7,H,X1,4.7,461410,BE_16563_aut,2020-10-12
+BE_16563_aut_mid_d,4229,sample,LUJBUMSU,Merendree,3386,KM 8,16563,BE,51.074,51.074,aut,mid,good,1,NA,7,G,X1,8.9,567386,BE_16563_aut,2020-10-12
+BE_16563_aut_rec_d,4245,sample,LUJBUMSU,Merendree,3386,KM 8,16563,BE,51.074,51.074,aut,rec,good,1,67974.17667,7,A,X2,15.8,28610749,BE_16563_aut,2020-10-12
+BE_16563_spr_ile_d,662,sample,TSXGKXLR,Merendree,3386,KM 8,16563,BE,51.074,51.074,spr,ile,good,1,NA,1,D,X7,4.4,1094602,BE_16563_spr,2020-04-06
+BE_16563_spr_mid_d,654,sample,TSXGKXLR,Merendree,3386,KM 8,16563,BE,51.074,51.074,spr,mid,good,1,NA,1,C,X7,12,319863,BE_16563_spr,2020-04-06
+BE_16563_spr_rec_d,670,sample,TSXGKXLR,Merendree,3386,KM 8,16563,BE,51.074,51.074,spr,rec,good,1,162462.3695,1,E,X7,7.7,12965697,BE_16563_spr,2020-04-06
+BE_16563_sum_ile_d,4437,sample,UXZKXRBK,Merendree,3386,KM 8,16563,BE,51.074,51.074,sum,ile,good,1,NA,7,A,X5,18.6,22446096,BE_16563_sum,2020-07-07
+BE_16563_sum_mid_d,4429,sample,UXZKXRBK,Merendree,3386,KM 8,16563,BE,51.074,51.074,sum,mid,good,1,NA,7,H,X4,9,884499,BE_16563_sum,2020-07-07
+BE_16563_sum_rec_d,4445,sample,UXZKXRBK,Merendree,3386,KM 8,16563,BE,51.074,51.074,sum,rec,good,1,64800.68348,7,B,X5,22.2,17869758,BE_16563_sum,2020-07-07
+CH_17685_aut_ile_d,3687,sample,YFGRKCMC,BGOOD - University of Bern,3577,BGOOD_Ubern_A,17685,CH,46.967,46.967,aut,ile,very_good,1,NA,5,B,X8,4.1,499362,CH_17685_aut,2020-10-22
+CH_17685_aut_mid_d,3679,sample,YFGRKCMC,BGOOD - University of Bern,3577,BGOOD_Ubern_A,17685,CH,46.967,46.967,aut,mid,very_good,1,NA,5,A,X8,10.8,174043,CH_17685_aut,2020-10-22
+CH_17685_aut_rec_d,3695,sample,YFGRKCMC,BGOOD - University of Bern,3577,BGOOD_Ubern_A,17685,CH,46.967,46.967,aut,rec,very_good,1,401455.559,5,C,X8,8.5,23286515,CH_17685_aut,2020-10-22
+CH_17685_sum_ile_d,3387,sample,KNHDZSGB,BGOOD - University of Bern,3577,BGOOD_Ubern_A,17685,CH,46.967,46.967,sum,ile,very_good,1,NA,5,D,X3,5.3,194055,CH_17685_sum,2020-07-30
+CH_17685_sum_mid_d,3379,sample,KNHDZSGB,BGOOD - University of Bern,3577,BGOOD_Ubern_A,17685,CH,46.967,46.967,sum,mid,very_good,1,NA,5,C,X3,9.2,328207,CH_17685_sum,2020-07-30
+CH_17685_sum_rec_d,3395,sample,KNHDZSGB,BGOOD - University of Bern,3577,BGOOD_Ubern_A,17685,CH,46.967,46.967,sum,rec,very_good,1,118272.3375,5,E,X3,7.2,21313173,CH_17685_sum,2020-07-30
+CH_17686_sum_ile_d,3462,sample,NNAFLYSD,BGOOD - University of Bern,3577,[Dead] BGOOD_Ubern_B,17686,CH,46.967,46.967,sum,ile,bad,1,NA,5,F,X4,5.9,1938763,CH_17686_sum,2020-07-30
+CH_17686_sum_mid_d,3454,sample,NNAFLYSD,BGOOD - University of Bern,3577,[Dead] BGOOD_Ubern_B,17686,CH,46.967,46.967,sum,mid,bad,1,NA,5,E,X4,13.6,134973,CH_17686_sum,2020-07-30
+CH_17686_sum_rec_d,3470,sample,NNAFLYSD,BGOOD - University of Bern,3577,[Dead] BGOOD_Ubern_B,17686,CH,46.967,46.967,sum,rec,bad,1,135624.1793,5,G,X4,17,11118482,CH_17686_sum,2020-07-30
+CH_17687_aut_ile_d,3587,sample,XNCZFFCA,BGOOD - University of Bern,3577,BGOOD_Ubern_C,17687,CH,46.967,46.967,aut,ile,very_good,1,NA,5,F,X6,7.3,579564,CH_17687_aut,2020-10-22
+CH_17687_aut_mid_d,3579,sample,XNCZFFCA,BGOOD - University of Bern,3577,BGOOD_Ubern_C,17687,CH,46.967,46.967,aut,mid,very_good,1,NA,5,E,X6,7.1,2555922,CH_17687_aut,2020-10-22
+CH_17687_aut_rec_d,3595,sample,XNCZFFCA,BGOOD - University of Bern,3577,BGOOD_Ubern_C,17687,CH,46.967,46.967,aut,rec,very_good,1,138541.7456,5,G,X6,11.1,22457173,CH_17687_aut,2020-10-22
+CH_17687_sum_ile_d,3362,sample,BTMXLZBR,BGOOD - University of Bern,3577,BGOOD_Ubern_C,17687,CH,46.967,46.967,sum,ile,very_good,1,NA,5,A,X3,6.3,718771,CH_17687_sum,2020-07-30
+CH_17687_sum_mid_d,3354,sample,BTMXLZBR,BGOOD - University of Bern,3577,BGOOD_Ubern_C,17687,CH,46.967,46.967,sum,mid,very_good,1,NA,5,H,X2,13,435404,CH_17687_sum,2020-07-30
+CH_17687_sum_rec_d,3370,sample,BTMXLZBR,BGOOD - University of Bern,3577,BGOOD_Ubern_C,17687,CH,46.967,46.967,sum,rec,very_good,1,200814.487,5,B,X3,7,6377443,CH_17687_sum,2020-07-30
+CH_17688_aut_ile_d,3612,sample,BHATRJTX,BGOOD - University of Bern,3577,BGOOD_Ubern_D,17688,CH,46.967,46.967,aut,ile,good,1,NA,5,A,X7,5.5,432423,CH_17688_aut,2020-10-22
+CH_17688_aut_mid_d,3604,sample,BHATRJTX,BGOOD - University of Bern,3577,BGOOD_Ubern_D,17688,CH,46.967,46.967,aut,mid,good,1,NA,5,H,X6,10.6,5754499,CH_17688_aut,2020-10-22
+CH_17688_aut_rec_d,3620,sample,BHATRJTX,BGOOD - University of Bern,3577,BGOOD_Ubern_D,17688,CH,46.967,46.967,aut,rec,good,1,99228.02198,5,B,X7,7.9,8657156,CH_17688_aut,2020-10-22
+CH_17688_sum_ile_d,3537,sample,PHDNYKAL,BGOOD - University of Bern,3577,BGOOD_Ubern_D,17688,CH,46.967,46.967,sum,ile,good,1,NA,5,G,X5,4.9,389044,CH_17688_sum,2020-07-30
+CH_17688_sum_mid_d,3529,sample,PHDNYKAL,BGOOD - University of Bern,3577,BGOOD_Ubern_D,17688,CH,46.967,46.967,sum,mid,good,1,NA,5,F,X5,11.8,199866,CH_17688_sum,2020-07-30
+CH_17688_sum_rec_d,3545,sample,PHDNYKAL,BGOOD - University of Bern,3577,BGOOD_Ubern_D,17688,CH,46.967,46.967,sum,rec,good,1,207404.2543,5,H,X5,6.7,12570617,CH_17688_sum,2020-07-30
+CH_17689_aut_ile_d,3712,sample,LNZMUJUC,BGOOD - University of Bern,3577,BGOOD_Ubern_E,17689,CH,46.967,46.967,aut,ile,bad,1,NA,6,B,X1,7.6,378706,CH_17689_aut,2020-10-22
+CH_17689_aut_mid_d,3704,sample,LNZMUJUC,BGOOD - University of Bern,3577,BGOOD_Ubern_E,17689,CH,46.967,46.967,aut,mid,bad,1,NA,6,A,X1,6.1,439366,CH_17689_aut,2020-10-22
+CH_17689_aut_rec_d,3720,sample,LNZMUJUC,BGOOD - University of Bern,3577,BGOOD_Ubern_E,17689,CH,46.967,46.967,aut,rec,bad,1,61149.46014,6,C,X1,7.5,12017272,CH_17689_aut,2020-10-22
+CH_17690_aut_ile_d,3637,sample,XGMXBTJN,BGOOD - University of Bern,3577,[Dead] BGOOD_Ubern_F,17690,CH,46.967,46.967,aut,ile,good,1,NA,5,D,X7,4.3,137651,CH_17690_aut,2020-10-22
+CH_17690_aut_mid_d,3629,sample,XGMXBTJN,BGOOD - University of Bern,3577,[Dead] BGOOD_Ubern_F,17690,CH,46.967,46.967,aut,mid,good,1,NA,5,C,X7,6.4,1882663,CH_17690_aut,2020-10-22
+CH_17690_aut_rec_d,3645,sample,XGMXBTJN,BGOOD - University of Bern,3577,[Dead] BGOOD_Ubern_F,17690,CH,46.967,46.967,aut,rec,good,1,824449.2522,5,E,X7,14.3,19956181,CH_17690_aut,2020-10-22
+CH_17690_sum_ile_d,3437,sample,KFUXDSJJ,BGOOD - University of Bern,3577,[Dead] BGOOD_Ubern_F,17690,CH,46.967,46.967,sum,ile,good,1,NA,5,C,X4,4.1,108379,CH_17690_sum,2020-07-30
+CH_17690_sum_mid_d,3429,sample,KFUXDSJJ,BGOOD - University of Bern,3577,[Dead] BGOOD_Ubern_F,17690,CH,46.967,46.967,sum,mid,good,1,NA,5,B,X4,8.7,785180,CH_17690_sum,2020-07-30
+CH_17690_sum_rec_d,3445,sample,KFUXDSJJ,BGOOD - University of Bern,3577,[Dead] BGOOD_Ubern_F,17690,CH,46.967,46.967,sum,rec,good,1,181742.2013,5,D,X4,25.2,17423512,CH_17690_sum,2020-07-30
+CH_17691_aut_ile_d,3662,sample,YHBTXPTR,BGOOD - University of Bern,3577,BGOOD_Ubern_G,17691,CH,46.967,46.967,aut,ile,good,1,NA,5,G,X7,6.4,6411848,CH_17691_aut,2020-10-22
+CH_17691_aut_mid_d,3654,sample,YHBTXPTR,BGOOD - University of Bern,3577,BGOOD_Ubern_G,17691,CH,46.967,46.967,aut,mid,good,1,NA,5,F,X7,4.6,291467,CH_17691_aut,2020-10-22
+CH_17691_aut_rec_d,3670,sample,YHBTXPTR,BGOOD - University of Bern,3577,BGOOD_Ubern_G,17691,CH,46.967,46.967,aut,rec,good,1,166304.9162,5,H,X7,4.9,11799549,CH_17691_aut,2020-10-22
+CH_17691_sum_ile_d,3412,sample,UASRHMPX,BGOOD - University of Bern,3577,BGOOD_Ubern_G,17691,CH,46.967,46.967,sum,ile,good,1,NA,5,H,X3,4.8,596905,CH_17691_sum,2020-07-30
+CH_17691_sum_mid_d,3404,sample,UASRHMPX,BGOOD - University of Bern,3577,BGOOD_Ubern_G,17691,CH,46.967,46.967,sum,mid,good,1,NA,5,G,X3,26.5,837461,CH_17691_sum,2020-07-30
+CH_17691_sum_rec_d,3420,sample,UASRHMPX,BGOOD - University of Bern,3577,BGOOD_Ubern_G,17691,CH,46.967,46.967,sum,rec,good,1,96834.89597,5,A,X4,7.8,18752812,CH_17691_sum,2020-07-30
+CH_17692_aut_ile_d,3562,sample,KGKRJZBF,BGOOD - University of Bern,3577,BGOOD_Ubern_H,17692,CH,46.967,46.967,aut,ile,good,1,NA,5,B,X6,4.6,444805,CH_17692_aut,2020-10-22
+CH_17692_aut_mid_d,3554,sample,KGKRJZBF,BGOOD - University of Bern,3577,BGOOD_Ubern_H,17692,CH,46.967,46.967,aut,mid,good,1,NA,5,A,X6,6.1,291025,CH_17692_aut,2020-10-22
+CH_17692_aut_rec_d,3570,sample,KGKRJZBF,BGOOD - University of Bern,3577,BGOOD_Ubern_H,17692,CH,46.967,46.967,aut,rec,good,1,98139.42375,5,D,X6,7.3,11657474,CH_17692_aut,2020-10-22
+CH_17692_sum_ile_d,3487,sample,GYTBRBMR,BGOOD - University of Bern,3577,BGOOD_Ubern_H,17692,CH,46.967,46.967,sum,ile,good,1,NA,5,A,X5,5.5,944596,CH_17692_sum,2020-07-30
+CH_17692_sum_mid_d,3479,sample,GYTBRBMR,BGOOD - University of Bern,3577,BGOOD_Ubern_H,17692,CH,46.967,46.967,sum,mid,good,1,NA,5,H,X4,19.8,258438,CH_17692_sum,2020-07-30
+CH_17692_sum_rec_d,3495,sample,GYTBRBMR,BGOOD - University of Bern,3577,BGOOD_Ubern_H,17692,CH,46.967,46.967,sum,rec,good,1,45278.63778,5,B,X5,13,13260857,CH_17692_sum,2020-07-30
+DE_18027_aut_ile_d,2312,sample,TKXMSRJL,MLU B-GOOD mini apiary,3603,R 2,18027,DE,51.505321,51.505321,aut,ile,very_good,1,NA,3,E,X8,6.3,704803,DE_18027_aut,2020-10-22
+DE_18027_aut_mid_d,2304,sample,TKXMSRJL,MLU B-GOOD mini apiary,3603,R 2,18027,DE,51.505321,51.505321,aut,mid,very_good,1,NA,3,D,X8,6.5,2357576,DE_18027_aut,2020-10-22
+DE_18027_aut_rec_d,2320,sample,TKXMSRJL,MLU B-GOOD mini apiary,3603,R 2,18027,DE,51.505321,51.505321,aut,rec,very_good,1,39390.02924,3,F,X8,11.6,8106153,DE_18027_aut,2020-10-22
+DE_18027_spr_ile_d,1937,sample,TBFTZTPP,MLU B-GOOD mini apiary,3603,R 2,18027,DE,51.505321,51.505321,spr,ile,very_good,1,NA,3,F,X2,5.3,733046,DE_18027_spr,2020-03-27
+DE_18027_spr_mid_d,1929,sample,TBFTZTPP,MLU B-GOOD mini apiary,3603,R 2,18027,DE,51.505321,51.505321,spr,mid,very_good,1,NA,3,E,X2,7.5,324307,DE_18027_spr,2020-03-27
+DE_18027_spr_rec_d,1945,sample,TBFTZTPP,MLU B-GOOD mini apiary,3603,R 2,18027,DE,51.505321,51.505321,spr,rec,very_good,1,33982.29259,3,G,X2,7.2,7966708,DE_18027_spr,2020-03-27
+DE_18027_sum_ile_d,2162,sample,GXNBHRTN,MLU B-GOOD mini apiary,3603,R 2,18027,DE,51.505321,51.505321,sum,ile,very_good,1,NA,3,C,X6,17.1,682085,DE_18027_sum,2020-07-22
+DE_18027_sum_mid_d,2154,sample,GXNBHRTN,MLU B-GOOD mini apiary,3603,R 2,18027,DE,51.505321,51.505321,sum,mid,very_good,1,NA,3,B,X6,5,78396,DE_18027_sum,2020-07-22
+DE_18027_sum_rec_d,2170,sample,GXNBHRTN,MLU B-GOOD mini apiary,3603,R 2,18027,DE,51.505321,51.505321,sum,rec,very_good,1,89857.42915,3,D,X6,9.8,3713395,DE_18027_sum,2020-07-22
+DE_18028_aut_ile_g,2290,sample,XCSNXRAL,MLU B-GOOD mini apiary,3603,R 3,18028,DE,51.505321,51.505321,aut,ile,very_good,2,NA,7,C,X7,5.5,1812179,DE_18028_aut,2020-10-07
+DE_18028_aut_mid_g,2282,sample,XCSNXRAL,MLU B-GOOD mini apiary,3603,R 3,18028,DE,51.505321,51.505321,aut,mid,very_good,2,NA,7,B,X7,12.9,25717685,DE_18028_aut,2020-10-07
+DE_18028_aut_rec_d,2295,sample,XCSNXRAL,MLU B-GOOD mini apiary,3603,R 3,18028,DE,51.505321,51.505321,aut,rec,very_good,2,106321.5902,3,C,X8,8,15835377,DE_18028_aut,2020-10-07
+DE_18028_spr_ile_d,1987,sample,KBADLAAK,MLU B-GOOD mini apiary,3603,R 3,18028,DE,51.505321,51.505321,spr,ile,very_good,2,NA,3,D,X3,7.1,893379,DE_18028_spr,2020-03-27
+DE_18028_spr_mid_d,1979,sample,KBADLAAK,MLU B-GOOD mini apiary,3603,R 3,18028,DE,51.505321,51.505321,spr,mid,very_good,2,NA,3,C,X3,11.9,300793,DE_18028_spr,2020-03-27
+DE_18028_spr_rec_d,1995,sample,KBADLAAK,MLU B-GOOD mini apiary,3603,R 3,18028,DE,51.505321,51.505321,spr,rec,very_good,2,22778.96704,3,E,X3,6.8,5795046,DE_18028_spr,2020-03-27
+DE_18029_spr_ile_d,2062,sample,JRZULUUA,MLU B-GOOD mini apiary,3603,R 4,18029,DE,51.505321,51.505321,spr,ile,bad,2,NA,3,G,X4,4.8,499934,DE_18029_spr,2020-03-27
+DE_18029_spr_mid_d,2054,sample,JRZULUUA,MLU B-GOOD mini apiary,3603,R 4,18029,DE,51.505321,51.505321,spr,mid,bad,2,NA,3,E,X4,5.4,1420786,DE_18029_spr,2020-03-27
+DE_18029_spr_rec_d,2070,sample,JRZULUUA,MLU B-GOOD mini apiary,3603,R 4,18029,DE,51.505321,51.505321,spr,rec,bad,2,46795.01072,3,H,X4,9.8,11948730,DE_18029_spr,2020-03-27
+DE_18029_sum_ile_d,2112,sample,GNTTBMKS,MLU B-GOOD mini apiary,3603,R 4,18029,DE,51.505321,51.505321,sum,ile,bad,2,NA,3,E,X5,4.2,675130,DE_18029_sum,2020-07-24
+DE_18029_sum_mid_d,2104,sample,GNTTBMKS,MLU B-GOOD mini apiary,3603,R 4,18029,DE,51.505321,51.505321,sum,mid,bad,2,NA,3,D,X5,10.1,160551,DE_18029_sum,2020-07-24
+DE_18029_sum_rec_d,2120,sample,GNTTBMKS,MLU B-GOOD mini apiary,3603,R 4,18029,DE,51.505321,51.505321,sum,rec,bad,2,NA,3,F,X5,4.7,15697902,DE_18029_sum,2020-07-24
+DE_18030_aut_ile_d,2237,sample,TCTXNLUA,MLU B-GOOD mini apiary,3603,R 5,18030,DE,51.505321,51.505321,aut,ile,very_good,2,NA,3,D,X7,8.7,605581,DE_18030_aut,2020-10-07
+DE_18030_aut_mid_d,2229,sample,TCTXNLUA,MLU B-GOOD mini apiary,3603,R 5,18030,DE,51.505321,51.505321,aut,mid,very_good,2,NA,3,C,X7,12.7,263151,DE_18030_aut,2020-10-07
+DE_18030_aut_rec_d,2245,sample,TCTXNLUA,MLU B-GOOD mini apiary,3603,R 5,18030,DE,51.505321,51.505321,aut,rec,very_good,2,144908.8652,3,E,X7,21.5,7094001,DE_18030_aut,2020-10-07
+DE_18030_spr_ile_d,2087,sample,FGMUSLZR,MLU B-GOOD mini apiary,3603,R 5,18030,DE,51.505321,51.505321,spr,ile,very_good,2,NA,3,B,X5,4.7,896124,DE_18030_spr,2020-03-27
+DE_18030_spr_mid_d,2079,sample,FGMUSLZR,MLU B-GOOD mini apiary,3603,R 5,18030,DE,51.505321,51.505321,spr,mid,very_good,2,NA,3,A,X5,8.6,940126,DE_18030_spr,2020-03-27
+DE_18030_spr_rec_d,2095,sample,FGMUSLZR,MLU B-GOOD mini apiary,3603,R 5,18030,DE,51.505321,51.505321,spr,rec,very_good,2,17390.09588,3,C,X5,16.9,13154586,DE_18030_spr,2020-03-27
+DE_18031_spr_ile_d,1912,sample,YSPLSSAX,MLU B-GOOD mini apiary,3603,R 6,18031,DE,51.505321,51.505321,spr,ile,good,1,NA,3,C,X2,7.7,995162,DE_18031_spr,2020-03-27
+DE_18031_spr_mid_d,1904,sample,YSPLSSAX,MLU B-GOOD mini apiary,3603,R 6,18031,DE,51.505321,51.505321,spr,mid,good,1,NA,3,B,X2,22,32982,DE_18031_spr,2020-03-27
+DE_18031_spr_rec_d,1920,sample,YSPLSSAX,MLU B-GOOD mini apiary,3603,R 6,18031,DE,51.505321,51.505321,spr,rec,good,1,25046.70968,3,D,X2,16.7,1651545,DE_18031_spr,2020-03-27
+DE_18031_sum_ile_d,2137,sample,ZTJYJGAH,MLU B-GOOD mini apiary,3603,R 6,18031,DE,51.505321,51.505321,sum,ile,good,1,NA,3,H,X5,5.3,1892076,DE_18031_sum,2020-07-23
+DE_18031_sum_mid_d,2129,sample,ZTJYJGAH,MLU B-GOOD mini apiary,3603,R 6,18031,DE,51.505321,51.505321,sum,mid,good,1,NA,3,G,X5,8.1,139475,DE_18031_sum,2020-07-23
+DE_18031_sum_rec_d,2145,sample,ZTJYJGAH,MLU B-GOOD mini apiary,3603,R 6,18031,DE,51.505321,51.505321,sum,rec,good,1,202798.4475,3,A,X6,10.6,15446342,DE_18031_sum,2020-07-23
+DE_18032_spr_ile_d,1962,sample,GRAALCYY,MLU B-GOOD mini apiary,3603,R 7,18032,DE,51.505321,51.505321,spr,ile,good,1,NA,3,A,X3,6,873407,DE_18032_spr,2020-03-27
+DE_18032_spr_mid_d,1954,sample,GRAALCYY,MLU B-GOOD mini apiary,3603,R 7,18032,DE,51.505321,51.505321,spr,mid,good,1,NA,3,H,X2,4.7,108988,DE_18032_spr,2020-03-27
+DE_18032_spr_rec_d,1970,sample,GRAALCYY,MLU B-GOOD mini apiary,3603,R 7,18032,DE,51.505321,51.505321,spr,rec,good,1,22474.3449,3,B,X3,6.3,9145083,DE_18032_spr,2020-03-27
+DE_18032_sum_ile_d,2187,sample,LLKSBZJU,MLU B-GOOD mini apiary,3603,R 7,18032,DE,51.505321,51.505321,sum,ile,good,1,NA,3,F,X6,5.3,1282810,DE_18032_sum,2020-07-24
+DE_18032_sum_mid_d,2179,sample,LLKSBZJU,MLU B-GOOD mini apiary,3603,R 7,18032,DE,51.505321,51.505321,sum,mid,good,1,NA,3,E,X6,15.6,2922358,DE_18032_sum,2020-07-24
+DE_18032_sum_rec_d,2195,sample,LLKSBZJU,MLU B-GOOD mini apiary,3603,R 7,18032,DE,51.505321,51.505321,sum,rec,good,1,192684.3265,3,G,X6,11.1,19725494,DE_18032_sum,2020-07-24
+DE_18033_aut_ile_g,2215,sample,PYBLHADT,MLU B-GOOD mini apiary,3603,R 8 (K18),18033,DE,51.505321,51.505321,aut,ile,good,1,NA,7,H,X6,17.4,167056,DE_18033_aut,2020-10-06
+DE_18033_aut_mid_d,2204,sample,PYBLHADT,MLU B-GOOD mini apiary,3603,R 8 (K18),18033,DE,51.505321,51.505321,aut,mid,good,1,NA,3,H,X6,10,1646145,DE_18033_aut,2020-10-06
+DE_18033_aut_rec_g,2223,sample,PYBLHADT,MLU B-GOOD mini apiary,3603,R 8 (K18),18033,DE,51.505321,51.505321,aut,rec,good,1,111633.751,7,A,X7,6.3,561996,DE_18033_aut,2020-10-06
+DE_18033_spr_ile_d,2037,sample,NRRKUKFP,MLU B-GOOD mini apiary,3603,R 8 (K18),18033,DE,51.505321,51.505321,spr,ile,good,1,NA,3,B,X4,10.7,567590,DE_18033_spr,2020-03-27
+DE_18033_spr_mid_d,2029,sample,NRRKUKFP,MLU B-GOOD mini apiary,3603,R 8 (K18),18033,DE,51.505321,51.505321,spr,mid,good,1,NA,3,A,X4,2.9,128429,DE_18033_spr,2020-03-27
+DE_18033_spr_rec_d,2045,sample,NRRKUKFP,MLU B-GOOD mini apiary,3603,R 8 (K18),18033,DE,51.505321,51.505321,spr,rec,good,1,55846.97705,3,D,X4,7.6,10432641,DE_18033_spr,2020-03-27
+FR_19767_aut_ile_d,2887,sample,AXXDSBFK,Rucher INRAE,3899,Ruche 452,19767,FR,43.917,43.917,aut,ile,good,1,NA,4,H,X5,9.4,263838,FR_19767_aut,2020-10-16
+FR_19767_aut_mid_d,2879,sample,AXXDSBFK,Rucher INRAE,3899,Ruche 452,19767,FR,43.917,43.917,aut,mid,good,1,NA,4,G,X5,13.5,218445,FR_19767_aut,2020-10-16
+FR_19767_aut_rec_d,2895,sample,AXXDSBFK,Rucher INRAE,3899,Ruche 452,19767,FR,43.917,43.917,aut,rec,good,1,114774.8548,4,A,X6,10.3,957315,FR_19767_aut,2020-10-16
+FR_19767_spr_ile_g,2465,sample,RFNZUTGS,Rucher INRAE,3899,Ruche 452,19767,FR,43.917,43.917,spr,ile,good,1,NA,7,H,X7,4.4,203096,FR_19767_spr,2020-05-19
+FR_19767_spr_mid_d,2454,sample,RFNZUTGS,Rucher INRAE,3899,Ruche 452,19767,FR,43.917,43.917,spr,mid,good,1,NA,3,H,X10,14.2,176345,FR_19767_spr,2020-05-19
+FR_19767_spr_rec_g,2473,sample,RFNZUTGS,Rucher INRAE,3899,Ruche 452,19767,FR,43.917,43.917,spr,rec,good,1,170469.9369,7,A,X8,16,256612,FR_19767_spr,2020-05-19
+FR_19767_sum_ile_d,2587,sample,LCTAMYZT,Rucher INRAE,3899,Ruche 452,19767,FR,43.917,43.917,sum,ile,good,1,NA,4,B,X1,4.8,905627,FR_19767_sum,2020-07-10
+FR_19767_sum_mid_d,2579,sample,LCTAMYZT,Rucher INRAE,3899,Ruche 452,19767,FR,43.917,43.917,sum,mid,good,1,NA,4,A,X1,11.5,4091127,FR_19767_sum,2020-07-10
+FR_19767_sum_rec_d,2595,sample,LCTAMYZT,Rucher INRAE,3899,Ruche 452,19767,FR,43.917,43.917,sum,rec,good,1,61059.81656,4,C,X1,8.6,13231670,FR_19767_sum,2020-07-10
+FR_19768_aut_ile_d,2912,sample,RXFBCJBL,Rucher INRAE,3899,Ruche 405,19768,FR,43.917,43.917,aut,ile,bad,1,NA,4,C,X6,15.3,365511,FR_19768_aut,2020-10-16
+FR_19768_aut_mid_d,2904,sample,RXFBCJBL,Rucher INRAE,3899,Ruche 405,19768,FR,43.917,43.917,aut,mid,bad,1,NA,4,B,X6,8.3,19996,FR_19768_aut,2020-10-16
+FR_19768_aut_rec_d,2920,sample,RXFBCJBL,Rucher INRAE,3899,Ruche 405,19768,FR,43.917,43.917,aut,rec,bad,1,72656.54302,4,D,X6,9.7,682846,FR_19768_aut,2020-10-16
+FR_19768_spr_ile_d,2412,sample,XLFGKPJZ,Rucher INRAE,3899,Ruche 405,19768,FR,43.917,43.917,spr,ile,bad,1,NA,3,C,X10,6.8,279213,FR_19768_spr,2020-05-19
+FR_19768_spr_mid_g,2407,sample,XLFGKPJZ,Rucher INRAE,3899,Ruche 405,19768,FR,43.917,43.917,spr,mid,bad,1,NA,7,G,X7,10.1,264782,FR_19768_spr,2020-05-19
+FR_19768_spr_rec_d,2420,sample,XLFGKPJZ,Rucher INRAE,3899,Ruche 405,19768,FR,43.917,43.917,spr,rec,bad,1,97005.22964,3,D,X10,10.5,162764,FR_19768_spr,2020-05-19
+FR_19768_sum_ile_d,2737,sample,UAJBRFBM,Rucher INRAE,3899,Ruche 405,19768,FR,43.917,43.917,sum,ile,bad,1,NA,4,D,X3,4,637303,FR_19768_sum,2020-07-10
+FR_19768_sum_mid_d,2729,sample,UAJBRFBM,Rucher INRAE,3899,Ruche 405,19768,FR,43.917,43.917,sum,mid,bad,1,NA,4,C,X3,6.7,701127,FR_19768_sum,2020-07-10
+FR_19768_sum_rec_d,2745,sample,UAJBRFBM,Rucher INRAE,3899,Ruche 405,19768,FR,43.917,43.917,sum,rec,bad,1,106245.4347,4,E,X3,14.9,14937724,FR_19768_sum,2020-07-10
+FR_19769_aut_ile_d,2937,sample,SYSFZXJB,Rucher INRAE,3899,Ruche 402,19769,FR,43.917,43.917,aut,ile,very_good,1,NA,4,F,X6,4.7,298083,FR_19769_aut,2020-10-16
+FR_19769_aut_mid_d,2929,sample,SYSFZXJB,Rucher INRAE,3899,Ruche 402,19769,FR,43.917,43.917,aut,mid,very_good,1,NA,4,E,X6,6.4,318829,FR_19769_aut,2020-10-16
+FR_19769_aut_rec_d,2945,sample,SYSFZXJB,Rucher INRAE,3899,Ruche 402,19769,FR,43.917,43.917,aut,rec,very_good,1,79622.90191,4,G,X6,10.8,2621649,FR_19769_aut,2020-10-16
+FR_19769_spr_ile_d,2487,sample,RCPUKZHB,Rucher INRAE,3899,Ruche 402,19769,FR,43.917,43.917,spr,ile,very_good,1,NA,3,D,X11,5,725138,FR_19769_spr,2020-05-19
+FR_19769_spr_mid_d,2479,sample,RCPUKZHB,Rucher INRAE,3899,Ruche 402,19769,FR,43.917,43.917,spr,mid,very_good,1,NA,3,C,X11,9.4,256940,FR_19769_spr,2020-05-19
+FR_19769_spr_rec_d,2495,sample,RCPUKZHB,Rucher INRAE,3899,Ruche 402,19769,FR,43.917,43.917,spr,rec,very_good,1,162032.3474,3,E,X11,5.4,5831390,FR_19769_spr,2020-05-19
+FR_19769_sum_ile_d,2562,sample,UZNJSJFX,Rucher INRAE,3899,Ruche 402,19769,FR,43.917,43.917,sum,ile,very_good,1,NA,3,E,X12,5.3,649736,FR_19769_sum,2020-07-10
+FR_19769_sum_mid_d,2554,sample,UZNJSJFX,Rucher INRAE,3899,Ruche 402,19769,FR,43.917,43.917,sum,mid,very_good,1,NA,3,D,X12,7.4,167341,FR_19769_sum,2020-07-10
+FR_19769_sum_rec_d,2570,sample,UZNJSJFX,Rucher INRAE,3899,Ruche 402,19769,FR,43.917,43.917,sum,rec,very_good,1,94669.7932,3,F,X12,6.5,681556,FR_19769_sum,2020-07-10
+FR_19770_aut_ile_d,2837,sample,XNGMCPGZ,Rucher INRAE,3899,Ruche 416,19770,FR,43.917,43.917,aut,ile,good,1,NA,4,B,X5,7.5,361154,FR_19770_aut,2020-10-16
+FR_19770_aut_mid_d,2829,sample,XNGMCPGZ,Rucher INRAE,3899,Ruche 416,19770,FR,43.917,43.917,aut,mid,good,1,NA,4,A,X5,15.9,1116734,FR_19770_aut,2020-10-16
+FR_19770_aut_rec_d,2845,sample,XNGMCPGZ,Rucher INRAE,3899,Ruche 416,19770,FR,43.917,43.917,aut,rec,good,1,67840.2949,4,C,X5,7.6,3783372,FR_19770_aut,2020-10-16
+FR_19770_spr_ile_g,2540,sample,SKLRARCR,Rucher INRAE,3899,Ruche 416,19770,FR,43.917,43.917,spr,ile,good,1,NA,7,C,X8,9.3,669170,FR_19770_spr,2020-05-19
+FR_19770_spr_mid_g,2532,sample,SKLRARCR,Rucher INRAE,3899,Ruche 416,19770,FR,43.917,43.917,spr,mid,good,1,NA,7,B,X8,28.4,68428,FR_19770_spr,2020-05-19
+FR_19770_spr_rec_d,2545,sample,SKLRARCR,Rucher INRAE,3899,Ruche 416,19770,FR,43.917,43.917,spr,rec,good,1,70214.01719,3,C,X12,5.2,1180767,FR_19770_spr,2020-05-19
+FR_19770_sum_ile_d,2637,sample,UNJCNTPX,Rucher INRAE,3899,Ruche 416,19770,FR,43.917,43.917,sum,ile,good,1,NA,4,H,X1,4.8,251091,FR_19770_sum,2020-07-10
+FR_19770_sum_mid_d,2629,sample,UNJCNTPX,Rucher INRAE,3899,Ruche 416,19770,FR,43.917,43.917,sum,mid,good,1,NA,4,G,X1,7.9,165587,FR_19770_sum,2020-07-10
+FR_19770_sum_rec_d,2645,sample,UNJCNTPX,Rucher INRAE,3899,Ruche 416,19770,FR,43.917,43.917,sum,rec,good,1,190591.9219,4,A,X2,8.5,6470394,FR_19770_sum,2020-07-10
+FR_19771_aut_ile_d,2862,sample,XGZSGKCD,Rucher INRAE,3899,Ruche 446,19771,FR,43.917,43.917,aut,ile,good,1,NA,4,E,X5,8.5,356367,FR_19771_aut,2020-10-16
+FR_19771_aut_mid_d,2854,sample,XGZSGKCD,Rucher INRAE,3899,Ruche 446,19771,FR,43.917,43.917,aut,mid,good,1,NA,4,D,X5,6.1,335349,FR_19771_aut,2020-10-16
+FR_19771_aut_rec_d,2870,sample,XGZSGKCD,Rucher INRAE,3899,Ruche 446,19771,FR,43.917,43.917,aut,rec,good,1,121188.8432,4,F,X5,6.9,324631,FR_19771_aut,2020-10-16
+FR_19771_spr_ile_d,2337,sample,HXSDGDKY,Rucher INRAE,3899,Ruche 446,19771,FR,43.917,43.917,spr,ile,good,1,NA,3,H,X8,15.7,224902,FR_19771_spr,2020-05-19
+FR_19771_spr_mid_d,2329,sample,HXSDGDKY,Rucher INRAE,3899,Ruche 446,19771,FR,43.917,43.917,spr,mid,good,1,NA,3,G,X8,16.2,196766,FR_19771_spr,2020-05-19
+FR_19771_spr_rec_g,2348,sample,HXSDGDKY,Rucher INRAE,3899,Ruche 446,19771,FR,43.917,43.917,spr,rec,good,1,95651.35344,7,D,X7,4.5,659011,FR_19771_spr,2020-05-19
+FR_19771_sum_ile_d,2662,sample,UZHCRGPF,Rucher INRAE,3899,Ruche 446,19771,FR,43.917,43.917,sum,ile,good,1,NA,4,C,X2,5.1,1181009,FR_19771_sum,2020-07-10
+FR_19771_sum_mid_d,2654,sample,UZHCRGPF,Rucher INRAE,3899,Ruche 446,19771,FR,43.917,43.917,sum,mid,good,1,NA,4,B,X2,7.9,236356,FR_19771_sum,2020-07-10
+FR_19771_sum_rec_d,2670,sample,UZHCRGPF,Rucher INRAE,3899,Ruche 446,19771,FR,43.917,43.917,sum,rec,good,1,80637.75419,4,D,X2,22.3,242300,FR_19771_sum,2020-07-10
+FR_19772_aut_ile_d,2812,sample,GKMDTUFM,Rucher INRAE,3899,Ruche 435,19772,FR,43.917,43.917,aut,ile,bad,1,NA,4,G,X4,7.1,746750,FR_19772_aut,2020-10-16
+FR_19772_aut_mid_d,2804,sample,GKMDTUFM,Rucher INRAE,3899,Ruche 435,19772,FR,43.917,43.917,aut,mid,bad,1,NA,4,E,X4,9.4,549872,FR_19772_aut,2020-10-16
+FR_19772_aut_rec_d,2820,sample,GKMDTUFM,Rucher INRAE,3899,Ruche 435,19772,FR,43.917,43.917,aut,rec,bad,1,61973.683,4,H,X4,7,9621091,FR_19772_aut,2020-10-16
+FR_19772_spr_ile_d,2437,sample,TMRPZGLP,Rucher INRAE,3899,Ruche 435,19772,FR,43.917,43.917,spr,ile,bad,1,NA,3,F,X10,7.8,145044,FR_19772_spr,2020-05-19
+FR_19772_spr_mid_d,2429,sample,TMRPZGLP,Rucher INRAE,3899,Ruche 435,19772,FR,43.917,43.917,spr,mid,bad,1,NA,3,E,X10,9,13593,FR_19772_spr,2020-05-19
+FR_19772_spr_rec_d,2445,sample,TMRPZGLP,Rucher INRAE,3899,Ruche 435,19772,FR,43.917,43.917,spr,rec,bad,1,82366.44324,3,G,X10,10.1,117979,FR_19772_spr,2020-05-19
+FR_19772_sum_ile_d,2712,sample,LJDNDYSP,Rucher INRAE,3899,Ruche 435,19772,FR,43.917,43.917,sum,ile,bad,1,NA,4,A,X3,6.2,303686,FR_19772_sum,2020-07-10
+FR_19772_sum_mid_d,2704,sample,LJDNDYSP,Rucher INRAE,3899,Ruche 435,19772,FR,43.917,43.917,sum,mid,bad,1,NA,4,H,X2,15.9,70377,FR_19772_sum,2020-07-10
+FR_19772_sum_rec_d,2720,sample,LJDNDYSP,Rucher INRAE,3899,Ruche 435,19772,FR,43.917,43.917,sum,rec,bad,1,49710.56092,4,B,X3,7.1,813235,FR_19772_sum,2020-07-10
+FR_19773_aut_ile_d,2787,sample,KYTUARJP,Rucher INRAE,3899,Ruche 115,19773,FR,43.917,43.917,aut,ile,very_good,1,NA,4,B,X4,5.5,288818,FR_19773_aut,2020-10-16
+FR_19773_aut_mid_d,2779,sample,KYTUARJP,Rucher INRAE,3899,Ruche 115,19773,FR,43.917,43.917,aut,mid,very_good,1,NA,4,A,X4,5.2,263227,FR_19773_aut,2020-10-16
+FR_19773_aut_rec_d,2795,sample,KYTUARJP,Rucher INRAE,3899,Ruche 115,19773,FR,43.917,43.917,aut,rec,very_good,1,101168.399,4,D,X4,8.8,1302742,FR_19773_aut,2020-10-16
+FR_19773_spr_ile_d,2387,sample,XDXDUCYY,Rucher INRAE,3899,Ruche 115,19773,FR,43.917,43.917,spr,ile,very_good,1,NA,3,H,X9,6,307127,FR_19773_spr,2020-05-19
+FR_19773_spr_mid_d,2379,sample,XDXDUCYY,Rucher INRAE,3899,Ruche 115,19773,FR,43.917,43.917,spr,mid,very_good,1,NA,3,G,X9,6.2,158616,FR_19773_spr,2020-05-19
+FR_19773_spr_rec_g,2398,sample,XDXDUCYY,Rucher INRAE,3899,Ruche 115,19773,FR,43.917,43.917,spr,rec,very_good,1,59119.44564,7,F,X7,14.6,54219,FR_19773_spr,2020-05-19
+FR_19773_sum_ile_d,2687,sample,RRMUZUBR,Rucher INRAE,3899,Ruche 115,19773,FR,43.917,43.917,sum,ile,very_good,1,NA,4,F,X2,8,514545,FR_19773_sum,2020-07-10
+FR_19773_sum_mid_d,2679,sample,RRMUZUBR,Rucher INRAE,3899,Ruche 115,19773,FR,43.917,43.917,sum,mid,very_good,1,NA,4,E,X2,17.6,107345,FR_19773_sum,2020-07-10
+FR_19773_sum_rec_d,2695,sample,RRMUZUBR,Rucher INRAE,3899,Ruche 115,19773,FR,43.917,43.917,sum,rec,very_good,1,50110.34281,4,G,X2,15,4095667,FR_19773_sum,2020-07-10
+FR_19774_spr_ile_d,2362,sample,MUDAXHCG,Rucher INRAE,3899,Ruche 403,19774,FR,43.917,43.917,spr,ile,bad,1,NA,3,D,X9,15.8,187635,FR_19774_spr,2020-05-19
+FR_19774_spr_mid_g,2357,sample,MUDAXHCG,Rucher INRAE,3899,Ruche 403,19774,FR,43.917,43.917,spr,mid,bad,1,NA,7,E,X7,5.2,229945,FR_19774_spr,2020-05-19
+FR_19774_spr_rec_d,2370,sample,MUDAXHCG,Rucher INRAE,3899,Ruche 403,19774,FR,43.917,43.917,spr,rec,bad,1,91234.33235,3,E,X9,11.4,79104,FR_19774_spr,2020-05-19
+FR_19774_sum_ile_d,2612,sample,MJCCGNUK,Rucher INRAE,3899,Ruche 403,19774,FR,43.917,43.917,sum,ile,bad,1,NA,4,E,X1,3.6,513606,FR_19774_sum,2020-07-10
+FR_19774_sum_mid_d,2604,sample,MJCCGNUK,Rucher INRAE,3899,Ruche 403,19774,FR,43.917,43.917,sum,mid,bad,1,NA,4,D,X1,4.4,192993,FR_19774_sum,2020-07-10
+FR_19774_sum_rec_d,2620,sample,MJCCGNUK,Rucher INRAE,3899,Ruche 403,19774,FR,43.917,43.917,sum,rec,bad,1,93246.00372,4,F,X1,10.9,3745880,FR_19774_sum,2020-07-10
+NL_19100_aut_ile_d,4162,sample,TNXYXSHD,Mini-apiary,3761,MA 4a,19100,NL,51.655,51.655,aut,ile,good,1,NA,6,B,X8,4,229585,NL_19100_aut,2020-10-20
+NL_19100_aut_mid_d,4154,sample,TNXYXSHD,Mini-apiary,3761,MA 4a,19100,NL,51.655,51.655,aut,mid,good,1,NA,6,A,X8,8.1,622914,NL_19100_aut,2020-10-20
+NL_19100_aut_rec_d,4170,sample,TNXYXSHD,Mini-apiary,3761,MA 4a,19100,NL,51.655,51.655,aut,rec,good,1,73468.07348,6,C,X8,10.7,6011169,NL_19100_aut,2020-10-20
+NL_19100_sum_ile_d,3912,sample,SXPUGXYF,Mini-apiary,3761,MA 4a,19100,NL,51.655,51.655,sum,ile,good,1,NA,6,C,X4,5.5,165310,NL_19100_sum,2020-08-06
+NL_19100_sum_mid_d,3904,sample,SXPUGXYF,Mini-apiary,3761,MA 4a,19100,NL,51.655,51.655,sum,mid,good,1,NA,6,B,X4,5.5,1738156,NL_19100_sum,2020-08-06
+NL_19100_sum_rec_d,3920,sample,SXPUGXYF,Mini-apiary,3761,MA 4a,19100,NL,51.655,51.655,sum,rec,good,1,79815.05986,6,D,X4,5.8,4353033,NL_19100_sum,2020-08-06
+NL_19101_aut_ile_d,4112,sample,MGYBKRZR,Mini-apiary,3761,MA 5,19101,NL,51.655,51.655,aut,ile,good,2,NA,6,D,X7,3.9,159539,NL_19101_aut,2020-10-20
+NL_19101_aut_mid_d,4104,sample,MGYBKRZR,Mini-apiary,3761,MA 5,19101,NL,51.655,51.655,aut,mid,good,2,NA,6,C,X7,4.7,91624,NL_19101_aut,2020-10-20
+NL_19101_aut_rec_d,4120,sample,MGYBKRZR,Mini-apiary,3761,MA 5,19101,NL,51.655,51.655,aut,rec,good,2,100233.8286,6,E,X7,10.3,18534136,NL_19101_aut,2020-10-20
+NL_19101_spr_ile_d,3787,sample,NSMXYCKY,Mini-apiary,3761,MA 5,19101,NL,51.655,51.655,spr,ile,good,2,NA,6,C,X2,5.9,406145,NL_19101_spr,2020-03-27
+NL_19101_spr_mid_d,3779,sample,NSMXYCKY,Mini-apiary,3761,MA 5,19101,NL,51.655,51.655,spr,mid,good,2,NA,6,B,X2,4.4,1939439,NL_19101_spr,2020-03-27
+NL_19101_spr_rec_d,3795,sample,NSMXYCKY,Mini-apiary,3761,MA 5,19101,NL,51.655,51.655,spr,rec,good,2,36426.9245,6,D,X2,9.8,10415144,NL_19101_spr,2020-03-27
+NL_19101_sum_ile_d,4037,sample,FSGCXXDY,Mini-apiary,3761,MA 5,19101,NL,51.655,51.655,sum,ile,good,2,NA,6,B,X6,4.8,446092,NL_19101_sum,2020-08-06
+NL_19101_sum_mid_d,4029,sample,FSGCXXDY,Mini-apiary,3761,MA 5,19101,NL,51.655,51.655,sum,mid,good,2,NA,6,A,X6,4.6,1126363,NL_19101_sum,2020-08-06
+NL_19101_sum_rec_d,4045,sample,FSGCXXDY,Mini-apiary,3761,MA 5,19101,NL,51.655,51.655,sum,rec,good,2,66540.9862,6,D,X6,4.5,5709736,NL_19101_sum,2020-08-06
+NL_19102_aut_ile_d,4062,sample,DFBZRKSP,Mini-apiary,3761,MA 6a,19102,NL,51.655,51.655,aut,ile,good,2,NA,6,F,X6,6.5,586687,NL_19102_aut,2020-10-20
+NL_19102_aut_mid_d,4054,sample,DFBZRKSP,Mini-apiary,3761,MA 6a,19102,NL,51.655,51.655,aut,mid,good,2,NA,6,E,X6,9.4,626544,NL_19102_aut,2020-10-20
+NL_19102_aut_rec_d,4070,sample,DFBZRKSP,Mini-apiary,3761,MA 6a,19102,NL,51.655,51.655,aut,rec,good,2,153453.7513,6,G,X6,4.5,3222638,NL_19102_aut,2020-10-20
+NL_19102_spr_ile_d,3837,sample,LTRUYCXB,Mini-apiary,3761,MA 6a,19102,NL,51.655,51.655,spr,ile,good,2,NA,6,A,X3,10.4,313543,NL_19102_spr,2020-03-27
+NL_19102_spr_mid_d,3829,sample,LTRUYCXB,Mini-apiary,3761,MA 6a,19102,NL,51.655,51.655,spr,mid,good,2,NA,6,H,X2,6.9,2318413,NL_19102_spr,2020-03-27
+NL_19102_spr_rec_d,3845,sample,LTRUYCXB,Mini-apiary,3761,MA 6a,19102,NL,51.655,51.655,spr,rec,good,2,179950.7132,6,B,X3,7.5,6029961,NL_19102_spr,2020-03-27
+NL_19102_sum_ile_d,3937,sample,BRGYZFTH,Mini-apiary,3761,MA 6a,19102,NL,51.655,51.655,sum,ile,good,2,NA,6,F,X4,6.2,846953,NL_19102_sum,2020-08-06
+NL_19102_sum_mid_d,3929,sample,BRGYZFTH,Mini-apiary,3761,MA 6a,19102,NL,51.655,51.655,sum,mid,good,2,NA,6,E,X4,7.7,9624886,NL_19102_sum,2020-08-06
+NL_19102_sum_rec_d,3945,sample,BRGYZFTH,Mini-apiary,3761,MA 6a,19102,NL,51.655,51.655,sum,rec,good,2,507412.0802,6,G,X4,6.5,14199093,NL_19102_sum,2020-08-06
+NL_19103_aut_ile_d,4137,sample,KHAZYKBT,Mini-apiary,3761,MA 7,19103,NL,51.655,51.655,aut,ile,very_good,1,NA,6,G,X7,5.7,324054,NL_19103_aut,2020-10-20
+NL_19103_aut_mid_d,4129,sample,KHAZYKBT,Mini-apiary,3761,MA 7,19103,NL,51.655,51.655,aut,mid,very_good,1,NA,6,F,X7,6.2,497823,NL_19103_aut,2020-10-20
+NL_19103_aut_rec_d,4145,sample,KHAZYKBT,Mini-apiary,3761,MA 7,19103,NL,51.655,51.655,aut,rec,very_good,1,110257.2114,6,H,X7,10.4,13996070,NL_19103_aut,2020-10-20
+NL_19103_spr_ile_d,3812,sample,ZZDUHMMZ,Mini-apiary,3761,MA 7,19103,NL,51.655,51.655,spr,ile,very_good,1,NA,6,F,X2,4.8,773233,NL_19103_spr,2020-03-27
+NL_19103_spr_mid_d,3804,sample,ZZDUHMMZ,Mini-apiary,3761,MA 7,19103,NL,51.655,51.655,spr,mid,very_good,1,NA,6,E,X2,6.7,2730402,NL_19103_spr,2020-03-27
+NL_19103_spr_rec_d,3820,sample,ZZDUHMMZ,Mini-apiary,3761,MA 7,19103,NL,51.655,51.655,spr,rec,very_good,1,65446.79394,6,G,X2,19.5,11313124,NL_19103_spr,2020-03-27
+NL_19103_sum_ile_d,3987,sample,UFALLKYT,Mini-apiary,3761,MA 7,19103,NL,51.655,51.655,sum,ile,very_good,1,NA,6,D,X5,5.4,1062053,NL_19103_sum,2020-08-06
+NL_19103_sum_mid_d,3979,sample,UFALLKYT,Mini-apiary,3761,MA 7,19103,NL,51.655,51.655,sum,mid,very_good,1,NA,6,C,X5,8.6,735682,NL_19103_sum,2020-08-06
+NL_19103_sum_rec_d,3995,sample,UFALLKYT,Mini-apiary,3761,MA 7,19103,NL,51.655,51.655,sum,rec,very_good,1,131136.3688,6,E,X5,9.8,20520684,NL_19103_sum,2020-08-06
+NL_19104_aut_ile_d,4087,sample,TZLMAAMY,Mini-apiary,3761,MA 8,19104,NL,51.655,51.655,aut,ile,good,1,NA,6,A,X7,5,1231789,NL_19104_aut,2020-10-20
+NL_19104_aut_mid_d,4079,sample,TZLMAAMY,Mini-apiary,3761,MA 8,19104,NL,51.655,51.655,aut,mid,good,1,NA,6,H,X6,6.3,1167132,NL_19104_aut,2020-10-20
+NL_19104_aut_rec_d,4095,sample,TZLMAAMY,Mini-apiary,3761,MA 8,19104,NL,51.655,51.655,aut,rec,good,1,130997.6368,6,B,X7,6.8,17527221,NL_19104_aut,2020-10-20
+NL_19104_spr_ile_d,3737,sample,TTZYYUKL,Mini-apiary,3761,MA 8,19104,NL,51.655,51.655,spr,ile,good,1,NA,6,E,X1,6.3,608621,NL_19104_spr,2020-03-27
+NL_19104_spr_mid_d,3729,sample,TTZYYUKL,Mini-apiary,3761,MA 8,19104,NL,51.655,51.655,spr,mid,good,1,NA,6,D,X1,6,2732436,NL_19104_spr,2020-03-27
+NL_19104_spr_rec_d,3745,sample,TTZYYUKL,Mini-apiary,3761,MA 8,19104,NL,51.655,51.655,spr,rec,good,1,32983.51936,6,F,X1,5.8,11983959,NL_19104_spr,2020-03-27
+NL_19104_sum_ile_d,3887,sample,JNDUGKCM,Mini-apiary,3761,MA 8,19104,NL,51.655,51.655,sum,ile,good,1,NA,6,H,X3,5.6,319085,NL_19104_sum,2020-08-12
+NL_19104_sum_mid_d,3879,sample,JNDUGKCM,Mini-apiary,3761,MA 8,19104,NL,51.655,51.655,sum,mid,good,1,NA,6,G,X3,6.9,183232,NL_19104_sum,2020-08-12
+NL_19104_sum_rec_d,3895,sample,JNDUGKCM,Mini-apiary,3761,MA 8,19104,NL,51.655,51.655,sum,rec,good,1,120558.6176,6,A,X4,16.5,15006193,NL_19104_sum,2020-08-12
+NL_20378_aut_ile_d,4187,sample,XBGTJDLT,Mini-apiary,3761,MA 3b,20378,NL,51.655,51.655,aut,ile,very_bad,1,NA,7,B,X1,5.9,304922,NL_20378_aut,2020-10-20
+NL_20378_aut_mid_d,4179,sample,XBGTJDLT,Mini-apiary,3761,MA 3b,20378,NL,51.655,51.655,aut,mid,very_bad,1,NA,7,A,X1,7.6,723942,NL_20378_aut,2020-10-20
+NL_20378_aut_rec_d,4195,sample,XBGTJDLT,Mini-apiary,3761,MA 3b,20378,NL,51.655,51.655,aut,rec,very_bad,1,348026.4196,7,C,X1,8.6,19347697,NL_20378_aut,2020-10-20
+NL_20378_spr_ile_d,3862,sample,HJHDLLZG,Mini-apiary,3761,MA 3b,20378,NL,51.655,51.655,spr,ile,very_bad,1,NA,6,D,X3,4.2,681947,NL_20378_spr,2020-03-27
+NL_20378_spr_mid_d,3854,sample,HJHDLLZG,Mini-apiary,3761,MA 3b,20378,NL,51.655,51.655,spr,mid,very_bad,1,NA,6,C,X3,4.5,1804940,NL_20378_spr,2020-03-27
+NL_20378_spr_rec_d,3870,sample,HJHDLLZG,Mini-apiary,3761,MA 3b,20378,NL,51.655,51.655,spr,rec,very_bad,1,64630.06557,6,E,X3,9.4,8420077,NL_20378_spr,2020-03-27
+NL_20378_sum_ile_d,3962,sample,FLPGNAMP,Mini-apiary,3761,MA 3b,20378,NL,51.655,51.655,sum,ile,very_bad,1,NA,6,A,X5,6.3,372382,NL_20378_sum,2020-08-06
+NL_20378_sum_mid_d,3954,sample,FLPGNAMP,Mini-apiary,3761,MA 3b,20378,NL,51.655,51.655,sum,mid,very_bad,1,NA,6,H,X4,6.2,503859,NL_20378_sum,2020-08-06
+NL_20378_sum_rec_d,3970,sample,FLPGNAMP,Mini-apiary,3761,MA 3b,20378,NL,51.655,51.655,sum,rec,very_bad,1,61180.78671,6,B,X5,6.9,6517600,NL_20378_sum,2020-08-06
+PT_19407_aut_ile_d,1762,sample,DXBHFTZU,UC Apiary (Portugal) - B-GOOD,3818,Hive 1,19407,PT,41.1545749,-7.6942246,aut,ile,good,3,NA,2,B,X12,4.2,393662,PT_19407_aut,2020-10-24
+PT_19407_aut_mid_d,1754,sample,DXBHFTZU,UC Apiary (Portugal) - B-GOOD,3818,Hive 1,19407,PT,41.1545749,-7.6942246,aut,mid,good,3,NA,2,A,X12,8.3,2649000,PT_19407_aut,2020-10-24
+PT_19407_aut_rec_d,1770,sample,DXBHFTZU,UC Apiary (Portugal) - B-GOOD,3818,Hive 1,19407,PT,41.1545749,-7.6942246,aut,rec,good,3,55214.84448,2,C,X12,7.1,11038662,PT_19407_aut,2020-10-24
+PT_19407_spr_ile_d,1437,sample,FZXKPDAC,UC Apiary (Portugal) - B-GOOD,3818,Hive 1,19407,PT,41.1545749,-7.6942246,spr,ile,good,3,NA,2,A,X7,2.9,610743,PT_19407_spr,2020-03-10
+PT_19407_spr_mid_d,1429,sample,FZXKPDAC,UC Apiary (Portugal) - B-GOOD,3818,Hive 1,19407,PT,41.1545749,-7.6942246,spr,mid,good,3,NA,2,H,X6,5.1,473156,PT_19407_spr,2020-03-10
+PT_19407_spr_rec_d,1445,sample,FZXKPDAC,UC Apiary (Portugal) - B-GOOD,3818,Hive 1,19407,PT,41.1545749,-7.6942246,spr,rec,good,3,50144.18971,2,B,X7,14.9,20473873,PT_19407_spr,2020-03-10
+PT_19407_sum_ile_d,1487,sample,PRZNCDKD,UC Apiary (Portugal) - B-GOOD,3818,Hive 1,19407,PT,41.1545749,-7.6942246,sum,ile,good,3,NA,2,G,X7,5.7,370181,PT_19407_sum,2020-07-09
+PT_19407_sum_mid_d,1479,sample,PRZNCDKD,UC Apiary (Portugal) - B-GOOD,3818,Hive 1,19407,PT,41.1545749,-7.6942246,sum,mid,good,3,NA,2,F,X7,6.1,726421,PT_19407_sum,2020-07-09
+PT_19407_sum_rec_d,1495,sample,PRZNCDKD,UC Apiary (Portugal) - B-GOOD,3818,Hive 1,19407,PT,41.1545749,-7.6942246,sum,rec,good,3,79106.87532,2,H,X7,10.1,6916424,PT_19407_sum,2020-07-09
+PT_19408_aut_ile_d,1887,sample,HZZTLGHG,UC Apiary (Portugal) - B-GOOD,3818,Hive 2,19408,PT,41.1545749,-7.6942246,aut,ile,very_good,1,NA,3,H,X1,18.1,369417,PT_19408_aut,2020-10-24
+PT_19408_aut_mid_d,1879,sample,HZZTLGHG,UC Apiary (Portugal) - B-GOOD,3818,Hive 2,19408,PT,41.1545749,-7.6942246,aut,mid,very_good,1,NA,3,G,X1,6.9,41822,PT_19408_aut,2020-10-24
+PT_19408_aut_rec_d,1895,sample,HZZTLGHG,UC Apiary (Portugal) - B-GOOD,3818,Hive 2,19408,PT,41.1545749,-7.6942246,aut,rec,very_good,1,69352.30828,3,A,X2,12.8,84325,PT_19408_aut,2020-10-24
+PT_19408_spr_ile_d,1387,sample,DGSDJSAZ,UC Apiary (Portugal) - B-GOOD,3818,Hive 2,19408,PT,41.1545749,-7.6942246,spr,ile,very_good,1,NA,2,F,X6,4.5,692765,PT_19408_spr,2020-03-10
+PT_19408_spr_mid_d,1379,sample,DGSDJSAZ,UC Apiary (Portugal) - B-GOOD,3818,Hive 2,19408,PT,41.1545749,-7.6942246,spr,mid,very_good,1,NA,2,E,X6,5.3,9475433,PT_19408_spr,2020-03-10
+PT_19408_spr_rec_d,1395,sample,DGSDJSAZ,UC Apiary (Portugal) - B-GOOD,3818,Hive 2,19408,PT,41.1545749,-7.6942246,spr,rec,very_good,1,173195.7225,2,G,X6,7.7,17533609,PT_19408_spr,2020-03-10
+PT_19408_sum_ile_d,1637,sample,KGXZGFFF,UC Apiary (Portugal) - B-GOOD,3818,Hive 2,19408,PT,41.1545749,-7.6942246,sum,ile,very_good,1,NA,2,C,X10,2.8,567566,PT_19408_sum,2020-07-09
+PT_19408_sum_mid_d,1629,sample,KGXZGFFF,UC Apiary (Portugal) - B-GOOD,3818,Hive 2,19408,PT,41.1545749,-7.6942246,sum,mid,very_good,1,NA,2,B,X10,7.4,204015,PT_19408_sum,2020-07-09
+PT_19408_sum_rec_d,1645,sample,KGXZGFFF,UC Apiary (Portugal) - B-GOOD,3818,Hive 2,19408,PT,41.1545749,-7.6942246,sum,rec,very_good,1,94174.85157,2,D,X10,7.3,4593151,PT_19408_sum,2020-07-09
+PT_19409_aut_ile_d,1837,sample,XANSABFN,UC Apiary (Portugal) - B-GOOD,3818,Hive 3a,19409,PT,41.1545749,-7.6942246,aut,ile,bad,2,NA,3,B,X1,6.8,414877,PT_19409_aut,2020-10-24
+PT_19409_aut_mid_d,1829,sample,XANSABFN,UC Apiary (Portugal) - B-GOOD,3818,Hive 3a,19409,PT,41.1545749,-7.6942246,aut,mid,bad,2,NA,3,A,X1,5.8,397211,PT_19409_aut,2020-10-24
+PT_19409_aut_rec_d,1845,sample,XANSABFN,UC Apiary (Portugal) - B-GOOD,3818,Hive 3a,19409,PT,41.1545749,-7.6942246,aut,rec,bad,2,NA,3,C,X1,8.9,6071032,PT_19409_aut,2020-10-24
+PT_19409_spr_ile_d,1337,sample,GFTGSHLP,UC Apiary (Portugal) - B-GOOD,3818,Hive 3a,19409,PT,41.1545749,-7.6942246,spr,ile,bad,2,NA,2,H,X5,6.7,268703,PT_19409_spr,2020-03-10
+PT_19409_spr_mid_d,1329,sample,GFTGSHLP,UC Apiary (Portugal) - B-GOOD,3818,Hive 3a,19409,PT,41.1545749,-7.6942246,spr,mid,bad,2,NA,2,G,X5,13.5,5987835,PT_19409_spr,2020-03-10
+PT_19409_spr_rec_d,1345,sample,GFTGSHLP,UC Apiary (Portugal) - B-GOOD,3818,Hive 3a,19409,PT,41.1545749,-7.6942246,spr,rec,bad,2,34917.79885,2,A,X6,5.3,5277242,PT_19409_spr,2020-03-10
+PT_19409_sum_ile_d,1662,sample,FXUKRXHS,UC Apiary (Portugal) - B-GOOD,3818,Hive 3a,19409,PT,41.1545749,-7.6942246,sum,ile,bad,2,NA,2,F,X10,5.8,262848,PT_19409_sum,2020-07-09
+PT_19409_sum_mid_d,1654,sample,FXUKRXHS,UC Apiary (Portugal) - B-GOOD,3818,Hive 3a,19409,PT,41.1545749,-7.6942246,sum,mid,bad,2,NA,2,E,X10,6,330400,PT_19409_sum,2020-07-09
+PT_19409_sum_rec_d,1670,sample,FXUKRXHS,UC Apiary (Portugal) - B-GOOD,3818,Hive 3a,19409,PT,41.1545749,-7.6942246,sum,rec,bad,2,100418.7732,2,G,X10,10.7,2369799,PT_19409_sum,2020-07-09
+PT_19410_aut_ile_d,4537,sample,UGUNZTRB,UC Apiary (Portugal) - B-GOOD,3818,Hive 4,19410,PT,41.1545749,-7.6942246,aut,ile,good,1,NA,7,F,X6,4.3,406339,PT_19410_aut,2020-10-24
+PT_19410_aut_mid_d,4529,sample,UGUNZTRB,UC Apiary (Portugal) - B-GOOD,3818,Hive 4,19410,PT,41.1545749,-7.6942246,aut,mid,good,1,NA,7,E,X6,13,1178446,PT_19410_aut,2020-10-24
+PT_19410_aut_rec_d,4545,sample,UGUNZTRB,UC Apiary (Portugal) - B-GOOD,3818,Hive 4,19410,PT,41.1545749,-7.6942246,aut,rec,good,1,45708.53898,7,G,X6,5.1,7235965,PT_19410_aut,2020-10-24
+PT_19410_spr_ile_d,1362,sample,FJUYULNN,UC Apiary (Portugal) - B-GOOD,3818,Hive 4,19410,PT,41.1545749,-7.6942246,spr,ile,good,1,NA,2,C,X6,4,363072,PT_19410_spr,2020-03-10
+PT_19410_spr_mid_d,1354,sample,FJUYULNN,UC Apiary (Portugal) - B-GOOD,3818,Hive 4,19410,PT,41.1545749,-7.6942246,spr,mid,good,1,NA,2,B,X6,6,10080074,PT_19410_spr,2020-03-10
+PT_19410_spr_rec_d,1370,sample,FJUYULNN,UC Apiary (Portugal) - B-GOOD,3818,Hive 4,19410,PT,41.1545749,-7.6942246,spr,rec,good,1,43948.26407,2,D,X6,6.6,18380862,PT_19410_spr,2020-03-10
+PT_19410_sum_ile_d,1587,sample,TZFLGFNU,UC Apiary (Portugal) - B-GOOD,3818,Hive 4,19410,PT,41.1545749,-7.6942246,sum,ile,good,1,NA,2,D,X9,3.5,375703,PT_19410_sum,2020-07-09
+PT_19410_sum_mid_d,1579,sample,TZFLGFNU,UC Apiary (Portugal) - B-GOOD,3818,Hive 4,19410,PT,41.1545749,-7.6942246,sum,mid,good,1,NA,2,B,X9,6,375916,PT_19410_sum,2020-07-09
+PT_19410_sum_rec_d,1595,sample,TZFLGFNU,UC Apiary (Portugal) - B-GOOD,3818,Hive 4,19410,PT,41.1545749,-7.6942246,sum,rec,good,1,NA,2,E,X9,8,501440,PT_19410_sum,2020-07-09
+PT_19411_aut_ile_d,1737,sample,MHHCRRRC,UC Apiary (Portugal) - B-GOOD,3818,Hive 5,19411,PT,41.1545749,-7.6942246,aut,ile,good,2,NA,2,G,X11,5.2,456088,PT_19411_aut,2020-10-24
+PT_19411_aut_mid_d,1729,sample,MHHCRRRC,UC Apiary (Portugal) - B-GOOD,3818,Hive 5,19411,PT,41.1545749,-7.6942246,aut,mid,good,2,NA,2,F,X11,18.2,263606,PT_19411_aut,2020-10-24
+PT_19411_aut_rec_d,1745,sample,MHHCRRRC,UC Apiary (Portugal) - B-GOOD,3818,Hive 5,19411,PT,41.1545749,-7.6942246,aut,rec,good,2,NA,2,H,X11,8.2,2076798,PT_19411_aut,2020-10-24
+PT_19411_spr_ile_d,1312,sample,FNSRGMAC,UC Apiary (Portugal) - B-GOOD,3818,Hive 5,19411,PT,41.1545749,-7.6942246,spr,ile,good,2,NA,2,E,X5,3.6,304304,PT_19411_spr,2020-03-10
+PT_19411_spr_mid_d,1304,sample,FNSRGMAC,UC Apiary (Portugal) - B-GOOD,3818,Hive 5,19411,PT,41.1545749,-7.6942246,spr,mid,good,2,NA,2,D,X5,6.2,2955472,PT_19411_spr,2020-03-10
+PT_19411_spr_rec_d,1320,sample,FNSRGMAC,UC Apiary (Portugal) - B-GOOD,3818,Hive 5,19411,PT,41.1545749,-7.6942246,spr,rec,good,2,24869.01343,2,F,X5,4,9074937,PT_19411_spr,2020-03-10
+PT_19411_sum_ile_d,1512,sample,FJLYLJPF,UC Apiary (Portugal) - B-GOOD,3818,Hive 5,19411,PT,41.1545749,-7.6942246,sum,ile,good,2,NA,2,B,X8,3.1,650911,PT_19411_sum,2020-07-09
+PT_19411_sum_mid_d,1504,sample,FJLYLJPF,UC Apiary (Portugal) - B-GOOD,3818,Hive 5,19411,PT,41.1545749,-7.6942246,sum,mid,good,2,NA,2,A,X8,7.3,189605,PT_19411_sum,2020-07-09
+PT_19411_sum_rec_d,1520,sample,FJLYLJPF,UC Apiary (Portugal) - B-GOOD,3818,Hive 5,19411,PT,41.1545749,-7.6942246,sum,rec,good,2,76240.15344,2,C,X8,7.7,2002948,PT_19411_sum,2020-07-09
+PT_19412_aut_ile_d,1862,sample,UTYBTKUM,UC Apiary (Portugal) - B-GOOD,3818,Hive 6a,19412,PT,41.1545749,-7.6942246,aut,ile,good,1,NA,3,E,X1,5.8,177902,PT_19412_aut,2020-10-24
+PT_19412_aut_mid_d,1854,sample,UTYBTKUM,UC Apiary (Portugal) - B-GOOD,3818,Hive 6a,19412,PT,41.1545749,-7.6942246,aut,mid,good,1,NA,3,D,X1,9.3,66029,PT_19412_aut,2020-10-24
+PT_19412_aut_rec_d,1870,sample,UTYBTKUM,UC Apiary (Portugal) - B-GOOD,3818,Hive 6a,19412,PT,41.1545749,-7.6942246,aut,rec,good,1,NA,3,F,X1,9.2,9500537,PT_19412_aut,2020-10-24
+PT_19412_spr_ile_d,1237,sample,FJJHBPXD,UC Apiary (Portugal) - B-GOOD,3818,Hive 6a,19412,PT,41.1545749,-7.6942246,spr,ile,good,1,NA,2,B,X4,5,640179,PT_19412_spr,2020-03-10
+PT_19412_spr_mid_d,1229,sample,FJJHBPXD,UC Apiary (Portugal) - B-GOOD,3818,Hive 6a,19412,PT,41.1545749,-7.6942246,spr,mid,good,1,NA,2,A,X4,6.5,418301,PT_19412_spr,2020-03-10
+PT_19412_spr_rec_d,1245,sample,FJJHBPXD,UC Apiary (Portugal) - B-GOOD,3818,Hive 6a,19412,PT,41.1545749,-7.6942246,spr,rec,good,1,39296.25667,2,D,X4,8.7,11412071,PT_19412_spr,2020-03-10
+PT_19412_sum_ile_d,1562,sample,BNSBAUYX,UC Apiary (Portugal) - B-GOOD,3818,Hive 6a,19412,PT,41.1545749,-7.6942246,sum,ile,good,1,NA,2,H,X8,4.9,772046,PT_19412_sum,2020-07-14
+PT_19412_sum_mid_d,1554,sample,BNSBAUYX,UC Apiary (Portugal) - B-GOOD,3818,Hive 6a,19412,PT,41.1545749,-7.6942246,sum,mid,good,1,NA,2,G,X8,4.3,507091,PT_19412_sum,2020-07-14
+PT_19412_sum_rec_d,1570,sample,BNSBAUYX,UC Apiary (Portugal) - B-GOOD,3818,Hive 6a,19412,PT,41.1545749,-7.6942246,sum,rec,good,1,155496.0106,2,A,X9,9,16663847,PT_19412_sum,2020-07-14
+PT_19413_aut_ile_d,1712,sample,BNBGXKPH,UC Apiary (Portugal) - B-GOOD,3818,Hive 7,19413,PT,41.1545749,-7.6942246,aut,ile,very_good,2,NA,2,D,X11,13.1,301625,PT_19413_aut,2020-10-24
+PT_19413_aut_mid_d,1704,sample,BNBGXKPH,UC Apiary (Portugal) - B-GOOD,3818,Hive 7,19413,PT,41.1545749,-7.6942246,aut,mid,very_good,2,NA,2,C,X11,13.5,297863,PT_19413_aut,2020-10-24
+PT_19413_aut_rec_d,1720,sample,BNBGXKPH,UC Apiary (Portugal) - B-GOOD,3818,Hive 7,19413,PT,41.1545749,-7.6942246,aut,rec,very_good,2,84439.15002,2,E,X11,13.5,606874,PT_19413_aut,2020-10-24
+PT_19413_spr_ile_d,4487,sample,XFFGKSRU,UC Apiary (Portugal) - B-GOOD,3818,Hive 7,19413,PT,41.1545749,-7.6942246,spr,ile,very_good,2,NA,7,G,X5,6.4,395887,PT_19413_spr,2020-03-10
+PT_19413_spr_mid_d,4479,sample,XFFGKSRU,UC Apiary (Portugal) - B-GOOD,3818,Hive 7,19413,PT,41.1545749,-7.6942246,spr,mid,very_good,2,NA,7,F,X5,7.2,8277218,PT_19413_spr,2020-03-10
+PT_19413_spr_rec_d,4495,sample,XFFGKSRU,UC Apiary (Portugal) - B-GOOD,3818,Hive 7,19413,PT,41.1545749,-7.6942246,spr,rec,very_good,2,236766.4783,7,H,X5,9.5,20862598,PT_19413_spr,2020-03-10
+PT_19413_sum_ile_d,1612,sample,KJUDTYUN,UC Apiary (Portugal) - B-GOOD,3818,Hive 7,19413,PT,41.1545749,-7.6942246,sum,ile,very_good,2,NA,2,H,X9,1.7,182004,PT_19413_sum,2020-07-14
+PT_19413_sum_mid_d,1604,sample,KJUDTYUN,UC Apiary (Portugal) - B-GOOD,3818,Hive 7,19413,PT,41.1545749,-7.6942246,sum,mid,very_good,2,NA,2,G,X9,3,942846,PT_19413_sum,2020-07-14
+PT_19413_sum_rec_d,1620,sample,KJUDTYUN,UC Apiary (Portugal) - B-GOOD,3818,Hive 7,19413,PT,41.1545749,-7.6942246,sum,rec,very_good,2,63746.48401,2,A,X10,11,14592711,PT_19413_sum,2020-07-14
+PT_19414_aut_ile_d,1687,sample,CNUAKUZP,UC Apiary (Portugal) - B-GOOD,3818,Hive 8,19414,PT,41.1545749,-7.6942246,aut,ile,very_good,1,NA,2,A,X11,9,378748,PT_19414_aut,2020-10-24
+PT_19414_aut_mid_d,1679,sample,CNUAKUZP,UC Apiary (Portugal) - B-GOOD,3818,Hive 8,19414,PT,41.1545749,-7.6942246,aut,mid,very_good,1,NA,2,H,X10,19.6,403272,PT_19414_aut,2020-10-24
+PT_19414_aut_rec_d,1695,sample,CNUAKUZP,UC Apiary (Portugal) - B-GOOD,3818,Hive 8,19414,PT,41.1545749,-7.6942246,aut,rec,very_good,1,132395.2206,2,B,X11,6.9,1589497,PT_19414_aut,2020-10-24
+PT_19414_spr_ile_d,1287,sample,ZAFMMNFR,UC Apiary (Portugal) - B-GOOD,3818,Hive 8,19414,PT,41.1545749,-7.6942246,spr,ile,very_good,1,NA,2,B,X5,5.1,85824,PT_19414_spr,2020-03-10
+PT_19414_spr_mid_d,1279,sample,ZAFMMNFR,UC Apiary (Portugal) - B-GOOD,3818,Hive 8,19414,PT,41.1545749,-7.6942246,spr,mid,very_good,1,NA,2,A,X5,7,917680,PT_19414_spr,2020-03-10
+PT_19414_spr_rec_d,1295,sample,ZAFMMNFR,UC Apiary (Portugal) - B-GOOD,3818,Hive 8,19414,PT,41.1545749,-7.6942246,spr,rec,very_good,1,122661.1836,2,C,X5,2.4,16913109,PT_19414_spr,2020-03-10
+PT_19414_sum_ile_d,1462,sample,AHUFASPJ,UC Apiary (Portugal) - B-GOOD,3818,Hive 8,19414,PT,41.1545749,-7.6942246,sum,ile,very_good,1,NA,2,D,X7,4.3,539274,PT_19414_sum,2020-07-14
+PT_19414_sum_mid_d,1454,sample,AHUFASPJ,UC Apiary (Portugal) - B-GOOD,3818,Hive 8,19414,PT,41.1545749,-7.6942246,sum,mid,very_good,1,NA,2,C,X7,4.4,2150254,PT_19414_sum,2020-07-14
+PT_19414_sum_rec_d,1470,sample,AHUFASPJ,UC Apiary (Portugal) - B-GOOD,3818,Hive 8,19414,PT,41.1545749,-7.6942246,sum,rec,very_good,1,65392.2204,2,E,X7,3.4,12519238,PT_19414_sum,2020-07-14
+RO_17363_spr_ile_d,3037,sample,GUXSFCSD,USAMV Cluj Campus,3188,Hive 3a,17363,RO,46.7598,46.7598,spr,ile,bad,1,NA,4,B,X8,6.7,838907,RO_17363_spr,2020-05-15
+RO_17363_spr_mid_d,3029,sample,GUXSFCSD,USAMV Cluj Campus,3188,Hive 3a,17363,RO,46.7598,46.7598,spr,mid,bad,1,NA,4,A,X8,5.8,868369,RO_17363_spr,2020-05-15
+RO_17363_spr_rec_d,3045,sample,GUXSFCSD,USAMV Cluj Campus,3188,Hive 3a,17363,RO,46.7598,46.7598,spr,rec,bad,1,59401.31822,4,C,X8,8.2,14792719,RO_17363_spr,2020-05-15
+RO_17363_sum_ile_d,3162,sample,HXKRCNAY,USAMV Cluj Campus,3188,Hive 3a,17363,RO,46.7598,46.7598,sum,ile,bad,1,NA,4,C,X10,3.8,621799,RO_17363_sum,2020-07-16
+RO_17363_sum_mid_d,3154,sample,HXKRCNAY,USAMV Cluj Campus,3188,Hive 3a,17363,RO,46.7598,46.7598,sum,mid,bad,1,NA,4,B,X10,11,407628,RO_17363_sum,2020-07-16
+RO_17363_sum_rec_d,3170,sample,HXKRCNAY,USAMV Cluj Campus,3188,Hive 3a,17363,RO,46.7598,46.7598,sum,rec,bad,1,103019.0961,4,D,X10,7.9,3776278,RO_17363_sum,2020-07-16
+RO_17371_sum_ile_d,3087,sample,JJAMYPTX,USAMV Cluj Campus,3188,Hive 12a,17371,RO,46.7598,46.7598,sum,ile,good,1,NA,4,H,X8,6.3,256382,RO_17371_sum,2020-05-13
+RO_17371_sum_mid_d,3079,sample,JJAMYPTX,USAMV Cluj Campus,3188,Hive 12a,17371,RO,46.7598,46.7598,sum,mid,good,1,NA,4,G,X8,5.4,158427,RO_17371_sum,2020-05-13
+RO_17371_sum_rec_d,3095,sample,JJAMYPTX,USAMV Cluj Campus,3188,Hive 12a,17371,RO,46.7598,46.7598,sum,rec,good,1,133644.5043,4,A,X9,14.8,6575477,RO_17371_sum,2020-05-13
+RO_17377_sum_ile_d,3187,sample,YNBKTRGM,USAMV Cluj Campus,3188,Stup 1a,17377,RO,46.7598,46.7598,sum,ile,good,1,NA,4,F,X10,6.4,2354967,RO_17377_sum,2020-07-16
+RO_17377_sum_mid_d,3179,sample,YNBKTRGM,USAMV Cluj Campus,3188,Stup 1a,17377,RO,46.7598,46.7598,sum,mid,good,1,NA,4,E,X10,4.6,12676273,RO_17377_sum,2020-07-16
+RO_17377_sum_rec_d,3195,sample,YNBKTRGM,USAMV Cluj Campus,3188,Stup 1a,17377,RO,46.7598,46.7598,sum,rec,good,1,111379.3738,4,G,X10,6.2,14775380,RO_17377_sum,2020-07-16
+RO_17378_aut_ile_d,3312,sample,RRBYHJBU,USAMV Cluj Campus,3188,Stup 6a,17378,RO,46.7598,46.7598,aut,ile,bad,2,NA,5,C,X2,6.7,194685,RO_17378_aut,2020-10-12
+RO_17378_aut_mid_d,3304,sample,RRBYHJBU,USAMV Cluj Campus,3188,Stup 6a,17378,RO,46.7598,46.7598,aut,mid,bad,2,NA,5,B,X2,9.4,205455,RO_17378_aut,2020-10-12
+RO_17378_aut_rec_d,3320,sample,RRBYHJBU,USAMV Cluj Campus,3188,Stup 6a,17378,RO,46.7598,46.7598,aut,rec,bad,2,94597.84339,5,D,X2,10,19553621,RO_17378_aut,2020-10-12
+RO_17378_spr_ile_d,2987,sample,NZHBNLLG,USAMV Cluj Campus,3188,Stup 6a,17378,RO,46.7598,46.7598,spr,ile,bad,2,NA,4,D,X7,8.3,673824,RO_17378_spr,2020-05-13
+RO_17378_spr_mid_d,2979,sample,NZHBNLLG,USAMV Cluj Campus,3188,Stup 6a,17378,RO,46.7598,46.7598,spr,mid,bad,2,NA,4,C,X7,5.7,204549,RO_17378_spr,2020-05-13
+RO_17378_spr_rec_d,2995,sample,NZHBNLLG,USAMV Cluj Campus,3188,Stup 6a,17378,RO,46.7598,46.7598,spr,rec,bad,2,39734.04696,4,E,X7,7.1,1897190,RO_17378_spr,2020-05-13
+RO_17378_sum_ile_d,3137,sample,AHJTRZLZ,USAMV Cluj Campus,3188,Stup 6a,17378,RO,46.7598,46.7598,sum,ile,bad,2,NA,4,H,X9,4.3,817855,RO_17378_sum,2020-07-16
+RO_17378_sum_mid_d,3129,sample,AHJTRZLZ,USAMV Cluj Campus,3188,Stup 6a,17378,RO,46.7598,46.7598,sum,mid,bad,2,NA,4,G,X9,4.9,2539301,RO_17378_sum,2020-07-16
+RO_17378_sum_rec_d,3145,sample,AHJTRZLZ,USAMV Cluj Campus,3188,Stup 6a,17378,RO,46.7598,46.7598,sum,rec,bad,2,82788.28677,4,A,X10,5.1,8909238,RO_17378_sum,2020-07-16
+RO_17380_sum_ile_d,3112,sample,JXTMBZPS,USAMV Cluj Campus,3188,Stup 28a,17380,RO,46.7598,46.7598,sum,ile,good,1,NA,4,D,X9,8.9,905220,RO_17380_sum,2020-07-16
+RO_17380_sum_mid_d,3104,sample,JXTMBZPS,USAMV Cluj Campus,3188,Stup 28a,17380,RO,46.7598,46.7598,sum,mid,good,1,NA,4,B,X9,4.8,3160655,RO_17380_sum,2020-07-16
+RO_17380_sum_rec_d,3120,sample,JXTMBZPS,USAMV Cluj Campus,3188,Stup 28a,17380,RO,46.7598,46.7598,sum,rec,good,1,94195.93653,4,E,X9,4,15615894,RO_17380_sum,2020-07-16
+RO_17381_sum_ile_d,3062,sample,FASURUSH,USAMV Cluj Campus,3188,Stup 29a,17381,RO,46.7598,46.7598,sum,ile,good,1,NA,4,E,X8,3.7,431890,RO_17381_sum,2020-07-16
+RO_17381_sum_mid_d,3054,sample,FASURUSH,USAMV Cluj Campus,3188,Stup 29a,17381,RO,46.7598,46.7598,sum,mid,good,1,NA,4,D,X8,9.3,16684570,RO_17381_sum,2020-07-16
+RO_17381_sum_rec_d,3070,sample,FASURUSH,USAMV Cluj Campus,3188,Stup 29a,17381,RO,46.7598,46.7598,sum,rec,good,1,NA,4,F,X8,9,15829335,RO_17381_sum,2020-07-16
+RO_17382_aut_ile_d,3262,sample,CYXUCRUN,USAMV Cluj Campus,3188,Stup 30a,17382,RO,46.7598,46.7598,aut,ile,good,1,NA,5,E,X1,4.3,240177,RO_17382_aut,2020-11-06
+RO_17382_aut_mid_d,3254,sample,CYXUCRUN,USAMV Cluj Campus,3188,Stup 30a,17382,RO,46.7598,46.7598,aut,mid,good,1,NA,5,D,X1,8.6,90510,RO_17382_aut,2020-11-06
+RO_17382_aut_rec_d,3270,sample,CYXUCRUN,USAMV Cluj Campus,3188,Stup 30a,17382,RO,46.7598,46.7598,aut,rec,good,1,NA,5,F,X1,4.1,12530402,RO_17382_aut,2020-11-06
+RO_17382_sum_ile_d,3212,sample,BKKFJXTH,USAMV Cluj Campus,3188,Stup 30a,17382,RO,46.7598,46.7598,sum,ile,good,1,NA,4,A,X11,9.8,624953,RO_17382_sum,2020-07-16
+RO_17382_sum_mid_d,3204,sample,BKKFJXTH,USAMV Cluj Campus,3188,Stup 30a,17382,RO,46.7598,46.7598,sum,mid,good,1,NA,4,H,X10,10.8,172878,RO_17382_sum,2020-07-16
+RO_17382_sum_rec_d,3220,sample,BKKFJXTH,USAMV Cluj Campus,3188,Stup 30a,17382,RO,46.7598,46.7598,sum,rec,good,1,132107.4924,4,B,X11,8.5,11671353,RO_17382_sum,2020-07-16
+RO_17383_spr_ile_d,2962,sample,SZPYTKGM,USAMV Cluj Campus,3188,Stup 36a,17383,RO,46.7598,46.7598,spr,ile,good,1,NA,4,A,X7,9.6,124011,RO_17383_spr,2020-05-13
+RO_17383_spr_mid_d,2954,sample,SZPYTKGM,USAMV Cluj Campus,3188,Stup 36a,17383,RO,46.7598,46.7598,spr,mid,good,1,NA,4,H,X6,11.6,6584,RO_17383_spr,2020-05-13
+RO_17383_spr_rec_d,2970,sample,SZPYTKGM,USAMV Cluj Campus,3188,Stup 36a,17383,RO,46.7598,46.7598,spr,rec,good,1,40531.6687,4,B,X7,11.8,145103,RO_17383_spr,2020-05-13
+RO_26022_aut_ile_d,3337,sample,CKTSXSMR,USAMV Cluj Campus,3188,Hive 23,26022,RO,46.7598,46.7598,aut,ile,good,1,NA,5,F,X2,11.5,10373297,RO_26022_aut,2020-11-06
+RO_26022_aut_mid_d,3329,sample,CKTSXSMR,USAMV Cluj Campus,3188,Hive 23,26022,RO,46.7598,46.7598,aut,mid,good,1,NA,5,E,X2,5.8,276262,RO_26022_aut,2020-11-06
+RO_26022_aut_rec_d,3345,sample,CKTSXSMR,USAMV Cluj Campus,3188,Hive 23,26022,RO,46.7598,46.7598,aut,rec,good,1,230520.4642,5,G,X2,4.8,13205936,RO_26022_aut,2020-11-06
+RO_26024_aut_ile_d,3237,sample,UAKMCLMN,USAMV Cluj Campus,3188,Hive 8,26024,RO,46.7598,46.7598,aut,ile,very_good,1,NA,5,B,X1,4.7,196335,RO_26024_aut,2020-11-06
+RO_26024_aut_mid_d,3229,sample,UAKMCLMN,USAMV Cluj Campus,3188,Hive 8,26024,RO,46.7598,46.7598,aut,mid,very_good,1,NA,5,A,X1,9.8,75012,RO_26024_aut,2020-11-06
+RO_26024_aut_rec_d,3245,sample,UAKMCLMN,USAMV Cluj Campus,3188,Hive 8,26024,RO,46.7598,46.7598,aut,rec,very_good,1,148165.7147,5,C,X1,8.3,10448863,RO_26024_aut,2020-11-06
+UK_14498_aut_ile_d,1162,sample,AUSUXNUA,Holme Pierrepont,3060,HPP 1,14498,UK,52.94762169541472,52.94762169541472,aut,ile,very_good,2,NA,2,D,X3,2.3,399204,UK_14498_aut,2020-09-30
+UK_14498_aut_mid_d,1154,sample,AUSUXNUA,Holme Pierrepont,3060,HPP 1,14498,UK,52.94762169541472,52.94762169541472,aut,mid,very_good,2,NA,2,C,X3,11.2,820870,UK_14498_aut,2020-09-30
+UK_14498_aut_rec_d,1170,sample,AUSUXNUA,Holme Pierrepont,3060,HPP 1,14498,UK,52.94762169541472,52.94762169541472,aut,rec,very_good,2,67874.69668,2,E,X3,5.8,1810775,UK_14498_aut,2020-09-30
+UK_14498_spr_ile_d,762,sample,MCCTYNTN,Holme Pierrepont,3060,HPP 1,14498,UK,52.94762169541472,52.94762169541472,spr,ile,very_good,2,NA,1,H,X8,8.4,401109,UK_14498_spr,2020-05-04
+UK_14498_spr_mid_d,754,sample,MCCTYNTN,Holme Pierrepont,3060,HPP 1,14498,UK,52.94762169541472,52.94762169541472,spr,mid,very_good,2,NA,1,G,X8,8.9,184154,UK_14498_spr,2020-05-04
+UK_14498_spr_rec_d,770,sample,MCCTYNTN,Holme Pierrepont,3060,HPP 1,14498,UK,52.94762169541472,52.94762169541472,spr,rec,very_good,2,48384.15065,1,A,X9,5.6,1043887,UK_14498_spr,2020-05-04
+UK_14498_sum_ile_d,837,sample,MSBRYKBL,Holme Pierrepont,3060,HPP 1,14498,UK,52.94762169541472,52.94762169541472,sum,ile,very_good,2,NA,1,C,X10,5.7,173776,UK_14498_sum,2020-07-09
+UK_14498_sum_mid_d,829,sample,MSBRYKBL,Holme Pierrepont,3060,HPP 1,14498,UK,52.94762169541472,52.94762169541472,sum,mid,very_good,2,NA,1,B,X10,11.7,303187,UK_14498_sum,2020-07-09
+UK_14498_sum_rec_d,845,sample,MSBRYKBL,Holme Pierrepont,3060,HPP 1,14498,UK,52.94762169541472,52.94762169541472,sum,rec,very_good,2,NA,1,D,X10,12,656621,UK_14498_sum,2020-07-09
+UK_14500_aut_ile_d,1137,sample,PBYFKBRU,Holme Pierrepont,3060,HPP 3,14500,UK,52.94762169541472,52.94762169541472,aut,ile,good,1,NA,2,A,X3,4.3,72118,UK_14500_aut,2020-09-30
+UK_14500_aut_mid_d,1129,sample,PBYFKBRU,Holme Pierrepont,3060,HPP 3,14500,UK,52.94762169541472,52.94762169541472,aut,mid,good,1,NA,2,H,X2,15.4,271073,UK_14500_aut,2020-09-30
+UK_14500_aut_rec_d,1145,sample,PBYFKBRU,Holme Pierrepont,3060,HPP 3,14500,UK,52.94762169541472,52.94762169541472,aut,rec,good,1,51667.30044,2,B,X3,13.8,10702953,UK_14500_aut,2020-09-30
+UK_14500_sum_ile_d,987,sample,NHNUADBS,Holme Pierrepont,3060,HPP 3,14500,UK,52.94762169541472,52.94762169541472,sum,ile,good,1,NA,1,E,X12,9.4,781197,UK_14500_sum,2020-07-09
+UK_14500_sum_mid_d,979,sample,NHNUADBS,Holme Pierrepont,3060,HPP 3,14500,UK,52.94762169541472,52.94762169541472,sum,mid,good,1,NA,1,D,X12,13.5,246244,UK_14500_sum,2020-07-09
+UK_14500_sum_rec_d,995,sample,NHNUADBS,Holme Pierrepont,3060,HPP 3,14500,UK,52.94762169541472,52.94762169541472,sum,rec,good,1,142079.3195,1,F,X12,8,21601018,UK_14500_sum,2020-07-09
+UK_14501_aut_ile_d,1012,sample,RKPDRHMF,Holme Pierrepont,3060,HPP 4,14501,UK,52.94762169541472,52.94762169541472,aut,ile,very_good,1,NA,2,B,X1,5.4,220285,UK_14501_aut,2020-09-30
+UK_14501_aut_mid_d,1004,sample,RKPDRHMF,Holme Pierrepont,3060,HPP 4,14501,UK,52.94762169541472,52.94762169541472,aut,mid,very_good,1,NA,2,A,X1,22,110104,UK_14501_aut,2020-09-30
+UK_14501_aut_rec_d,1020,sample,RKPDRHMF,Holme Pierrepont,3060,HPP 4,14501,UK,52.94762169541472,52.94762169541472,aut,rec,very_good,1,68923.95073,2,C,X1,16.6,248195,UK_14501_aut,2020-09-30
+UK_14501_spr_ile_d,737,sample,GMRLNFBN,Holme Pierrepont,3060,HPP 4,14501,UK,52.94762169541472,52.94762169541472,spr,ile,very_good,1,NA,1,E,X8,6,350386,UK_14501_spr,2020-05-04
+UK_14501_spr_mid_d,729,sample,GMRLNFBN,Holme Pierrepont,3060,HPP 4,14501,UK,52.94762169541472,52.94762169541472,spr,mid,very_good,1,NA,1,D,X8,10.1,156100,UK_14501_spr,2020-05-04
+UK_14501_spr_rec_d,745,sample,GMRLNFBN,Holme Pierrepont,3060,HPP 4,14501,UK,52.94762169541472,52.94762169541472,spr,rec,very_good,1,261095.0249,1,F,X8,7.4,5606406,UK_14501_spr,2020-05-04
+UK_14501_sum_ile_d,887,sample,ZXZGKBKK,Holme Pierrepont,3060,HPP 4,14501,UK,52.94762169541472,52.94762169541472,sum,ile,very_good,1,NA,1,A,X11,4.5,162924,UK_14501_sum,2020-07-09
+UK_14501_sum_mid_d,879,sample,ZXZGKBKK,Holme Pierrepont,3060,HPP 4,14501,UK,52.94762169541472,52.94762169541472,sum,mid,very_good,1,NA,1,H,X10,8.4,184169,UK_14501_sum,2020-07-09
+UK_14501_sum_rec_d,895,sample,ZXZGKBKK,Holme Pierrepont,3060,HPP 4,14501,UK,52.94762169541472,52.94762169541472,sum,rec,very_good,1,NA,1,B,X11,8.4,14635892,UK_14501_sum,2020-07-09
+UK_14502_aut_ile_d,1062,sample,YJJPDSPL,Holme Pierrepont,3060,HPP 5A,14502,UK,52.94762169541472,52.94762169541472,aut,ile,very_good,1,NA,2,H,X1,6.7,522357,UK_14502_aut,2020-09-30
+UK_14502_aut_mid_d,1054,sample,YJJPDSPL,Holme Pierrepont,3060,HPP 5A,14502,UK,52.94762169541472,52.94762169541472,aut,mid,very_good,1,NA,2,G,X1,5,78678,UK_14502_aut,2020-09-30
+UK_14502_aut_rec_d,1070,sample,YJJPDSPL,Holme Pierrepont,3060,HPP 5A,14502,UK,52.94762169541472,52.94762169541472,aut,rec,very_good,1,294117.952,2,A,X2,9.9,16897445,UK_14502_aut,2020-09-30
+UK_14502_sum_ile_d,937,sample,NAXTKLPA,Holme Pierrepont,3060,HPP 5A,14502,UK,52.94762169541472,52.94762169541472,sum,ile,very_good,1,NA,1,G,X11,5,547718,UK_14502_sum,2020-07-09
+UK_14502_sum_mid_d,929,sample,NAXTKLPA,Holme Pierrepont,3060,HPP 5A,14502,UK,52.94762169541472,52.94762169541472,sum,mid,very_good,1,NA,1,F,X11,18.4,3978758,UK_14502_sum,2020-07-09
+UK_14502_sum_rec_d,945,sample,NAXTKLPA,Holme Pierrepont,3060,HPP 5A,14502,UK,52.94762169541472,52.94762169541472,sum,rec,very_good,1,22508.1918,1,H,X11,8.4,6090689,UK_14502_sum,2020-07-09
+UK_15140_aut_ile_d,1212,sample,URURUPKD,Holme Pierrepont,3060,HPP 7a,15140,UK,52.94762169541472,52.94762169541472,aut,ile,very_bad,1,NA,2,G,X3,3.2,205617,UK_15140_aut,2020-09-30
+UK_15140_aut_mid_d,1204,sample,URURUPKD,Holme Pierrepont,3060,HPP 7a,15140,UK,52.94762169541472,52.94762169541472,aut,mid,very_bad,1,NA,2,F,X3,6.8,106104,UK_15140_aut,2020-09-30
+UK_15140_aut_rec_d,1220,sample,URURUPKD,Holme Pierrepont,3060,HPP 7a,15140,UK,52.94762169541472,52.94762169541472,aut,rec,very_bad,1,108692.3995,2,H,X3,7.7,223828,UK_15140_aut,2020-09-30
+UK_15140_sum_ile_d,862,sample,KJNAYRTN,Holme Pierrepont,3060,HPP 7a,15140,UK,52.94762169541472,52.94762169541472,sum,ile,very_bad,1,NA,1,F,X10,7.8,294518,UK_15140_sum,2020-07-09
+UK_15140_sum_mid_d,854,sample,KJNAYRTN,Holme Pierrepont,3060,HPP 7a,15140,UK,52.94762169541472,52.94762169541472,sum,mid,very_bad,1,NA,1,E,X10,7.6,281335,UK_15140_sum,2020-07-09
+UK_15140_sum_rec_d,870,sample,KJNAYRTN,Holme Pierrepont,3060,HPP 7a,15140,UK,52.94762169541472,52.94762169541472,sum,rec,very_bad,1,NA,1,G,X10,8,5400775,UK_15140_sum,2020-07-09
+UK_15141_aut_ile_d,4462,sample,PSZPKJCX,Holme Pierrepont,3060,HPP 8a,15141,UK,52.94762169541472,52.94762169541472,aut,ile,bad,1,NA,7,D,X5,25,216796,UK_15141_aut,2020-09-30
+UK_15141_aut_mid_d,4454,sample,PSZPKJCX,Holme Pierrepont,3060,HPP 8a,15141,UK,52.94762169541472,52.94762169541472,aut,mid,bad,1,NA,7,C,X5,26.3,65274,UK_15141_aut,2020-09-30
+UK_15141_aut_rec_d,4470,sample,PSZPKJCX,Holme Pierrepont,3060,HPP 8a,15141,UK,52.94762169541472,52.94762169541472,aut,rec,bad,1,78040.63356,7,E,X5,9.2,349425,UK_15141_aut,2020-09-30
+UK_15141_spr_ile_d,712,sample,JDKAHNXH,Holme Pierrepont,3060,HPP 8a,15141,UK,52.94762169541472,52.94762169541472,spr,ile,bad,1,NA,1,B,X8,6,239300,UK_15141_spr,2020-05-04
+UK_15141_spr_mid_d,704,sample,JDKAHNXH,Holme Pierrepont,3060,HPP 8a,15141,UK,52.94762169541472,52.94762169541472,spr,mid,bad,1,NA,1,A,X8,7.6,166034,UK_15141_spr,2020-05-04
+UK_15141_spr_rec_d,720,sample,JDKAHNXH,Holme Pierrepont,3060,HPP 8a,15141,UK,52.94762169541472,52.94762169541472,spr,rec,bad,1,63073.70741,1,C,X8,8.1,1249095,UK_15141_spr,2020-05-04
+UK_15141_sum_ile_d,812,sample,GBAYKFPL,Holme Pierrepont,3060,HPP 8a,15141,UK,52.94762169541472,52.94762169541472,sum,ile,bad,1,NA,1,H,X9,5.1,414430,UK_15141_sum,2020-07-09
+UK_15141_sum_mid_d,804,sample,GBAYKFPL,Holme Pierrepont,3060,HPP 8a,15141,UK,52.94762169541472,52.94762169541472,sum,mid,bad,1,NA,1,G,X9,8.5,129033,UK_15141_sum,2020-07-09
+UK_15141_sum_rec_d,820,sample,GBAYKFPL,Holme Pierrepont,3060,HPP 8a,15141,UK,52.94762169541472,52.94762169541472,sum,rec,bad,1,307499.1316,1,A,X10,9.5,8638670,UK_15141_sum,2020-07-09
+UK_23922_aut_ile_d,1087,sample,FHKCKTKH,Holme Pierrepont,3060,HPP 6B,23922,UK,52.94762169541472,52.94762169541472,aut,ile,good,2,NA,2,C,X2,10.2,643008,UK_23922_aut,2020-09-30
+UK_23922_aut_mid_d,1079,sample,FHKCKTKH,Holme Pierrepont,3060,HPP 6B,23922,UK,52.94762169541472,52.94762169541472,aut,mid,good,2,NA,2,B,X2,11.6,247252,UK_23922_aut,2020-09-30
+UK_23922_aut_rec_d,1095,sample,FHKCKTKH,Holme Pierrepont,3060,HPP 6B,23922,UK,52.94762169541472,52.94762169541472,aut,rec,good,2,200593.6823,2,D,X2,7.7,12667712,UK_23922_aut,2020-09-30
+UK_23922_sum_ile_d,962,sample,SCKNCZRX,Holme Pierrepont,3060,HPP 6B,23922,UK,52.94762169541472,52.94762169541472,sum,ile,good,2,NA,1,B,X12,9.7,98496,UK_23922_sum,2020-07-09
+UK_23922_sum_mid_d,954,sample,SCKNCZRX,Holme Pierrepont,3060,HPP 6B,23922,UK,52.94762169541472,52.94762169541472,sum,mid,good,2,NA,1,A,X12,12.7,214,UK_23922_sum,2020-07-09
+UK_23922_sum_rec_d,970,sample,SCKNCZRX,Holme Pierrepont,3060,HPP 6B,23922,UK,52.94762169541472,52.94762169541472,sum,rec,good,2,116771.8221,1,C,X12,13,356250,UK_23922_sum,2020-07-09
+UK_24337_aut_ile_d,1112,sample,ADBYNMMN,Holme Pierrepont,3060,HPP 2C,24337,UK,52.94762169541472,52.94762169541472,aut,ile,good,1,NA,2,F,X2,4,308111,UK_24337_aut,2020-09-30
+UK_24337_aut_mid_d,1104,sample,ADBYNMMN,Holme Pierrepont,3060,HPP 2C,24337,UK,52.94762169541472,52.94762169541472,aut,mid,good,1,NA,2,E,X2,8.5,157051,UK_24337_aut,2020-09-30
+UK_24337_aut_rec_d,1120,sample,ADBYNMMN,Holme Pierrepont,3060,HPP 2C,24337,UK,52.94762169541472,52.94762169541472,aut,rec,good,1,110154.7522,2,G,X2,7.9,1569974,UK_24337_aut,2020-09-30
+UK_24337_sum_ile_d,912,sample,RNBXJFLJ,Holme Pierrepont,3060,HPP 2C,24337,UK,52.94762169541472,52.94762169541472,sum,ile,good,1,NA,1,D,X11,5,201881,UK_24337_sum,2020-07-09
+UK_24337_sum_mid_d,904,sample,RNBXJFLJ,Holme Pierrepont,3060,HPP 2C,24337,UK,52.94762169541472,52.94762169541472,sum,mid,good,1,NA,1,C,X11,4.1,116219,UK_24337_sum,2020-07-09
+UK_24337_sum_rec_d,920,sample,RNBXJFLJ,Holme Pierrepont,3060,HPP 2C,24337,UK,52.94762169541472,52.94762169541472,sum,rec,good,1,112390.59,1,E,X11,4.5,18492750,UK_24337_sum,2020-07-09
+Blank_pool_01,NA,sample_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,1,NA,NA,5.3,48272,NA,NA
+Blank_pool_02,NA,extraction_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,1,NA,NA,6.9,292547,NA,NA
+Blank_pool_03,NA,sample_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2,NA,NA,12.1,68175,NA,NA
+Blank_pool_04,NA,extraction_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,2,NA,NA,5,72644,NA,NA
+Blank_pool_05,NA,sample_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,3,NA,NA,5.1,68650,NA,NA
+Blank_pool_06,NA,extraction_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,3,NA,NA,5.3,74017,NA,NA
+Blank_pool_07,NA,extraction_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,3,NA,NA,6,15963,NA,NA
+Blank_pool_08,NA,sample_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,3,NA,NA,4.7,8699,NA,NA
+Blank_pool_09,NA,sample_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,4,NA,NA,3.9,6954,NA,NA
+Blank_pool_10,NA,extraction_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,4,NA,NA,10.8,22062,NA,NA
+Blank_pool_11,NA,extraction_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,4,NA,NA,3.6,8558,NA,NA
+Blank_pool_12,NA,sample_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,4,NA,NA,5.7,121896,NA,NA
+Blank_pool_13,NA,sample_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,5,NA,NA,5.3,24919,NA,NA
+Blank_pool_14,NA,extraction_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,5,NA,NA,4.3,19069,NA,NA
+Blank_pool_15,NA,sample_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,5,NA,NA,4.2,13416,NA,NA
+Blank_pool_16,NA,sample_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,6,NA,NA,10.6,95102,NA,NA
+Blank_pool_17,NA,sample_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,6,NA,NA,5.4,28984,NA,NA
+Blank_pool_18,NA,sample_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,7,NA,NA,6.6,128548,NA,NA
+Blank_pool_19,NA,extraction_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,7,NA,NA,4.4,57613,NA,NA
+Blank_pool_20,NA,WTA_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,4.4,4735,NA,NA
+Blank_pool_21,NA,WTA_blank,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,NA,5.9,13799,NA,NA
