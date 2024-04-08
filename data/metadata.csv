@@ -1,4 +1,4 @@
-Sample_ID,Tube_ID,Sample_or_control,BGOOD_sample_code,Apiary_name,Apiary_ID,Hive_name,Hive_ID,Country,Latitude,Longitude,Season,Gut_part,Health,Number_of_queens,VLPs_per_ul,Extraction_plate,Extraction_plate_row,Extraction_plate_col,Average_Qubit,Mapped_reads,Bee_Pool,Date
+Sample_ID,Tube_ID,Sample_or_control,BGOOD_sample_code,Apiary_name,Apiary_ID,Hive_name,Hive_ID,Country,Latitude,Longitude,Season,Gut_part,Health,Number_of_queens,VLPs_per_ul,Extraction_plate,Extraction_plate_row,Extraction_plate_col,Average_Qubit,Mapped_reads,Bee_pool,Date
 BE_16556_aut_ile_d,4337,sample,ZFPFLNCJ,Merendree,3386,KM 1,16556,BE,51.074,51.074,aut,ile,bad,2,NA,7,D,X3,4.7,1115503,BE_16556_aut,2020-10-12
 BE_16556_aut_mid_d,4329,sample,ZFPFLNCJ,Merendree,3386,KM 1,16556,BE,51.074,51.074,aut,mid,bad,2,NA,7,C,X3,20.2,439961,BE_16556_aut,2020-10-12
 BE_16556_aut_rec_d,4345,sample,ZFPFLNCJ,Merendree,3386,KM 1,16556,BE,51.074,51.074,aut,rec,bad,2,187747.9518,7,E,X3,10.1,16540984,BE_16556_aut,2020-10-12
