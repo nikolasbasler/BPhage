@@ -5,6 +5,7 @@
 #SBATCH --ntasks-per-node=36
 #SBATCH --time=8:00:00
 #SBATCH --account=lp_jm_virome_group
+#SBATCH --output=slurm-%x_%a_%A.out
 
 # Submit this as a job array (from output/slurm_log)
 # sbatch --array=1-471 --export=ALL ../../scripts/HPC/bphage_viper_with_dedup.slrm
