@@ -8,7 +8,6 @@
 #SBATCH --account=lp_jm_virome_group
 #SBATCH --output=slurm-%x_%j.out
 
-
 ###############################################################################
 
 # Submit (from output/slurm_log)
