@@ -28,12 +28,12 @@ ref="$VSC_SCRATCH/BPhage/ref/bphage_mapping_ref.fasta"
 bwa-mem2 mem "$ref" \
     $repo_location/output/bphage_viper_output/READ/${line}.Hostout.R1.fastq.gz \
     $repo_location/output/bphage_viper_output/READ/${line}.Hostout.R2.fastq.gz \
-    -t $threads | samtools sort -o ${line}.R.sort.bam
+    -t $threads | samtools view -h -F2048 | samtools sort -o ${line}.R.sort.bam
 
 # Map unpaired reads
 bwa-mem2 mem "$ref" \
     $repo_location/output/bphage_viper_output/READ/${line}.Hostout.unpaired.fastq.gz \
-    -t $threads | samtools sort -o ${line}.un.sort.bam
+    -t $threads | samtools view -h -F2048 | samtools sort -o ${line}.un.sort.bam
 
 # Merge bam files from paired and unpaired reads
 samtools merge -@ $threads -f ${line}.bphage.bam \
