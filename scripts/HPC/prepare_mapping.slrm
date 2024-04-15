@@ -32,9 +32,6 @@ zcat $repo_location/output/bphage_ALL_1kb_picobirna.fasta.gz >> bphage_mapping_r
 # Build bwa-mem2 index
 bwa-mem2 index bphage_mapping_ref.fasta bphage_mapping_ref.fasta
 
-# Clean up
-rm temp.picobirna
-
 echo "========================================================================"
 duration=$SECONDS
 printf 'Job finished in: %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))
