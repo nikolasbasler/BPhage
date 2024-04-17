@@ -132,9 +132,9 @@ for (hostg in hostgroups) {
 
 # 70% horizontal coverage cutoff
 count_stats <- report_stats(df = phage_abundance,
-                            thresholds=c(2445, 522)) # First number: quantile_90_ratio < 1000, second number: quantile_95_ratio < 2500
+                            thresholds=c(2437, 522)) # First number: quantile_90_ratio < 1000, second number: quantile_95_ratio < 2500
 count_stats
-min_seq_count <- 2460 # For quantile_90_ratio < 1000. 12 discarded samples (9 mid, 3 ile).
+min_seq_count <- 2442 # For quantile_90_ratio < 1000. 12 discarded samples (9 mid, 3 ile).
 discarded <- discards(count_stats$ratios, min_seq_count)$discarded
 lost_bees <- discards(count_stats$ratios, min_seq_count)$lost_bees # No bee pool lost completely. Only gut parts from different locations/time points.
 
@@ -167,7 +167,8 @@ for (tlvl in taxlevels) {
                                         min_seq = min_seq_count,
                                         df_lengths = phage_lengths[[tlvl]])
   
-  beta_plot_list[[tlvl]] <- beta_plot(beta_dist[[tlvl]]$ord_list, met_v)
+  beta_plot_list[[tlvl]] <- beta_plot(ordination_list = beta_dist[[tlvl]]$ord_list, 
+                                      meta_vars = met_v)
 }
 
 #------------------------------------------------------------------------------#
