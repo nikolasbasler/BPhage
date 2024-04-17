@@ -1,0 +1,60 @@
+#!/bin/bash -l
+#SBATCH --job-name="bphage_cross_assembly"
+#SBATCH --cluster=wice
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=72
+#SBATCH --mem-per-cpu=111900M
+#SBATCH --time=72:00:00
+#SBATCH --partition=hugemem
+#SBATCH --account=lp_jm_virome_group
+#SBATCH --output=slurm-%x_%j.out
+
+# Submit this as a job array (from output/slurm_log)
+# sbatch --export=ALL ../../scripts/HPC/bphage_cross_assembly.slrm
+
+# Activate conda environment
+source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
+conda activate viper_bphage
+
+repo_location="$VSC_STAGING/BPhage"
+
+
+# Move to wherever your files are
+mkdir -p $VSC_SCRATCH/BPhage/cross_assembly
+cd $VSC_SCRATCH/BPhage/cross_assembly
+
+cat $repo_location/output/bphage_viper_output/READ/*Hostout.R1.fastq.gz > all_samples.R1.fastq.gz
+cat $repo_location/output/bphage_viper_output/READ/*Hostout.R2.fastq.gz > all_samples.R2.fastq.gz
+cat $repo_location/output/bphage_viper_output/READ/*Hostout.unpaired.fastq.gz > all_samples.unpaired.fastq.gz
+
+# Make sure programs in conda viper environment are found first in PATH 
+PATH="$CONDA_PREFIX/bin:$PATH"
+
+# Add SPAdes module
+module load SPAdes/3.15.5-GCC-10.3.0-mi-override-off
+
+# Make sure you use the right metaspades, just shows which metaspades is present
+# This command should return: /apps/leuven/rocky8/skylake/2021a/software/SPAdes/3.15.5-GCC-10.3.0-mi-override-off/bin/metaspades.py
+which metaspades.py
+
+# Make sure you also unload the python of the module system
+# Otherwise the clustering will fail with error message "ModuleNotFoundError: No module named 'Bio"
+module unload Python/3.9.5-GCCcore-10.3.0
+
+viper.sh -1 all_samples.R1.fastq.gz -2 all_samples.R2.fastq.gz -u all_samples.unpaired.fastq.gz \
+    --skip-trimming --triple-assembly -t 72 --cluster-cover 85 --cluster-identity 95 --keep-reads \
+    --name phage_cross_assembly --identify-proviruses \
+    --checkv-db /staging/leuven/stg_00029/DB/CheckV/checkv-db-v1.5 \
+    --genomad-db /staging/leuven/stg_00029/DB/genomad/genomad_db_1.7
+
+# metaspades.py -1 all_samples.R1.fastq.gz -2 all_samples.R2.fastq.gz -s all_samples.unpaired.fastq.gz \
+#     -t 72 -k 21,33,55,77 -o SPAdes_out
+
+# Clean up
+rm all_samples.R1.fastq.gz
+rm all_samples.R2.fastq.gz
+rm all_samples.unpaired.fastq.gz
+
+echo "========================================================================"
+duration=$SECONDS
+printf 'Job finished in: %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))
