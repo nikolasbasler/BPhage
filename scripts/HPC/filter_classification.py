@@ -1,6 +1,11 @@
 import pandas as pd
 import argparse
 
+def get_last_non_empty_element(lst):
+    for item in reversed(lst):
+        if item.strip():
+            return item
+
 # Define command line arguments
 parser = argparse.ArgumentParser(description='Filter genomad classification.')
 parser.add_argument('genomad_virus_summary', type=str, help='genomad virus summary file path')
@@ -11,8 +16,7 @@ args = parser.parse_args()
 
 # Load genomad output and append lowest classified taxon
 bphage_ALL_1kb_cross_95_85_virus_summary = pd.read_csv(args.genomad_virus_summary, sep='\t')
-bphage_ALL_1kb_cross_95_85_virus_summary['lowest_taxon'] = bphage_ALL_1kb_cross_95_85_virus_summary['taxonomy'].str.split(';').apply(lambda x: x[-1])
-
+bphage_ALL_1kb_cross_95_85_virus_summary['lowest_taxon'] = bphage_ALL_1kb_cross_95_85_virus_summary['taxonomy'].str.split(';').apply(get_last_non_empty_element)
 # Load checkv output
 quality_summary = pd.read_csv(args.checkv_quality_summary, sep='\t')
 
