@@ -1,7 +1,8 @@
 display_venn <- function(cat_list, f_name=NULL, ...){
   grid.newpage()
   venn_object <- venn.diagram(cat_list, filename = f_name, 
-                              disable.logging=TRUE, 
+                              disable.logging=TRUE, height = 750, width = 750,
+                              resolution = 200,
                               ...)
 }
 
