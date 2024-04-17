@@ -109,8 +109,8 @@ beta_plot = function(ordination_list, meta_vars) {
       patch <- wrap_plots(plotlist_for_patch)
       
       # This is just to give the different panels one axis label.
-      x_axis_lab <- paste0("PCo1 (", round(ordination_list[[n]][[m]]$values$Rel_corr_eig[1]*100,2),"%)")
-      y_axis_lab <- paste0("PCo2 (", round(ordination_list[[n]][[m]]$values$Rel_corr_eig[2]*100,2),"%)")
+      x_axis_lab <- paste0("PCo1 (", round(ordination_list[[n]][[m]]$values$Relative_eig[1]*100,2),"%)")
+      y_axis_lab <- paste0("PCo2 (", round(ordination_list[[n]][[m]]$values$Relative_eig[2]*100,2),"%)")
       empty_y_plot <- ggplot(data.frame(l = y_axis_lab, x = 1, y = 1)) +
         geom_text(aes(x, y, label = l), angle = 90) +
         theme_void() +
