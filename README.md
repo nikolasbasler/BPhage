@@ -34,7 +34,7 @@
 - geNomad (can be done in parallel with CheckV and mapping): `scripts/HPC/genomad.slrm`
     - Requires: Cross-sample clustered contigs: `output/bphage_ALL_1kb_cross_95-85.fasta.gz`
     - Output: `output/bphage_ALL_1kb_genomad`
-- Filter for >= 50% complete phages: `scripts/HPC/filter_classification.slrm`
+- Filter for >= 70% complete phages: `scripts/HPC/filter_classification.slrm`
     - Requires: 
         - Cross-sample clustered contigs: `output/bphage_ALL_1kb_cross_95-85.fasta.gz`
         - CheckV output
