@@ -1,0 +1,16 @@
+name: neyfach
+channels:
+  - bioconda
+  - defaults
+  - conda-forge
+  - nodefaults
+dependencies:
+  - prodigal-gv=2.11.0
+  - diamond=2.1.9
+  - mcl=22.282
+  - python=2.7.18
+  - ca-certificates
+  - openssl
+  - biopython=1.70
+  - numpy=1.12.1
+prefix: /data/leuven/341/vsc34111/mambaforge/envs/neyfach
