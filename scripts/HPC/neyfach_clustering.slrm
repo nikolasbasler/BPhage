@@ -30,7 +30,7 @@ cat $repo_location/output/bphage_ALL_1kb_phages.fasta.gz \
 cat $VSC_SCRATCH/BPhage/additional_datasets/*.fa.gz >> prodigal_input.fasta.gz    
 
 # Gene prediction with prodigal-gv
-prodigal-gv -i bphage_ALL_1kb_unclassified_viruses.fasta.gz \
+prodigal-gv -i prodigal_input.fasta.gz \
     -f gff -o bphage.all.genes.gff \
 	-a bphage.all.proteins.faa \
 	-d bphage.all.genes.fna 
