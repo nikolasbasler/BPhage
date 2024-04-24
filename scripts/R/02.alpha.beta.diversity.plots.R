@@ -174,36 +174,35 @@ for (tlvl in taxlevels) {
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 # Contig overview heatmap ####
-# Not adapted to phage dataset yet.
 
-# family_heatmaps_row <- list()
-# plotted_samples <- list()
-# plotted_contigs <- list()
-# for (fam in unique(classification$Family)) {
-#   if (fam == "") {
-#     next
-#   }
-#   # All countries in one row:
-#     fam_tpm <- euk_tpm$contig %>%
-#       inner_join(., classification, by="contig") %>% 
-#       filter(Family==fam) %>%
-#       select(colnames(euk_tpm$contig)) %>%
-#       select(which(colSums(. != 0) > 0))
-#     plotted_samples[[fam]] <- ncol(fam_tpm)
-#     plotted_contigs[[fam]] <- nrow(fam_tpm)
-#     family_heatmaps_row[[fam]] <- contig_heatmap(df = fam_tpm,
-#                                                    classif = classification)
-# }
+family_heatmaps_row <- list()
+plotted_samples <- list()
+plotted_contigs <- list()
+for (fam in unique(classification$Family)) {
+  if (fam == "") {
+    next
+  }
+  # All countries in one row:
+    fam_tpm <- phage_tpm$contig %>%
+      inner_join(., classification, by="contig") %>%
+      filter(Family==fam) %>%
+      select(colnames(phage_tpm$contig)) %>%
+      select(which(colSums(. != 0) > 0))
+    plotted_samples[[fam]] <- ncol(fam_tpm)
+    plotted_contigs[[fam]] <- nrow(fam_tpm)
+    family_heatmaps_row[[fam]] <- contig_heatmap(df = fam_tpm,
+                                                   classif = classification)
+}
 # split_families <- c("", "Parvoviridae", "Dicistroviridae")
 # for (fam in split_families) {
-#   species_names <- classification %>% 
+#   species_names <- classification %>%
 #     filter(Species!="Apis mellifera filamentous virus") %>%
 #     filter(Family==fam) %>%
 #     select(Species) %>%
 #     unlist(use.names=FALSE) %>%
 #     unique()
 #   fam_tpm <- euk_tpm$contig %>%
-#     inner_join(., classification, by="contig") %>% 
+#     inner_join(., classification, by="contig") %>%
 #     filter(Family==fam) %>%
 #     select(colnames(euk_tpm$contig))
 #   if (fam=="") {
@@ -211,7 +210,7 @@ for (tlvl in taxlevels) {
 #   }
 #   for (speci in species_names) {
 #     spec_tpm <- fam_tpm %>%
-#       inner_join(., classification, by="contig") %>% 
+#       inner_join(., classification, by="contig") %>%
 #       filter(Species==speci) %>%
 #       select(colnames(fam_tpm)) %>%
 #       select(which(colSums(. != 0) > 0))
@@ -390,13 +389,13 @@ for (tax in names(beta_plot_list)) {
 }
 
 # ## Heatmaps ####
-# system("mkdir -p output/R/heatmaps/")
-# for (tax in names(family_heatmaps_row)) {
-#   ggsave(paste0("output/R/heatmaps/", tax, ".pdf"),
-#          family_heatmaps_row[[tax]], 
-#          width = 10+plotted_samples[[tax]]/5, height =2+plotted_contigs[[tax]]/5, 
-#          limitsize = FALSE)
-# }
+system("mkdir -p output/R/heatmaps/")
+for (tax in names(family_heatmaps_row)) {
+  ggsave(paste0("output/R/heatmaps/", tax, ".pdf"),
+         family_heatmaps_row[[tax]],
+         width = 10+plotted_samples[[tax]]/5, height =2+plotted_contigs[[tax]]/5,
+         limitsize = FALSE)
+}
 
 ## TPM ####
 system("mkdir -p output/R/relative_abundance_overall/")
