@@ -18,7 +18,6 @@ conda activate viper_bphage
 
 repo_location="$VSC_STAGING/BPhage"
 
-
 # Move to wherever your files are
 mkdir -p $VSC_SCRATCH/BPhage/cross_assembly
 cd $VSC_SCRATCH/BPhage/cross_assembly
@@ -41,14 +40,19 @@ which metaspades.py
 # Otherwise the clustering will fail with error message "ModuleNotFoundError: No module named 'Bio"
 module unload Python/3.9.5-GCCcore-10.3.0
 
-viper.sh -1 all_samples.R1.fastq.gz -2 all_samples.R2.fastq.gz -u all_samples.unpaired.fastq.gz \
-    --skip-trimming --triple-assembly -t 72 --cluster-cover 85 --cluster-identity 95 --keep-reads \
-    --name phage_cross_assembly --identify-proviruses \
-    --checkv-db /staging/leuven/stg_00029/DB/CheckV/checkv-db-v1.5 \
-    --genomad-db /staging/leuven/stg_00029/DB/genomad/genomad_db_1.7
+# viper.sh -1 all_samples.R1.fastq.gz -2 all_samples.R2.fastq.gz -u all_samples.unpaired.fastq.gz \
+#     --skip-trimming --triple-assembly -t 72 --memory-limit 7500 --cluster-cover 85 \
+#     --cluster-identity 95 --keep-reads --name phage_cross_assembly --identify-proviruses \
+#     --checkv-db /staging/leuven/stg_00029/DB/CheckV/checkv-db-v1.5 \
+#     --genomad-db /staging/leuven/stg_00029/DB/genomad/genomad_db_1.7
 
+# This doesn't even finish error correction in 72h:
 # metaspades.py -1 all_samples.R1.fastq.gz -2 all_samples.R2.fastq.gz -s all_samples.unpaired.fastq.gz \
-#     -t 72 -k 21,33,55,77 -o SPAdes_out
+#     -t 72 -m 7500 -k 21,33,55,77 -o SPAdes_out
+
+# Try without unpaired reads:
+metaspades.py -1 all_samples.R1.fastq.gz -2 all_samples.R2.fastq.gz \
+    -t 72 -m 7500 -k 21,33,55,77 -o SPAdes_out
 
 # Clean up
 rm all_samples.R1.fastq.gz

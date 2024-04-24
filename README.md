@@ -67,4 +67,11 @@
         - Mapping ref to get the complete contig list: `$VSC_SCRATCH/BPhage/ref/bphage_mapping_ref.fasta`
     - Output:
         - Separate tables for mapped reads, horizontal coverage and mean depth (samples in columns, contigs in rows) and a table with all contig lengths in `output/mapping_stats`
-    
+
+### Neyfach clustering
+- `scripts/HPC/neyfach_clustering.slrm`
+    - Requires:
+        - `scripts/HPC/amino_acid_identity.py`
+        - `scripts/HPC/amino_acid_identity.py`
+        - Phage contigs in `output/`
+        - Additional datasets in `$VSC_SCRATCH/BPhage/additional_datasets/` downloaded in `scrtips/HPC/download_bee_ref_genome_and_additional_datasets.slrm`
