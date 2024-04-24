@@ -41,8 +41,8 @@ contig_heatmap <- function(df, classif) {
     pivot_longer(-contig) %>%
     inner_join(., metadata, by=join_by(name==Sample_ID)) %>%
     inner_join(., classif, by="contig") %>%
-    arrange(Phylum, Class, Order, Family, Subfamily, Genus, Species) %>%
-    mutate(contig_and_tax = paste0(contig, " [", Subfamily, ";", Genus, ";",Species, "]")) %>%
+    arrange(Phylum, Class, Order, Family, Genus, Species) %>%
+    mutate(contig_and_tax = paste0(contig, " [", Family, ";", Genus, ";",Species, "]")) %>%
     mutate(contig_and_tax = factor(contig_and_tax, levels=unique(contig_and_tax))) %>%
     mutate(value = ifelse(value==0, NA, value)) %>%
     rename(sample = name,
@@ -53,8 +53,7 @@ contig_heatmap <- function(df, classif) {
     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
     facet_row(~Country+Season, scales="free_x", space="free") +
     scale_fill_gradient(limits = c(0, 1))
-
-  }
+}
 
 make_heatmap = function(df, tl, meta_vars) {
   threshold_for_removal = 0.005
