@@ -5,12 +5,12 @@ report_stats <- function(df, thresholds) {
     column_to_rownames(colnames(df)[1]) %>%
     t() %>% 
     as.data.frame() %>%
-    rownames_to_column("sample") %>%
-    pivot_longer(-sample) %>%
-    group_by(sample) %>%
+    rownames_to_column("Sample_ID") %>%
+    pivot_longer(-Sample_ID) %>%
+    group_by(Sample_ID) %>%
     summarize(n_seq = sum(value)) %>%
     mutate(ratio_to_highest = max(n_seq)/n_seq) %>%
-    mutate(gut_part = str_split(sample, "_", simplify = TRUE)[, 4])
+    mutate(gut_part = str_split(Sample_ID, "_", simplify = TRUE)[, 4])
   
   outlist$ratios <- num_of_seqs %>%
       select(-gut_part) %>%
@@ -23,7 +23,7 @@ report_stats <- function(df, thresholds) {
     geom_density()
   
   outlist$plot_thresholds <- num_of_seqs %>%
-    mutate(gut_part = str_split(sample, "_", simplify = TRUE)[, 4]) %>%
+    mutate(gut_part = str_split(Sample_ID, "_", simplify = TRUE)[, 4]) %>%
     group_by(gut_part) %>%
     arrange(n_seq) %>%
     mutate(sample_number = 1:n()) %>%
@@ -69,19 +69,19 @@ report_stats <- function(df, thresholds) {
 
 discards <- function(ratios, min_seq) {
   bees_before_filter <- ratios %>%
-    mutate(bees = str_sub(sample, start=1, end=12)) %>%
+    mutate(bees = str_sub(Sample_ID, start=1, end=12)) %>%
     select(bees) %>%
     unique()
   bees_after_filter <- ratios %>%
     filter(n_seq >= min_seq) %>%
-    mutate(bees = str_sub(sample, start=1, end=12)) %>%
+    mutate(bees = str_sub(Sample_ID, start=1, end=12)) %>%
     select(bees) %>%
     unique()
   lost_bees <- setdiff(bees_before_filter, bees_after_filter)
   
   discarded <- ratios %>%
     filter(n_seq < min_seq) %>%
-    select(sample) %>%
+    select(Sample_ID) %>%
     unique()
   return(list(discarded=discarded, lost_bees=lost_bees))
 }
