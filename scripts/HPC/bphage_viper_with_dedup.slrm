@@ -47,7 +47,7 @@ fi
 
 printf "\n"
 
-seqkit stat -T raw/$line.*.gz > raw/${line}_reads.tsv
+seqkit stat -T raw/$line.*.R1.fastq.gz > raw/${line}_reads.tsv
 
 printf "\n"
 
