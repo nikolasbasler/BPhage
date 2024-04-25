@@ -47,7 +47,10 @@ fi
 
 printf "\n"
 
-seqkit stat -T raw/$line.*.R1.fastq.gz > raw/${line}_reads.tsv
+raw_read_pairs=$(zcat raw/${line}.R1.fastq.gz | wc -l | awk '{print $1/2}')
+dedup_read_pairs=$(zcat raw/${line}.dedup.R1.fastq.gz | wc -l | awk '{print $1/2}')
+echo -e "Sample\tRaw_R1_plus_R2\tDeduplicated_R1_plus_R2" > raw/${line}_reads.tsv
+echo -e "${line}\t${raw_read_pairs}\t${dedup_read_pairs}" >> raw/${line}_reads.tsv
 
 printf "\n"
 
