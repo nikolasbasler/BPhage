@@ -39,15 +39,9 @@ while read sample; do
     # READ
     mv $sample/READ/TRIMMED/*Hostout* READ/
     mv $sample/READ/TRIMMED/*trimmed* READ/
-    trimmed_paired=$(zcat READ/${sample}.trimmed.R1.fastq.gz | wc -l | awk '{print $1/2}')
-    trimmed_unpaired=$(zcat READ/${sample}.trimmed.unpaired.fastq.gz | wc -l | awk '{print $1/4}')
-    trimmed_total=$((trimmed_paired + trimmed_unpaired))
-    hostout_paired=$(zcat READ/${sample}.Hostout.R1.fastq.gz | wc -l | awk '{print $1/2}')
-    hostout_unpaired=$(zcat READ/${sample}.Hostout.unpaired.fastq.gz | wc -l | awk '{print $1/4}')
-    hostout_total=$((hostout_paired + hostout_unpaired))
-    echo -e "${sample}\t${trimmed_paired}\t${trimmed_unpaired}\t${trimmed_total}\t${hostout_paired}\t${hostout_unpaired}\t${hostout_total}" >> temp.post_viper_read_stats
-    
+
     sed 1d ../raw/${sample}_reads.tsv >> temp.pre_viper_read_stats
+    sed 1d ${sample}_post_viper_read_stats.tsv >> temp.post_viper_read_stats
 
 done < $repo_location/data/BPhage.sample.list
 
