@@ -13,4 +13,5 @@ dependencies:
   - openssl
   - biopython=1.70
   - numpy=1.12.1
+  - pigz=2.6
 prefix: /data/leuven/341/vsc34111/mambaforge/envs/neyfach
