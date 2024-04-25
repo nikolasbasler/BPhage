@@ -168,7 +168,8 @@ for (tlvl in taxlevels) {
                                         df_lengths = phage_lengths[[tlvl]])
   
   beta_plot_list[[tlvl]] <- beta_plot(ordination_list = beta_dist[[tlvl]]$ord_list, 
-                                      meta_vars = met_v)
+                                      meta_vars = met_v,
+                                      mapped_reads = count_stats$ratios)
 }
 
 #------------------------------------------------------------------------------#

@@ -88,14 +88,15 @@ rared_ordination = function(df, min_seq, meta_vars, df_lengths, seed) {
   return(list(ord_list = ord_list, avg_dist = beta_average_df, dist_hist_list = distances_plots))
 }
 
-beta_plot = function(ordination_list, meta_vars) {
+beta_plot = function(ordination_list, meta_vars, mapped_reads) {
   final_plotlist <- list()
   for (n in names(ordination_list)) {
     for (m in names(ordination_list[[n]])) {
       plot_df <- metadata %>%
-        select(Sample_ID, all_of(meta_vars), Mapped_reads) %>%
+        select(Sample_ID, all_of(meta_vars)) %>%
         inner_join(., rownames_to_column(as.data.frame(ordination_list[[n]][[m]]$vectors),"Sample_ID"),
-                   by="Sample_ID")
+                   by="Sample_ID") %>%
+        left_join(., mapped_reads, by = "Sample_ID")
       
       plotlist_for_patch <- list()
       for (meta_v in meta_vars) {
@@ -127,10 +128,11 @@ beta_plot = function(ordination_list, meta_vars) {
     
     if (n=="all") {
       plot_df <- metadata %>%
-        select(Sample_ID, all_of(meta_vars), Mapped_reads) %>%
+        select(Sample_ID, all_of(meta_vars)) %>%
         inner_join(., rownames_to_column(as.data.frame(ordination_list$all$all$vectors),"Sample_ID"),
-                   by="Sample_ID")
-      final_plotlist$all$control <- ggplot(plot_df, aes(x=Axis.1, y=Axis.2, color=Mapped_reads)) +
+                   by="Sample_ID") %>%
+        left_join(., mapped_reads, by = "Sample_ID")
+      final_plotlist$all$control <- ggplot(plot_df, aes(x=Axis.1, y=Axis.2, color=n_seq)) +
         geom_point() +
         labs(x=x_axis_lab, y=y_axis_lab) +
         plot_annotation(title="all: control")
