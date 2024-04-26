@@ -33,15 +33,15 @@ rm -r ncbi_dataset* README.md
 datasets download genome accession GCA_013332045.1
 unzip ncbi_dataset.zip
 cat ncbi_dataset/data/GCA_013332045.1/GCA_013332045.1_ASM1333204v1_genomic.fna | \
-    sed 's/ /_BonillaRosso_MAG /' | gzip > BonillaRosso_et_al.MAGs.fa.gz
+    sed 's/ /_Bonilla_MAG /' | gzip > BonillaRosso_et_al.MAGs.fa.gz
 rm -r ncbi_dataset* README.md 
 efetch -db nuccore -id MT006233,MT006234,MT006235,MT006236,MT006237,MT006238,MT006239,MT006240 -format fasta | \
-    sed 's/ /_BonillaRosso_isolate /' | gzip > BonillaRosso_et_al.isolates.fa.gz
+    sed 's/ /_Bonilla_isolate /' | gzip > BonillaRosso_et_al.isolates.fa.gz
 
 # Busby et al
 wget https://raw.githubusercontent.com/jtvanleuven/bee_phage/master/analysis/all_phage.fasta
 conda activate viper_bphage
-seqkit grep -rp "circular" all_phage.fasta | sed 's/ /_Busby_circular /' | gzip > Busby_at_al_circular_MAGs.fa.gz
+seqkit grep -rp "circular" all_phage.fasta | sed 's/ /_Busby_circ /' | gzip > Busby_at_al_circular_MAGs.fa.gz
 rm all_phage.fasta
 
 # INPHARED
