@@ -45,9 +45,7 @@ rm all_phage.fasta
 
 # INPHARED
 wget https://millardlab-inphared.s3.climb.ac.uk/3Apr2024_genomes_excluding_refseq.fa.gz
-wget https://millardlab-inphared.s3.climb.ac.uk/3Apr2024_data_excluding_refseq.tsv.gz
 mv 3Apr2024_genomes_excluding_refseq.fa.gz inphared_3Apr2024_genomes_excluding_refseq.fa.gz
-mv 3Apr2024_data_excluding_refseq.tsv.gz inphared_3Apr2024_data_excluding_refseq.tsv.gz
 
 ## Bee ref genome
 conda activate ncbi
