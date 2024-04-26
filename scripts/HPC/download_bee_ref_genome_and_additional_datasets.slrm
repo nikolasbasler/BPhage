@@ -41,7 +41,7 @@ efetch -db nuccore -id MT006233,MT006234,MT006235,MT006236,MT006237,MT006238,MT0
 # Busby et al
 wget https://raw.githubusercontent.com/jtvanleuven/bee_phage/master/analysis/all_phage.fasta
 conda activate viper_bphage
-seqkit grep -rp "circular" all_phage.fasta | sed 's/ /_Busby_circ /' | gzip > Busby_at_al_circular_MAGs.fa.gz
+seqkit grep -rp "circular" all_phage.fasta | sed '/^>/s/$/_Busby_circ/' | gzip > Busby_at_al_circular_MAGs.fa.gz
 rm all_phage.fasta
 
 # INPHARED
