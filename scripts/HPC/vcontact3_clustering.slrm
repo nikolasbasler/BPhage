@@ -34,7 +34,6 @@ zcat $repo_location/output/bphage_ALL_1kb_phages.fasta.gz \
 
 # Clustering
 vcontact3 run --threads $threads --nucleotide vcontact3_input.fasta --output bphage_vcontact3 \
-    --exports cytoscape d3js tree pyupset profiles \
     --pyrodigal-gv --enable-sensitive --db-domain "prokaryotes" \
     --db-version 223 --db-path $vcontact_db
 
