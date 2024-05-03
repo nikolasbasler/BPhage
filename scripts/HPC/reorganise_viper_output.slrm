@@ -40,7 +40,7 @@ while read sample; do
     mv $sample/READ/TRIMMED/*Hostout* READ/
     mv $sample/READ/TRIMMED/*trimmed* READ/
 
-    sed 1d ../raw/${sample}_reads.tsv >> temp.pre_viper_read_stats
+    sed 1d raw/${sample}_pre_viper_read_stats.tsv >> temp.pre_viper_read_stats
     sed 1d ${sample}_post_viper_read_stats.tsv >> temp.post_viper_read_stats
 
 done < $repo_location/data/BPhage.sample.list
