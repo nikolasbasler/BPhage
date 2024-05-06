@@ -42,9 +42,35 @@ sample_order <- metadata %>%
 metadata <- metadata %>%
   mutate(Sample_ID = factor(Sample_ID, levels=sample_order))
 row.names(metadata) <- metadata$Sample_ID
-classification <- read.csv("output/R/phage.filt.gnmd.classification.csv") %>%
-  mutate(contig_length = contig_length/1000) %>%
-  rename(length_kb = contig_length)
+
+# classification <- read.csv("output/R/phage.filt.gnmd.classification.csv") %>%
+#   mutate(contig_length = contig_length/1000) %>%
+#   rename(length_kb = contig_length)
+
+classification <- read.csv("output/vcontact3/final_assignments.csv") %>%
+  mutate(Kingdom = "",  # No Kingdom column in vcontacts output??
+         Species = "" ) %>% 
+  mutate_all(~ifelse(grepl("\\|\\|", .), str_extract(., "^[^|]+"), .)) %>% # In case of several classification, extract the first one.
+  rename(contig = RefSeqID,
+         length_kb = Size..Kb.,
+         Realm = realm..prediction.,
+         Phylum = phylum..prediction.,
+         Class = class..prediction.,
+         Order = order..prediction.,
+         Family = family..prediction.,
+         Subfamily = subfamily..prediction.,
+         Genus = genus..prediction.) %>%
+  select(contig, length_kb, Realm, Kingdom, Phylum, Class, Order, Family, Subfamily, Genus, Species) %>%
+  mutate(lowest_taxon = apply(., 1, function(row) tail(row[row != ""], 1))) %>%
+  mutate(across(everything(), ~ifelse(. == "", "Unclassified", .))) %>%
+  mutate(Host_group = "all") %>%
+  filter(str_detect(contig, "NODE")) 
+
+present_in_all_countries <- read_lines("data/vc3_core_contigs.txt")
+
+classification <- classification %>%
+  mutate(Host_group = ifelse(contig %in% present_in_all_countries, "temp_core", Host_group))
+
 contig_order <- classification %>%
   arrange(Realm, Kingdom, Phylum, Class, Order, Family, Genus, Species) %>% 
   select(contig) %>%
@@ -57,7 +83,7 @@ phage_abundance <- read.csv("output/R/phage.filt.abundance.contig.csv") %>%
   select(!contains("Blank"))
 
 # Make a pie chart of the different taxons
-taxon_pie <- table(classification$lowest_taxon) %>%
+taxon_pie <- table(classification$Order) %>%
   as.data.frame() %>%
   rename(Lowest_taxon = Var1, Genomes = Freq) %>%
   arrange(desc(Genomes)) %>%
@@ -121,6 +147,35 @@ for (hostg in hostgroups) {
   }
 }
 
+## Generate absolute viral load tables for different taxonomic levels
+samples_with_vlp_counts <- metadata %>%
+  filter(!is.na(VLPs_per_ul)) %>%
+  rownames()
+viral_loads <- phage_tpm$contig %>%
+  select(contig, any_of(samples_with_vlp_counts)) %>% 
+  filter(!if_all(-contig, ~. == 0)) %>% 
+  pivot_longer(-contig, names_to = "Sample_ID") %>%
+  left_join(., metadata[c("Sample_ID", "VLPs_per_ul")], by="Sample_ID") %>%
+  mutate(viral_load = value * VLPs_per_ul) %>%
+  select(-c(value, VLPs_per_ul)) %>%
+  pivot_wider(names_from = Sample_ID, values_from = viral_load) 
+
+phage_load <- list()
+for (lvl in names(phage_ab)) {
+  phage_load[[lvl]] <- tax_sum(ab_table = viral_loads, tax_level = lvl, classif = classification)
+}
+
+taxlevels <- c("contig", "Species", "Genus", "Family", "Order", "Class", "Phylum", "Kingdom", "Realm")
+phage_load_hostgroup <- list()
+for (hostg in hostgroups) {
+  hostg_filt <- hostg_filter(hg = hostg, ab_table = phage_load$contig,
+                             classif = classification)
+  phage_load_hostgroup[[hostg]] <- taxlevels %>%
+    set_names() %>%
+    map(~tax_sum(., ab_table=hostg_filt,
+                 classif = classification))
+}
+
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 # Set min seq thresholds for rarefaction. ####
@@ -142,8 +197,7 @@ lost_bees <- discards(count_stats$ratios, min_seq_count)$lost_bees # No bee pool
 #------------------------------------------------------------------------------#
 # Alpha ####
 met_v <- c("Country", "Season", "Gut_part", "Health")
-# taxlevels <- c("contig", "Species", "Genus", "Family")
-taxlevels <- c("contig")
+taxlevels <- c("contig", "Species", "Genus", "Family")
 alpha <- list()
 for (tlvl in taxlevels) {
   alpha[[tlvl]] <- alpha_stats(df = phage_ab[[tlvl]], 
@@ -152,17 +206,24 @@ for (tlvl in taxlevels) {
                                df_lengths = phage_lengths[[tlvl]])
 }
 
+met_v <- c("Country", "Season", "Health")
+taxlevels <- c("contig", "Species", "Genus", "Family")
+alpha_abs <- list()
+for (tlvl in taxlevels) {
+  alpha_abs[[tlvl]] <- alpha_stats(df = phage_load[[tlvl]], 
+                                   absolut_values = TRUE,
+                                   meta_vars = met_v)
+}
+
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 # Beta ####
 met_v <- c("Country", "Season", "Gut_part", "Health")
-# taxlevels <- c("contig", "Species", "Genus", "Family")
-taxlevels <- c("contig")
+taxlevels <- c("contig", "Species", "Genus", "Family")
 beta_dist <- list()
 beta_plot_list <- list()
-dist_hist_list <- list()
 for (tlvl in taxlevels) {
-  beta_dist[[tlvl]] <- rared_ordination(df = phage_ab[[tlvl]], 
+  beta_dist[[tlvl]] <- ordination(df = phage_ab[[tlvl]], 
                                         meta_vars = met_v, 
                                         min_seq = min_seq_count,
                                         df_lengths = phage_lengths[[tlvl]])
@@ -172,26 +233,44 @@ for (tlvl in taxlevels) {
                                       mapped_reads = count_stats$ratios)
 }
 
+met_v <- c("Country", "Season", "Health")
+taxlevels <- c("contig", "Species", "Genus", "Family")
+beta_abs_dist <- list()
+beta_abs_plot_list <- list()
+for (tlvl in taxlevels) {
+  beta_abs_dist[[tlvl]] <- ordination(df = phage_load[[tlvl]],
+                                      meta_vars = met_v,
+                                      absolute_values = TRUE)
+  beta_abs_plot_list[[tlvl]] <- beta_plot(beta_abs_dist[[tlvl]]$ord_list,
+                                          meta_vars = met_v,
+                                          mapped_reads = count_stats$ratios)
+
+}
+
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 # Contig overview heatmap ####
 
-family_heatmaps_row <- list()
+## MAKE A SET OF HEATMAPS ALWAYS SHOWING THE NEXT LOWER LEVEL?
+# e.g. a heatmap for each class not showing contigs in the rows but orders
+# then a heatmap for each order showing families (this will already be dozens of heatmaps)
+
+class_heatmaps_row <- list()
 plotted_samples <- list()
 plotted_contigs <- list()
-for (fam in unique(classification$Family)) {
-  if (fam == "") {
+for (cla in unique(classification$Class)) {
+  if (cla == "Unclassified") {
     next
   }
   # All countries in one row:
-    fam_tpm <- phage_tpm$contig %>%
+    cla_tpm <- phage_tpm$contig %>%
       inner_join(., classification, by="contig") %>%
-      filter(Family==fam) %>%
+      filter(Class==cla) %>%
       select(colnames(phage_tpm$contig)) %>%
       select(which(colSums(. != 0) > 0))
-    plotted_samples[[fam]] <- ncol(fam_tpm)
-    plotted_contigs[[fam]] <- nrow(fam_tpm)
-    family_heatmaps_row[[fam]] <- contig_heatmap(df = fam_tpm,
+    plotted_samples[[cla]] <- ncol(cla_tpm)
+    plotted_contigs[[cla]] <- nrow(cla_tpm)
+    class_heatmaps_row[[cla]] <- contig_heatmap(df = cla_tpm,
                                                    classif = classification)
 }
 # split_families <- c("", "Parvoviridae", "Dicistroviridae")
@@ -268,6 +347,32 @@ for (merge in names(phage_ab_meta_merges)) {
   prevalence_histo[[merge]] <- prevalence_histogram(abtable = phage_ab_meta_merges[[merge]],
                                                           plot_title = merge)
 }
+# 
+# present_in_all_countries <- prevalence_histo$Countries$table %>%
+#   filter(prevalence_prop ==1) %>%
+#   select(group) %>%
+#   unlist(use.names = FALSE) %>%
+#   write_lines("data/vc3_core_contigs.txt")
+
+# Make a pie chart of the different taxons
+taxlevel <- "Genus"
+core_pie <- classification %>%
+  filter(contig %in% present_in_all_countries) %>%
+  select(all_of(taxlevel)) %>%
+  table() %>%
+  as.data.frame() %>%
+  # rename(Lowest_taxon = Var1, Genomes = Freq) %>%
+  arrange(desc(Freq)) %>%
+  mutate(Genus = factor(Genus, levels = Genus)) %>%
+  ggplot(aes(x = "", y=Freq, fill = Genus)) +
+  geom_bar(stat = "identity", color="black", linewidth=0.2) +
+  coord_polar("y") +
+  theme_classic() +
+  labs(x = NULL, y = NULL) +
+  theme(axis.line = element_blank(),
+        axis.text = element_blank(),
+        axis.ticks = element_blank()) +
+  scale_fill_brewer(palette="Set3")
 
 # 
 # met_v <- c("Country", "Season", "Gut_part", "Health")
@@ -385,7 +490,7 @@ for (tax in names(beta_plot_list)) {
     }
   }
   
-  write_csv(rownames_to_column(beta_dist[[tax]]$avg_dist, "Sample_ID"),
+  write_csv(rownames_to_column(beta_dist[[tax]]$dist_df, "Sample_ID"),
             paste0("output/R/beta/beta_dist_", tax,".csv"))
 }
 
