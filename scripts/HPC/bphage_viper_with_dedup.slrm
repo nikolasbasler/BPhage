@@ -64,11 +64,11 @@ viper.sh -1 raw/$line.dedup.R1.fastq.gz -2 raw/$line.dedup.R2.fastq.gz \
     --genomad-db /staging/leuven/stg_00029/DB/genomad/genomad_db_1.7
 
 # Record post-viper read stats
-trimmed_paired=$(zcat $line/READ/TRIMMED/${line}.trimmed.R1.fastq.gz | wc -l | awk '{print $1/2}')
-trimmed_unpaired=$(zcat $line/READ/TRIMMED/${line}.trimmed.unpaired.fastq.gz | wc -l | awk '{print $1/4}')
+trimmed_paired=$(zcat bphage_viper_output/$line/READ/TRIMMED/${line}.trimmed.R1.fastq.gz | wc -l | awk '{print $1/2}')
+trimmed_unpaired=$(zcat bphage_viper_output/$line/READ/TRIMMED/${line}.trimmed.unpaired.fastq.gz | wc -l | awk '{print $1/4}')
 trimmed_total=$((trimmed_paired + trimmed_unpaired))
-hostout_paired=$(zcat $line/READ/TRIMMED/${line}.Hostout.R1.fastq.gz | wc -l | awk '{print $1/2}')
-hostout_unpaired=$(zcat $line/READ/TRIMMED/${line}.Hostout.unpaired.fastq.gz | wc -l | awk '{print $1/4}')
+hostout_paired=$(zcat bphage_viper_output/$line/READ/TRIMMED/${line}.Hostout.R1.fastq.gz | wc -l | awk '{print $1/2}')
+hostout_unpaired=$(zcat bphage_viper_output/$line/READ/TRIMMED/${line}.Hostout.unpaired.fastq.gz | wc -l | awk '{print $1/4}')
 hostout_total=$((hostout_paired + hostout_unpaired))
 echo -e "Sample\tTrimmed_R1_plus_R2\tTrimmed_unpaired\tTrimmed_total\tHostout_R1_plus_R2\tHostout_unpaired\tHostout_total" > bphage_viper_output/${line}_post_viper_read_stats.tsv
 echo -e "${line}\t${trimmed_paired}\t${trimmed_unpaired}\t${trimmed_total}\t${hostout_paired}\t${hostout_unpaired}\t${hostout_total}" >> bphage_viper_output/${line}_post_viper_read_stats.tsv
