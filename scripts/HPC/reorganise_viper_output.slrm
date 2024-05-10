@@ -40,11 +40,19 @@ while read sample; do
     mv $sample/READ/TRIMMED/*Hostout* READ/
     mv $sample/READ/TRIMMED/*trimmed* READ/
 
-    sed 1d ../raw/${sample}_reads.tsv >> temp.pre_viper_read_stats
+    sed 1d ../raw/${sample}_pre_viper_read_stats.tsv >> temp.pre_viper_read_stats
     sed 1d ${sample}_post_viper_read_stats.tsv >> temp.post_viper_read_stats
 
 done < $repo_location/data/BPhage.sample.list
 
+# Sort files ignoring the header
+cat temp.pre_viper_read_stats | (sed -u 1q; sort) > temp.stats
+mv temp.stats temp.pre_viper_read_stats
+
+cat temp.post_viper_read_stats | (sed -u 1q; sort) > temp.stats
+mv temp.stats temp.post_viper_read_stats
+
+# Join them
 join --header --check-order temp.pre_viper_read_stats temp.post_viper_read_stats | sed 's/ /\t/g' > read_stats.tsv
 rm temp.pre_viper_read_stats
 rm temp.post_viper_read_stats

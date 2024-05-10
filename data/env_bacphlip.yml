@@ -1,0 +1,9 @@
+name: bacphlip
+channels:
+  - bioconda
+  - defaults
+  - conda-forge
+  - nodefaults
+dependencies:
+  - bacphlip=0.9.6
+prefix: /data/leuven/341/vsc34111/mambaforge/envs/bacphlip
