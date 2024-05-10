@@ -1,17 +1,17 @@
 #!/bin/bash -l
-#SBATCH --job-name="vcontact3_clustering"
+#SBATCH --job-name="vcontact3_clustering_with_inphared"
 #SBATCH --cluster=genius
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=36
 #SBATCH --mem-per-cpu=4G
-#SBATCH --time=24:00:00
+#SBATCH --time=72:00:00
 #SBATCH --account=lp_jm_virome_group
 #SBATCH --output=slurm-%x_%j.out
 
 ###############################################################################
 
 # Submit (from output/slurm_log)
-# sbatch --export=ALL ../../scripts/HPC/vcontact3_clustering.slrm
+# sbatch --export=ALL ../../scripts/HPC/vcontact3_clustering_with_inphared.slrm
 
 source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate vcontact3
@@ -26,17 +26,14 @@ cd $VSC_SCRATCH/BPhage/vcontact3/
 zcat $repo_location/output/bphage_ALL_1kb_phages.fasta.gz \
     $repo_location/output/bphage_ALL_1kb_picobirna.fasta.gz \
     $repo_location/output/bphage_ALL_1kb_unclassified_viruses.fasta.gz \
-    $VSC_SCRATCH/BPhage/additional_datasets/BonillaRosso*.fa.gz \
-    $VSC_SCRATCH/BPhage/additional_datasets/Busby*.fa.gz \
-    $VSC_SCRATCH/BPhage/additional_datasets/Deboutte*.fa.gz \
-    $VSC_SCRATCH/BPhage/additional_datasets/Picobirna_Refseq_RdRP*.fa.gz \
-    > vcontact3_input.fasta    
+    $VSC_SCRATCH/BPhage/additional_datasets/*.fa.gz \
+    > vcontact3_with_inpha.fasta    
 
 # Clustering
-vcontact3 run --threads $threads --nucleotide vcontact3_input.fasta --output bphage_vcontact3 \
+vcontact3 run --threads $threads --nucleotide vcontact3_with_inpha.fasta --output bphage_vcontact3_with_inpha \
     --pyrodigal-gv --enable-sensitive --db-domain "prokaryotes" \
     --db-version 223 --db-path $vcontact_db
-cp -r bphage_vcontact3 $repo_location/output/vcontact3
+
 
 echo "========================================================================"
 duration=$SECONDS
