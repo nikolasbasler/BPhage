@@ -32,8 +32,4 @@ dependencies:
   - markupsafe[version='>=2.0.1']
   - mmseqs2
   - bioinfokit[version='>=2.1.3']
-  - d3=5.15.0
-  - ca-certificates
-  - certifi
-  - openssl
 prefix: /data/leuven/341/vsc34111/mambaforge/envs/vcontact3
