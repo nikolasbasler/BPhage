@@ -6,4 +6,9 @@ channels:
   - nodefaults
 dependencies:
   - bacphlip=0.9.6
+  - numpy=1.20
+  - hmmer=3.4
+  - ca-certificates
+  - certifi
+  - openssl
 prefix: /data/leuven/341/vsc34111/mambaforge/envs/bacphlip
