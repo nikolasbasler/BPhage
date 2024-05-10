@@ -28,8 +28,8 @@ zcat $repo_location/output/bphage_ALL_1kb_phages.fasta.gz \
     $repo_location/output/bphage_ALL_1kb_unclassified_viruses.fasta.gz | \
 seqkit grep -rf $repo_location/data/core_contigs.txt > vcontact3_only_core_input.fasta    
 
-conda activate vcontact3
 # Clustering
+conda activate vcontact3
 vcontact3 run --threads $threads --nucleotide vcontact3_only_core_input.fasta --output bphage_vcontact3_only_core \
     --pyrodigal-gv --enable-sensitive --db-domain "prokaryotes" \
     --db-version 223 --db-path $vcontact_db
