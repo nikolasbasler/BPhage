@@ -25,7 +25,7 @@ sed 1d one_per_order.tsv > temp.tsv
 while read line; do 
     contig=$(echo $line | cut -d" " -f1)
     order=$(echo $line | cut -d" " -f2)
-    seqkit grep -rp $contig prots_of_core_genomes.faa > $order.faa
+    seqkit grep -rp $contig prots_of_core_genomes.faa | cut -d' ' -f1 > $order.faa
 
     # ChatGPT code:
     # Extract sequences and IDs from the fasta file
