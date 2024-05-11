@@ -30,9 +30,11 @@ zcat $repo_location/output/bphage_ALL_1kb_phages.fasta.gz \
     > vcontact3_with_inpha.fasta    
 
 # Clustering
-vcontact3 run --threads $threads --nucleotide vcontact3_with_inpha.fasta --output bphage_vcontact3_with_inpha \
+vcontact3 run --threads $threads --nucleotide vcontact3_with_inpha.fasta --output bphage_vcontact3_with_inphared \
     --pyrodigal-gv --enable-sensitive --db-domain "prokaryotes" \
     --db-version 223 --db-path $vcontact_db
+
+cp -r bphage_vcontact3_with_inphared $repo_location/output/vcontact3
 
 
 echo "========================================================================"
