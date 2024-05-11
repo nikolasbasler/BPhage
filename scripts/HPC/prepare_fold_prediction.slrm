@@ -20,11 +20,39 @@ repo_location="$VSC_STAGING/BPhage"
 
 cd $repo_location/data/alphafold
 
+sed 1d one_per_order.tsv > temp.tsv
+
 while read line; do 
-    contig=$(echo $line | awk '{print $1}')
-    order=$(echo $line | awk '{print $2}')
+    contig=$(echo $line | cut -d" " -f1)
+    order=$(echo $line | cut -d" " -f2)
     seqkit grep -rp $contig prots_of_core_genomes.faa > $order.faa
-done < one_per_order.tsv | sed 1d
+
+    # ChatGPT code:
+    # Extract sequences and IDs from the fasta file
+    sequences=$(awk '/^>/ {printf("%s%s\t",(N>0?"\n":""),$0);N++;next;} {printf("%s",$0);} END {printf("\n");}' $order.faa)
+
+    # Initialize JSON array
+    json_array="["
+
+    # Loop through each sequence and format it into JSON
+    while IFS=$'\t' read -r id sequence; do
+        # Remove '>' from the id
+        id=$(echo "$id" | sed 's/^>//')
+        # Format the sequence into JSON
+        sequence_json="{\"name\": \"$id\", \"sequences\": [{\"proteinChain\": {\"sequence\": \"$sequence\"}}]}"
+        # Add the sequence JSON to the JSON array
+        json_array="$json_array$sequence_json,"
+    done <<< "$sequences"
+
+    # Remove the trailing comma and close the JSON array
+    json_array="${json_array%,}]"
+
+    # Print the final JSON
+    echo "$json_array" > $order.json
+done < temp.tsv
+rm temp.tsv
+
+
 
 echo "========================================================================"
 duration=$SECONDS
