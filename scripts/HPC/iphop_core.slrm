@@ -1,18 +1,18 @@
 #!/bin/bash -l
-#SBATCH --job-name="iphop_core_rapid"
-#SBATCH --cluster=wice
-#SBATCH --partition=batch_sapphirerapids
+#SBATCH --job-name="iphop_core"
+#SBATCH --cluster=genius
+#SBATCH --partition=bigmem
 #SBATCH --nodes=1
-#SBATCH --ntasks-per-node=96
-#SBATCH --mem-per-cpu=2500M
-#SBATCH --time=72:00:00
+#SBATCH --ntasks-per-node=36
+#SBATCH --mem-per-cpu=20000M
+#SBATCH --time=3:00:00
 #SBATCH --account=lp_jm_virome_group
 #SBATCH --output=slurm-%x_%j.out
 
 ###############################################################################
 
 # Submit (from output/slurm_log)
-# sbatch --export=ALL ../../scripts/HPC/iphop_core_rapid.slrm
+# sbatch --export=ALL ../../scripts/HPC/iphop_core.slrm
 
 source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 repo_location="$VSC_STAGING/BPhage"
@@ -25,11 +25,16 @@ cd $VSC_SCRATCH/BPhage/iphop
 zcat $repo_location/output/bphage_ALL_1kb_phages.fasta.gz \
     $repo_location/output/bphage_ALL_1kb_picobirna.fasta.gz \
     $repo_location/output/bphage_ALL_1kb_unclassified_viruses.fasta.gz | \
-seqkit grep -rf $repo_location/data/core_contigs.txt > iphop_core_input_rapid.fasta    
+seqkit grep -rf $repo_location/data/core_contigs.txt > iphop_input_core.fasta    
 
 conda activate iphop
-iphop predict --fa_file iphop_core_input_rapid.fasta --db_dir /staging/leuven/stg_00029/DB/iphop_db/Aug_2023_pub_rw \
-    --min_score 75 --num_threads 96 --out_dir iphop_core_input_rapid/
+iphop predict --fa_file iphop_input_core.fasta --db_dir /staging/leuven/stg_00029/DB/iphop_db/Aug_2023_pub_rw \
+    --min_score 75 --num_threads 36 --out_dir iphop_output_core/
+
+mkdir -p $repo_location/output/host_prediction/
+cp -r iphop_output_core $repo_location/output/host_prediction/
+
+rm iphop_input_core.fasta
 
 echo "========================================================================"
 duration=$SECONDS
