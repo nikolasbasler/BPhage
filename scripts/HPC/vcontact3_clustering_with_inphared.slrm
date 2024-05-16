@@ -26,7 +26,8 @@ cd $VSC_SCRATCH/BPhage/vcontact3/
 zcat $repo_location/output/bphage_ALL_1kb_phages.fasta.gz \
     $repo_location/output/bphage_ALL_1kb_picobirna.fasta.gz \
     $repo_location/output/bphage_ALL_1kb_unclassified_viruses.fasta.gz \
-    $VSC_SCRATCH/BPhage/additional_datasets/*.fa.gz \
+    $VSC_SCRATCH/BPhage/additional_datasets/ inphared_3Apr2024_genomes_excluding_refseq.fa.gz \
+    $repo_location/other_studies_filtered.fasta.gz \
     > vcontact3_with_inpha.fasta    
 
 # Clustering
