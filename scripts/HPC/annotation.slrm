@@ -35,6 +35,8 @@ seqkit grep -rp "NODE_A13_length_48065_cov_159.221680_NL_19100_aut_rec_d" ../*_c
 conda activate pharokka
 pharokka.py -i NODE_A1_length_147966.fasta -o NODE_A1_length_147966 -d /staging/leuven/stg_00029/DB/pharokka/pharokka_1.4.0 \
     -t $threads -m -g prodigal-gv --meta_hmm --dnaapler
+pharokka.py -i NODE_A13_length_48065.fasta.fasta -o NODE_A13_length_48065.fasta -d /staging/leuven/stg_00029/DB/pharokka/pharokka_1.4.0 \
+    -t $threads -m -g prodigal-gv --meta_hmm --dnaapler
 
 echo "========================================================================"
 duration=$SECONDS
