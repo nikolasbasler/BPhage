@@ -25,13 +25,13 @@ checkv end_to_end $repo_location/output/bphage_ALL_1kb_cross_95-85.fasta.gz \
     --remove_tmp -t 36 
 
 checkv end_to_end additional_datasets/other_studies.fa.gz \
-    checkv_other_studies -d /staging/leuven/stg_00029/DB/CheckV/checkv-db-v1.5 \
+    other_studies_checkv -d /staging/leuven/stg_00029/DB/CheckV/checkv-db-v1.5 \
     --remove_tmp -t 36 
 
 pigz --best -p 36 bphage_ALL_1kb_checkv/*
 cp -r bphage_ALL_1kb_checkv $repo_location/output/
 
-pigz --best -p 36 checkv_other_studies/*
+pigz --best -p 36 other_studies_checkv/*
 cp -r other_studies_checkv $repo_location/output/
 
 
