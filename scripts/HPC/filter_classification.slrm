@@ -45,7 +45,7 @@ zcat $repo_location/output/bphage_ALL_1kb_cross_95-85.fasta.gz | seqkit grep -f 
 # Filter data from additional studies
 cd $repo_location/output/other_studies_checkv
 zcat quality_summary.tsv.gz | awk '$10>=50 {print $1}' | sed 1d > other_studies_filtered_contigs
-seqkit grep -p other_studies_filtered_contigs $VSC_SCRATCH/additional_datasets/other_studies.fa.gz | \
+seqkit grep -rf other_studies_filtered_contigs $VSC_SCRATCH/BPhage/additional_datasets/other_studies.fa.gz | \
     gzip > $repo_location/output/other_studies_filtered.fasta.gz
 
 # Copy output
