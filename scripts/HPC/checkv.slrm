@@ -17,7 +17,6 @@ source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate viper_bphage
 repo_location="$VSC_STAGING/BPhage"
 
-
 mkdir -p $VSC_SCRATCH/BPhage/
 cd $VSC_SCRATCH/BPhage/
 
@@ -25,8 +24,16 @@ checkv end_to_end $repo_location/output/bphage_ALL_1kb_cross_95-85.fasta.gz \
     bphage_ALL_1kb_checkv -d /staging/leuven/stg_00029/DB/CheckV/checkv-db-v1.5 \
     --remove_tmp -t 36 
 
+checkv end_to_end additional_datasets/other_studies.fa.gz \
+    checkv_other_studies -d /staging/leuven/stg_00029/DB/CheckV/checkv-db-v1.5 \
+    --remove_tmp -t 36 
+
 pigz --best -p 36 bphage_ALL_1kb_checkv/*
 cp -r bphage_ALL_1kb_checkv $repo_location/output/
+
+pigz --best -p 36 checkv_other_studies/*
+cp -r checkv_other_studies $repo_location/output/
+
 
 echo "========================================================================"
 duration=$SECONDS
