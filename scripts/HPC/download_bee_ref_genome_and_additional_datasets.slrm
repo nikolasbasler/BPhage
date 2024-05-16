@@ -48,6 +48,9 @@ seqkit grep -rp "scaffold" all_phage.fasta | sed '/^>/s/$/_Busby/' >> Busby_at_a
 gzip Busby_at_al_MAGs.fa
 rm all_phage.fasta
 
+# Combine data from Deboutte et al, Bonilla-Rosso et al and Busby et al.
+cat BonillaRosso*.fa.gz Busby*.fa.gz Deboutte*.fa.gz > other_studies.fa.gz
+
 # INPHARED
 wget https://millardlab-inphared.s3.climb.ac.uk/3Apr2024_genomes_excluding_refseq.fa.gz
 mv 3Apr2024_genomes_excluding_refseq.fa.gz inphared_3Apr2024_genomes_excluding_refseq.fa.gz
