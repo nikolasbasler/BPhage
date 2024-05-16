@@ -19,8 +19,8 @@ conda activate viper_bphage
 repo_location="$VSC_STAGING/BPhage"
 threads=36
 
-mkdir -p $repo_location/output/core_consensuses/annotation
-cd $repo_location/output/core_consensuses/annotation
+mkdir -p $VSC_SCRATCH/BPhage/merged_mappings/annotation
+cd $VSC_SCRATCH/BPhage/merged_mappings/annotation
 
 # Extract 2 core sequences
 # novel_order_90_of_Caudoviricetes Herelleviridae (lytic), complete with DTR:
@@ -28,15 +28,19 @@ cd $repo_location/output/core_consensuses/annotation
 # novel_family_2_of_novel_order_149_of_Caudoviricetes (temperate), complete with DTR:
 # NODE_A13_length_48065_cov_159.221680_NL_19100_aut_rec_d
 
-
-seqkit grep -rp "NODE_A1_length_147966_cov_370.864946_BE_16560_spr_rec_d" ../*_consensus.fasta.gz > NODE_A1_length_147966.fasta
-seqkit grep -rp "NODE_A13_length_48065_cov_159.221680_NL_19100_aut_rec_d" ../*_consensus.fasta.gz > NODE_A13_length_48065.fasta
+seqkit grep -rp "NODE_A1_length_147966_cov_370.864946_BE_16560_spr_rec_d" $repo_location/output/core_consensuses/*_consensus.fasta.gz > NODE_A1_length_147966.fasta
+seqkit grep -rp "NODE_A13_length_48065_cov_159.221680_NL_19100_aut_rec_d" $repo_location/output/core_consensuses/*_consensus.fasta.gz > NODE_A13_length_48065.fasta
 
 conda activate pharokka
 pharokka.py -i NODE_A1_length_147966.fasta -o NODE_A1_length_147966 -d /staging/leuven/stg_00029/DB/pharokka/pharokka_1.4.0 \
     -t $threads -m -g prodigal-gv --meta_hmm --dnaapler
-pharokka.py -i NODE_A13_length_48065.fasta.fasta -o NODE_A13_length_48065.fasta -d /staging/leuven/stg_00029/DB/pharokka/pharokka_1.4.0 \
+pharokka.py -i NODE_A13_length_48065.fasta -o NODE_A13_length_48065 -d /staging/leuven/stg_00029/DB/pharokka/pharokka_1.4.0 \
     -t $threads -m -g prodigal-gv --meta_hmm --dnaapler
+
+# Copy files
+mkdir -p $repo_location/output/core_consensuses/annotation
+cp -r NODE_A1_length_147966 $repo_location/output/core_consensuses/annotation
+cp -r NODE_A13_length_48065 $repo_location/output/core_consensuses/annotation
 
 echo "========================================================================"
 duration=$SECONDS
