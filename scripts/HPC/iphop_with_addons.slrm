@@ -1,5 +1,5 @@
 #!/bin/bash -l
-#SBATCH --job-name="iphop"
+#SBATCH --job-name="iphop_with_addons"
 #SBATCH --cluster=genius
 #SBATCH --partition=bigmem
 #SBATCH --nodes=1
@@ -12,7 +12,7 @@
 ###############################################################################
 
 # Submit (from output/slurm_log)
-# sbatch --export=ALL ../../scripts/HPC/iphop.slrm
+# sbatch --export=ALL ../../scripts/HPC/iphop_with_addons.slrm
 
 source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate iphop
@@ -25,15 +25,11 @@ cd $VSC_SCRATCH/BPhage/iphop
 zcat $repo_location/output/bphage_ALL_1kb_phages.fasta.gz \
     $repo_location/output/bphage_ALL_1kb_picobirna.fasta.gz \
     $repo_location/output/bphage_ALL_1kb_unclassified_viruses.fasta.gz \
-    > iphop_input.fasta
+    $repo_location/other_studies_filtered.fasta.gz \
+    > iphop_with_addons_input.fasta
 
-    # $VSC_SCRATCH/BPhage/additional_datasets/BonillaRosso*.fa.gz \
-    # $VSC_SCRATCH/BPhage/additional_datasets/Busby*.fa.gz \
-    # $VSC_SCRATCH/BPhage/additional_datasets/Deboutte*.fa.gz \
-    # $VSC_SCRATCH/BPhage/additional_datasets/Picobirna_Refseq_RdRP*.fa.gz \
-
-iphop predict --fa_file iphop_input.fasta --db_dir /staging/leuven/stg_00029/DB/iphop_db/Aug_2023_pub_rw \
-    --min_score 75 --num_threads 36 --out_dir iphop_output_bphage/
+iphop predict --fa_file iphop_with_addons_input.fasta --db_dir /staging/leuven/stg_00029/DB/iphop_db/Aug_2023_pub_rw \
+    --min_score 75 --num_threads 36 --out_dir iphop_output_bphage_with_addons/
 
 
 echo "========================================================================"
