@@ -44,7 +44,7 @@ samtools index -@ $threads ${row}.all.guts.dedup.bam
 # Generating consensus
 echo "Generating consensus sequences for $row"
 samtools consensus -@ $threads --mode "simple" -a --min-depth 2 --call-fract 0.66 \
-    ${row}.all.guts.dedup.bam | sed "s/NODE/${row}_NODE/g" | gzip > ${row}_consensus.fasta.gz
+    ${row}.all.guts.dedup.bam | sed "s/NODE/${row}_NODE/g" | cut -d"_" -f1-7 | gzip > ${row}_consensus.fasta.gz # Biopython in pharokka is complaining about too long IDs, hence the cutting
 
 # No N filter because if I can get a TerL, then it doesn't matter how many Ns there were in the consensus.
 # python3 $repo_location/scripts/HPC/remove_seqs_with_Ns_from_fasta.py temp.unfilt.${row}_consensus.fasta 0.1 | \
