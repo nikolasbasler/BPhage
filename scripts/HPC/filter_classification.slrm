@@ -42,6 +42,12 @@ zcat $repo_location/output/bphage_ALL_1kb_cross_95-85.fasta.gz | seqkit grep -f 
 cut -d',' -f1 bphage_ALL_1kb_picobirna.csv | sed 1d > temp.picobirna.contigs
 zcat $repo_location/output/bphage_ALL_1kb_cross_95-85.fasta.gz | seqkit grep -f temp.picobirna.contigs > bphage_ALL_1kb_picobirna.fasta
 
+# Filter data from additional studies
+cd $repo_location/output/other_studies_checkv
+zcat quality_summary.tsv.gz | awk '$10>=50 {print $1}' | sed 1d > other_studies_filtered_contigs
+seqkit grep -p other_studies_filtered_contigs $VSC_SCRATCH/additional_datasets/other_studies.fa.gz | \
+    gzip > $repo_location/output/other_studies_filtered.fasta.gz
+
 # Copy output
 gzip *fasta
 cp *.fasta.gz $repo_location/output/
