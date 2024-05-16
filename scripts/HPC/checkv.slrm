@@ -32,7 +32,7 @@ pigz --best -p 36 bphage_ALL_1kb_checkv/*
 cp -r bphage_ALL_1kb_checkv $repo_location/output/
 
 pigz --best -p 36 checkv_other_studies/*
-cp -r checkv_other_studies $repo_location/output/
+cp -r other_studies_checkv $repo_location/output/
 
 
 echo "========================================================================"
