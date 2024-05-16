@@ -18,41 +18,45 @@ source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate viper_bphage
 repo_location="$VSC_STAGING/BPhage"
 
-cd $repo_location/data/alphafold
+mkdir -p $repo_location/output/alphafold
+cd $repo_location/output/alphafold
 
-sed 1d one_per_order.tsv > temp.tsv
+seqkit grep -rf $repo_location/data/core_contigs.txt \
+    $repo_location/output/bphage_ALL_1kb_genomad/bphage_ALL_1kb_cross_95-85_summary/bphage_ALL_1kb_cross_95-85_virus_proteins.faa.gz \
+    > prots_of_core_genomes.faa 
+
+sed 1d $repo_location/data/core_one_genome_per_order.tsv > temp.tsv
 
 while read line; do 
     contig=$(echo $line | cut -d" " -f1)
     order=$(echo $line | cut -d" " -f2)
-    seqkit grep -rp $contig prots_of_core_genomes.faa | cut -d' ' -f1 > $order.faa
-
+    seqkit grep -rp $contig prots_of_core_genomes.faa | cut -d' ' -f1 | \
+        cut -d"_" -f 1-4,7- > $order.faa
+#         awk '/^>/{header=$0; sub(/^.*_/,"",header); print ">"header; next} {print}' | \
     # ChatGPT code:
-    # Extract sequences and IDs from the fasta file
     sequences=$(awk '/^>/ {printf("%s%s\t",(N>0?"\n":""),$0);N++;next;} {printf("%s",$0);} END {printf("\n");}' $order.faa)
 
-    # Initialize JSON array
-    json_array="["
+    # Initialize an array to store sequence JSON objects
+    json_array=()
 
     # Loop through each sequence and format it into JSON
     while IFS=$'\t' read -r id sequence; do
         # Remove '>' from the id
         id=$(echo "$id" | sed 's/^>//')
-        # Format the sequence into JSON
-        sequence_json="{\"name\": \"$id\", \"sequences\": [{\"proteinChain\": {\"sequence\": \"$sequence\"}}]}"
-        # Add the sequence JSON to the JSON array
-        json_array="$json_array$sequence_json,"
+        # Create JSON object for the sequence
+        sequence_json=$(jq -n --arg id "$id" --arg seq "$sequence" '{name: $id, modelSeeds: [], sequences: [{proteinChain: {sequence: $seq, count: 1}}]}')
+        # Add the sequence JSON object to the array
+        json_array+=("$sequence_json")
     done <<< "$sequences"
 
-    # Remove the trailing comma and close the JSON array
-    json_array="${json_array%,}]"
+    # Combine all JSON objects into a JSON array
+    json_output=$(printf "%s\n" "${json_array[@]}" | jq -s '.')
 
-    # Print the final JSON
-    echo "$json_array" > $order.json
+    # Save the formatted JSON to a file
+    echo "$json_output" > $order.json
+
 done < temp.tsv
 rm temp.tsv
-
-
 
 echo "========================================================================"
 duration=$SECONDS
