@@ -31,6 +31,8 @@ zcat $repo_location/output/bphage_ALL_1kb_phages.fasta.gz \
 iphop predict --fa_file iphop_with_addons_input.fasta --db_dir /staging/leuven/stg_00029/DB/iphop_db/Aug_2023_pub_rw \
     --min_score 75 --num_threads 36 --out_dir iphop_output_bphage_with_addons/
 
+mkdir -p $repo_location/output/host_prediction/
+cp -r iphop_output_bphage_with_addons $repo_location/output/host_prediction/
 
 echo "========================================================================"
 duration=$SECONDS
