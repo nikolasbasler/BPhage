@@ -19,8 +19,8 @@ conda activate pharokka
 repo_location="$VSC_STAGING/BPhage"
 threads=36
 
-mkdir -p $VSC_SCRATCH/BPhage/merged_mappings/annotation
-cd $VSC_SCRATCH/BPhage/merged_mappings/annotation
+mkdir -p $VSC_SCRATCH/BPhage/annotation
+cd $VSC_SCRATCH/BPhage/annotation
 
 # Gather input fasta from own assembly and additional datasets
 zcat $repo_location/output/bphage_ALL_1kb_phages.fasta.gz \

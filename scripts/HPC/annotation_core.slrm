@@ -19,8 +19,8 @@ conda activate viper_bphage
 repo_location="$VSC_STAGING/BPhage"
 threads=36
 
-mkdir -p $VSC_SCRATCH/BPhage/merged_mappings/annotation
-cd $VSC_SCRATCH/BPhage/merged_mappings/annotation
+mkdir -p $VSC_SCRATCH/BPhage/annotation
+cd $VSC_SCRATCH/BPhage/annotation
 
 # Extract 2 core sequences
 # novel_order_90_of_Caudoviricetes Herelleviridae (lytic), complete with DTR:
