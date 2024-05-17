@@ -46,10 +46,17 @@ echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 pharokka_multiplotter.py -g core_contigs/core_contigs.fasta.gbk  -o plots_core_contigs \
     --truncate 35
 
+# Get list of genomes having a "moron" gene
+grep -E 'LOCUS|function="moron"' core_contigs/core_contigs.fasta.gbk |
+awk '
+    /LOCUS/ { current_genome = $2 }
+    /function="moron"/ { if (current_genome) { genomes_with_moron[current_genome]++ } }
+    END { for (genome in genomes_with_moron) { print genome, "\t", genomes_with_moron[genome] } }
+' > core_contigs/contigs_with_moron.tsv
+
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo "++++++++++++++++  Starting pharokka on consensus seqs ++++++++++++++"
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
-
 
 pharokka.py -i NODE_A1_length_147966.fasta -o NODE_A1_length_147966 -d /staging/leuven/stg_00029/DB/pharokka/pharokka_1.4.0 \
     -t $threads -m -g prodigal-gv --meta_hmm --dnaapler -p NODE_A1_length_147966
