@@ -5,7 +5,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=36
 #SBATCH --mem-per-cpu=20000M
-#SBATCH --time=12:00:00
+#SBATCH --time=72:00:00
 #SBATCH --account=lp_jm_virome_group
 #SBATCH --output=slurm-%x_%j.out
 
@@ -25,7 +25,7 @@ cd $VSC_SCRATCH/BPhage/iphop
 zcat $repo_location/output/bphage_ALL_1kb_phages.fasta.gz \
     $repo_location/output/bphage_ALL_1kb_picobirna.fasta.gz \
     $repo_location/output/bphage_ALL_1kb_unclassified_viruses.fasta.gz \
-    $repo_location/other_studies_filtered.fasta.gz \
+    $repo_location/output/other_studies_filtered.fasta.gz \
     > iphop_with_addons_input.fasta
 
 iphop predict --fa_file iphop_with_addons_input.fasta --db_dir /staging/leuven/stg_00029/DB/iphop_db/Aug_2023_pub_rw \
