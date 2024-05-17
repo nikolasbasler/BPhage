@@ -1,5 +1,5 @@
 #!/bin/bash -l
-#SBATCH --job-name="annotation_core"
+#SBATCH --job-name="annotation_pharokka_core"
 #SBATCH --cluster=genius
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=36
@@ -11,16 +11,15 @@
 ###############################################################################
 
 # Submit (from output/slurm_log)
-# sbatch --export=ALL ../../scripts/HPC/annotation_core.slrm
-
+# sbatch --export=ALL ../../scripts/HPC/annotation_pharokka_core.slrm
 
 source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate viper_bphage
 repo_location="$VSC_STAGING/BPhage"
 threads=36
 
-mkdir -p $VSC_SCRATCH/BPhage/annotation
-cd $VSC_SCRATCH/BPhage/annotation
+mkdir -p $VSC_SCRATCH/BPhage/annotation/pharokka
+cd $VSC_SCRATCH/BPhage/annotation/pharokka
 
 # Extract 2 core sequences
 # novel_order_90_of_Caudoviricetes Herelleviridae (lytic), complete with DTR:
@@ -30,21 +29,21 @@ cd $VSC_SCRATCH/BPhage/annotation
 
 seqkit grep -rp "NODE_A1_length_147966" $repo_location/output/core_consensuses/*_consensus.fasta.gz > NODE_A1_length_147966.fasta
 seqkit grep -rp "NODE_A13_length_48065" $repo_location/output/core_consensuses/*_consensus.fasta.gz > NODE_A13_length_48065.fasta
-seqkit grep -rf $repo_location/data/core_contigs.txt $repo_location/output/bphage_ALL_1kb_phages.fasta.gz | cut -d"_" -f1-4 > mapping_refs.fasta
+seqkit grep -rf $repo_location/data/core_contigs.txt $repo_location/output/bphage_ALL_1kb_phages.fasta.gz | cut -d"_" -f1-4 > core_contigs.fasta
 
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo "++++++++++++++++  Starting pharokka on all core contigs ++++++++++++"
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
 conda activate pharokka
-pharokka.py -i mapping_refs.fasta -o mapping_refs -d /staging/leuven/stg_00029/DB/pharokka/pharokka_1.4.0 \
-    -t $threads -m -g prodigal-gv --meta_hmm --dnaapler -p mapping_refs.fasta
+pharokka.py -i core_contigs.fasta -o core_contigs -d /staging/leuven/stg_00029/DB/pharokka/pharokka_1.4.0 \
+    -t $threads -m -g prodigal-gv --meta_hmm --dnaapler -p core_contigs.fasta
 
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo "+++++++++++++++  Making genome maps of all core contigs ++++++++++++"
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
-pharokka_multiplotter.py -g mapping_refs/mapping_refs.fasta.gbk  -o plots_mapping_refs_test \
+pharokka_multiplotter.py -g core_contigs/core_contigs.fasta.gbk  -o plots_core_contigs \
     --truncate 35
 
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
@@ -58,11 +57,11 @@ pharokka.py -i NODE_A13_length_48065.fasta -o NODE_A13_length_48065 -d /staging/
     -t $threads -m -g prodigal-gv --meta_hmm --dnaapler -p NODE_A13_length_48065
 
 # Copy files
-mkdir -p $repo_location/output/core_consensuses/pharokka/plots_mapping_refs
-cp -r mapping_refs $repo_location/output/core_consensuses/pharokka
-cp plots_mapping_refs/*png $repo_location/output/core_consensuses/pharokka/plots_mapping_refs
-cp -r NODE_A1_length_147966 $repo_location/output/core_consensuses/pharokka
-cp -r NODE_A13_length_48065 $repo_location/output/core_consensuses/pharokka
+mkdir -p $repo_location/output/annotation/pharokka/plots_core_contigs
+cp -r core_contigs $repo_location/output/annotation/pharokka
+cp plots_core_contigs/*png $repo_location/output/annotation/pharokka/plots_core_contigs
+cp -r NODE_A1_length_147966 $repo_location/output/annotation/pharokka
+cp -r NODE_A13_length_48065 $repo_location/output/annotation/pharokka
 
 echo "========================================================================"
 duration=$SECONDS

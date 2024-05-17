@@ -1,5 +1,5 @@
 #!/bin/bash -l
-#SBATCH --job-name="annotation_bphage_and_others"
+#SBATCH --job-name="annotation_pharokka_bphage_and_others"
 #SBATCH --cluster=genius
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=36
@@ -11,30 +11,29 @@
 ###############################################################################
 
 # Submit (from output/slurm_log)
-# sbatch --export=ALL ../../scripts/HPC/annotation_bphage_and_others.slrm
-
+# sbatch --export=ALL ../../scripts/HPC/annotation_pharokka_bphage_and_others.slrm
 
 source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate pharokka
 repo_location="$VSC_STAGING/BPhage"
 threads=36
 
-mkdir -p $VSC_SCRATCH/BPhage/annotation
-cd $VSC_SCRATCH/BPhage/annotation
+mkdir -p $VSC_SCRATCH/BPhage/annotation/pharokka
+cd $VSC_SCRATCH/BPhage/annotation/pharokka
 
 # Gather input fasta from own assembly and additional datasets
 zcat $repo_location/output/bphage_ALL_1kb_phages.fasta.gz \
     $repo_location/output/bphage_ALL_1kb_picobirna.fasta.gz \
     $repo_location/output/bphage_ALL_1kb_unclassified_viruses.fasta.gz \
-    $repo_location/other_studies_filtered.fasta.gz \
+    $repo_location/output/other_studies_filtered.fasta.gz \
     > bpgage_and_others.fasta
 
 pharokka.py -i bpgage_and_others.fasta -o bpgage_and_others -d /staging/leuven/stg_00029/DB/pharokka/pharokka_1.4.0 \
     -t $threads -m -g prodigal-gv --meta_hmm --dnaapler -p bpgage_and_others
 
 # Copy files
-mkdir -p $repo_location/output/core_consensuses/pharokka/
-cp -r bpgage_and_others $repo_location/output/core_consensuses/pharokka
+mkdir -p $repo_location/output/pharokka/
+cp -r bpgage_and_others $repo_location/output/annotation/pharokka
 
 echo "========================================================================"
 duration=$SECONDS
