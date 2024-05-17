@@ -1,0 +1,76 @@
+#!/bin/bash
+#SBATCH --job-name="terL_MSA_and_tree"
+#SBATCH --cluster=genius
+#SBATCH --time=72:00:00
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=20
+#SBATCH  --mem-per-cpu=4G
+#SBATCH --account=lp_jm_virome_group
+#SBATCH --output=slurm-%x_%j.out 
+
+######################################################################
+
+# sbatch --export=ALL ../../scripts/HPC/terL_MSA_and_tree.slrm 
+
+source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
+conda activate phylogeo 
+
+repo_location="$VSC_STAGING/BPhage"
+
+mkdir -p $VSC_SCRATCH/BPhage/terL_tree
+cd $VSC_SCRATCH/BPhage/terL_tree
+
+#################################################################
+
+##### NODE_A1_length_147966
+## Filter terL seqs for 90% completeness
+python3 $repo_location/scripts/HPC/remove_seqs_with_Xs_from_fasta.py \
+    $repo_location/output/annotation/pharokka/NODE_A1_length_147966/terL.faa 0.1 \
+    > NODE_A1_length_147966_terL_filt.faa
+
+# Make MSA 
+duration=$SECONDS
+printf 'MUSCLE on NODE_A1_length_147966 starting after %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))
+export OMP_NUM_THREADS=20
+muscle -threads 20 -align NODE_A1_length_147966_terL_filt.faa -output NODE_A1_length_147966_terL.MSA.fasta
+
+# Make NJ tree
+# duration=$SECONDS
+# printf 'FastTreeMP of NODE_A1_length_147966 starting after %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))
+# FastTreeMP -nt NODE_A1_length_147966_terL.MSA.fasta > NODE_A1_length_147966_terL.NJ.tree
+
+# Make ML tree
+duration=$SECONDS
+printf 'iqtree starting of NODE_A1_length_147966 after %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))
+mkdir -p iqtree_ML
+iqtree -s NODE_A1_length_147966_terL.MSA.fasta -m TEST -b 1000 -T 20 --prefix iqtree_ML/NODE_A1_length_147966
+
+
+#################################################################
+
+##### NODE_A13_length_48065
+## Filter terL seqs for 90% completeness
+python3 $repo_location/scripts/HPC/remove_seqs_with_Xs_from_fasta.py \
+    $repo_location/output/annotation/pharokka/NODE_A13_length_48065/terL.faa 0.1 \
+    > NODE_A13_length_48065_terL_filt.faa
+
+# Make MSA 
+duration=$SECONDS
+printf 'MUSCLE on NODE_A13_length_48065 starting after %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))
+export OMP_NUM_THREADS=20
+muscle -threads 20 -align NODE_A13_length_48065_terL_filt.faa -output NODE_A13_length_48065_terL.MSA.fasta
+
+# Make NJ tree
+# duration=$SECONDS
+# printf 'FastTreeMP of NODE_A13_length_48065 starting after %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))
+# FastTreeMP -nt NODE_A13_length_48065_terL.MSA.fasta > NODE_A13_length_48065_terL.NJ.tree
+
+# Make ML tree
+duration=$SECONDS
+printf 'iqtree starting of NODE_A13_length_48065 after %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))
+mkdir -p iqtree_ML
+iqtree -s NODE_A13_length_48065_terL.MSA.fasta -m TEST -b 1000 -T 20 --prefix iqtree_ML/NODE_A13_length_48065
+
+echo "========================================================================"
+duration=$SECONDS
+printf 'Job finished in %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))
