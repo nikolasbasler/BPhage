@@ -45,6 +45,10 @@ printf 'iqtree starting of NODE_A1_length_147966 after %02d:%02d:%02d\n' $((dura
 mkdir -p iqtree_ML
 iqtree -s NODE_A1_length_147966_terL.MSA.fasta -m TEST -b 1000 -T 20 --prefix iqtree_ML/NODE_A1_length_147966
 
+pigz -p 20 --best iqtree_ML/NODE_A1_length_147966*
+pigz -p 20 --best NODE_A1_length_147966*
+
+echo "NODE_A1_length_147966 done."
 
 #################################################################
 
@@ -70,6 +74,15 @@ duration=$SECONDS
 printf 'iqtree starting of NODE_A13_length_48065 after %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))
 mkdir -p iqtree_ML
 iqtree -s NODE_A13_length_48065_terL.MSA.fasta -m TEST -b 1000 -T 20 --prefix iqtree_ML/NODE_A13_length_48065
+
+pigz -p 20 --best iqtree_ML/NODE_A13_length_48065*
+pigz -p 20 --best NODE_A13_length_48065*
+
+echo "NODE_A13_length_48065 done."
+
+# Copy files to staging
+mkdir -p $repo_location/output/core_consensuses/terL_trees
+cp -r * $repo_location/output/core_consensuses/terL_trees
 
 echo "========================================================================"
 duration=$SECONDS
