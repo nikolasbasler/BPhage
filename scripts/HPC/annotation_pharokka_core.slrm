@@ -37,7 +37,7 @@ echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
 conda activate pharokka
 pharokka.py -i core_contigs.fasta -o core_contigs -d /staging/leuven/stg_00029/DB/pharokka/pharokka_1.4.0 \
-    -t $threads -m -g prodigal-gv --meta_hmm --dnaapler -p core_contigs.fasta
+    -t $threads -m -g prodigal-gv --meta_hmm -p core_contigs.fasta
 
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 echo "+++++++++++++++  Making genome maps of all core contigs ++++++++++++"
@@ -59,9 +59,9 @@ echo "++++++++++++++++  Starting pharokka on consensus seqs ++++++++++++++"
 echo "++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++"
 
 pharokka.py -i NODE_A1_length_147966.fasta -o NODE_A1_length_147966 -d /staging/leuven/stg_00029/DB/pharokka/pharokka_1.4.0 \
-    -t $threads -m -g prodigal-gv --meta_hmm --dnaapler -p NODE_A1_length_147966
+    -t $threads -m -g prodigal-gv --meta_hmm -p NODE_A1_length_147966
 pharokka.py -i NODE_A13_length_48065.fasta -o NODE_A13_length_48065 -d /staging/leuven/stg_00029/DB/pharokka/pharokka_1.4.0 \
-    -t $threads -m -g prodigal-gv --meta_hmm --dnaapler -p NODE_A13_length_48065
+    -t $threads -m -g prodigal-gv --meta_hmm -p NODE_A13_length_48065
 
 # Copy files
 mkdir -p $repo_location/output/annotation/pharokka/plots_core_contigs

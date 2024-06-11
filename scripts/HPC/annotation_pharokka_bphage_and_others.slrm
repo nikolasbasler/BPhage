@@ -29,7 +29,7 @@ zcat $repo_location/output/bphage_ALL_1kb_phages.fasta.gz \
     > bpgage_and_others.fasta
 
 pharokka.py -i bpgage_and_others.fasta -o bpgage_and_others -d /staging/leuven/stg_00029/DB/pharokka/pharokka_1.4.0 \
-    -t $threads -m -g prodigal-gv --meta_hmm --dnaapler -p bpgage_and_others
+    -t $threads -m -g prodigal-gv --meta_hmm -p bpgage_and_others
 
 # Copy files
 mkdir -p $repo_location/output/pharokka/
