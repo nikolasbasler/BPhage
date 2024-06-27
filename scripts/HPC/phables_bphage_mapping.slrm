@@ -44,9 +44,9 @@ samtools index -@ $threads ${line}.bphage.bam
 samtools coverage ${line}.bphage.bam | pigz -c -p 12 > ${line}.bphage.coverage.gz
 
 # Copy restults to staging
-mkdir -p $repo_location/output/mapped_phages
-cp ${line}.bphage.bam* $repo_location/output/mapped_phages
-cp ${line}.bphage.coverage.gz $repo_location/output/mapped_phages
+mkdir -p $repo_location/output/phables_mapped_phages
+cp ${line}.bphage.bam* $repo_location/output/phables_mapped_phages
+cp ${line}.bphage.coverage.gz $repo_location/output/phables_mapped_phages
 
 # Clean up
 rm ${line}.R.sort.bam 
