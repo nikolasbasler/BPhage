@@ -14,7 +14,8 @@
 # sbatch --export=ALL ../../scripts/HPC/vcontact3_clustering_with_inphared.slrm
 
 source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
-conda activate vcontact3
+# conda activate vcontact3
+conda activate vcontact3_38
 repo_location="$VSC_STAGING/BPhage"
 vcontact_db="/staging/leuven/stg_00029/DB/vcontact3"
 threads=36
@@ -31,12 +32,11 @@ zcat $repo_location/output/bphage_ALL_1kb_phages.fasta.gz \
     > vcontact3_with_inpha.fasta    
 
 # Clustering
-vcontact3 run --threads $threads --nucleotide vcontact3_with_inpha.fasta --output bphage_vcontact3_with_inphared \
+vcontact3 run --threads $threads --nucleotide vcontact3_with_inpha.fasta --output bphage_vcontact3_38_with_inphared \
     --pyrodigal-gv --enable-sensitive --db-domain "prokaryotes" \
     --db-version 223 --db-path $vcontact_db
 
-cp -r bphage_vcontact3_with_inphared $repo_location/output/vcontact3
-
+cp -r bphage_vcontact3_38_with_inphared $repo_location/output/vcontact3
 
 echo "========================================================================"
 duration=$SECONDS
