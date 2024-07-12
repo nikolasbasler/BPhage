@@ -4,7 +4,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=36
 #SBATCH --mem-per-cpu=4G
-#SBATCH --time=4:00:00
+#SBATCH --time=8:00:00
 #SBATCH --account=lp_jm_virome_group
 #SBATCH --output=slurm-%x_%j.out
 
@@ -24,10 +24,18 @@ genomad end-to-end --disable-find-proviruses --cleanup --enable-score-calibratio
 	$repo_location/output/bphage_ALL_1kb_cross_95-85.fasta.gz \
 	bphage_ALL_1kb_genomad /staging/leuven/stg_00029/DB/genomad/genomad_db_1.7
 
+genomad end-to-end --cleanup --enable-score-calibration -t 4 \
+	additional_datasets/other_studies.fa.gz \
+	other_studies_genomad /staging/leuven/stg_00029/DB/genomad/genomad_db_1.7
+
 pigz --best -p 12 bphage_ALL_1kb_genomad/*/*.faa
 pigz --best -p 12 bphage_ALL_1kb_genomad/*/*.tsv
 
+pigz --best -p 12 other_studies_genomad/*/*.faa
+pigz --best -p 12 other_studies_genomad/*/*.tsv
+
 cp -r bphage_ALL_1kb_genomad $repo_location/output/
+cp -r other_studies_genomad $repo_location/output/
 
 echo "========================================================================"
 duration=$SECONDS
