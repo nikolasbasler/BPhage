@@ -1,0 +1,12 @@
+name: phold
+channels:
+  - bioconda
+  - defaults
+  - conda-forge
+  - nodefaults
+dependencies:
+  - phold=0.2.0
+  - ca-certificates
+  - certifi
+  - openssl
+prefix: /data/leuven/341/vsc34111/mambaforge/envs/phold
