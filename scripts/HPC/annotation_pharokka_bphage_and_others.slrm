@@ -25,7 +25,8 @@ cd $VSC_SCRATCH/BPhage/annotation/pharokka
 zcat $repo_location/output/bphage_ALL_1kb_phages.fasta.gz \
     $repo_location/output/bphage_ALL_1kb_picobirna.fasta.gz \
     $repo_location/output/bphage_ALL_1kb_unclassified_viruses.fasta.gz \
-    $repo_location/output/other_studies_filtered.fasta.gz \
+    $repo_location/output/other_studies_phages.fasta.gz \
+    $repo_location/output/other_studies_unclassified_viruses.fasta.gz \
     > bpgage_and_others.fasta
 
 pharokka.py -i bpgage_and_others.fasta -o bpgage_and_others -d /staging/leuven/stg_00029/DB/pharokka/pharokka_1.4.0 \
