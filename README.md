@@ -46,8 +46,9 @@
         - ICTV's VMR table: `data/VMR_19-250422_MSL37.xlsx` (downloaded from https://ictv.global/vmr on 14 March 2024)
         - Python script to do the actual filtering: `scripts/HPC/filter_classification.py` (called by the slrum script)
     - Output: 
-        - Fasta file and merged genomad and checkv table with >= 50%-complete phages: `output/bphage_ALL_1kb_phages`
-        - Fasta file and merged genomad and checkv table with >= 50%-complete unclassified viruses (containing contigs that are either "Unclassified" or classified only as "Viruses"): `output/bphage_ALL_1kb_unclassified_viruses`
+        - Fasta file and merged genomad and checkv table with >= 50%-complete phages, >= 50%-complete unclassified viruses (containing contigs that are either "Unclassified" or classified only as "Viruses") and Picobirnaviridae (no completeness threshold) for own dataset and for the additional datasets (Deboutte, Bonilla, Busby):
+            - `output/bphage_ALL_1kb_phages.*`, `output/bphage_ALL_1kb_unclassified_viruses.*`, `output/bphage_picobirna.*`
+            - `output/other_studies_phages.*`, `output/other_studies_unclassified_viruses.*`, `other_studies_picobirna.*` (the latter is empty because there are not Picobirnas in the additional datasets)
 
 ### Mapping
 - Prepare mapping: `scripts/HPC/prepare_mapping.slrm`
@@ -72,10 +73,8 @@
     - Output:
         - Separate tables for mapped reads, horizontal coverage and mean depth (samples in columns, contigs in rows) and a table with all contig lengths in `output/mapping_stats`
 
-### Neyfach clustering
-- `scripts/HPC/neyfach_clustering.slrm`
-    - Requires:
-        - `scripts/HPC/amino_acid_identity.py`
-        - `scripts/HPC/amino_acid_identity.py`
-        - Phage contigs in `output/`
-        - Additional datasets in `$VSC_SCRATCH/BPhage/additional_datasets/` downloaded in `scrtips/HPC/download_bee_ref_genome_and_additional_datasets.slrm`
+### Clustering
+- vConTACT3: `scripts/HPC/vcontact3_clustering_with_inphared.slrm`
+    - Requires: Phage, picobirna and unclassified bphage contigs: `output/bphage_ALL_1kb_phages.fasta.gz`, `bphage_ALL_1kb_picobirna.fasta.gz`, `bphage_ALL_1kb_unclassified_viruses.fasta.gz`
+
+### Annotation
