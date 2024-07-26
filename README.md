@@ -75,6 +75,23 @@
 
 ### Clustering
 - vConTACT3: `scripts/HPC/vcontact3_clustering_with_inphared.slrm`
-    - Requires: Phage, picobirna and unclassified bphage contigs: `output/bphage_ALL_1kb_phages.fasta.gz`, `bphage_ALL_1kb_picobirna.fasta.gz`, `bphage_ALL_1kb_unclassified_viruses.fasta.gz`
+    - Requires: 
+        - Phage, picobirna and unclassified bphage contigs: `output/bphage_ALL_1kb_phages.fasta.gz`, `bphage_ALL_1kb_picobirna.fasta.gz`, `bphage_ALL_1kb_unclassified_viruses.fasta.gz`
+        - Phage and unclassified contigs from other studies: `output/other_studies_phages.fasta.gz`, `output/other_studies_unclassified_viruses.fasta.gz`
+        - INPHARED dataset: `$VSC_SCRATCH/BPhage/additional_datasets/inphared_3Apr2024_genomes_excluding_refseq.fa.gz`
+    - Output: `$repo_location/output/vcontact3/bphage_vcontact3_b38_with_inphared`
 
 ### Annotation
+- Pharokka: `annotation_pharokka_bphage_and_others.slrm`
+    - Requires:
+        - Phage, picobirna and unclassified bphage contigs: `output/bphage_ALL_1kb_phages.fasta.gz`, `bphage_ALL_1kb_picobirna.fasta.gz`, `bphage_ALL_1kb_unclassified_viruses.fasta.gz`
+        - Phage and unclassified contigs from other studies: `output/other_studies_phages.fasta.gz`, `output/other_studies_unclassified_viruses.fasta.gz`
+    - Output: `output/output/annotation/pharokka/bpgage_and_others`
+- Collabfold: Done by collaborator George Bouras.
+    - Requires: Pharokka's prodigal-gv output: `output/annotation/pharokka/bpgage_and_others/prodigal-gv.faa` (in communication with George the file was named `bpgage_and_others_prodigal-gv.faa`)
+    - Output: Protein structures (Alpha fold 2) of all identified proteins from bphage and other studies. Provided by George, placed into `output/annotation/phold_colabfold_structures`
+- Phold: `annotation_phold.slrm`
+    - Requires: 
+        - Pharokka's prodigal-gv output: `output/annotation/pharokka/bpgage_and_others/prodigal-gv.faa`
+        - Predicted structures at `output/annotation/phold_colabfold_structures/basler_output_renamed/renamed_pdbs`
+    - Output: 
