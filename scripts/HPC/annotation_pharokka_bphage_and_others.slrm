@@ -33,7 +33,7 @@ pharokka.py -i bpgage_and_others.fasta -o bpgage_and_others -d /staging/leuven/s
     -t $threads -m -g prodigal-gv --meta_hmm -p bpgage_and_others
 
 # Copy files
-mkdir -p $repo_location/output/pharokka/
+mkdir -p $repo_location/output/annotation/pharokka/
 cp -r bpgage_and_others $repo_location/output/annotation/pharokka
 
 echo "========================================================================"
