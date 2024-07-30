@@ -21,7 +21,7 @@ threads=36
 # Rename George's gbk files so they match the pharokka output. Filenames exceeding 55 characters are problematic for phold.
 # cd $repo_location/output/annotation/phold_colabfold_structures/basler_output_renamed/renamed_pdbs/
 # for file in NODE*; do 
-#     shortened_name=$(echo $file | awk -F "_" '{OFS="_"; print $1, $2, $7, $8, $9, $10, $11, $12, $13}')
+#     shortened_name=$(echo $file | awk -F "_" '{OFS="_"; print $1, $2, $7, $8, $9, $10, $11, $12, $13}' | sed 's/__//')
 #     mv $file $shortened_name
 # done
 

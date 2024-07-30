@@ -31,8 +31,8 @@ zcat $repo_location/output/bphage_ALL_1kb_phages.fasta.gz \
 
 # The IDs are too long for phold to handle. I rename them here already so the output is compatible with phold.
 grep ">" temp.bphage_and_others.fasta > temp.contig.names.original
-awk '/NODE/ {split($0, a, "_"); print a[1] "_" a[2] "_" a[7] "_" a[8] "_" a[9] "_" a[10] "_" a[11]; next} {print $1}' temp.bphage_and_others.fasta \
-    > bphage_and_others.fasta
+awk '/NODE/ {split($0, a, "_"); print a[1] "_" a[2] "_" a[7] "_" a[8] "_" a[9] "_" a[10] "_" a[11]; next} {print $1}' temp.bphage_and_others.fasta | \
+    sed 's/__//' > bphage_and_others.fasta
 grep ">" bphage_and_others.fasta > temp.contig.names.shortened
 paste temp.contig.names.original temp.contig.names.shortened > contig.names.shortening.scheme
 
