@@ -23,8 +23,11 @@ threads=36
 mkdir -p $VSC_SCRATCH/BPhage/annotation/phold
 cd $VSC_SCRATCH/BPhage/annotation/phold
 
-phold predict --input $repo_location/output/annotation/pharokka_bpgage_and_others/bpgage_and_others.gbk \
-    -o phold_language_predict_bphage_and_others -t $threads -d /staging/leuven/stg_00029/DB/phold/phold_20240723
+phold predict --input $repo_location/data/unfoldable_proteins.gbk\
+    -o phold_language_predict_unfoldables -t $threads -d /staging/leuven/stg_00029/DB/phold/phold_20240723
+
+# phold predict --input $repo_location/output/annotation/pharokka_bpgage_and_others/bpgage_and_others.gbk \
+#     -o phold_language_predict_bphage_and_others -t $threads -d /staging/leuven/stg_00029/DB/phold/phold_20240723
 
 echo "========================================================================"
 duration=$SECONDS
