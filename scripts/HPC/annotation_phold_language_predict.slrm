@@ -1,5 +1,5 @@
 #!/bin/bash -l
-#SBATCH --job-name="annotation_phold_run_predict"
+#SBATCH --job-name="annotation_phold_language_predict"
 #SBATCH --cluster=genius
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=36
@@ -13,7 +13,7 @@
 ###############################################################################
 
 # Submit (from output/slurm_log)
-# sbatch --export=ALL ../../scripts/HPC/annotation_phold_run_predict.slrm
+# sbatch --export=ALL ../../scripts/HPC/annotation_phold_language_predict.slrm
 
 source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate phold
@@ -24,7 +24,7 @@ mkdir -p $VSC_SCRATCH/BPhage/annotation/phold
 cd $VSC_SCRATCH/BPhage/annotation/phold
 
 phold predict --input $repo_location/output/annotation/pharokka_bpgage_and_others/bpgage_and_others.gbk \
-    -o phold_run_predict_bphage_and_others -t $threads -d /staging/leuven/stg_00029/DB/phold/phold_20240723
+    -o phold_language_predict_bphage_and_others -t $threads -d /staging/leuven/stg_00029/DB/phold/phold_20240723
 
 echo "========================================================================"
 duration=$SECONDS
