@@ -1,0 +1,37 @@
+#!/bin/bash -l
+#SBATCH --job-name="annotation_phold_prepare"
+#SBATCH --cluster=genius
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem-per-cpu=4G
+#SBATCH --time=10:00
+#SBATCH --account=lp_jm_virome_group
+#SBATCH --output=slurm-%x_%j.out
+
+###############################################################################
+
+# Submit (from output/slurm_log)
+# sbatch --export=ALL ../../scripts/HPC/annotation_phold_prepare.slrm
+
+repo_location="$VSC_STAGING/BPhage"
+cd $repo_location/output/annotation/phold_colabfold_structures/basler_output_renamed/renamed_pdbs/
+
+# Rename George's gbk files so they match the pharokka output. Filenames exceeding 55 characters are problematic for phold.
+for file in NODE*; do 
+    shortened_name=$(echo $file | awk -F "_" '{OFS="_"; print $1, $2, $7, $8, $9, $10, $11, $12, $13}' | sed 's/__//')
+    mv $file $shortened_name
+done
+
+# Move .gbk files that are not present in the input out of the structures folder because
+# the current version of phold compare will crash otherwise. There are some CDSs in the input
+# than structures, because I decided to filter down the contigs from the other datasets with
+# geNomad as well, after I sent the CDSs to George...
+mkdir -p ../filtered_out_renamed_pdbs
+while read filtered_out; do
+    contig_name=$(echo $filtered_out | awk '{print $1}' | sed 's/>//')
+    mv ${contig_name}* ../filtered_out_renamed_pdbs
+done < $repo_location/data/phold/sent_to_george_but_removed_from_additional_datasets_by_genomad_filter
+
+echo "========================================================================"
+duration=$SECONDS
+printf 'Job finished in: %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))
