@@ -55,8 +55,8 @@ tax_lvl_per_kb = function(tax_level, contig_lengths, ab_table, classif ) {
 tax_sum = function(tax_level, ab_table, classif) {
   sample_names <- colnames(ab_table)[2:length(ab_table)]
   classif <- classif  %>%
-    mutate(contig = as.character(contig)) %>%
-    mutate_all(~ ifelse(. == "", "unclassified", .))
+    mutate(contig = as.character(contig)) # %>%
+    # mutate_all(~ ifelse(. == "", "unclassified", .))
   
   inner_join(ab_table, classif, by="contig") %>%
     group_by(.data[[tax_level]]) %>%
@@ -85,7 +85,8 @@ tax_lengths <- function(tax_level, classif) {
   classif %>%
     mutate(contig = as.character(contig)) %>%
     group_by(.data[[tax_level]]) %>%
-    summarise(length_kb = sum(length_kb)) %>%
+    # summarise(length_kb = sum(length_kb)) %>%
+    summarise(length_kb = mean(length_kb)) %>%
     mutate_all(~ ifelse(. == "", "unclassified", .))
 }
 

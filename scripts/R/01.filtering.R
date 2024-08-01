@@ -13,9 +13,16 @@ abundance.table <- read.csv("output/mapping_stats_phages/stats.phages.mapped_rea
 horizontal.cov.table <- read.csv("output/mapping_stats_phages/stats.phages.horizontal_coverage.csv", row.names=1)
 mean_depth_table <- read.csv("output/mapping_stats_phages/stats.phages.mean_depth.csv", row.names=1)
 
+# abundance.table <- read.csv("output/phables_mapping_stats_phages/stats.phages.mapped_reads.csv", row.names=1)
+# horizontal.cov.table <- read.csv("output/phables_mapping_stats_phages/stats.phages.horizontal_coverage.csv", row.names=1)
+# mean_depth_table <- read.csv("output/phables_mapping_stats_phages/stats.phages.mean_depth.csv", row.names=1)
+
 gnmd_classification <- read.csv("output/bphage_ALL_1kb_phages.csv") %>%
   rbind(read.csv("output/bphage_ALL_1kb_unclassified_viruses.csv")) %>%
   rbind(read.csv("output/bphage_ALL_1kb_picobirna.csv")) %>%
+# gnmd_classification <- read.csv("output/phables_ALL_1kb_phages.csv") %>%
+#   rbind(read.csv("output/phables_ALL_1kb_unclassified_viruses.csv")) %>%
+#   rbind(read.csv("output/phables_ALL_1kb_picobirna.csv")) %>%
   separate_wider_delim(taxonomy, delim = ";",
                        names = c("Classification", "Realm", "Kingdom", "Phylum",
                                  "Class", "Order", "Family"),
@@ -33,11 +40,14 @@ row.names(metadata) <- metadata$Sample_ID
 contig_lengths_in_kb = abundance.table %>%
   rownames() %>%
   str_split(.,"_") %>%
-  sapply(., "[", 4) %>% 
+  sapply(., "[", 4) %>%
   str_replace(".*[HV]","") %>%
   as.numeric()/1000
 contig_length_df = data.frame(contig=rownames(abundance.table), length_kb=contig_lengths_in_kb)
 
+# contig_length_df <- gnmd_classification %>%
+#   select(contig, contig_length) %>%
+#   rename(lentgh_kb = contig_length)
 
 ################################################################################
 ################################################################################
@@ -185,12 +195,12 @@ co_occ_stats <- co_occ_join %>%
 
 ################################################################################
 ################################################################################
-# TPM and prevalence filter
+# TPM and prevalence filter (Not in effect right now)
 
 contig_tpm_temp <- rownames_to_column(abundance_table_filt, "contig") %>%
   calc_tpm(., "contig", contig_length_df)
   
-gnmd_classification_refined <- gnmd_classification
+gnmd_classification_refined <- gnmd_classification # For compatiblity further down
 
 # tpm_thresh <- 0.01
 # prev_thresh <- 1
@@ -234,33 +244,11 @@ max_tpm_and_prev_hist <- max_tpm_and_prev_df %>%
 
 ################################################################################
 ################################################################################
-# Generate absolute count table. Be aware that RNA genomes will not stain well with SYBER green.
-
-samples_with_vlp_counts <- metadata %>%
-  filter(!is.na(VLPs_per_ul)) %>%
-  rownames()
-
-viral_loads <- contig_tpm_temp %>%
-  select(contig, any_of(samples_with_vlp_counts)) %>%
-  filter(!if_all(-contig, ~. == 0)) %>%
-  pivot_longer(-contig) %>%
-  rename(Sample_ID = name) %>%
-  left_join(., metadata[c("Sample_ID", "VLPs_per_ul")], by="Sample_ID") %>%
-  mutate(viral_load = value * VLPs_per_ul) %>%
-  select(-c(value, VLPs_per_ul)) %>%
-  pivot_wider(names_from = Sample_ID, values_from = viral_load)
-
-
-################################################################################
-################################################################################
 
 # Write output files
 
 # Decontam graph
 ggsave("output/R/decontam.library.size.by.control.or.sample.pdf", decontam$plot, width=30, height=10)
-
-# Viral load table
-write_csv(viral_loads, file="output/R/phage.viral.load.VLPs.per.ul.csv")
 
 # Co-occurrence
 write.csv(co_occ_join, "output/R/co_occurrence/co_occ_joined.csv", row.names=FALSE)

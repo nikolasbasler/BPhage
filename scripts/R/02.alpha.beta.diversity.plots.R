@@ -10,6 +10,7 @@ library(VennDiagram)
 library(tidyverse)
 library(ggforce)
 library(RColorBrewer)
+library(UpSetR)
 
 source("scripts/R/helpers/tpm_and_reads_per_kb.R")
 source("scripts/R/helpers/read_count_stats.R")
@@ -43,13 +44,16 @@ metadata <- metadata %>%
   mutate(Sample_ID = factor(Sample_ID, levels=sample_order))
 row.names(metadata) <- metadata$Sample_ID
 
-# classification <- read.csv("output/R/phage.filt.gnmd.classification.csv") %>%
-#   mutate(contig_length = contig_length/1000) %>%
-#   rename(length_kb = contig_length)
+classification_gnmd <- read.csv("output/R/phage.filt.gnmd.classification.csv") %>%
+  mutate(contig_length = contig_length/1000) %>%
+  rename(length_kb = contig_length)
 
-classification <- read.csv("output/vcontact3/final_assignments.csv") %>%
+present_in_all_countries <- read_lines("data/core_contigs.txt")
+
+# classification <- read.csv("output/vcontact3/final_assignments.csv") %>%
+classification <- read.csv("output/vcontact3_with_inphared/final_assignments.csv") %>%
   mutate(Kingdom = "",  # No Kingdom column in vcontacts output??
-         Species = "" ) %>% 
+         Species = "" ) %>%
   mutate_all(~ifelse(grepl("\\|\\|", .), str_extract(., "^[^|]+"), .)) %>% # In case of several classification, extract the first one.
   rename(contig = RefSeqID,
          length_kb = Size..Kb.,
@@ -63,13 +67,14 @@ classification <- read.csv("output/vcontact3/final_assignments.csv") %>%
   select(contig, length_kb, Realm, Kingdom, Phylum, Class, Order, Family, Subfamily, Genus, Species) %>%
   mutate(lowest_taxon = apply(., 1, function(row) tail(row[row != ""], 1))) %>%
   mutate(across(everything(), ~ifelse(. == "", "Unclassified", .))) %>%
-  mutate(Host_group = "all") %>%
-  filter(str_detect(contig, "NODE")) 
-
-present_in_all_countries <- read_lines("data/vc3_core_contigs.txt")
-
-classification <- classification %>%
-  mutate(Host_group = ifelse(contig %in% present_in_all_countries, "temp_core", Host_group))
+  left_join(., classification_gnmd[c("contig", "provirus", "proviral_length", 
+                                     "gene_count", "viral_genes", "host_genes",
+                                     "checkv_quality", "miuvig_quality", 
+                                     "completeness", "completeness_method",
+                                     "contamination", "kmer_freq", "warnings")],
+            by = "contig") %>%
+  mutate(Host_group = ifelse(contig %in% present_in_all_countries, "core", "all")) %>% # Using the hostgroup column to mark core genomes. Find a more permanent way to to this!
+  filter(str_detect(contig, "NODE"))
 
 contig_order <- classification %>%
   arrange(Realm, Kingdom, Phylum, Class, Order, Family, Genus, Species) %>% 
@@ -99,7 +104,7 @@ taxon_pie <- table(classification$Order) %>%
   scale_fill_brewer(palette="Set3")
 
 ## Generate abundance tables for different taxonomic levels.####
-taxlevels <- c("contig", "Species", "Genus", "Family", "Order", "Class", "Phylum", "Kingdom", "Realm", "Host_group")
+taxlevels <- c("contig", "Genus", "Family", "Order", "Class", "Phylum", "Kingdom", "Realm", "Host_group")
 phage_ab <- list()
 phage_ab <- taxlevels %>%
   set_names() %>%
@@ -110,7 +115,7 @@ phage_lengths <- taxlevels %>%
   set_names() %>%
   map(~tax_lengths(., classif = classification))
 
-taxlevels <- c("contig", "Species", "Genus", "Family", "Order", "Class", "Phylum", "Kingdom", "Realm")
+taxlevels <- c("contig", "Genus", "Family", "Order", "Class", "Phylum", "Kingdom", "Realm")
 hostgroups <- classification$Host_group %>% unique()
 phage_ab_hostgroup <- list()
 for (hostg in hostgroups) {
@@ -124,7 +129,7 @@ for (hostg in hostgroups) {
 
 ## Generate contig abundance table with merged metadata variables 
 # (e.g. all gut parts or all samples from the same country merged). Used 
-# for prealenve plots
+# for prevalence plots
 meta_merges <- list(Bee_pools = "Gut_part", 
                     Countries = c("Season", "Gut_part", "Hive_ID"),
                     Hives = c("Season", "Gut_part"))
@@ -165,7 +170,7 @@ for (lvl in names(phage_ab)) {
   phage_load[[lvl]] <- tax_sum(ab_table = viral_loads, tax_level = lvl, classif = classification)
 }
 
-taxlevels <- c("contig", "Species", "Genus", "Family", "Order", "Class", "Phylum", "Kingdom", "Realm")
+taxlevels <- c("contig", "Genus", "Family", "Order", "Class", "Phylum", "Kingdom", "Realm")
 phage_load_hostgroup <- list()
 for (hostg in hostgroups) {
   hostg_filt <- hostg_filter(hg = hostg, ab_table = phage_load$contig,
@@ -197,7 +202,7 @@ lost_bees <- discards(count_stats$ratios, min_seq_count)$lost_bees # No bee pool
 #------------------------------------------------------------------------------#
 # Alpha ####
 met_v <- c("Country", "Season", "Gut_part", "Health")
-taxlevels <- c("contig", "Species", "Genus", "Family")
+taxlevels <- c("contig", "Genus", "Family")
 alpha <- list()
 for (tlvl in taxlevels) {
   alpha[[tlvl]] <- alpha_stats(df = phage_ab[[tlvl]], 
@@ -206,8 +211,23 @@ for (tlvl in taxlevels) {
                                df_lengths = phage_lengths[[tlvl]])
 }
 
+## MAYBE REWORK THIS
+met_v <- c("Season", "Gut_part", "Health")
+taxlevels <- c("Genus", "Family")
+alpha_by_country <- list()
+for (countr in levels(metadata$Country)) {
+  for (tlvl in taxlevels) {
+    count_filt_ab <- phage_ab[[tlvl]] %>%
+      select(all_of(tlvl), starts_with(countr))
+    alpha_by_country[[countr]][[tlvl]] <- alpha_stats(df = count_filt_ab, 
+                                 meta_vars = met_v, 
+                                 min_seq = min_seq_count,
+                                 df_lengths = phage_lengths[[tlvl]])
+  }
+}
+
 met_v <- c("Country", "Season", "Health")
-taxlevels <- c("contig", "Species", "Genus", "Family")
+taxlevels <- c("contig", "Genus", "Family")
 alpha_abs <- list()
 for (tlvl in taxlevels) {
   alpha_abs[[tlvl]] <- alpha_stats(df = phage_load[[tlvl]], 
@@ -219,7 +239,7 @@ for (tlvl in taxlevels) {
 #------------------------------------------------------------------------------#
 # Beta ####
 met_v <- c("Country", "Season", "Gut_part", "Health")
-taxlevels <- c("contig", "Species", "Genus", "Family")
+taxlevels <- c("contig", "Genus", "Family")
 beta_dist <- list()
 beta_plot_list <- list()
 for (tlvl in taxlevels) {
@@ -234,7 +254,7 @@ for (tlvl in taxlevels) {
 }
 
 met_v <- c("Country", "Season", "Health")
-taxlevels <- c("contig", "Species", "Genus", "Family")
+taxlevels <- c("contig", "Genus", "Family")
 beta_abs_dist <- list()
 beta_abs_plot_list <- list()
 for (tlvl in taxlevels) {
@@ -323,14 +343,14 @@ for (hostgroup in phage_tpm$Host_group$Host_group) {
 #------------------------------------------------------------------------------#
 # Average TPM ####
 met_v <- c("Country", "Season", "Gut_part", "Health", "Sample_ID")
-tax_levels <- c("contig", "Species", "Genus", "Family", "Order", "Class", "Phylum", "Kingdom", "Realm")
-average_tpm_plots <- list()
-average_tpm_plots$Host_group <- average_tpm_bar_plot(tpm_table = phage_tpm$Host_group,
-                        tl="Host_group", hg="all",
-                        meta_vars=met_v)
+tax_levels <- c("contig", "Genus", "Family", "Order", "Class", "Phylum", "Kingdom", "Realm")
+average_tpm <- list()
+average_tpm$Host_group <- average_tpm_bar_plot(tpm_table = phage_tpm$Host_group,
+                                                     tl="Host_group", hg="core",
+                                                     meta_vars=met_v)
 for (hgr in names(phage_tpm_hostgroup)) {
   for (tlvl in tax_levels) {
-    average_tpm_plots[[hgr]][[tlvl]] <- average_tpm_bar_plot(
+    average_tpm[[hgr]][[tlvl]] <- average_tpm_bar_plot(
       tpm_table = phage_tpm_hostgroup[[hgr]][[tlvl]],
       tl = tlvl,
       hg = hgr,
@@ -347,6 +367,7 @@ for (merge in names(phage_ab_meta_merges)) {
   prevalence_histo[[merge]] <- prevalence_histogram(abtable = phage_ab_meta_merges[[merge]],
                                                           plot_title = merge)
 }
+
 # 
 # present_in_all_countries <- prevalence_histo$Countries$table %>%
 #   filter(prevalence_prop ==1) %>%
@@ -400,31 +421,31 @@ core_pie <- classification %>%
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 # Country by country average TPM and prevalence: ####
-tax_levels <- c("Species", "Genus", "Family")
-average_tpm_plots_per_country <- list()
+tax_levels <- c("Genus", "Family")
+average_tpm_per_country <- list()
 prevalence_plots_per_country <- list()
 for (tlvl in tax_levels) {
   for (countr in levels(metadata$Country)) {
-    tpm_filt <- phage_tpm_hostgroup$all[[tlvl]] %>%
+    tpm_filt <- phage_tpm_hostgroup$core[[tlvl]] %>%
       select(all_of(tlvl), starts_with(countr))
     country_tpm_plots <- average_tpm_bar_plot(
       tpm_table = tpm_filt, 
       tl = tlvl, 
-      hg = "all", 
+      hg = "core", 
       meta_vars = c("Season", "Gut_part", "Health", "Sample_ID"),
       title_prefix = paste0(countr, " - "),
-      threshold_for_other=0.03)
-      average_tpm_plots_per_country[[tlvl]][[countr]] <- 
+      threshold_for_other=0.03)$plots # <==== MIND THIS!
+      average_tpm_per_country[[tlvl]][[countr]] <- 
         country_tpm_plots$Sample_ID /
         (country_tpm_plots$Season + country_tpm_plots$Gut_part + country_tpm_plots$Health)
       
-      ab_filt <- phage_ab_hostgroup$all[[tlvl]] %>%
+      ab_filt <- phage_ab_hostgroup$core[[tlvl]] %>%
           select(all_of(tlvl), starts_with(countr))
       number_of_samples <- ncol(ab_filt)-1
       prevalence_plots_per_country[[tlvl]][[countr]] <- prevalence_bar_plot(
         abtable = ab_filt,
         tl = tlvl, 
-        hg = "all",
+        hg = "core",
         meta_vars = c("Season", "Gut_part", "Health"),
         title_prefix = paste0(countr, " (",number_of_samples," samples) - "),
         threshold_for_other=3)
@@ -433,17 +454,25 @@ for (tlvl in tax_levels) {
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
+# Upset plot for country-wide sharing ####
+# A Venn diagram wouldn't be feasible here because there are 8 countries. The 
+# Plot will be saved into the venn folder though
+country_upset_plot <- upset_country(abtable = phage_ab_meta_merges$Countries)
+
+
+#------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
 # Prevalenve Venn diagrams ####
 # Output written to files already here.
 venn_stats <- list()
-tax_levels <- c("contig", "Species", "Genus", "Family")
+tax_levels <- c("contig", "Genus", "Family")
 met_v <- c("Season", "Gut_part", "Health")
 for (tlvl in tax_levels) {
   for (m_var in met_v) {
     system(paste0("mkdir -p output/R/venns/",tlvl,"/",m_var))
-    for (cntr in c("all", levels(metadata$Country))) {
+    for (cntr in c("core", levels(metadata$Country))) {
       venn_stats[[tlvl]][[m_var]][[cntr]] <- prevalence_venn(
-        abtable = phage_ab_hostgroup$all[[tlvl]],
+        abtable = phage_ab_hostgroup$core[[tlvl]],
         meta_var = m_var,
         country=cntr)
     }
@@ -473,7 +502,7 @@ for (tax in names(beta_plot_list)) {
   system(paste0("mkdir -p ", pcoa_path))
   system(paste0("mkdir -p ", hist_path))
   for (p in names(beta_plot_list[[tax]])) {
-    if (p=="all") {
+    if (p=="core") {
       width <- 17
       height <- 15
     } else {
@@ -509,25 +538,27 @@ for (p in names(hostgroup_hist)) {
   ggsave(paste0("output/R/relative_abundance_overall/hostgroup.hist.", p, ".pdf"),
          hostgroup_hist[[p]], width=8, height=4)
 }
-for (tl in names(average_tpm_plots$Host_group)) {
+for (tl in names(average_tpm$Host_group$plots)) {
   ggsave(paste0("output/R/relative_abundance_overall/average.TPM.Host_groups.",tl,".pdf"),
-         average_tpm_plots$Host_group[[tl]], width=15, height=8)
+         average_tpm$Host_group$plots[[tl]], width=15, height=8)
+  write_csv(average_tpm$Host_group$tibbles[[tl]],
+            paste0("output/R/relative_abundance_overall/average.TPM.Host_groups.",tl,".csv"))
 }
 
-for (tl in names(average_tpm_plots$all)) {
-  for (me in names(average_tpm_plots$all[[tl]])) {
+for (tl in names(average_tpm$core)) {
+  for (me in names(average_tpm$core[[tl]]$plots)) {
     if (tl=="Species" && me=="Sample_ID") {
       wid=30
     } else {
       wid=15
     }
     ggsave(paste0("output/R/relative_abundance_overall/average.TPM.all.",tl,".",me,".pdf"),
-           average_tpm_plots$all[[tl]][[me]], width=wid, height=8)
+           average_tpm$core[[tl]]$plots[[me]], width=wid, height=8)
   }
 }
 
 ## TPM per country ####
-for (tl in names(average_tpm_plots_per_country)) {
+for (tl in names(average_tpm_per_country)) {
   system(paste0("mkdir -p output/R/relative_abundance_per_country/",tl))
   if (tl=="Species") {
     wid=25
@@ -536,10 +567,10 @@ for (tl in names(average_tpm_plots_per_country)) {
     wid=15
     hei=12  
   }
-  for (countr in names(average_tpm_plots_per_country[[tl]])) {
+  for (countr in names(average_tpm_per_country[[tl]])) {
     ggsave(paste0("output/R/relative_abundance_per_country/", tl,"/average.TPM.country.",
                   countr,".",tl,".pdf"),
-           average_tpm_plots_per_country[[tl]][[countr]], width=wid, height=hei)
+           average_tpm_per_country[[tl]][[countr]], width=wid, height=hei)
   }
 }
 
@@ -560,6 +591,12 @@ for (tl in names(prevalence_histo)) {
          plot, width=wid, height=5)
   write_csv(prevalence_histo[[tl]]$table, paste0("output/R/prevalence/prevalence.",tl,".csv"))
 }
+
+## Upset ####
+pdf(file="output/R/venns/country_upset.pdf",
+    width = 25, height = 5) 
+country_upset_plot
+dev.off()
 
 end_time <- Sys.time()
 end_time - start_time
