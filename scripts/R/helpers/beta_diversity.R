@@ -37,28 +37,37 @@ distance_histogram <- function(dist_df, metadata_var, metadata_value) {
     labs(title = paste0(metadata_var, " - ", metadata_value))
 }
 
-rared_ordination = function(df, min_seq, meta_vars, df_lengths, seed) {
+ordination = function(df, min_seq = NA, meta_vars, df_lengths = NA, absolute_values = FALSE) {
   tax <- colnames(df)[1]
   df_t = df %>% 
-    filter(.data[[tax]]!="unclassified") %>%
+    filter(.data[[tax]]!="Unclassified") %>%
     column_to_rownames(tax) %>% 
     t() %>% 
     as.data.frame()
   
-  plan(multisession, workers=4)
-  beta_df_list = future_map(1:iterations,
-                             ~beta_rarified(ab_table = df_t,
-                                             sampling_depth = min_seq,
-                                             lengths = df_lengths,
-                                             seed = .x)) 
-  beta_average_df <- Reduce(`+`, beta_df_list) / length(beta_df_list) 
-  beta_average_dist <- as.dist(beta_average_df)
+  if (absolute_values) {
+    beta_df <- df_t %>%
+      vegdist(method="bray") %>% 
+      as.matrix() %>% 
+      as.data.frame()
+    
+  } else {
+    plan(multisession, workers=4)
+    beta_df_list = future_map(1:iterations,
+                               ~beta_rarified(ab_table = df_t,
+                                               sampling_depth = min_seq,
+                                               lengths = df_lengths,
+                                               seed = .x)) 
+    beta_df <- Reduce(`+`, beta_df_list) / length(beta_df_list) 
+  }
+  
+  beta_dist <- as.dist(beta_df)
 
   ord_list <- list()
-  ord_list$all$all <- pcoa(beta_average_dist)
+  ord_list$all$all <- pcoa(beta_dist)
   
   distances_plots <- list()
-  distances_plots$all$all <- beta_average_dist %>%
+  distances_plots$all$all <- beta_dist %>%
     as.matrix() %>% 
     as.data.frame() %>% 
     distance_histogram(metadata_var = "all", metadata_value = "all")
@@ -71,7 +80,7 @@ rared_ordination = function(df, min_seq, meta_vars, df_lengths, seed) {
         unlist() %>%
         as.character()
       
-        beta_average_filt <- beta_average_dist %>%
+        beta_filt <- beta_dist %>%
         as.matrix() %>% 
         as.data.frame() %>% 
         rownames_to_column("Sample_ID") %>%
@@ -79,13 +88,13 @@ rared_ordination = function(df, min_seq, meta_vars, df_lengths, seed) {
         filter(Sample_ID %in% filter_vector) %>%
         column_to_rownames("Sample_ID")
       
-        ord_list[[m_var]][[m_value]] <- pcoa(beta_average_filt)
+        ord_list[[m_var]][[m_value]] <- pcoa(beta_filt)
         
-        distances_plots[[m_var]][[m_value]] <- beta_average_filt %>%
+        distances_plots[[m_var]][[m_value]] <- beta_filt %>%
           distance_histogram(metadata_var = m_var, metadata_value = m_value)
     }
   }
-  return(list(ord_list = ord_list, avg_dist = beta_average_df, dist_hist_list = distances_plots))
+  return(list(ord_list = ord_list, dist_df = beta_df, dist_hist_list = distances_plots))
 }
 
 beta_plot = function(ordination_list, meta_vars, mapped_reads) {

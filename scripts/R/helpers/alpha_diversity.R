@@ -19,7 +19,7 @@ alpha_rarefied = function(ab_table, sampling_depth, lengths, seed) {
     calc_reads_per_kb(., tax) %>%
     column_to_rownames(tax) %>%
     t() %>% 
-    as_tibble(rownames="sample") %>% 
+    as_tibble(rownames="sample") %>%
     group_by(sample) %>%
     pivot_longer(-sample) %>%
     summarize(Richness = specnumber(value),
@@ -34,28 +34,43 @@ alpha_rarefied = function(ab_table, sampling_depth, lengths, seed) {
   df
 }
 
-alpha_stats = function(df, meta_vars, min_seq, df_lengths) {
+alpha_stats = function(df, meta_vars, min_seq = NA, df_lengths = NA, absolut_values = FALSE) {
   # plotlist <- list() 
   tax <- colnames(df)[1]
   df_t = df %>% 
-    filter(.data[[tax]]!="unclassified") %>%
+    filter(.data[[tax]]!="Unclassified") %>%
     column_to_rownames(tax) %>% 
     t() %>% 
     as.data.frame()
   
-  plan(multisession, workers=4)
-  alpha_df_list = future_map(1:iterations,
-                             ~alpha_rarefied(ab_table = df_t,
-                                             sampling_depth = min_seq,
-                                             lengths = df_lengths,
-                                             seed = .x)) 
-  alpha_average_df = Reduce(`+`, alpha_df_list) / length(alpha_df_list)
-  # alpha_average_df["Richness"] = round(alpha_average_df["Richness"])
-  alpha_average_tbl = as_tibble(alpha_average_df, rownames = "Sample_ID")
+  if (absolut_values) {
+    alpha_tbl <- df_t %>%
+      as_tibble(rownames="Sample_ID") %>%
+      pivot_longer(-Sample_ID) %>%
+      group_by(Sample_ID) %>%
+      summarize(Richness = specnumber(value),
+                # evenness = shannon_idx/log(observed_species), # This is Pilou's evenness
+                shannon_idx = diversity(value, index="shannon"),
+                Hill_Shannon = exp(shannon_idx),
+                Hill_Simpson = diversity(value, index="invsimpson")
+      ) %>%
+      select(-shannon_idx)
+    
+  } else {
+    plan(multisession, workers=4)
+    alpha_df_list = future_map(1:iterations,
+                               ~alpha_rarefied(ab_table = df_t,
+                                               sampling_depth = min_seq,
+                                               lengths = df_lengths,
+                                               seed = .x)) 
+    alpha_average_df = Reduce(`+`, alpha_df_list) / length(alpha_df_list)
+    # alpha_average_df["Richness"] = round(alpha_average_df["Richness"])
+    alpha_tbl = as_tibble(alpha_average_df, rownames = "Sample_ID")
+  }
   
   plot_tibble <- metadata %>%
     select("Sample_ID", all_of(meta_vars)) %>%
-    inner_join(., alpha_average_tbl, by="Sample_ID") %>%
+    inner_join(., alpha_tbl, by="Sample_ID") %>%
     pivot_longer(all_of(meta_vars), names_to = "meta_variable", values_to = "meta_value") %>%
     pivot_longer(c(Richness, Hill_Shannon, Hill_Simpson), names_to = "metric") %>%
     mutate(metric = factor(metric, levels=c("Richness", "Hill_Shannon", "Hill_Simpson")))
@@ -123,5 +138,5 @@ alpha_stats = function(df, meta_vars, min_seq, df_lengths) {
   }
   # plotlist$patch <- wrap_plots(panels, ncol=length(meta_vars))
   patch <- wrap_plots(panels, ncol=length(meta_vars))
-  return(list(plot=patch, table=alpha_average_tbl))
+  return(list(plot=patch, table=alpha_tbl))
 }

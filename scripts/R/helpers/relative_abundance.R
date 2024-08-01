@@ -189,10 +189,11 @@ average_tpm_bar_plot <- function(tpm_table, tl, hg, meta_vars, title_prefix="", 
   
   tax <- colnames(tpm_table)[1]
   plot_list <- list()
+  tible_list <- list()
   for (m_var in meta_vars) {
     metadata_filt <- metadata %>%
       select(Sample_ID, all_of(m_var))
-    plot_list[[m_var]] <- tpm_table %>%
+    tible_list[[m_var]] <- tpm_table %>%
       rename(group = all_of(tax)) %>%
       pivot_longer(-group, names_to = "Sample_ID") %>%
       left_join(., metadata_filt, by="Sample_ID") %>%
@@ -206,7 +207,8 @@ average_tpm_bar_plot <- function(tpm_table, tl, hg, meta_vars, title_prefix="", 
       group_by(.data[[m_var]], group) %>%
       mutate(mean_tpm = sum(mean_tpm)) %>%  # This part is only to
       ungroup() %>%                         # merge identically-
-      distinct() %>%                        # colored shapes.
+      distinct()                            # colored shapes.
+    plot_list[[m_var]] <- tible_list[[m_var]] %>%
       ggplot(aes(x=.data[[m_var]], y=mean_tpm, fill=group)) +
       geom_col() +
       ggtitle(paste0(title_prefix, "Host group: \"", hg,"\"")) +
@@ -218,7 +220,8 @@ average_tpm_bar_plot <- function(tpm_table, tl, hg, meta_vars, title_prefix="", 
         scale_x_discrete(expand = c(0.025, 0))
     }
   }
-  return(plot_list)
+  return(list(plots = plot_list, tibbles = tible_list))
+  # return(plot_list)
 }
 
 prevalence_histogram <- function(abtable, plot_title) {
@@ -287,3 +290,26 @@ prevalence_bar_plot <- function(abtable, tl, hg, meta_vars, title_prefix="", thr
   return(wrap)
 }
 
+upset_country <- function(abtable) {
+  tax <- colnames(abtable)[1]
+  sets <- abtable %>%
+    rename(group = all_of(tax)) %>%
+    pivot_longer(-group) %>%
+    filter(value > 0) %>%
+    select(-value) %>%
+    group_by(name) %>%
+    summarise(ids = list(group)) %>%
+    deframe()
+  
+  # m <- make_comb_mat(sets)
+  # degrees <- comb_degree(m) %>%
+  #   as.vector() %>%
+  #   table()
+  
+  colors <- brewer.pal(8, "Dark2")
+  rep_colors <- unlist(mapply(rep, colors, c(1,7,20,31,42,38,27,8)), use.names = FALSE) 
+  
+  p <- upset(fromList(sets), order.by = "degree", nsets= 8, nintersects = NA, main.bar.color = rep_colors,
+             mainbar.y.label = "Number of phages")
+  return(p)
+}
