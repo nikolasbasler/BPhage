@@ -47,7 +47,6 @@ zcat $repo_location/output/bphage_ALL_1kb_cross_95-85.fasta.gz | seqkit grep -f 
 cut -d',' -f1 other_studies_unclassified_viruses.csv | sed 1d > temp.unclassified.contigs
 zcat $VSC_SCRATCH/BPhage/additional_datasets/other_studies.fa.gz | seqkit grep -f temp.unclassified.contigs > other_studies_unclassified_viruses.fasta
 
-
 # Make fasta file for picobirnas 
 cut -d',' -f1 bphage_ALL_1kb_picobirna.csv | sed 1d > temp.picobirna.contigs
 zcat $repo_location/output/bphage_ALL_1kb_cross_95-85.fasta.gz | seqkit grep -f temp.picobirna.contigs > bphage_ALL_1kb_picobirna.fasta

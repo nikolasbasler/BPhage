@@ -35,7 +35,11 @@ for level in ["Realm", "Kingdom", "Phylum", "Class", "Order", "Family"]:
 
 # Merge genomad and checkv outputs
 merge_df = pd.merge(quality_summary, bphage_ALL_1kb_cross_95_85_virus_summary, left_on='contig_id', right_on='seq_name', how='inner')
-merge_df = merge_df.drop(columns=['seq_name']) 
+merge_df = merge_df.drop(columns=['seq_name'])
+
+# Remove contigs (from additional datasets) that have CheckV warnings
+mask = merge_df['warnings'].str.contains("contig >1.5x longer than expected genome length") | merge_df['warnings'].str.contains("high kmer_freq may indicate large duplication")
+merge_df = merge_df[~mask]
 
 # Filter for Picobirnaviridae irrespective of CheckV's completeness estimate
 picobirna_df = merge_df[merge_df['lowest_taxon'] == "Picobirnaviridae"]
