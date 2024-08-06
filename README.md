@@ -12,7 +12,7 @@
 - `scripts/HPC/rename.BPhage.nucleomics.sh` (contained in R4317 folder on K-drive)
     - Requires: `rename.BPhage.nucleomics.scheme` (also contained in R4317)
     - Output: Properly named raw fastq files (not by tube ID, as before, but by sample ID).
-- Download bee ref seq and index with bowtie2: `scripts/HPC/download_bee_ref_genome.slrm`
+- Download bee ref seq and and other datasets and index with bowtie2: `scripts/HPC/download_bee_ref_genome_and_additional_datasets.slrm`
 - ViPER: `scripts/HPC/bphage_viper_with_dedup.slrm` (array of 471)
     - Requires: 
         - `data/BPhage.sample.list`
@@ -58,6 +58,9 @@
         - Genomad summary to get a list of Picobirnaviridae contigs: `output/bphage_ALL_1kb_genomad/bphage_ALL_1kb_cross_95-85_summary/bphage_ALL_1kb_cross_95-85_virus_summary.tsv.gz`
         - Entire assembly to add Picornaviridae contigs: `output/bphage_ALL_1kb_cross_95-85.fasta.gz`
     - Output: bwa-indexed mapping ref containing all contigs identified as phage, unclassified viruses and Picovridae contigs: `$VSC_SCRATCH/BPhage/ref/bphage_mapping_ref.fasta`
+- Calculate ANI of all mapping ref contigs: `calculate_ANI.slrm`
+    - Requires:
+    - Output:
 - Mapping: `scripts/HPC/bphage_mapping.slrm` (array of 471)
     - Requires: 
         - `data/BPhage.sample.list`
