@@ -26,6 +26,8 @@ cp temp.contig.list stats.bphage_and_others.mapped_reads.csv
 cp temp.contig.list stats.bphage_and_others.horizontal_coverage.csv
 cp temp.contig.list stats.bphage_and_others.mean_depth.csv
 
+# Samtools coverage seems to output only the first whitespace-separated field of the sequence IDs. They are
+# therefore the same as from pharokka, phold, genomad and checkv BUT ARE DIFFERENT TO THE IDs IN THE MAPPING REF FILE!
 while read line; do 
     echo $line
 
