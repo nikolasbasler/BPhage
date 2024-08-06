@@ -192,7 +192,7 @@ lifestyle_bar <- lifestyle_tibble %>%
 
 ####################  AMGs ##################################
 
-pharokka_final_merged <- read.delim("output/annotation/pharokka/core_contigs/core_contigs.fasta_cds_final_merged_output.tsv")
+pharokka_final_merged <- read.delim("output/annotation/old_pharokka/core_contigs/core_contigs.fasta_cds_final_merged_output.tsv")
 
 moron_bar_colors <- rev(c("lightgrey", "#ef8f01", "#555555"))
 
