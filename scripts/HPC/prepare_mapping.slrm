@@ -33,10 +33,7 @@ zcat $repo_location/output/bphage_ALL_1kb_picobirna.fasta.gz >> bphage_mapping_r
 bwa-mem2 index bphage_mapping_ref.fasta bphage_mapping_ref.fasta
 
 # Make another ref including the above and seqs from other datasets
-cat bphage_mapping_ref.fasta > bphage_and_others_mapping_ref.fasta
-zcat $repo_location/output/other_studies_phages.fasta.gz \
-    $repo_location/output/other_studies_unclassified_viruses.fasta.gz \
-    >> bphage_and_others_mapping_ref.fasta
+zcat $repo_location/output/bphage_and_others.fasta.gz > bphage_and_others_mapping_ref.fasta
 bwa-mem2 index bphage_and_others_mapping_ref.fasta bphage_and_others_mapping_ref.fasta
 
 echo "========================================================================"
