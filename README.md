@@ -49,6 +49,9 @@
         - Fasta file and merged genomad and checkv table with >= 50%-complete phages, >= 50%-complete unclassified viruses (containing contigs that are either "Unclassified" or classified only as "Viruses") and Picobirnaviridae (no completeness threshold) for own dataset and for the additional datasets (Deboutte, Bonilla, Busby):
             - `output/bphage_ALL_1kb_phages.*`, `output/bphage_ALL_1kb_unclassified_viruses.*`, `output/bphage_picobirna.*`
             - `output/other_studies_phages.*`, `output/other_studies_unclassified_viruses.*`, `other_studies_picobirna.*` (the latter is empty because there are not Picobirnas in the additional datasets)
+- Clustering with additional datasets:
+    - Requires: Filtered assembly and contigs from additional datasets in `output/`
+    - Output: Fasta with "bphage and others" contigs, clustered like the cross-sample clustering above (95% ANI over 85% length of the shorter sequence)
 
 ### Mapping
 - Prepare mapping: `scripts/HPC/prepare_mapping.slrm`
@@ -58,9 +61,6 @@
         - Genomad summary to get a list of Picobirnaviridae contigs: `output/bphage_ALL_1kb_genomad/bphage_ALL_1kb_cross_95-85_summary/bphage_ALL_1kb_cross_95-85_virus_summary.tsv.gz`
         - Entire assembly to add Picornaviridae contigs: `output/bphage_ALL_1kb_cross_95-85.fasta.gz`
     - Output: bwa-indexed mapping ref containing all contigs identified as phage, unclassified viruses and Picovridae contigs: `$VSC_SCRATCH/BPhage/ref/bphage_mapping_ref.fasta`
-- Calculate ANI of all mapping ref contigs: `calculate_ANI.slrm`
-    - Requires:
-    - Output:
 - Mapping: `scripts/HPC/bphage_mapping.slrm` (array of 471)
     - Requires: 
         - `data/BPhage.sample.list`
@@ -93,8 +93,17 @@
 - Collabfold: Done by collaborator George Bouras.
     - Requires: Pharokka's prodigal-gv output: `output/annotation/pharokka/bpgage_and_others/prodigal-gv.faa` (in communication with George the file was named `bpgage_and_others_prodigal-gv.faa`)
     - Output: Protein structures (Alpha fold 2) of all identified proteins from bphage and other studies. Provided by George, placed into `output/annotation/phold_colabfold_structures`
-- Phold: `annotation_phold.slrm`
+- Prepare phold compare:
     - Requires: 
-        - Pharokka's prodigal-gv output: `output/annotation/pharokka/bpgage_and_others/prodigal-gv.faa`
-        - Predicted structures at `output/annotation/phold_colabfold_structures/basler_output_renamed/renamed_pdbs`
+        - pdb files of George's collabfold structures in `output/annotation/phold_colabfold_structures/basler_output_renamed/renamed_pdbs/`
+        - List of contigs that were sent to George but are not in the bphage_and_others dataset anymore because they were either filtered out by geNomad/CheckV (from additional studies) or collapsed by clustering: `$repo_location/data/phold/sent_to_george_but_removed_from_original_dataset`
     - Output: 
+        - Renamed pdb files with shortened names, otherwise phold will crash.
+        - pdb files without corresponding entry in pharokka's output will be moved to `output/annotation/phold_colabfold_structures/basler_output_renamed/filtered_out_renamed_pdbs`
+- Phold: `annotation_phold_compare.slrm`
+    - Requires: 
+        - Pharokka's gbk output: `output/annotation/pharokka_bphage_and_others/bphage_and_others.gbk`
+        - Predicted structures at `output/annotation/phold_colabfold_structures/basler_output_renamed/renamed_pdbs/`
+        - sed script to re-lengthen contig names: `data/phold/relengthen.contig.names.sed`
+    - Output:
+        - Predicted functions at: `output/annotation/phold_compare_bphage_and_others`

@@ -16,7 +16,7 @@
 repo_location="$VSC_STAGING/BPhage"
 cd $repo_location/output/annotation/phold_colabfold_structures/basler_output_renamed/renamed_pdbs/
 
-# Rename George's gbk files so they match the pharokka output. Filenames exceeding 55 characters are problematic for phold.
+# Rename George's pdb files so they match the pharokka output. Filenames exceeding 55 characters are problematic for phold.
 for file in NODE*; do 
     shortened_name=$(echo $file | awk -F "_" '{OFS="_"; print $1, $2, $7, $8, $9, $10, $11, $12, $13}' | sed 's/__//')
     mv $file $shortened_name
@@ -28,9 +28,8 @@ done
 # geNomad as well, after I sent the CDSs to George...
 mkdir -p ../filtered_out_renamed_pdbs
 while read filtered_out; do
-    contig_name=$(echo $filtered_out | awk '{print $1}' | sed 's/>//')
-    mv ${contig_name}* ../filtered_out_renamed_pdbs
-done < $repo_location/data/phold/sent_to_george_but_removed_from_additional_datasets_by_genomad_filter
+    mv ${filtered_out}* ../filtered_out_renamed_pdbs
+done < $repo_location/data/phold/sent_to_george_but_removed_from_original_dataset
 
 echo "========================================================================"
 duration=$SECONDS

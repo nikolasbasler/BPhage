@@ -1,0 +1,41 @@
+#!/bin/bash -l
+#SBATCH --job-name="clustering_with_additional_datasets"
+#SBATCH --cluster=genius
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=12
+#SBATCH --mem-per-cpu=4G
+#SBATCH --time=5:00
+#SBATCH --account=lp_jm_virome_group
+#SBATCH --output=slurm-%x_%j.out
+
+###############################################################################
+
+# Submit (from output/slurm_log)
+# sbatch ../../scripts/HPC/clustering_with_additional_datasets.slrm
+
+source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
+conda activate viper_bphage
+repo_location="$VSC_STAGING/BPhage"
+threads=12
+
+mkdir -p $VSC_SCRATCH/BPhage/clustering/
+cd $VSC_SCRATCH/BPhage/clustering/
+
+zcat $repo_location/output/bphage_ALL_1kb_phages.fasta.gz \
+    $repo_location/output/bphage_ALL_1kb_picobirna.fasta.gz \
+    $repo_location/output/bphage_ALL_1kb_unclassified_viruses.fasta.gz \
+    $repo_location/output/other_studies_phages.fasta.gz \
+    $repo_location/output/other_studies_unclassified_viruses.fasta.gz \
+    > temp.bphage_and_others.fasta
+
+viper_cluster_study.py -c temp.bphage_and_others.fasta \
+    -t $threads -o bphage_and_others
+
+rm temp.*
+
+gzip bphage_and_others.fasta 
+cp bphage_and_others* $repo_location/output
+
+echo "========================================================================"
+duration=$SECONDS
+printf 'Job finished in: %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))

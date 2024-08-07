@@ -23,13 +23,9 @@ threads=36
 mkdir -p $VSC_SCRATCH/BPhage/vcontact3/
 cd $VSC_SCRATCH/BPhage/vcontact3/
 
-# Gather input fasta from own assembly and additional datasets
-zcat $repo_location/output/bphage_ALL_1kb_phages.fasta.gz \
-    $repo_location/output/bphage_ALL_1kb_picobirna.fasta.gz \
-    $repo_location/output/bphage_ALL_1kb_unclassified_viruses.fasta.gz \
+# Gather input fasta from own assembly, additional datasets and inphared
+zcat $repo_location/output/bphage_and_others.fasta.gz \
     $VSC_SCRATCH/BPhage/additional_datasets/inphared_3Apr2024_genomes_excluding_refseq.fa.gz \
-    $repo_location/output/other_studies_phages.fasta.gz \
-    $repo_location/output/other_studies_unclassified_viruses.fasta.gz \
     > vcontact3_with_inpha.fasta    
 
 # Clustering
@@ -37,7 +33,10 @@ vcontact3 run --threads $threads --nucleotide vcontact3_with_inpha.fasta --outpu
     --pyrodigal-gv --enable-sensitive --db-domain "prokaryotes" \
     --db-version 223 --db-path $vcontact_db
 
+rm vcontact3_with_inpha.fasta
+
 cp -r bphage_vcontact3_b38_with_inphared $repo_location/output/vcontact3
+
 
 echo "========================================================================"
 duration=$SECONDS
