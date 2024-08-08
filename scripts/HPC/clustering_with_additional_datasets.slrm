@@ -33,8 +33,7 @@ viper_cluster_study.py -c temp.bphage_and_others.fasta \
 
 rm temp.*
 
-gzip bphage_and_others.fasta 
-cp bphage_and_others* $repo_location/output
+cp bphage_and_others_clusters.tsv $repo_location/output
 
 echo "========================================================================"
 duration=$SECONDS

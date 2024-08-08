@@ -22,7 +22,12 @@ mkdir -p $VSC_SCRATCH/BPhage/annotation/pharokka
 cd $VSC_SCRATCH/BPhage/annotation/pharokka
 
 # Gather input fasta from own assembly and additional datasets
-zcat $repo_location/output/bphage_and_others.fasta.gz > temp.bphage_and_others.fasta
+zcat $repo_location/output/bphage_ALL_1kb_phages.fasta.gz \
+    $repo_location/output/bphage_ALL_1kb_unclassified_viruses.fasta.gz \
+    $repo_location/output/bphage_ALL_1kb_picobirna.fasta.gz \
+    $repo_location/output/other_studies_phages.fasta.gz \
+    $repo_location/output/other_studies_unclassified_viruses.fasta.gz \
+    > temp.bphage_and_others.fasta
 
 # The IDs are too long for phold to handle. I rename them here already so the output is compatible with phold.
 awk '/NODE/ {split($0, a, "_"); print a[1] "_" a[2] "_" a[7] "_" a[8] "_" a[9] "_" a[10] "_" a[11]; next} {print $1}' temp.bphage_and_others.fasta | \
@@ -36,7 +41,6 @@ pharokka.py -i bphage_and_others.fasta -o pharokka_bphage_and_others -d /staging
 
 # Copy files
 cp -r pharokka_bphage_and_others $repo_location/output/annotation
-# cp contig.names.shortening.scheme $repo_location/output/annotation
 
 # Clean up
 rm temp.*

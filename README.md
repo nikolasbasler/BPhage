@@ -49,9 +49,9 @@
         - Fasta file and merged genomad and checkv table with >= 50%-complete phages, >= 50%-complete unclassified viruses (containing contigs that are either "Unclassified" or classified only as "Viruses") and Picobirnaviridae (no completeness threshold) for own dataset and for the additional datasets (Deboutte, Bonilla, Busby):
             - `output/bphage_ALL_1kb_phages.*`, `output/bphage_ALL_1kb_unclassified_viruses.*`, `output/bphage_picobirna.*`
             - `output/other_studies_phages.*`, `output/other_studies_unclassified_viruses.*`, `other_studies_picobirna.*` (the latter is empty because there are not Picobirnas in the additional datasets)
-- Clustering with additional datasets:
+- Clustering with additional datasets: `clustering_with_additional_datasets.slrm`
     - Requires: Filtered assembly and contigs from additional datasets in `output/`
-    - Output: Fasta with "bphage and others" contigs, clustered like the cross-sample clustering above (95% ANI over 85% length of the shorter sequence)
+    - Output: File with cluster information, i.e. which contigs are 95%/85cov similar to bphage contigs: `output/bphage_and_others_clusters.tsv`
 
 ### Mapping
 - Prepare mapping: `scripts/HPC/prepare_mapping.slrm`
@@ -88,7 +88,7 @@
 - Pharokka: `annotation_pharokka_bphage_and_others.slrm`
     - Requires:
         - Phage, picobirna and unclassified bphage contigs: `output/bphage_ALL_1kb_phages.fasta.gz`, `bphage_ALL_1kb_picobirna.fasta.gz`, `bphage_ALL_1kb_unclassified_viruses.fasta.gz`
-        - Phage and unclassified contigs from other studies: `output/other_studies_phages.fasta.gz`, `output/other_studies_unclassified_viruses.fasta.gz`
+        - Phage and unclassified contigs from other studies: `output/other_studies_phages.fasta.gz`, `output/other_studies_unclassified_viruses.fasta.gz` (no picobirnas found in the other studies)
     - Output: `output/output/annotation/pharokka/bpgage_and_others`
 - Collabfold: Done by collaborator George Bouras.
     - Requires: Pharokka's prodigal-gv output: `output/annotation/pharokka/bpgage_and_others/prodigal-gv.faa` (in communication with George the file was named `bpgage_and_others_prodigal-gv.faa`)
