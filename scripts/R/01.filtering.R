@@ -7,31 +7,41 @@ source("scripts/R/helpers/tpm_and_reads_per_kb.R")
 source("scripts/R/helpers/decontam.R")
 
 # THIS PATH HAS TO BE ADJUSTED BY THE USER! PANDAS AND SCIPY HAVE TO BE INSTALLED
+# This is only for the co-occurrence analysis, though. Might be skipped anyway
 python_path="/Users/nikolasbasler/miniforge3/envs/co_occurrence/bin/python3"
 
-# abundance.table <- read.csv("output/mapping_stats_phages/stats.phages.mapped_reads.csv", row.names=1)
-# horizontal.cov.table <- read.csv("output/mapping_stats_phages/stats.phages.horizontal_coverage.csv", row.names=1)
-# mean_depth_table <- read.csv("output/mapping_stats_phages/stats.phages.mean_depth.csv", row.names=1)
+abundance.table <- read.csv("output/mapping_stats_phages/stats.phages.mapped_reads.csv", row.names=1) %>%
+  rownames_to_column("contig") %>%
+  filter(contig != "NODE_A1975_length_2506_cov_68.193907_PT_19410_aut_rec_d") %>% # Filter out the one Picobirna contig that isn't the RdRp segment
+  column_to_rownames("contig")
+horizontal.cov.table <- read.csv("output/mapping_stats_phages/stats.phages.horizontal_coverage.csv", row.names=1) %>%
+  rownames_to_column("contig") %>%
+  filter(contig != "NODE_A1975_length_2506_cov_68.193907_PT_19410_aut_rec_d") %>% # Filter out the one Picobirna contig that isn't the RdRp segment
+  column_to_rownames("contig")
+mean_depth_table <- read.csv("output/mapping_stats_phages/stats.phages.mean_depth.csv", row.names=1) %>%
+  rownames_to_column("contig") %>%
+  filter(contig != "NODE_A1975_length_2506_cov_68.193907_PT_19410_aut_rec_d") %>% # Filter out the one Picobirna contig that isn't the RdRp segment
+  column_to_rownames("contig")
 
-abundance.table <- read.csv("output/mapping_stats_bphage_and_others/stats.bphage_and_others.mapped_reads.csv", row.names=1) %>%
-  rownames_to_column("contig") %>%
-  filter(contig != "NODE_A1975_length_2506_cov_68.193907_PT_19410_aut_rec_d") %>% # Filter out the one Picobirna contig that isn't the RdRp segment
-  column_to_rownames("contig")
-horizontal.cov.table <- read.csv("output/mapping_stats_bphage_and_others/stats.bphage_and_others.horizontal_coverage.csv", row.names=1) %>%
-  rownames_to_column("contig") %>%
-  filter(contig != "NODE_A1975_length_2506_cov_68.193907_PT_19410_aut_rec_d") %>% # Filter out the one Picobirna contig that isn't the RdRp segment
-  column_to_rownames("contig")
-mean_depth_table <- read.csv("output/mapping_stats_bphage_and_others/stats.bphage_and_others.mean_depth.csv", row.names=1) %>%
-  rownames_to_column("contig") %>%
-  filter(contig != "NODE_A1975_length_2506_cov_68.193907_PT_19410_aut_rec_d") %>% # Filter out the one Picobirna contig that isn't the RdRp segment
-  column_to_rownames("contig")
+# Abandoned apporach:
+# abundance.table <- read.csv("output/mapping_stats_bphage_and_others/stats.bphage_and_others.mapped_reads.csv", row.names=1) %>%
+#   rownames_to_column("contig") %>%
+#   filter(contig != "NODE_A1975_length_2506_cov_68.193907_PT_19410_aut_rec_d") %>% # Filter out the one Picobirna contig that isn't the RdRp segment
+#   column_to_rownames("contig")
+# horizontal.cov.table <- read.csv("output/mapping_stats_bphage_and_others/stats.bphage_and_others.horizontal_coverage.csv", row.names=1) %>%
+#   rownames_to_column("contig") %>%
+#   filter(contig != "NODE_A1975_length_2506_cov_68.193907_PT_19410_aut_rec_d") %>% # Filter out the one Picobirna contig that isn't the RdRp segment
+#   column_to_rownames("contig")
+# mean_depth_table <- read.csv("output/mapping_stats_bphage_and_others/stats.bphage_and_others.mean_depth.csv", row.names=1) %>%
+#   rownames_to_column("contig") %>%
+#   filter(contig != "NODE_A1975_length_2506_cov_68.193907_PT_19410_aut_rec_d") %>% # Filter out the one Picobirna contig that isn't the RdRp segment
+#   column_to_rownames("contig")
 
 gnmd_classification <- read.csv("output/bphage_ALL_1kb_phages.csv") %>%
   rbind(read.csv("output/bphage_ALL_1kb_unclassified_viruses.csv")) %>%
   rbind(read.csv("output/bphage_ALL_1kb_picobirna.csv")) %>% 
-  filter(contig_id != "NODE_A1975_length_2506_cov_68.193907_PT_19410_aut_rec_d") %>% # Filter out the one Picobirna contig that isn't the RdRp segment
-  rbind(read.csv("output/other_studies_phages.csv")) %>%
-  rbind(read.csv("output/other_studies_unclassified_viruses.csv")) %>%
+  # rbind(read.csv("output/other_studies_phages.csv")) %>%
+  # rbind(read.csv("output/other_studies_unclassified_viruses.csv")) %>%
   separate_wider_delim(taxonomy, delim = ";",
                        names = c("Classification", "Realm", "Kingdom", "Phylum",
                                  "Class", "Order", "Family"),
@@ -39,30 +49,19 @@ gnmd_classification <- read.csv("output/bphage_ALL_1kb_phages.csv") %>%
   mutate(Genus = "Unclassified",
          Species= "Unclassified", .before = lowest_taxon) %>%
   mutate(across(c(Realm, Kingdom, Phylum, Class, Order, Family), ~ ifelse(is.na(.x) | .x == "", "Unclassified", .x))) %>%
-  rename(contig=contig_id)
+  rename(contig=contig_id) %>%
+  filter(contig != "NODE_A1975_length_2506_cov_68.193907_PT_19410_aut_rec_d") # %>% # Filter out the one Picobirna contig that isn't the RdRp segment
+  # filter(contig %in% rownames(abundance.table))
 
 host_groups_df<- read_csv("data/host_groups.csv", show_col_types = FALSE)
 
 metadata=metadata <- read.csv("data/metadata.csv")
 row.names(metadata) <- metadata$Sample_ID
 
-contig_length_df <- read.csv("output/mapping_stats_bphage_and_others/bphage_and_others.contig_lentghs.csv") %>%
+contig_length_df <- read.csv("output/mapping_stats_phages/phages.contig_lentghs.csv") %>%
   mutate(length = length/1000) %>%
   rename(length_kb = length) %>%
   filter(contig != "NODE_A1975_length_2506_cov_68.193907_PT_19410_aut_rec_d") # Filter out the one Picobirna contig that isn't the RdRp segment
-  
-
-# contig_lengths_in_kb = abundance.table %>%
-#   rownames() %>%
-#   str_split(.,"_") %>%
-#   sapply(., "[", 4) %>%
-#   str_replace(".*[HV]","") %>%
-#   as.numeric()/1000
-# contig_length_df = data.frame(contig=rownames(abundance.table), length_kb=contig_lengths_in_kb)
-
-# contig_length_df <- gnmd_classification %>%
-#   select(contig, contig_length) %>%
-#   rename(lentgh_kb = contig_length)
 
 ################################################################################
 ################################################################################
@@ -156,13 +155,6 @@ cat(length(contigs_before_hzc)-length(contigs_after_hzc), "of", length(contigs_b
           "\nRemaining bee pools:", remaining_pools)
 
 cat("Lowest number of mapped reads (>0) to any contig:", min(abundance_table_filt[abundance_table_filt>0]),"\n")
-# 
-# abundance_table_filt %>%
-#   rownames_to_column("contig") %>%
-#   filter(contig %in% contigs_with_warnings) %>%
-#   # filter(str_detect(contig, "Busby")) %>%
-#   View()
-
 
 ################################################################################
 ################################################################################

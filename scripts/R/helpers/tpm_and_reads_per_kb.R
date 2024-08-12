@@ -98,3 +98,11 @@ hostg_filter <- function(hg, ab_table, classif) {
     select_if(~ any(. > 0))
 }
 
+core_filter <- function(core_y_n, ab_table, classif) {
+  classif %>%
+    filter(Core==core_y_n) %>%
+    inner_join(., ab_table, by="contig") %>%
+    select(colnames(ab_table)) %>% 
+    select_if(~ any(. > 0))
+}
+
