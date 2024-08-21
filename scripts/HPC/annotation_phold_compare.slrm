@@ -1,5 +1,5 @@
 #!/bin/bash -l
-#SBATCH --job-name="annotation_phold_compare"
+#SBATCH --job-name="annotation_phold_compare_plot"
 #SBATCH --cluster=genius
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=36
@@ -21,35 +21,53 @@ threads=36
 mkdir -p $VSC_SCRATCH/BPhage/annotation/phold
 cd $VSC_SCRATCH/BPhage/annotation/phold
 
-phold compare --input $repo_location/output/annotation/pharokka_bphage_and_others/bphage_and_others.gbk \
-    --structures --structure_dir $repo_location/output/annotation/phold_colabfold_structures/basler_output_renamed/renamed_pdbs/ \
-    -o phold_compare_bphage_and_others -t $threads -d /staging/leuven/stg_00029/DB/phold/phold_20240723 --separate
+# phold compare --input $repo_location/output/annotation/pharokka_bphage_and_others/bphage_and_others.gbk \
+#     --structures --structure_dir $repo_location/output/annotation/phold_colabfold_structures/basler_output_renamed/renamed_pdbs/ \
+#     -o phold_compare_bphage_and_others -t $threads -d /staging/leuven/stg_00029/DB/phold/phold_20240723 --separate
 
-# Undo the shortening of the contig names
-echo "phold.gbk"
-sed -f $repo_location/data/phold/relengthen.contig.names.sed phold_compare_bphage_and_others/phold.gbk \
-    > phold_compare_bphage_and_others/phold_long_names.gbk
-echo "phold_per_cds_predictions.tsv"
-sed -f $repo_location/data/phold/relengthen.contig.names.sed phold_compare_bphage_and_others/phold_per_cds_predictions.tsv \
-    > phold_compare_bphage_and_others/phold_per_cds_predictions_long_names.tsv
-echo "phold_all_cds_functions.tsv"
-sed -f $repo_location/data/phold/relengthen.contig.names.sed phold_compare_bphage_and_others/phold_all_cds_functions.tsv \
-    > phold_compare_bphage_and_others/phold_all_cds_functions_long_names.tsv
-echo "phold_aa.fasta"
-sed -f $repo_location/data/phold/relengthen.contig.names.sed phold_compare_bphage_and_others/phold_aa.fasta \
-    > phold_compare_bphage_and_others/phold_aa_long_names.fasta
-echo "separate gbks"
-mkdir -p phold_compare_bphage_and_others/separate_gbks_long_names
-while read pattern; do
-    long=$(echo $pattern | cut -d"/" -f3)
-    short=$(echo $pattern | cut -d"/" -f2)
-    sed "s/$short/$long/g" phold_compare_bphage_and_others/separate_gbks/${short}.gbk \
-        > phold_compare_bphage_and_others/separate_gbks_long_names/${long}.gbk
-done < $repo_location/data/phold/relengthen.contig.names.sed
+# # Undo the shortening of the contig names
+# echo "phold.gbk"
+# sed -f $repo_location/data/phold/relengthen.contig.names.sed phold_compare_bphage_and_others/phold.gbk \
+#     > phold_compare_bphage_and_others/phold_long_names.gbk
+# echo "phold_per_cds_predictions.tsv"
+# sed -f $repo_location/data/phold/relengthen.contig.names.sed phold_compare_bphage_and_others/phold_per_cds_predictions.tsv \
+#     > phold_compare_bphage_and_others/phold_per_cds_predictions_long_names.tsv
+# echo "phold_all_cds_functions.tsv"
+# sed -f $repo_location/data/phold/relengthen.contig.names.sed phold_compare_bphage_and_others/phold_all_cds_functions.tsv \
+#     > phold_compare_bphage_and_others/phold_all_cds_functions_long_names.tsv
+# echo "phold_aa.fasta"
+# sed -f $repo_location/data/phold/relengthen.contig.names.sed phold_compare_bphage_and_others/phold_aa.fasta \
+#     > phold_compare_bphage_and_others/phold_aa_long_names.fasta
+# echo "separate gbks"
+# mkdir -p phold_compare_bphage_and_others/separate_gbks_long_names
+# while read pattern; do
+#     long=$(echo $pattern | cut -d"/" -f3)
+#     short=$(echo $pattern | cut -d"/" -f2)
+#     sed "s/$short/$long/g" phold_compare_bphage_and_others/separate_gbks/${short}.gbk \
+#         > phold_compare_bphage_and_others/separate_gbks_long_names/${long}.gbk
+# done < $repo_location/data/phold/relengthen.contig.names.sed
 
-cp -r phold_compare_bphage_and_others $repo_location/output/annotation
+# Filter out some small contigs that make phold plot crash:
+conda activate viper_bphage
+python $repo_location/scripts/HPC/filter_gbk.py phold_compare_bphage_and_others/phold_long_names.gbk \
+    "NODE_A101_length_3473_cov_32.191402_BE_16563_aut_mid_d" \
+    "NODE_A121_length_2596_cov_80.461294_RO_26022_aut_mid_d" \
+    "NODE_A163_length_2857_cov_6.678777_BE_16558_aut_mid_d" \
+    "NODE_A121_length_2596_cov_80.461294_RO_26022_aut_mid_d" \
+    "NODE_A1748_length_2640_cov_7.006243_CH_17687_aut_mid_d" \
+    "NODE_A195_length_2587_cov_81.857769_BE_16558_aut_mid_d" \
+    "NODE_A1975_length_2506_cov_68.193907_PT_19410_aut_rec_d" \
+    "NODE_A282_length_3225_cov_15.390089_NL_19104_aut_mid_d" \
+    "NODE_A291_length_2574_cov_16.419303_BE_16561_sum_rec_d" \
+    "NODE_A303_length_4313_cov_18.084278_BE_16562_aut_mid_d" \
+    > phold_compare_bphage_and_others/phold_long_names_for_plot.gbk
 
-# phold plot --input phold_compare_bphage_and_others/phold.gbk -o plots_phold_compare_bphage_and_others
+conda activate phold
+phold plot --input phold_compare_bphage_and_others/phold_long_names_for_plot.gbk \
+    -o plots_phold_compare_bphage_and_others
+
+# cp -r phold_compare_bphage_and_others $repo_location/output/annotation
+
 
 echo "========================================================================"
 duration=$SECONDS
