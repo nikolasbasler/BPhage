@@ -16,6 +16,11 @@ report_stats <- function(df, thresholds) {
       select(-gut_part) %>%
       arrange(n_seq)
   
+  # ratios_of_thresholds <- outlist$ratios %>%
+  #   filter(n_seq %in% thresholds) %>%
+  #   select(ratio_to_highest) %>%
+  #   unlist(use.names = FALSE)
+  
   outlist$plot_hist <- ggplot(num_of_seqs, aes(x=n_seq)) +
     geom_histogram(binwidth = 100000)
   
