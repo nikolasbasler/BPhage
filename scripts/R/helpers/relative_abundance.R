@@ -182,7 +182,7 @@ phylo_heat_map <- function(ab_table, id_table) {
   # plot_bar(ps, fill = "Family")
 }
 
-average_tpm_bar_plot <- function(tpm_table, tl, hg, meta_vars, title_prefix="", threshold_for_other=0.01) {
+average_tpm_bar_plot <- function(tpm_table, tl, hg, meta_vars, title_prefix="", threshold_for_other=0.01, hg_or_core = "") {
   label_for_other <- paste0("other (<", round(threshold_for_other*100, digits = 1),"%)")
   c_vec <- color_vector[1:(nrow(tpm_table)+1)]
   names(c_vec) <- c(tpm_table[[tl]],label_for_other)
@@ -211,7 +211,7 @@ average_tpm_bar_plot <- function(tpm_table, tl, hg, meta_vars, title_prefix="", 
     plot_list[[m_var]] <- tible_list[[m_var]] %>%
       ggplot(aes(x=.data[[m_var]], y=mean_tpm, fill=group)) +
       geom_col() +
-      ggtitle(paste0(title_prefix, "Host group: \"", hg,"\"")) +
+      ggtitle(paste0(title_prefix, hg_or_core, ": \"", hg,"\"")) +
       labs(fill=tl) # +
       # scale_fill_manual(values = c_vec)
     if (m_var=="Sample_ID") {

@@ -1,38 +1,55 @@
-
-
-add_dataset_to_cytoscape_table <- {
-  ## ADD COLUMN TO DATA
-  ## - Export node list from cytoscape
-  ## - Open it here
-  ## - Add column containing the dataset
-  ## - Save it and import into cytoscape
+pick_ambiguous_taxa <- function(vcontact_output, taxlevel_to_correct) {
+  # Pick the subfamily that corresponds to the family prediction (or 
+  # equvalently pick the genus that corresponds to the subfamily prediction).
+  # So run this function twice, once with taxlevel_to_correct="Subfamily", once
+  # with taxlevel_to_correct="Genus"
   
+  if (taxlevel_to_correct == "Subfamily") {
+    higher_tax <- "family..prediction."
+    lower_tax <- "subfamily..prediction."
+    start_string <- "novel_subfamily"
+  }
+  if (taxlevel_to_correct == "Genus") {
+    higher_tax <- "Subfamily"
+    lower_tax <- "genus..prediction."
+    start_string <- "novel_genus"
+  }
   
-  final_assignments <- read.csv("output/vcontact3/final_assignments.csv") %>%
-    select(-X) %>%
-    select(RefSeqID, Proteins, Reference, contains("Size"), contains("prediction"), network)
-  
-  file_location <- "~/Library/CloudStorage/OneDrive-KULeuven/PhD/Virome/BPhage/output/vcontact3/"
-  bins <- c("all", "bin_0", "bin_1", "bin_2", "bin_3")
-  
-  cyjs <- list()
-  result_table <- list()
-  for (bin in bins) {
-    if (bin == "all") {
-      cyjs[[bin]] <- read.csv(paste0(file_location, "graph.cyjs default node.csv"))
-    } else {
-      cyjs[[bin]] <- read.csv(paste0(file_location, "graph.", bin,".cyjs default node.csv"))
-    }
-    cyjs[[bin]] %>% 
-      mutate_all(~ifelse(is.na(.), "", .)) %>%
-      mutate(dataset = "vcontact3") %>%
-      mutate(dataset = ifelse(str_detect(name, "NODE_"), "BPhage", dataset)) %>%
-      mutate(dataset = ifelse(str_detect(name, "Bonilla"), "BonillaRosso", dataset)) %>%
-      mutate(dataset = ifelse(str_detect(name, "Deboutte"), "Deboutte", dataset)) %>%
-      mutate(dataset = ifelse(str_detect(name, "Busby"), "Busby", dataset)) %>%
-      left_join(., final_assignments[], by = join_by(name == RefSeqID)) %>%
-      write_csv(paste0(file_location, "graph.", bin, ".cyjs.with_dataset_column.csv"), quote = "all")
-  } 
+  # Make a new column where each row contains a list with the doublepipe-
+  # separated fields of the "subfamily..prediction." column (catch empty 
+  # characters and set to NA). Then pick the item from the list that contains 
+  # the substring in "family..prediction.".
+  vcontact_output %>%
+    mutate(new_column = str_split(.data[[lower_tax]], "\\|\\|")) %>%
+    mutate(
+      new_column = map2_chr(new_column, .data[[higher_tax]], ~{
+        if (.y != "" && !is.na(.y)) {
+          match <- .x[str_detect(.x, .y)]
+          if (length(match) > 0) match else NA_character_
+          } else {
+            NA_character_
+            }
+        })
+      ) %>%
+    # If the new family entry doesn't start with it already, take the
+    # "novel_subfamily_x" part from the beginning of "subfamily..prediction". 
+    # and prepend it.
+    mutate(new_column = if_else(
+      str_starts(new_column, start_string),
+      new_column,
+      paste(
+        str_extract(.data[[lower_tax]], "^([^_]+_){3}[^_]+"),
+        new_column,
+        sep = "_")
+      )) %>%
+    # Copy all the original "subfamily..prediction." entries that don't need any 
+    # of this treatment 
+    mutate(
+      new_column = if_else(
+        str_count(.data[[lower_tax]], "\\|\\|") < 1,
+        .data[[lower_tax]],
+        new_column
+      )
+    ) %>%
+    rename(!!sym(taxlevel_to_correct) := new_column) 
 }
-
-

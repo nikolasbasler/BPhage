@@ -16,7 +16,7 @@ find_intersects <- function(combos, taxes_list) {
   return(inter)
 }
 
-prevalence_venn <- function(abtable, meta_var, country) {
+prevalence_venn <- function(abtable, meta_var, country, subset) {
   tax <- colnames(abtable)[1]
   
   if (country!="all") {
@@ -40,7 +40,7 @@ prevalence_venn <- function(abtable, meta_var, country) {
   }
   n_cats <- length(levels(ab_long_tibble[[meta_var]]))
   colors <- c("#E69F00", "#56B4E9", "#009E73", "#999999")[1:n_cats]
-  png_file <- paste0("output/R/venns/",tax,"/",meta_var,"/prevalence.Venn.",country,".",meta_var,".",tax,".png")
+  png_file <- paste0("output/R/venns/",subset,"/",tax,"/",meta_var,"/prevalence.Venn.",country,".",meta_var,".",tax,".png")
   
   display_venn(cat_list = contained_taxes, 
                fill = colors, 
@@ -80,7 +80,7 @@ prevalence_venn <- function(abtable, meta_var, country) {
       paste(int, ., sep=": ") %>%
       c(stats_out, .)
   }
-  stats_file <- paste0("output/R/venns/",tax,"/",meta_var,"/prevalence.Venn.",country,".",meta_var,".",tax,".txt")
+  stats_file <- paste0("output/R/venns/",subset,"/",tax,"/",meta_var,"/prevalence.Venn.",country,".",meta_var,".",tax,".txt")
   write_lines(stats_out, stats_file)
   
   return(intersections)
