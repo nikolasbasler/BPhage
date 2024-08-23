@@ -1,7 +1,7 @@
 # BPhage data analysis
 ## Versions
 - Viper version 2.1 (commit 8244c2eeeebeb2c1fbe4082034ca329e6f0a4a10 13 March 2024, https://github.com/Matthijnssenslab/ViPER)
-- For software versions see [data/env_viper_bphage.yml](data/env_viper_bphage.yml) and [data/env_ncbi.yml](data/env_ncbi.yml)
+- For tool versions see the conda environment `.yml` files: `data/env_*.yml`
 - R 4.3.1
 - RStudio 2023.12.1+402 (2023.12.1+402)
 - To reproduce R package versions run `renv::restore()`
@@ -76,7 +76,15 @@
     - Output:
         - Separate tables for mapped reads, horizontal coverage and mean depth (samples in columns, contigs in rows) and a table with all contig lengths in `output/mapping_stats`
 
-### Clustering
+### ANI calculation
+- ANI calculation of genomes: `scripts/calculate_ANI.slrm`
+    - Requires:
+        - vclust script at `scripts/HPC/vclust-1.0.3_x64-linux/`
+        - Phage, picobirna and unclassified bphage contigs: `output/bphage_ALL_1kb_phages.fasta.gz`, `bphage_ALL_1kb_picobirna.fasta.gz`, `bphage_ALL_1kb_unclassified_viruses.fasta.gz`
+        - Phage and unclassified contigs from other studies: `output/other_studies_phages.fasta.gz`, `output/other_studies_unclassified_viruses.fasta.gz`
+    - Output: Pairwise ANI of all contigs: `output/ani/`
+
+### Taxonomic clustering
 - vConTACT3: `scripts/HPC/vcontact3_clustering_with_inphared.slrm`
     - Requires: 
         - Phage, picobirna and unclassified bphage contigs: `output/bphage_ALL_1kb_phages.fasta.gz`, `bphage_ALL_1kb_picobirna.fasta.gz`, `bphage_ALL_1kb_unclassified_viruses.fasta.gz`
@@ -107,3 +115,10 @@
         - sed script to re-lengthen contig names: `data/phold/relengthen.contig.names.sed`
     - Output:
         - Predicted functions at: `output/annotation/phold_compare_bphage_and_others`
+        - Additional files in this output folder with the original, long contig names: `output/annotation/phold_compare_bphage_and_others/*_long_names.*`
+        - Ciros plots of all contigs, except a few very short ones that crashed `phold plot`: `output/annotation/plots_phold_compare_bphage_and_others` (using original, long contig names).
+
+### Lifestyle prediction
+
+### Host prediction
+
