@@ -21,17 +21,22 @@ threads=36
 mkdir -p $VSC_SCRATCH/BPhage/ani
 cd $VSC_SCRATCH/BPhage/ani
 
-$repo_location/scripts/vclust-1.0.3_x64-linux/vclust.py prefilter \
-    -t $threads \
-    -i $VSC_SCRATCH/BPhage/ref/bphage_and_others_mapping_ref.fasta \
-    -o prefilter.txt
+# BPhage and others
+zcat $repo_location/output/bphage_ALL_1kb_phages.fasta.gz \
+    $repo_location/output/bphage_ALL_1kb_unclassified_viruses.fasta.gz \
+    $repo_location/output/bphage_ALL_1kb_picobirna.fasta.gz \
+    $repo_location/output/other_studies_phages.fasta.gz \
+    $repo_location/output/other_studies_unclassified_viruses.fasta.gz \
+    > temp.bphage_and_others.fasta
 
 $repo_location/scripts/vclust-1.0.3_x64-linux/vclust.py align \
     -t $threads \
-    -i $VSC_SCRATCH/BPhage/ref/bphage_and_others_mapping_ref.fasta \
-    --filter prefilter.txt \
+    -i temp.bphage_and_others.fasta \
     -o bphage_and_others_ani.tsv
 
+rm temp.*
+
+pigz -p $threads bphage_and_others_ani.tsv
 mkdir -p $repo_location/output/ani
 cp * $repo_location/output/ani
 
