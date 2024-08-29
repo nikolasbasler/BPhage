@@ -15,12 +15,22 @@ pick_ambiguous_taxa <- function(vcontact_output, taxlevel_to_correct) {
     start_string <- "novel_genus"
   }
   
+  # Fix the prepend the subfamily to the fields in the genus..prediction. column
+  # where it's missing.
+  if (taxlevel_to_correct == "Genus") {
+    vcontact_output <- vcontact_output %>% 
+      mutate(genus..prediction. = str_replace_all(
+        genus..prediction.,
+        "\\|\\|novel_family",
+        paste0("||", str_extract(Subfamily, "^([^_]+_){3}[^_]+"), "_novel_family")))
+    }
+  
   # Make a new column where each row contains a list with the doublepipe-
   # separated fields of the "subfamily..prediction." column (catch empty 
   # characters and set to NA). Then pick the item from the list that contains 
   # the substring in "family..prediction.".
   vcontact_output %>%
-    mutate(new_column = str_split(.data[[lower_tax]], "\\|\\|")) %>%
+    mutate(new_column = str_split(.data[[lower_tax]], "\\|\\|")) %>% 
     mutate(
       new_column = map2_chr(new_column, .data[[higher_tax]], ~{
         if (.y != "" && !is.na(.y)) {
@@ -51,5 +61,5 @@ pick_ambiguous_taxa <- function(vcontact_output, taxlevel_to_correct) {
         new_column
       )
     ) %>%
-    rename(!!sym(taxlevel_to_correct) := new_column) 
+    rename(!!sym(taxlevel_to_correct) := new_column)
 }
