@@ -55,11 +55,11 @@ present_in_all_countries <- read_lines("data/core_contigs.txt")
 # classification <- read.csv("output/vcontact3/previous_runs/vcontact3_with_inphared/final_assignments.csv") %>%
 
 classification <- read.csv("output/vcontact3/bphage_vcontact3_b38_with_inphared/final_assignments.csv")  %>% 
-  filter(str_detect(GenomeName, "NODE"))
-classification <- pick_ambiguous_taxa(vcontact_output = classification, 
-                                        taxlevel_to_correct = "Subfamily")
-classification <- pick_ambiguous_taxa(vcontact_output = classification, 
-                    taxlevel_to_correct = "Genus")
+  filter(str_detect(GenomeName, "NODE") | str_detect(GenomeName, "Busby") | str_detect(GenomeName, "Bonilla") | str_detect(GenomeName, "Deboutte"))
+classification <- pick_ambiguous_taxa(vcontact_output = classification,
+                                      taxlevel_to_pick = "Subfamily")
+classification <- pick_ambiguous_taxa(vcontact_output = classification,
+                                      taxlevel_to_pick = "Genus")
 
 classification <- classification %>%
 mutate(Kingdom = "",  # No Kingdom column in vcontact's output??
