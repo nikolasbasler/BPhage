@@ -54,11 +54,12 @@ present_in_all_countries <- read_lines("data/core_contigs.txt")
 # classification <- read.csv("output/vcontact3/previous_runs/vcontact3/final_assignments.csv") %>%
 # classification <- read.csv("output/vcontact3/previous_runs/vcontact3_with_inphared/final_assignments.csv") %>%
 
-classification <- read.csv("output/vcontact3/bphage_vcontact3_b38_with_inphared/final_assignments.csv")
-classification <- pick_ambiguous_taxa(vcontact_output = classification, 
-                                        taxlevel_to_correct = "Subfamily")
-classification <- pick_ambiguous_taxa(vcontact_output = classification, 
-                    taxlevel_to_correct = "Genus")
+classification <- read.csv("output/vcontact3/bphage_vcontact3_b38_with_inphared/final_assignments.csv")  %>% 
+  filter(str_detect(GenomeName, "NODE") | str_detect(GenomeName, "Busby") | str_detect(GenomeName, "Bonilla") | str_detect(GenomeName, "Deboutte"))
+classification <- pick_ambiguous_taxa(vcontact_output = classification,
+                                      taxlevel_to_pick = "Subfamily")
+classification <- pick_ambiguous_taxa(vcontact_output = classification,
+                                      taxlevel_to_pick = "Genus")
 
 classification <- classification %>%
 mutate(Kingdom = "",  # No Kingdom column in vcontact's output??
@@ -80,9 +81,7 @@ mutate(Kingdom = "",  # No Kingdom column in vcontact's output??
                                      "contamination", "kmer_freq", "warnings")],
             by = "contig") %>%
   mutate(Host_group = "all") %>% 
-  # mutate(Host_group = ifelse(contig %in% present_in_all_countries, "core", "all")) %>% # Using the hostgroup column to mark core genomes. Find a more permanent way to to this!
-  mutate(Core = ifelse(contig %in% present_in_all_countries, "yes", "no")) %>% 
-  filter(str_detect(contig, "NODE"))
+  mutate(Core = ifelse(contig %in% present_in_all_countries, "yes", "no"))
 
 contig_order <- classification %>%
   arrange(Realm, Kingdom, Phylum, Class, Order, Family, Genus, Species) %>% 
@@ -94,6 +93,13 @@ classification <- classification %>%
 
 phage_abundance <- read.csv("output/R/phage.filt.abundance.contig.csv") %>%
   select(!contains("Blank"))
+
+# ANI
+bphage_and_others_ani.tsv <- read.delim("output/ani/bphage_and_others_ani.tsv.gz")
+
+#------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
+# Taxon pies ####
 
 # Make a pie chart of the different taxons
 taxon_pie <- table(classification$Order) %>%
@@ -110,6 +116,10 @@ taxon_pie <- table(classification$Order) %>%
         axis.text = element_blank(),
         axis.ticks = element_blank()) +
   scale_fill_brewer(palette="Set3")
+
+#------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
+# Generate abundance and TPM tables ####
 
 ## Generate abundance tables for different taxonomic levels.####
 taxlevels <- c("contig", "Genus", "Family", "Order", "Class", "Phylum", "Kingdom", "Realm", "Host_group", "Core")
@@ -225,6 +235,50 @@ for (core_or_not in unique(classification$Core)) {
     map(~tax_sum(., ab_table=core_filt,
                  classif = classification))
 }
+
+#------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
+# ANI comparison ####
+
+ANI_bphage <- bphage_and_others_ani.tsv %>%
+  # select(id1, id2, ani) %>%
+  filter(id1 > id2) %>%
+  filter(str_detect(id1, "NODE") & str_detect(id2, "NODE"))
+
+aANI_bphage <- ANI_bphage %>%
+  select(ani) %>%
+  mutate(subset = "all")
+aANI_core <- ANI_bphage %>%
+  filter(id1 %in% present_in_all_countries & id2 %in% present_in_all_countries) %>%
+  select(ani) %>%
+  mutate(subset = "core")
+aANI_non_core <- ANI_bphage %>%
+  filter((!id1 %in% present_in_all_countries) & (!id2 %in% present_in_all_countries)) %>%
+  select(ani) %>%
+  mutate(subset = "non-core")
+
+aANI_df <- rbind(aANI_bphage, aANI_core, aANI_non_core)
+kruskal_results <- aANI_df %>%
+  summarize(pvalue = kruskal.test(ani~subset)$p.value,
+            test_stat = kruskal.test(ani~subset)$statistic,
+            deg_freedom = kruskal.test(ani~subset)$parameter)
+aANI_stats <- aANI_df %>%
+  group_by(subset) %>%
+  summarise(mean_ani = mean(ani),
+            median_ani = median(ani),
+            IQR_ani = IQR(ani),
+            sd_ani = sd(ani))
+
+
+
+aANI_boxplot <- aANI_df %>%
+  # sample_frac(0.001) %>%
+  ggplot(aes(x = subset, y = ani)) +
+  geom_boxplot() +
+  geom_pwc(method="wilcox.test", label="p.adj.signif",
+           p.adjust.method="BH", hide.ns = TRUE) +
+  labs(title = paste0("Krusil-Wallis H = ", round(kruskal_results$test_stat), ", p ≈ ",kruskal_results$pvalue))
+
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
@@ -680,6 +734,9 @@ for (tlvl in tax_levels) {
     }
   }
 }
+
+here_time <- Sys.time()
+here_time - start_time
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
