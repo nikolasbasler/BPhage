@@ -15,6 +15,7 @@
 
 source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 repo_location="$VSC_STAGING/BPhage"
+conda activate bacphlip
 
 mkdir -p $VSC_SCRATCH/BPhage/lifestyle/
 cd $VSC_SCRATCH/BPhage/lifestyle/
@@ -25,7 +26,6 @@ zcat $repo_location/output/bphage_ALL_1kb_phages.fasta.gz \
     > bphage.fasta    
 
 # Bacphlip
-conda activate bacphlip
 bacphlip -i bphage.fasta --multi_fasta
 
 mkdir -p $repo_location/output/lifestyle/bacphlip
