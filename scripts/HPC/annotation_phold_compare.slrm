@@ -47,7 +47,7 @@ while read pattern; do
         > phold_compare_bphage_and_others/separate_gbks_long_names/${long}.gbk
 done < $repo_location/data/phold/relengthen.contig.names.sed
 
-# Filter out some small contigs that make phold plot crash:
+# Filter out some small contigs that make phold plot crash (this should be fixed in a later version of phold):
 conda activate viper_bphage
 python $repo_location/scripts/HPC/filter_gbk.py phold_compare_bphage_and_others/phold_long_names.gbk \
     "NODE_A101_length_3473_cov_32.191402_BE_16563_aut_mid_d" \
@@ -69,8 +69,7 @@ conda activate phold
 phold plot --input phold_compare_bphage_and_others/phold_long_names_for_plot.gbk \
     -o plots_phold_compare_bphage_and_others
 
-# cp -r phold_compare_bphage_and_others $repo_location/output/annotation
-
+cp -r phold_compare_bphage_and_others $repo_location/output/annotation
 
 echo "========================================================================"
 duration=$SECONDS
