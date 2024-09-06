@@ -70,6 +70,7 @@ phold plot --input phold_compare_bphage_and_others/phold_long_names_for_plot.gbk
     -o plots_phold_compare_bphage_and_others
 
 cp -r phold_compare_bphage_and_others $repo_location/output/annotation
+cp -r plots_phold_compare_bphage_and_others $repo_location/output/annotation
 
 echo "========================================================================"
 duration=$SECONDS
