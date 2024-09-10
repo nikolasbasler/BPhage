@@ -282,7 +282,8 @@ prevalence_bar_plot <- function(abtable, tl, hg, meta_vars, title_prefix="", thr
       geom_col() +
       ggtitle(paste0(title_prefix, tl, " - Host group: \"", hg,"\"", title_suffix)) +
       labs(fill=m_var) +
-      theme(axis.text.x = element_text(angle = 45, hjust=1)) +
+      theme(axis.text.x = element_text(angle = 45, hjust=1),
+            plot.margin = margin(10, 10, 10, 100)) +
       scale_fill_manual(values = color_vector) #+
       # scale_x_discrete(expand = c(0.5, 0))  # Adjust the first value as needed
   }
