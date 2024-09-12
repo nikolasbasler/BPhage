@@ -3,6 +3,7 @@ library(ggpubr)
 library(patchwork)
 library(stringr)
 
+system("mkdir -p output/R/vibiom_poster/")
 bee_brown <- "#5E280C"
 
 metadata <- read.csv("data/metadata.csv") %>%
@@ -95,16 +96,18 @@ prev_plot
 
  ####################  MEAN REL ABUND ##################################
 
-average_TPM_stats <- read.csv("output/R/relative_abundance_overall/average.TPM.Host_groups.Country.csv")
+average_TPM_stats <- read.csv("output/R/relative_abundance/relative_abundance_by_metavar_core_or_not/Core_or_not_relative_abundance.Country.csv")
 color_vector <- c("black","#ef8f01")
 
 overall_mean <- 0.196
 
 averate_TPM_plot <- average_TPM_stats %>%
   mutate(Country = factor(Country, levels = levels(metadata$Country))) %>%
-  mutate(group = ifelse(group == "all","non-core", group),
-         group = ifelse(group == "core", "core   ", group)) %>%
-  ggplot(aes(x = Country, y = mean_tpm, fill = factor(group, levels = c("non-core", "core   ")))) +
+  mutate(group = ifelse(group == "yes", "Core", "non-Core")) %>%
+  # mutate(group = ifelse(group == "all","non-core", group),
+  #        group = ifelse(group == "core", "core   ", group)) %>%
+  # ggplot(aes(x = Country, y = mean_tpm, fill = factor(group, levels = c("non-core", "core   ")))) +
+  ggplot(aes(x = Country, y = mean_tpm, fill = factor(group, levels = c("non-Core", "Core")))) +
   geom_col(color = "black") +
   scale_fill_manual(values = color_vector) +
   scale_y_continuous(labels = scales::percent) +
@@ -283,8 +286,8 @@ moron_pie <-
 
 moron_pie 
 
-ggsave(paste0("output/R/vibiom_poster/moron.pdf"),
-       moron_pie, width = 4.5, height = 4.5)
+# ggsave(paste0("output/R/vibiom_poster/moron.pdf"),
+#        moron_pie, width = 4.5, height = 4.5)
   
 
 #### membrane protein:

@@ -136,12 +136,47 @@ classification %>%
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
-# Taxon pies ####
+# Taxon and core pies ####
+
+core_pie <- list()
+top_dozen_taxes <- list()
+taxlevels <- c("Order", "Family")
+for (tl in taxlevels) {
+  pie_tibble <- classification %>%
+    filter(contig %in% present_in_all_countries) %>%
+    select(all_of(tl)) %>%
+    table() %>%
+    as.data.frame() %>%
+    # rename(Lowest_taxon = Var1, Genomes = Freq) %>%
+    arrange(desc(Freq)) %>%
+    mutate(Tax = factor(.data[[tl]], levels = .data[[tl]]))
+  
+  top_dozen_taxes[[tl]] <- pie_tibble %>%
+    head(n=12) %>%
+    select(all_of(tl)) %>%
+    unlist(use.names = FALSE) %>%
+    factor()
+  
+  core_pie[[tl]] <- pie_tibble %>%
+    ggplot(aes(x = "", y=Freq, fill = Tax)) +
+    geom_bar(stat = "identity", color="black", linewidth=0.2) +
+    coord_polar("y") +
+    theme_classic() +
+    labs(x = NULL, y = NULL) +
+    theme(axis.line = element_blank(),
+          axis.text = element_blank(),
+          axis.ticks = element_blank()) +
+    scale_fill_brewer(palette="Set3", name = tl)
+}
 
 taxlevels <- c("Order", "Family")
 taxon_pie <- list()
+taxon_pie_overlap <- list()
 for (tl in taxlevels) {
-  taxon_pie[[tl]] <- table(classification[[tl]]) %>%
+  set3_colors <- brewer.pal(n = 12, name = "Set3")
+  custom_colors <- setNames(set3_colors, top_dozen_taxes[[tl]])
+  
+  pie_tible <- table(classification[[tl]]) %>%
     as.data.frame() %>%
     rename(Taxon = Var1, Genomes = Freq) %>%
     mutate(Taxon = as.character(Taxon),
@@ -151,7 +186,9 @@ for (tl in taxlevels) {
     distinct() %>%
     ungroup() %>%
     arrange(desc(Genomes)) %>%
-    mutate(Taxon = factor(Taxon, levels = Taxon,)) %>%
+    mutate(Taxon = factor(Taxon, levels = Taxon,))
+  
+  taxon_pie[[tl]] <- pie_tible %>%
     ggplot(aes(x = "", y=Genomes, fill = Taxon)) +
     geom_bar(stat = "identity", color="black", linewidth=0.2) +
     coord_polar("y") +
@@ -160,31 +197,11 @@ for (tl in taxlevels) {
     theme(axis.line = element_blank(),
           axis.text = element_blank(),
           axis.ticks = element_blank()) +
-    scale_fill_brewer(palette="Set3") # +
-    # theme(legend.text = element_text(size = 8)) 
+    scale_fill_brewer(palette="Set3")
+  
+  taxon_pie_overlap[[tl]] <- taxon_pie[[tl]] +
+    scale_fill_manual(values = custom_colors, na.value = "white")
 }
-
-core_pie <- list()
-for (taxlevel in c("Order", "Family")) {
-  core_pie[[taxlevel]] <- classification %>%
-    filter(contig %in% present_in_all_countries) %>%
-    select(all_of(taxlevel)) %>%
-    table() %>%
-    as.data.frame() %>%
-    # rename(Lowest_taxon = Var1, Genomes = Freq) %>%
-    arrange(desc(Freq)) %>%
-    mutate(Tax = factor(.data[[taxlevel]], levels = .data[[taxlevel]])) %>%
-    ggplot(aes(x = "", y=Freq, fill = Tax)) +
-    geom_bar(stat = "identity", color="black", linewidth=0.2) +
-    coord_polar("y") +
-    theme_classic() +
-    labs(x = NULL, y = NULL) +
-    theme(axis.line = element_blank(),
-          axis.text = element_blank(),
-          axis.ticks = element_blank()) +
-    scale_fill_brewer(palette="Set3", name = taxlevel) 
-}
-
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
@@ -883,14 +900,16 @@ saveRDS(classification_gnmd, "output/R/R_variables/classification_gnmd.RDS")
 
 ## Taxon and core pie
 system("mkdir -p output/R/taxon_pies")
-for (tax in names(taxon_pie)) {
-  ggsave(paste0("output/R/taxon_pies/taxon_pie.", tax,".pdf"), taxon_pie[[tax]], width = 25, height = 20)
-}
 for (taxlevel in names(core_pie)) {
   ggsave(paste0("output/R/taxon_pies/core_pie.", taxlevel, ".pdf"),
          core_pie[[taxlevel]], width = 12, height = 10)
 }
-
+for (tax in names(taxon_pie)) {
+  ggsave(paste0("output/R/taxon_pies/taxon_pie.", tax,".pdf"), taxon_pie[[tax]], width = 12, height = 10)
+}
+for (tax in names(taxon_pie_overlap)) {
+  ggsave(paste0("output/R/taxon_pies/taxon_pie_overlap.", tax,".pdf"), taxon_pie_overlap[[tax]], width = 8, height = 6)
+}
 
 ## aANI boxplot
 ggsave("output/R/aANI_boxplot.pdf", aANI_boxplot, width = 6, height = 6)
