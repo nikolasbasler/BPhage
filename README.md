@@ -122,3 +122,16 @@
 
 ### Host prediction
 
+### Micruviruses
+- microviruses.R
+    - Requires:
+        - Phold output: `output/annotation/phold_compare_bphage_and_others/phold_per_cds_predictions_long_names.tsv.gz`
+        - Cytoscape files from vcontact3: `data/cytoscape_yFiles_Organic_layout_bin_0.topleft_blop`, `output/vcontact3/bphage_vcontact3_b38_with_inphared/graph.bin_*.cyjs default node.csv`
+    - Output:
+        - Phold annotation table filtered down to microvirus VP1 and VP4 (lowest evalue per contig): `output/R/microviruses/micros_repli_and_head.csv`
+- microvirus_taxonomy.slrm
+    - Requires:
+        - Filtered-down phold output: `output/R/microviruses/micros_repli_and_head.csv`
+        - Kirchberger et al 2022 microvirus proteins: `$VSC_SCRATCH/BPhage/additional_datasets/Micro2022_02_24_input.fasta`
+        
+
