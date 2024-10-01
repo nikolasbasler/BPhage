@@ -1,0 +1,16 @@
+name: mop-up
+channels:
+  - bioconda
+  - defaults
+  - conda-forge
+  - nodefaults
+dependencies:
+  - biopython
+  - pandas==1.0.5=py38h0573a6f_0
+  - pyfaidx==0.5.9.5=pyh3252c3a_0
+  - pip==20.2.4=py38_0
+  - numpy=1.23.5
+  - boost=1.82.0
+  - ca-certificates
+  - openssl
+prefix: /data/leuven/341/vsc34111/mambaforge/envs/mop-up

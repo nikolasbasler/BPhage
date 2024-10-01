@@ -1,0 +1,40 @@
+#!/bin/bash -l
+#SBATCH --job-name="taxonomy_microviruses"
+#SBATCH --cluster=genius
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=36
+#SBATCH --mem-per-cpu=4G
+#SBATCH --time=30:00
+#SBATCH --account=lp_jm_virome_group
+#SBATCH --output=slurm-%x_%j.out
+
+###############################################################################
+
+# Submit (from output/slurm_log)
+# sbatch --export=ALL ../../scripts/HPC/taxonomy_microviruses.slrm
+
+source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
+conda activate viper_bphage
+repo_location="$VSC_STAGING/BPhage"
+threads=36
+
+mkdir -p $VSC_SCRATCH/BPhage/tax_micros
+cd $VSC_SCRATCH/BPhage/tax_micros
+
+seqkit grep -r -f $repo_location/data/bphage.microviridae.contigs \
+    $repo_location/output/annotation/phold_compare_bphage_and_others/phold_aa_long_names.fasta | \
+    sed 's/:/@/g' \
+    > bphage.microviridae.proteins.fasta
+
+module load Boost
+conda activate mop-up
+cd $repo_location/MOP-UP/
+python3 mop-up.py bphage_micros $VSC_SCRATCH/BPhage/tax_micros/bphage.microviridae.proteins.fasta @ \
+    $VSC_SCRATCH/BPhage/tax_micros/bphage_micros_mopup --cpu $threads --miniden 30
+
+mkdir -p $repo_location/output/bphage_micros_mopup
+cp -r $VSC_SCRATCH/BPhage/tax_micros/bphage_micros_mopup/mop-up_output/* $repo_location/output/bphage_micros_mopup
+
+echo "========================================================================"
+duration=$SECONDS
+printf 'Job finished in: %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))
