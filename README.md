@@ -122,13 +122,14 @@
 
 ### Host prediction
 
-### Micruvirus VP1 and Caudo terL trees
+### Micruvirus taxonomy
 - MOP-UP pipeline: `taxonomy_microviruses.slrm`
     - Requires:
         - List of microvirus contigs: `data/bphage.microviridae.contigs`. This is derived from `output/R/phage.filt.gnmd.classification.csv` which is created later in the R sripts. It's separately placed into `data` for convenience.
     - Output:
         - Clustered microvirus genomes at `output/bphage_micros_mopup`
-
+        - Filtered and colored cytoscape graph: `data/bphage_micros_id30_colored_cytoscape.cys` and `bphage_micros_id30_colored_cytoscape.png`
+        - BPhage contigs manually assigned to Kirberger et al's microvirus families: `/data/bphage.microvirus.taxonomy.csv`
 
 ### R analyses
 - R filtering script `xxx`
