@@ -73,6 +73,7 @@ make check
 make install prefix=$repo_location/MOP-UP
 cd ..
 ln bin/silix .
+rm -rf .git*
 
 # Bee ref genome
 conda activate ncbi
