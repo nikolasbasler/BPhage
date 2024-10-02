@@ -125,9 +125,9 @@
 ### Micruvirus VP1 and Caudo terL trees
 - MOP-UP pipeline: `taxonomy_microviruses.slrm`
     - Requires:
-        - List of microvirus contigs: `data/bphage.microviridae.contigs`
+        - List of microvirus contigs: `data/bphage.microviridae.contigs`. This is derived from `output/R/phage.filt.gnmd.classification.csv` which is created later in the R sripts. It's separately placed into `data` for convenience.
     - Output:
-        -
+        - Clustered microvirus genomes at `output/bphage_micros_mopup`
 
 
 ### R analyses

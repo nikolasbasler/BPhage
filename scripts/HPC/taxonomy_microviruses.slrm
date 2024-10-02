@@ -4,7 +4,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=36
 #SBATCH --mem-per-cpu=4G
-#SBATCH --time=30:00
+#SBATCH --time=2:00:00
 #SBATCH --account=lp_jm_virome_group
 #SBATCH --output=slurm-%x_%j.out
 
@@ -29,11 +29,17 @@ seqkit grep -r -f $repo_location/data/bphage.microviridae.contigs \
 module load Boost
 conda activate mop-up
 cd $repo_location/MOP-UP/
-python3 mop-up.py bphage_micros $VSC_SCRATCH/BPhage/tax_micros/bphage.microviridae.proteins.fasta @ \
-    $VSC_SCRATCH/BPhage/tax_micros/bphage_micros_mopup --cpu $threads --miniden 30
+
+python3 mop-up.py bphage_micros_id30 $VSC_SCRATCH/BPhage/tax_micros/bphage.microviridae.proteins.fasta @ \
+    $VSC_SCRATCH/BPhage/tax_micros/bphage_micros_id30 --cpu $threads --miniden 0.30
+
+python3 mop-up.py bphage_micros_id50 $VSC_SCRATCH/BPhage/tax_micros/bphage.microviridae.proteins.fasta @ \
+    $VSC_SCRATCH/BPhage/tax_micros/bphage_micros_id50 --cpu $threads --miniden 0.50
 
 mkdir -p $repo_location/output/bphage_micros_mopup
-cp -r $VSC_SCRATCH/BPhage/tax_micros/bphage_micros_mopup/mop-up_output/* $repo_location/output/bphage_micros_mopup
+echo "Copying output (this takes a while because there are 100k files...)"
+cp -r $VSC_SCRATCH/BPhage/tax_micros/bphage_micros_id30/mop-up_output/* $repo_location/output/bphage_micros_mopup
+cp -r $VSC_SCRATCH/BPhage/tax_micros/bphage_micros_id50/mop-up_output/* $repo_location/output/bphage_micros_mopup
 
 echo "========================================================================"
 duration=$SECONDS
