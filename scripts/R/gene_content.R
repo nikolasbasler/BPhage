@@ -186,11 +186,11 @@ moron_grouping <- phold_per_cds_predictions %>%
 moron_tibble <- moron_grouping %>%
   group_by(group) %>%
   summarise(group_count = sum(count)) %>%
-  mutate(group = factor(group, levels = rev(c("Membrane protein", "Toxin-antitoxin system",
-                                              "Sulfur metabolism", "Host takeover",
-                                              "Superinfection exclusion", "Antibiotic resistance",
-                                              "other"))))
-
+  arrange(group_count) %>%
+  mutate(group = factor(group, levels = c("other", "Antibiotic resistance", "Sulfur metabolism", 
+                                              "Toxin-antitoxin system", "Host takeover", 
+                                              "Membrane protein","Superinfection exclusion")))
+  
 ### Pie chart for core morons ####
 moron_pie_colors <- c("#555555", "#FFDAB9", "#FFA07A", "#DAA520", "#D2691E", "#8B4513", "#5E280C")
 moron_pie <- 
