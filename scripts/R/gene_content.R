@@ -192,7 +192,7 @@ moron_tibble <- moron_grouping %>%
                                               "Membrane protein","Superinfection exclusion")))
   
 ### Pie chart for core morons ####
-moron_pie_colors <- c("#555555", "#FFDAB9", "#FFA07A", "#DAA520", "#D2691E", "#8B4513", "#5E280C")
+moron_pie_colors <- c("#555555", "#FFDAB9", "#FFA07A", "#FFC300", "#D2691E", "#8B4513", "#5E280C")
 moron_pie <- 
   moron_tibble %>%
   ggplot(aes(x = "", y = group_count, fill = group)) +

@@ -1,3 +1,10 @@
+
+host_colors <- c("Bifidobacterium" = "#FFDAB9", "Lactobacillus" = "#FFA07A",
+                 "Snodgrassella" = "#FFC300", "Bombilactobacillus" = "#ef8f01",
+                 "Gilliamella" = "#D2691E", "Frischella" = "#8B4513",
+                 "Bartonella" = "#1C3A3A", "Bombella" = "black",
+                 "other" = "#555555", "unknown" = "lightgrey")
+
 # rel_abund_taxlvl = function(df, tl, meta_vars) {
 #   threshold_for_other = 0.005
 #   # Todo: Set threshold dynamically by meta_var and tl
@@ -184,8 +191,8 @@ phylo_heat_map <- function(ab_table, id_table) {
 
 average_tpm_bar_plot <- function(tpm_table, tl, hg, meta_vars, title_prefix="", threshold_for_other=0.01, hg_or_core = "") {
   label_for_other <- paste0("other (<", round(threshold_for_other*100, digits = 1),"%)")
-  c_vec <- color_vector[1:(nrow(tpm_table)+1)]
-  names(c_vec) <- c(tpm_table[[tl]],label_for_other)
+  # c_vec <- color_vector[1:(nrow(tpm_table)+1)]
+  # names(c_vec) <- c(tpm_table[[tl]],label_for_other)
   
   tax <- colnames(tpm_table)[1]
   plot_list <- list()
@@ -197,7 +204,8 @@ average_tpm_bar_plot <- function(tpm_table, tl, hg, meta_vars, title_prefix="", 
       rename(group = all_of(tax)) %>%
       pivot_longer(-group, names_to = "Sample_ID") %>%
       left_join(., metadata_filt, by="Sample_ID") %>%
-      mutate(Sample_ID = factor(Sample_ID, levels=sample_order)) %>%
+      mutate(Sample_ID = factor(Sample_ID, levels=sample_order)) %>% 
+      filter(!is.na(value)) %>%
       group_by(.data[[m_var]], group) %>%
       summarise(mean_tpm = mean(value), .groups="drop") %>%
       mutate(group = 
@@ -214,6 +222,10 @@ average_tpm_bar_plot <- function(tpm_table, tl, hg, meta_vars, title_prefix="", 
       ggtitle(paste0(title_prefix, hg_or_core, ": \"", hg,"\"")) +
       labs(fill=tl) # +
       # scale_fill_manual(values = c_vec)
+    if (hg_or_core == "Host_group") {
+      plot_list[[m_var]] <- plot_list[[m_var]] +
+        scale_fill_manual(values = host_colors)
+    }
     if (m_var=="Sample_ID") {
       plot_list[[m_var]] <- plot_list[[m_var]] +
         theme(axis.text.x = element_text(angle = 45, hjust=1)) +
