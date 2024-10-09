@@ -3,8 +3,9 @@
 - Viper version 2.1 (commit 8244c2eeeebeb2c1fbe4082034ca329e6f0a4a10 13 March 2024, https://github.com/Matthijnssenslab/ViPER)
 - For tool versions see the conda environment `.yml` files: `data/env_*.yml`
 - R 4.3.1
-- RStudio 2023.12.1+402 (2023.12.1+402)
+- RStudio 2023.12.1+402
 - To reproduce R package versions run `renv::restore()`
+- Cytoscape 3.10.2
 
 ## Script order
 ### Assembly
@@ -49,7 +50,7 @@
         - Fasta file and merged genomad and checkv table with >= 50%-complete phages, >= 50%-complete unclassified viruses (containing contigs that are either "Unclassified" or classified only as "Viruses") and Picobirnaviridae (no completeness threshold) for own dataset and for the additional datasets (Deboutte, Bonilla, Busby):
             - `output/bphage_ALL_1kb_phages.*`, `output/bphage_ALL_1kb_unclassified_viruses.*`, `output/bphage_picobirna.*`
             - `output/other_studies_phages.*`, `output/other_studies_unclassified_viruses.*`, `other_studies_picobirna.*` (the latter is empty because there are not Picobirnas in the additional datasets)
-- Clustering with additional datasets: `clustering_with_additional_datasets.slrm`
+- Clustering with additional datasets: `scripts/HPC/clustering_with_additional_datasets.slrm`
     - Requires: Filtered assembly and contigs from additional datasets in `output/`
     - Output: File with cluster information, i.e. which contigs are 95%/85cov similar to bphage contigs: `output/bphage_and_others_clusters.tsv`
 
@@ -77,7 +78,7 @@
         - Separate tables for mapped reads, horizontal coverage and mean depth (samples in columns, contigs in rows) and a table with all contig lengths in `output/mapping_stats`
 
 ### ANI calculation
-- ANI calculation of genomes: `scripts/calculate_ANI.slrm`
+- ANI calculation of genomes: `scripts/HPC/calculate_ANI.slrm`
     - Requires:
         - vclust script at `scripts/HPC/vclust-1.0.3_x64-linux/`
         - Phage, picobirna and unclassified bphage contigs: `output/bphage_ALL_1kb_phages.fasta.gz`, `bphage_ALL_1kb_picobirna.fasta.gz`, `bphage_ALL_1kb_unclassified_viruses.fasta.gz`
@@ -90,10 +91,17 @@
         - Phage, picobirna and unclassified bphage contigs: `output/bphage_ALL_1kb_phages.fasta.gz`, `bphage_ALL_1kb_picobirna.fasta.gz`, `bphage_ALL_1kb_unclassified_viruses.fasta.gz`
         - Phage and unclassified contigs from other studies: `output/other_studies_phages.fasta.gz`, `output/other_studies_unclassified_viruses.fasta.gz`
         - INPHARED dataset: `$VSC_SCRATCH/BPhage/additional_datasets/inphared_3Apr2024_genomes_excluding_refseq.fa.gz`
-    - Output: `$repo_location/output/vcontact3/bphage_vcontact3_b38_with_inphared`
+    - Output: 
+        - `output/vcontact3/bphage_vcontact3_b38_with_inphared/final_assignments.csv`
+        - For visualisation: `output/vcontact3/bphage_vcontact3_b38_with_inphared/graph.bin_*.cyjs` (4 files). Run `scripts/R/cytoscape.R` on these files (see comments at the top of this script for instructions).
+- MOP-UP (for microviruses): `scripts/HPC/taxonomy_microviruses.slrm`
+    - Requires: 
+        - List of microvirus contigs (as defined by the filtered geNomad classification, later generated in `scripts/R/01.filtering.R` and stored in `output/R/phage.filt.gnmd.classification.csv`, placed int o `data/` to avoid backtracking): `data/bphage.microviridae.contigs`
+        - Gene protein sequences from phold: `output/annotation/phold_compare_bphage_and_others/phold_aa_long_names.fasta`
+    - Output: `output/bphage_micros_mopup/bphage_micros_id30ForCytoscape.csv`. Run `scripts/R/microviruses_mopup_cytoscape.R` for visualisation (see comments at the top of this script for instructions).
 
 ### Annotation
-- Pharokka: `annotation_pharokka_bphage_and_others.slrm`
+- Pharokka: `scripts/HPC/annotation_pharokka_bphage_and_others.slrm`
     - Requires:
         - Phage, picobirna and unclassified bphage contigs: `output/bphage_ALL_1kb_phages.fasta.gz`, `bphage_ALL_1kb_picobirna.fasta.gz`, `bphage_ALL_1kb_unclassified_viruses.fasta.gz`
         - Phage and unclassified contigs from other studies: `output/other_studies_phages.fasta.gz`, `output/other_studies_unclassified_viruses.fasta.gz` (no picobirnas found in the other studies)
@@ -108,7 +116,7 @@
     - Output: 
         - Renamed pdb files with shortened names, otherwise phold will crash.
         - pdb files without corresponding entry in pharokka's output will be moved to `output/annotation/phold_colabfold_structures/basler_output_renamed/filtered_out_renamed_pdbs`
-- Phold: `annotation_phold_compare.slrm`
+- Phold: `scripts/HPC/annotation_phold_compare.slrm`
     - Requires: 
         - Pharokka's gbk output: `output/annotation/pharokka_bphage_and_others/bphage_and_others.gbk`
         - Predicted structures at `output/annotation/phold_colabfold_structures/basler_output_renamed/renamed_pdbs/`
@@ -123,22 +131,25 @@
 ### Host prediction
 
 ### Micruvirus taxonomy
-- MOP-UP pipeline: `taxonomy_microviruses.slrm`
+- MOP-UP pipeline: `scripts/HPC/taxonomy_microviruses.slrm`
     - Requires:
         - List of microvirus contigs: `data/bphage.microviridae.contigs`. This is derived from `output/R/phage.filt.gnmd.classification.csv` which is created later in the R sripts. It's separately placed into `data` for convenience.
     - Output:
-        - Clustered microvirus genomes at `output/bphage_micros_mopup`
+        - Clustered microvirus genomes at `output/bphage_micros_mopup`, especially `output/bphage_micros_mopup/bphage_micros_id30ForCytoscape.csv` and `output/bphage_micros_mopup/bphage_micros_id50ForCytoscape.csv`
+- Curate MOP-UP: `scripts/R/microviruses_mopup_cytoscape.R`
+    - Requires:
+        - Tables exported from cytoscape: `output/bphage_micros_mopup/bphage_micros_id30ForCytoscape.csv default node.csv` and `output/bphage_micros_mopup/bphage_micros_id50ForCytoscape.csv default node.csv`
+    Ouput:
         - Filtered and colored cytoscape graph: `data/bphage_micros_id30_colored_cytoscape.cys` and `bphage_micros_id30_colored_cytoscape.png`
         - BPhage contigs manually assigned to Kirberger et al's microvirus families: `/data/bphage.microvirus.taxonomy.csv`
 
 ### R analyses
-- R filtering script `xxx`
+- Filtering script `xxx`
     - Requires: 
         - `xxx`
     - Output:
         - `xxx`
         - Filtered classifiaction table: `output/R/phage.filt.gnmd.classification.csv`
-
-- 
+- Visualise predictions and define host groups
 
 

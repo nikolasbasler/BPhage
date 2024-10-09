@@ -1,0 +1,32 @@
+$ module show Boost
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+   /apps/leuven/rocky8/cascadelake/2023a/modules/all/Boost/1.83.0-GCC-12.3.0.lua:
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+help([[
+Description
+===========
+Boost provides free peer-reviewed portable C++ source libraries.
+
+
+More information
+================
+ - Homepage: https://www.boost.org/
+]])
+whatis("Description: Boost provides free peer-reviewed portable C++ source libraries.")
+whatis("Homepage: https://www.boost.org/")
+whatis("URL: https://www.boost.org/")
+conflict("Boost")
+load("GCC/12.3.0")
+load("bzip2/1.0.8-GCCcore-12.3.0")
+load("zlib/1.2.13-GCCcore-12.3.0")
+load("XZ/5.4.2-GCCcore-12.3.0")
+load("zstd/1.5.5-GCCcore-12.3.0")
+load("ICU/73.2-GCCcore-12.3.0")
+prepend_path("CMAKE_PREFIX_PATH","/apps/leuven/rocky8/cascadelake/2023a/software/Boost/1.83.0-GCC-12.3.0")
+prepend_path("CPATH","/apps/leuven/rocky8/cascadelake/2023a/software/Boost/1.83.0-GCC-12.3.0/include")
+prepend_path("LD_LIBRARY_PATH","/apps/leuven/rocky8/cascadelake/2023a/software/Boost/1.83.0-GCC-12.3.0/lib")
+prepend_path("LIBRARY_PATH","/apps/leuven/rocky8/cascadelake/2023a/software/Boost/1.83.0-GCC-12.3.0/lib")
+setenv("EBROOTBOOST","/apps/leuven/rocky8/cascadelake/2023a/software/Boost/1.83.0-GCC-12.3.0")
+setenv("EBVERSIONBOOST","1.83.0")
+setenv("EBDEVELBOOST","/apps/leuven/rocky8/cascadelake/2023a/software/Boost/1.83.0-GCC-12.3.0/easybuild/Boost-1.83.0-GCC-12.3.0-easybuild-devel")
+setenv("BOOST_ROOT","/apps/leuven/rocky8/cascadelake/2023a/software/Boost/1.83.0-GCC-12.3.0")
