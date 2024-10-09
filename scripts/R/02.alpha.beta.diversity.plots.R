@@ -81,7 +81,7 @@ classification <- pick_ambiguous_taxa(vcontact_output = classification,
                                       taxlevel_to_pick = "Genus")
 
 classification <- classification %>%
-mutate(Kingdom = "",  # No Kingdom column in vcontact's output??
+  mutate(Kingdom = "",  # No Kingdom column in vcontact's output??
          Species = "" ) %>%
   rename(contig = GenomeName,
          length_kb = Size..Kb.,
@@ -98,19 +98,22 @@ mutate(Kingdom = "",  # No Kingdom column in vcontact's output??
   mutate(lowest_taxon = apply(., 1, function(row) tail(row[row != ""], 1))) %>%
   mutate(across(everything(), ~ifelse(. == "", "Unclassified", .))) %>%
   inner_join(., classification_gnmd[c("contig", "provirus", "proviral_length", 
-                                     "gene_count", "viral_genes", "host_genes",
-                                     "checkv_quality", "miuvig_quality", 
-                                     "completeness", "completeness_method",
-                                     "contamination", "kmer_freq", "warnings")],
-            by = "contig") %>%
+                                      "gene_count", "viral_genes", "host_genes",
+                                      "checkv_quality", "miuvig_quality", 
+                                      "completeness", "completeness_method",
+                                      "contamination", "kmer_freq", "warnings")],
+             by = "contig") %>%
   mutate(predicted_genome_length = length_kb / (completeness/100)) %>%
   left_join(., host_group_df, by = "contig") %>%
-    mutate(Core = ifelse(contig %in% present_in_all_countries, "yes", "no")) %>%
-  mutate(Order_group = ifelse(str_detect(Order, "novel_order"), "Novel", Order)) %>%
+  mutate(Core = ifelse(contig %in% present_in_all_countries, "yes", "no")) %>%
+  mutate(Order_group = Order) %>%
+  mutate(Order_group = ifelse(str_detect(Order_group, "novel_order.*of_Caudoviricetes"), "Novel_Caudoviricetes_order", Order_group)) %>%
+  mutate(Order_group = ifelse(str_detect(Order_group, "novel_order.*of_Tokiviricetes"), "Novel_Tokiviricetes_order", Order_group)) %>%
   mutate(Family_group = Family) %>%
-  mutate(Family_group = ifelse(str_detect(Family_group, "novel_family"), "Novel", Family_group)) %>% 
-  mutate(Family_group = ifelse(!Family_group == "Novel" & !str_detect(Family_group, "Micro") & Family_group !="Unclassified", "ICTV-Named", Family_group)) %>%
-  mutate(Family_group = ifelse(str_detect(Family_group, "Micro"), "Microvirus", Family_group))
+  mutate(Family_group = ifelse(str_detect(Family_group, "novel_family.*of_Caudoviricetes"), "Novel_Caudoviricetes_family", Family_group)) %>%
+  mutate(Family_group = ifelse(str_detect(Family_group, "novel_family.*of_Tokiviricetes"), "Novel_Tokiviricetes_family", Family_group)) %>%    
+  mutate(Family_group = ifelse(!str_detect(Family_group, "Novel") & !str_detect(Family_group, "Micro") & Family_group !="Unclassified", "ICTV-named", Family_group)) %>%
+  mutate(Family_group = ifelse(str_detect(Family_group, "Micro"), "Microvirus_family", Family_group))
 
 # This would change each "Unclassified" entry to unclassified_<taxlevel>_of_<higher_taxlevel>
 # Disabled because it would break things downstream.
