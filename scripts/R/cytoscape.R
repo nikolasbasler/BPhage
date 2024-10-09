@@ -1,9 +1,27 @@
 library(tidyverse)
+# To run this script: 
+# vcontact3 generates several .cyjs files. Open them in Cytoscape according to 
+# their instructions on https://bitbucket.org/MAVERICLab/vcontact3/src/master/ 
+# and export the tables by clicking on "Export Table to file..." above the 
+# tabular display. Save them into 
+# output/vcontact3/bphage_vcontact3_b38_with_inphared/ with the suggested
+# default name. These csv tables are the inputs for this script.
+# This script will then add another column to the table wich can then be 
+# imported into Cytoscape again by clickin on "Import Table from file...". Now
+# the nodes in the network can be colored according to the dataset by clicking
+# on the "Style" tab at the left hand side then on "Fill Color". As Column
+# select dataset, Mapping Type "Discrete Mapping" and choose colors for each
+# dataset. 
 
-# classification <- readRDS("output/R/R_variables/classification.RDS")
-# classification_gnmd <- readRDS("output/R/R_variables/classification_gnmd.RDS")
+# The colors chosen here are:
+# BPhage: #FEC44F
+# Bonilla-Rosso: #DD3497
+# Busby: #41AB5D
+# Database: #BDBDBD
+# Database_f: #737373 # Database genome with family classification
+# Database_g: #252525 # Database genome with genus classification
+# Deboutte: #0570B0
 
-# The inputs are exported tables from Cytoscape.
 graph_table <- list()
 for (subgraph in as.character(0:3)) { # <- mind the as.character()
   graph_table[[subgraph]] <- read.csv(paste0("output/vcontact3/bphage_vcontact3_b38_with_inphared/graph.bin_", subgraph, ".cyjs default node.csv"))

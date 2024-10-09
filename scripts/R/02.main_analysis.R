@@ -22,7 +22,6 @@ source("scripts/R/helpers/venn.R")
 source("scripts/R/helpers/vcontact.R")
 
 set.seed(1)
-iterations <- 1000
 # color_vector <- c(brewer.pal(n = 8, name = "Dark2"), brewer.pal(n = 12, name = "Set3"), brewer.pal(n = 8, name = "Set1")[c(1,2,8)])
 # color_vector <- colorRampPalette(color_vector)(43)
 color_vector <- colorRampPalette(brewer.pal(n = 8, name = "Set3"))(43) %>%
@@ -44,15 +43,6 @@ sample_order <- metadata %>%
 metadata <- metadata %>%
   mutate(Sample_ID = factor(Sample_ID, levels=sample_order))
 row.names(metadata) <- metadata$Sample_ID
-
-# The inputs are exported tables from Cytoscape.
-# microvirus_contigs <-  list()
-# microvirus_contigs[["0"]] <- read_lines("data/cytoscape_yFiles_Organic_layout_bin_0.topleft_blop")
-# for (subgraph in as.character(1:2)) { # <- mind the as.character()
-#   microvirus_contigs[[subgraph]] <- read.csv(paste0("output/vcontact3/bphage_vcontact3_b38_with_inphared/graph.bin_", subgraph, ".cyjs default node.csv")) %>%
-#     select(X_nx_name) %>%
-#     unlist(use.names = FALSE)
-# }
 
 bphage_microvirus_contigs <- read_lines("data/bphage.microviridae.contigs") %>%
   setdiff(c("NODE_A102_length_3411_cov_5.833533_CH_17687_sum_mid_d", # Special case, becasue vcontact3 classifies this as caudovirus, where geNomad thought it was a microvirus.
@@ -467,160 +457,12 @@ lost_bees <- discards(count_stats_core_or_not$yes$ratios, min_seq_count_core_or_
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
-# Alpha ####
-# Full set and core or not
-alpha_start <- Sys.time()
-met_v <- c("Country", "Season", "Gut_part", "Health")
-taxlevels <- c("contig", "Genus", "Family")
-alpha <- list()
-alpha_core_or_not <- list()
-for (tlvl in taxlevels) {
-  alpha[[tlvl]] <- alpha_stats(df = phage_ab[[tlvl]], 
-                               meta_vars = met_v, 
-                               min_seq = min_seq_count,
-                               df_lengths = phage_lengths[[tlvl]])
-  for (core_or_not in unique(classification$Core)) {
-    alpha_core_or_not[[core_or_not]][[tlvl]] <- alpha_stats(df = phage_ab_core_or_not[[core_or_not]][[tlvl]], 
-                                 meta_vars = met_v, 
-                                 min_seq = min_seq_count_core_or_not[[core_or_not]],
-                                 df_lengths = phage_lengths[[tlvl]])
-  }
-}
+# Alpha and beta diversity # Out-sourced to easily deactivate for testing, 
+# because this part takes by far the longest.
 
-# By country and core or not by country
-met_v <- c("Season", "Gut_part", "Health")
-taxlevels <- c("contig", "Genus", "Family")
-alpha_by_country <- list()
-alpha_by_country_core_or_not <- list()
-for (countr in levels(metadata$Country)) {
-  for (tlvl in taxlevels) {
-    count_filt_ab <- phage_ab[[tlvl]] %>%
-      select(all_of(tlvl), starts_with(countr))
-    alpha_by_country[[countr]][[tlvl]] <- alpha_stats(df = count_filt_ab, 
-                                 meta_vars = met_v, 
-                                 min_seq = min_seq_count,
-                                 df_lengths = phage_lengths[[tlvl]])
-    for (core_or_not in unique(classification$Core)) {
-      count_filt_ab <- phage_ab_core_or_not[[core_or_not]][[tlvl]] %>%
-        select(all_of(tlvl), starts_with(countr))
-      alpha_by_country_core_or_not[[core_or_not]][[countr]][[tlvl]] <- alpha_stats(df = count_filt_ab, 
-                                                              meta_vars = met_v, 
-                                                              min_seq = min_seq_count_core_or_not[[core_or_not]],
-                                                              df_lengths = phage_lengths[[tlvl]])
-    }
-  }
-}
+iterations <- 1000
+source("scripts/R/helpers/alpha_beta_rarefaction.R") 
 
-# Absolute counts full (measured) set and core or not
-met_v <- c("Country", "Season", "Health")
-taxlevels <- c("contig", "Genus", "Family")
-alpha_abs <- list()
-alpha_abs_core_or_not <- list()
-for (tlvl in taxlevels) {
-  alpha_abs[[tlvl]] <- alpha_stats(df = phage_load[[tlvl]], 
-                                   absolut_values = TRUE,
-                                   meta_vars = met_v)
-  for (core_or_not in unique(classification$Core)) {
-    alpha_abs_core_or_not[[core_or_not]][[tlvl]] <- alpha_stats(df = phage_load_core_or_not[[core_or_not]][[tlvl]], 
-                                     absolut_values = TRUE,
-                                     meta_vars = met_v)
-  }
-}
-
-# Absolute counts by country and core or not by country
-met_v <- c("Season", "Health")
-taxlevels <- c("contig", "Genus", "Family")
-alpha_abs_by_country <- list()
-alpha_abs_by_country_core_or_not <- list()
-for (countr in levels(metadata$Country)) {
-  for (tlvl in taxlevels) {
-    count_filt_ab <- phage_load[[tlvl]] %>%
-      select(all_of(tlvl), starts_with(countr))
-    alpha_abs_by_country[[countr]][[tlvl]] <- alpha_stats(df = count_filt_ab, 
-                                     absolut_values = TRUE,
-                                     meta_vars = met_v)
-    for (core_or_not in unique(classification$Core)) {
-      count_filt_ab <- phage_load_core_or_not[[core_or_not]][[tlvl]] %>%
-        select(all_of(tlvl), starts_with(countr))
-      alpha_abs_by_country_core_or_not[[core_or_not]][[countr]][[tlvl]] <- alpha_stats(df = count_filt_ab, 
-                                                                  absolut_values = TRUE,
-                                                                  meta_vars = met_v)
-    }
-  }
-}
-alpha_end <- Sys.time()
-alpha_end - alpha_start
-#------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------#
-# Beta ####
-# Full set
-beta_start <- Sys.time()
-met_v <- c("Country", "Season", "Gut_part", "Health")
-taxlevels <- c("contig", "Genus", "Family")
-beta_dist <- list()
-beta_plot_list <- list()
-for (tlvl in taxlevels) {
-  beta_dist[[tlvl]] <- ordination(df = phage_ab[[tlvl]], 
-                                        meta_vars = met_v, 
-                                        min_seq = min_seq_count,
-                                        df_lengths = phage_lengths[[tlvl]])
-  
-  beta_plot_list[[tlvl]] <- beta_plot(ordination_list = beta_dist[[tlvl]]$ord_list, 
-                                      meta_vars = met_v,
-                                      mapped_reads = count_stats$ratios)
-}
-
-# Core or not
-met_v <- c("Country", "Season", "Gut_part", "Health")
-taxlevels <- c("contig", "Genus", "Family")
-beta_dist_core_or_not <- list()
-beta_plot_list_core_or_not <- list()
-for (core_or_not in unique(classification$Core)) {
-  for (tlvl in taxlevels) {
-    beta_dist_core_or_not[[core_or_not]][[tlvl]] <- ordination(df = phage_ab_core_or_not[[core_or_not]][[tlvl]], 
-                                    meta_vars = met_v, 
-                                    min_seq = min_seq_count,
-                                    df_lengths = phage_lengths[[tlvl]])
-    
-    beta_plot_list_core_or_not[[core_or_not]][[tlvl]] <- beta_plot(ordination_list = beta_dist_core_or_not[[core_or_not]][[tlvl]]$ord_list, 
-                                        meta_vars = met_v,
-                                        mapped_reads = count_stats_core_or_not[[core_or_not]]$ratios)
-  }
-}
-
-# Absolute counts
-met_v <- c("Country", "Season", "Health")
-taxlevels <- c("contig", "Genus", "Family")
-beta_abs_dist <- list()
-beta_abs_plot_list <- list()
-for (tlvl in taxlevels) {
-  beta_abs_dist[[tlvl]] <- ordination(df = phage_load[[tlvl]],
-                                      meta_vars = met_v,
-                                      absolute_values = TRUE)
-  beta_abs_plot_list[[tlvl]] <- beta_plot(beta_abs_dist[[tlvl]]$ord_list,
-                                          meta_vars = met_v,
-                                          mapped_reads = count_stats$ratios)
-
-}
-
-# Absolute counts core or not
-met_v <- c("Country", "Season", "Health")
-taxlevels <- c("contig", "Genus", "Family")
-beta_abs_dist_core_or_not <- list()
-beta_abs_plot_list_core_or_not <- list()
-for (core_or_not in unique(classification$Core)) {
-  for (tlvl in taxlevels) {
-    beta_abs_dist_core_or_not[[core_or_not]][[tlvl]] <- ordination(df = phage_load_core_or_not[[core_or_not]][[tlvl]],
-                                        meta_vars = met_v,
-                                        absolute_values = TRUE)
-    beta_abs_plot_list_core_or_not[[core_or_not]][[tlvl]] <- beta_plot(beta_abs_dist[[tlvl]]$ord_list,
-                                            meta_vars = met_v,
-                                            mapped_reads = count_stats_core_or_not[[core_or_not]]$ratios)
-    
-  }
-}
-beta_end <- Sys.time()
-beta_end - beta_start
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 # Heatmaps ####

@@ -176,9 +176,6 @@ for (thing in names(ICTV_families)) {
     theme(legend.margin=margin(0,10,0,-30)) 
 }
 
-
-#
-
 novel_families <- classification %>% 
   select(Family) %>%
   filter(str_detect(Family, "novel")) %>%
