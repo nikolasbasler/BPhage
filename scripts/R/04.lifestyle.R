@@ -26,7 +26,7 @@ lifestyle_tibble <- joined_tibble_all %>%
   rbind(., lifestyle_counts_caudos)
 
 lifestyle_bars <- list()
-lifestyle_colors <- c("black", "#ef8f01")
+lifestyle_colors <- c("#5E280C", "#FFC300")
 for (set in c("all_phages", "Caudoviricetes")) {
   lifestyle_bars[[set]] <- lifestyle_tibble %>%
     filter(subset == set) %>%

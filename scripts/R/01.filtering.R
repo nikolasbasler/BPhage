@@ -53,7 +53,7 @@ gnmd_classification <- read.csv("output/bphage_ALL_1kb_phages.csv") %>%
   filter(contig != "NODE_A1975_length_2506_cov_68.193907_PT_19410_aut_rec_d") # %>% # Filter out the one Picobirna contig that isn't the RdRp segment
   # filter(contig %in% rownames(abundance.table))
 
-host_groups_df<- read_csv("data/host_groups.csv", show_col_types = FALSE)
+# host_groups_df<- read_csv("data/host_groups.csv", show_col_types = FALSE)
 
 metadata=metadata <- read.csv("data/metadata.csv")
 row.names(metadata) <- metadata$Sample_ID
@@ -67,11 +67,11 @@ contig_length_df <- read.csv("output/mapping_stats_phages/phages.contig_lentghs.
 ################################################################################
 ## Add host group information to classification table
 
-gnmd_classification <- host_groups_df %>%
-  select(Rank, Taxon, Host_group) %>%
-  left_join(gnmd_classification, ., by=join_by(Classification==Taxon)) %>%
-  select(-Rank) %>%
-  mutate(Host_group = ifelse(is.na(Host_group), "unassigned", Host_group))
+# gnmd_classification <- host_groups_df %>%
+#   select(Rank, Taxon, Host_group) %>%
+#   left_join(gnmd_classification, ., by=join_by(Classification==Taxon)) %>%
+#   select(-Rank) %>%
+#   mutate(Host_group = ifelse(is.na(Host_group), "unassigned", Host_group))
 
 
 # contig_length_df %>%

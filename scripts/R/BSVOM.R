@@ -33,13 +33,13 @@ pretty_pie_tibble$Family <- classification %>%
 pretty_pie <- list()
 for (tl in names(pretty_pie_tibble)) {
   if (tl == "Class") {
-   colors <- c("#8B4513", "#DAA520", "#555555", "#D2691E", "#FFA07A")
+   colors <- c("#8B4513", "#FFC300", "#555555", "#D2691E", "#FFA07A")
    }
   if (tl == "Order") {
-    colors <- c("#FFDAB9", "#DAA520", "#555555")
+    colors <- c("#FFDAB9", "#FFC300", "#555555")
   }
   if (tl == "Family") {
-    colors <- c("#FFDAB9", "#DAA520", "#8B4513", "#555555")
+    colors <- c("#FFDAB9", "#FFC300", "#8B4513", "#555555")
   }
   pretty_pie[[tl]] <- pretty_pie_tibble[[tl]] %>%
     ggplot(aes(x = "", y = n, fill = .data[[tl]])) +

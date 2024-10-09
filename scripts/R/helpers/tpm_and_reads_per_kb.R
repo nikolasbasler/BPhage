@@ -63,6 +63,21 @@ tax_sum = function(tax_level, ab_table, classif) {
     summarize_at(vars(all_of(sample_names)), sum)
 }
 
+hostg_core_sum = function(tax_level, ab_table, classif) {
+  sample_names <- colnames(ab_table)[2:length(ab_table)]
+  classif <- classif  %>%
+    mutate(contig = as.character(contig)) # %>%
+  # mutate_all(~ ifelse(. == "", "unclassified", .))
+  
+  bla <- list()
+  for (core_or_not in c("yes", "no")) {
+    bla[[core_or_not]] <- inner_join(ab_table, classif, by="contig") %>%
+      filter(Core == core_or_not) %>% 
+      group_by(.data[[tax_level]]) %>%
+      summarize_at(vars(all_of(sample_names)), sum)
+  }
+}
+
 meta_sum <- function(ab_table, meta_vars) {
   remaining_metas <- c("Country", "Hive_ID", "Season", "Gut_part") %>%
     tibble(meta = .) %>%

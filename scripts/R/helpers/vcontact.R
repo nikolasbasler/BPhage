@@ -3,8 +3,8 @@ pick_ambiguous_taxa <- function(vcontact_output, taxlevel_to_pick) {
   # prediction. This is necessary because with the vcontact3 beta version used
   # here, sometimes several equally valid taxa are listed on one taxonomic 
   # level (here only for subfamily and genus). These are then mentioned in a 
-  # double pipe-separated list (||, read "or of"), but the name of every is 
-  # truncated, apparently to save characters. E.g.:
+  # double pipe-separated list (||, read "or of"), but the name of every item
+  # after the first is truncated, apparently to save characters. E.g.:
   # novel_subfamily_0_of_novel_family_1_of_novel_order_116_of_Caudoviricetes||novel_family_8_of_novel_order_86_of_Caudoviricetes
   # Unfortunately, the first item in this list does't necessarily correspond to
   # the higher taxonomic level, so in the example above, the family prediction
