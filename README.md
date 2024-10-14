@@ -126,6 +126,14 @@
         - Additional files in this output folder with the original, long contig names: `output/annotation/phold_compare_bphage_and_others/*_long_names.*`
         - Ciros plots of all contigs, except a few very short ones that crashed `phold plot`: `output/annotation/plots_phold_compare_bphage_and_others` (using original, long contig names).
 
+### Core contig refinement
+- Prepare:
+    - Requires:
+    - Output:
+- Refine:
+    - Requires:
+    - Output:
+
 ### Lifestyle prediction
 
 ### Host prediction
