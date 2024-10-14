@@ -23,18 +23,6 @@ line=$(head -n $SLURM_ARRAY_TASK_ID $repo_location/data/core_contigs.txt | tail 
 mkdir -p $VSC_SCRATCH/BPhage/contig_refinement/${line}
 cd $VSC_SCRATCH/BPhage/contig_refinement/${line}
 
-# mkdir -p $VSC_SCRATCH/BPhage/contig_refinement/refined
-# cd $VSC_SCRATCH/BPhage/contig_refinement/refined
-
-# sample=$(echo $line | awk '{print $1}')
-# echo $line | awk '{print $2}' | sed 's/,/\n/g' > temp.${sample}.query.contig.list
-# seqkit grep -f temp.${sample}.query.contig.list ../assemblies/${sample}.full.assembly.fasta > temp.${sample}.query.contigs.fasta
-
-# zcat ../mapped/${sample}.full.assembly.coverage.gz | sed 1d | cut -f1,6 > temp.${sample}.coverage
-
-###########################################################################
-
-
 # Building mapping ref
 sample=$(echo $line | cut -d"_" -f7-)
 assembly=$(echo $line | cut -d"_" -f1,2 |  grep -o "NODE_[ABC]")
