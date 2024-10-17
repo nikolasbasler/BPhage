@@ -1,0 +1,68 @@
+#!/bin/bash -l
+#SBATCH --job-name="contig_refinement_checkv_and_pharokka"
+#SBATCH --cluster=genius
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=36
+#SBATCH --mem-per-cpu=4G
+#SBATCH --time=30:00
+#SBATCH --account=lp_jm_virome_group
+#SBATCH --output=slurm-%x_%j.out
+
+###############################################################################
+
+# Submit (from output/slurm_log)
+# sbatch --export=ALL ../../scripts/HPC/contig_refinement_checkv_and_pharokka.slrm
+
+repo_location="$VSC_STAGING/BPhage"
+threads=36
+
+source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
+conda activate viper_bphage
+cd $VSC_SCRATCH/BPhage/contig_refinement/
+
+# CheckV
+checkv end_to_end $repo_location/output/core_contig_refinement/extended_contigs.fasta \
+    extended_contigs_checkv -d /staging/leuven/stg_00029/DB/CheckV/checkv-db-v1.5 \
+    --remove_tmp -t $threads
+cut -f1,10 extended_contigs_checkv/quality_summary.tsv | sed 1d | \
+    sed 's/_extended_partial//g' | sed 's/_extended_circular//g' | sort \
+    > temp.extended.completeness
+zcat $repo_location/output/bphage_ALL_1kb_checkv/quality_summary.tsv.gz | cut -f1,10 | \
+    grep -f <(cut -f1 temp.extended.completeness) | sort > temp.original.completeness
+# awk '{print $1 "\t" $3 "\t" $2}' $repo_location/output/core_contig_refinement/cobra_refinement_stats.tsv | sed 1d | \
+#     grep -v "_self_circular" | sed 's/_extended_partial//g' | sed 's/_extended_circular//g' | sort > temp.lengths
+sed 1d $repo_location/output/core_contig_refinement/cobra_refinement_stats.tsv | \
+    grep -v "_self_circular" | sed 's/_extended_partial//g' | sed 's/_extended_circular//g' | sort > temp.stats
+
+# echo -e "contig\toriginal_completeness\textended_completeness" > extended_contigs_checkv/completeness_comparison.tsv
+join temp.stats temp.original.completeness | sed 's/ /\t/g' > temp.join.1
+join temp.join.1 temp.extended.completeness | sed 's/ /\t/g' > temp.join.2
+
+echo -e "contig\toriginal_length\trefined_length\textended_bp\textended_percentage\toriginal_completeness\trefined_completeness" > extended_contigs_checkv/completeness_comparison.tsv
+awk '{print $1 "\t" $3 "\t" $2 "\t" $4 "\t" $5 "\t" $6 "\t" $7}' temp.join.2 >> extended_contigs_checkv/completeness_comparison.tsv
+
+# Pharokka
+# The IDs are too long for phold to handle. I rename them here already so the output is compatible with phold.
+awk '/NODE/ {split($0, a, "_"); print a[1] "_" a[2] "_" a[7] "_" a[8] "_" a[9] "_" a[10] "_" a[11]; next} {print $1}' \
+    $repo_location/output/core_contig_refinement/extended_contigs.fasta | sed 's/__//' \
+    > temp.extended_contigs_shortened_names.fasta
+
+conda activate pharokka
+pharokka.py -i temp.extended_contigs_shortened_names.fasta -o extended_contigs_pharokka -d /staging/leuven/stg_00029/DB/pharokka/pharokka_1.4.0 \
+    -t $threads -m -g prodigal-gv --meta_hmm -p extended_contigs
+
+# For QC of cobra. Obsolete once phold ran.
+# pharokka_multiplotter.py -g extended_contigs_pharokka/extended_contigs.gbk  -o extended_contigs_pharokka_plots
+# rm extended_contigs_pharokka_plots/*svg
+
+# Copy files
+cp -r extended_contigs_checkv $repo_location/output/core_contig_refinement
+cp -r extended_contigs_pharokka $repo_location/output/core_contig_refinement
+cp -r extended_contigs_pharokka_plots $repo_location/output/core_contig_refinement
+
+# Clean up
+rm temp.*
+
+echo "========================================================================"
+duration=$SECONDS
+printf 'Job finished in: %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))

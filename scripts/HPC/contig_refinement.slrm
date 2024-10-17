@@ -83,6 +83,9 @@ rm temp.*
 rm assembly.fasta*
 
 # Copy output
+if [ -f cobra/assembly.new.fa ]; then
+    pigz -p $threads cobra/assembly.new.fa
+fi
 mkdir -p $repo_location/output/core_contig_refinement
 cp -r cobra $repo_location/output/core_contig_refinement/${line}
 

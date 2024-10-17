@@ -28,7 +28,16 @@ while read line; do
         awk '{print $1 "\t" $2 "\t" $3 "\t" $2-$3 "\t" 100*($2-$3)/$3}' >> cobra_refinement_stats.tsv
 done < temp.non.empty.files
 
-rm temp.non.empty.files
+sed 1d $repo_location/output/core_contig_refinement/cobra_refinement_stats.tsv | awk '$4!=0 {print $1}' \
+    > temp.extended_contigs.list
+
+rm -f extended_contigs.fasta
+while read line; do
+    folder=$(echo $line | cut -d"_" -f1-11)
+    seqkit grep -p $line $folder/assembly.new.fa.gz >> extended_contigs.fasta
+done < temp.extended_contigs.list
+
+rm temp.*
 
 echo "========================================================================"
 duration=$SECONDS
