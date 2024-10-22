@@ -8,7 +8,7 @@ saveRDS(metadata, "output/R/R_variables/metadata.RDS")
 saveRDS(classification, "output/R/R_variables/classification.RDS")
 saveRDS(classification_gnmd, "output/R/R_variables/classification_gnmd.RDS")
 
-## Taxon and core pie
+## Taxon and core pies
 system("mkdir -p output/R/taxon_pies")
 for (taxlevel in names(core_pie)) {
   ggsave(paste0("output/R/taxon_pies/core_pie.", taxlevel, ".pdf"),
@@ -23,25 +23,36 @@ for (tax in names(taxon_pie_overlap)) {
 
 write_lines(novel_families, "output/R/taxon_pies/novel_families.txt")
 write_lines(novel_orders, "output/R/taxon_pies/novel_orders.txt")
-for (tl in names(pretty_pie_tibble)) {
-  wid <- 4.5
-  hei <- 4.5
-  if (tl == "Class") {
-    wid <- 6.6
+for (thing in names(pretty_pie$tibbles)) {
+  for (tl in names(pretty_pie$tibbles[[thing]])) {
+    wid <- 4.5
     hei <- 4.5
+    if (tl == "Class") {
+      wid <- 5.75
+      hei <- 4.5
+    }
+    write_csv(pretty_pie$tibbles[[thing]][[tl]],
+              paste0("output/R/taxon_pies/pretty_pie.", thing, ".", tl,".csv"))
+    ggsave(paste0("output/R/taxon_pies/pretty_pie.", thing, ".", tl,".pdf"),
+           pretty_pie$plots[[thing]][[tl]], width = wid, height = hei)
   }
-  write_csv(pretty_pie_tibble[[tl]],
-            paste0("output/R/taxon_pies/pretty_pie.", tl,".csv"))
-  ggsave(paste0("output/R/taxon_pies/pretty_pie.", tl,".pdf"),
-         pretty_pie[[tl]], width = wid, height = hei)
-  
-  write_csv(pretty_pie_tibble_TPM[[tl]],
-            paste0("output/R/taxon_pies/pretty_pie_TPM.", tl,".csv"))
-  ggsave(paste0("output/R/taxon_pies/pretty_pie_TPM.", tl,".pdf"),
-         pretty_pie_TPM[[tl]], width = wid, height = hei)
 }
 
+for (tl in names(pretty_patches)) {
+  ggsave(paste0("output/R/taxon_pies/pretty_patch.", tl, ".pdf"),
+         pretty_patches[[tl]],
+         width = 9, height = 4)
+}
 
+for (family_group in names(pretty_special_families)) {
+  for (thing in names(pretty_special_families[[family_group]]$tibbles)) {
+    write_csv(pretty_special_families[[family_group]]$tibbles[[thing]],
+              paste0("output/R/taxon_pies/pretty_special_familes.", family_group, ".", thing, ".csv"))
+    ggsave(paste0("output/R/taxon_pies/pretty_special_familes.", family_group, ".", thing, ".pdf"),
+           pretty_special_families[[family_group]]$plots[[thing]],
+           width = 3, height = 8)
+  }
+}
 
 ## aANI boxplot
 ggsave("output/R/aANI_boxplot.pdf", aANI_boxplot, width = 6, height = 6)
@@ -270,27 +281,36 @@ for (mvar in names(core_tpm_stats)) {
 }
 
 system("mkdir -p output/R/relative_abundance/relative_abundance_by_metavar_core_or_not/")
-for (tax in names(average_tpm_core_or_not$yes)) {
-  for (core_or_not in c("yes", "no")) { # <-- This is terrible, but I don't have time to fix it...
-    for (metavar in names(average_tpm_core_or_not[[core_or_not]][[tax]]$plots)) {
-      wid = 12
+for (core_or_not in names(average_tpm_core_or_not_taxes)) { 
+  for (tax in names(average_tpm_core_or_not_taxes[[core_or_not]])) {
+    for (metavar in names(average_tpm_core_or_not_taxes[[core_or_not]][[tax]]$plots)) {
+      wid <- 12
       if (metavar == "Sample_ID") {
-        wid = 45
+        wid <- 90
       }
       ggsave(paste0("output/R/relative_abundance/relative_abundance_by_metavar_core_or_not/relative_abundance_", core_or_not, ".", tax, ".", metavar, ".pdf"),
-             average_tpm_core_or_not[[core_or_not]][[tax]]$plots[[metavar]],  width=wid, height=5)
-      write_csv(average_tpm_core_or_not[[core_or_not]][[tax]]$tibbles[[metavar]],
+             average_tpm_core_or_not_taxes[[core_or_not]][[tax]]$plots[[metavar]],  width = wid, height = 5, limitsize = FALSE)
+      write_csv(average_tpm_core_or_not_taxes[[core_or_not]][[tax]]$tibbles[[metavar]],
                 paste0("output/R/relative_abundance/relative_abundance_by_metavar_core_or_not/relative_abundance_", core_or_not, ".", tax, ".", metavar, ".csv"))
-      ggsave(paste0("output/R/relative_abundance/relative_abundance_by_metavar_core_or_not/Core_or_not_relative_abundance.", metavar, ".pdf"),
-             average_tpm_core_or_not$Core_or_not$plots[[metavar]],  width=wid, height=5)
-      write_csv(average_tpm_core_or_not$Core_or_not$tibbles[[metavar]],
-                paste0("output/R/relative_abundance/relative_abundance_by_metavar_core_or_not/Core_or_not_relative_abundance.", metavar, ".csv"))
     }
+  }
+}
+for (thing in names(average_tpm_core_or_not)) {
+  for (metavar in names(average_tpm_core_or_not[[thing]]$plots)) {
+    wid <- 12
+    if (metavar == "Sample_ID") {
+      wid <- 90
+    }
+    ggsave(paste0("output/R/relative_abundance/relative_abundance_by_metavar_core_or_not/By_prevalence_", thing, "_relative_abundance.", metavar, ".pdf"),
+           average_tpm_core_or_not[[thing]]$plots[[metavar]],  width = wid, height = 5, limitsize = FALSE)
+    write_csv(average_tpm_core_or_not[[thing]]$tibbles[[metavar]],
+              paste0("output/R/relative_abundance/relative_abundance_by_metavar_core_or_not/By_prevalence_", thing,"_relative_abundance.", metavar, ".csv"))
   }
 }
 
 ## Prevalence ####
 system("mkdir -p output/R/prevalence/")
+system("mkdir -p data/prevalence_tables/")
 for (tl in names(prevalence_histo)) {
   if (tl=="Bee_pools") {
     wid=20
@@ -305,6 +325,7 @@ for (tl in names(prevalence_histo)) {
   ggsave(paste0("output/R/prevalence/prevalence.",tl,".pdf"),
          plot, width=wid, height=5)
   write_csv(prevalence_histo[[tl]]$table, paste0("output/R/prevalence/prevalence.",tl,".csv"))
+  # write_csv(prevalence_histo[[tl]]$table, paste0("data/prevalence_tables/prevalence.",tl,".csv")) # This is also written to data to avoid backtracking. So it can be used at the top of the main script already.
 }
 
 ## TPM per country ####

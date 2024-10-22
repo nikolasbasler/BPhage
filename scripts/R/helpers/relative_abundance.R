@@ -4,6 +4,9 @@ host_colors <- c("Bifidobacterium" = "#FFDAB9", "Lactobacillus" = "#FFA07A",
                  "Gilliamella" = "#D2691E", "Frischella" = "#8B4513",
                  "Bartonella" = "#1C3A3A", "Bombella" = "black",
                  "other" = "#555555", "unknown" = "lightgrey")
+# prev_colors <- c("#FFEB99", "#EBD688", "#D9BF77", "#C6A866", "#B39155", "#997A3C", "#806600", "black")
+prev_colors <- c("#FFDAB9", "#FFA07A", "#FFC300", "#ef8f01", "#D2691E", "#8B4513", "#1C3A3A", "black")
+
 
 # rel_abund_taxlvl = function(df, tl, meta_vars) {
 #   threshold_for_other = 0.005
@@ -216,12 +219,19 @@ average_tpm_bar_plot <- function(tpm_table, tl, hg, meta_vars, title_prefix="", 
       mutate(mean_tpm = sum(mean_tpm)) %>%  # This part is only to
       ungroup() %>%                         # merge identically-
       distinct()                            # colored shapes.
+    
+    
+    
     plot_list[[m_var]] <- tible_list[[m_var]] %>%
-      ggplot(aes(x=.data[[m_var]], y=mean_tpm, fill=group)) +
+      ggplot(aes(x=.data[[m_var]], y=mean_tpm, fill = as.factor(group))) +
       geom_col() +
       ggtitle(paste0(title_prefix, hg_or_core, ": \"", hg,"\"")) +
-      labs(fill=tl) # +
-      # scale_fill_manual(values = c_vec)
+      labs(fill=tl)
+    
+    if (tl == "Prevalence" & colnames(tpm_table)[1] == "Prevalence_Countries") {
+      plot_list[[m_var]] <- plot_list[[m_var]] + 
+        scale_fill_manual(values = prev_colors)
+    }
     if (hg_or_core == "Host_group") {
       plot_list[[m_var]] <- plot_list[[m_var]] +
         scale_fill_manual(values = host_colors)
@@ -233,16 +243,13 @@ average_tpm_bar_plot <- function(tpm_table, tl, hg, meta_vars, title_prefix="", 
     }
   }
   return(list(plots = plot_list, tibbles = tible_list))
-  # return(plot_list)
 }
 
 prevalence_histogram <- function(abtable, plot_title) {
-  tax <- colnames(abtable)[1]
   plot_tbl <- abtable %>%
-    rename(group = all_of(tax)) %>%
-    pivot_longer(-group) %>%
+    pivot_longer(-contig) %>%
     mutate(value = ifelse(value>0, 1, 0)) %>%
-    group_by(group) %>%
+    group_by(contig) %>%
     summarise(prevalence_abs = sum(value),
               prevalence_prop = sum(value) / (ncol(abtable)-1))
   hist_plot <- plot_tbl %>%

@@ -2,8 +2,8 @@ library(tidyverse)
 # To run this script: 
 # vcontact3 generates several .cyjs files. Open them in Cytoscape according to 
 # their instructions on https://bitbucket.org/MAVERICLab/vcontact3/src/master/ 
-# and export the tables by clicking on "Export Table to file..." above the 
-# tabular display. Save them into 
+# (may have to be unzipped first) and export the tables by clicking on 
+# "Export Table to file..." above the abular display. Save them into 
 # output/vcontact3/bphage_vcontact3_b38_with_inphared/ with the suggested
 # default name. These csv tables are the inputs for this script.
 # This script will then add another column to the table wich can then be 

@@ -44,25 +44,27 @@ metadata <- metadata %>%
   mutate(Sample_ID = factor(Sample_ID, levels=sample_order))
 row.names(metadata) <- metadata$Sample_ID
 
-bphage_microvirus_contigs <- read_lines("data/bphage.microviridae.contigs") %>%
-  setdiff(c("NODE_A102_length_3411_cov_5.833533_CH_17687_sum_mid_d", # Special case, becasue vcontact3 classifies this as caudovirus, where geNomad thought it was a microvirus.
-            "NODE_A981_length_2999_cov_7.301164_RO_26024_aut_rec_d"))
+bphage_microvirus_contigs <- read_lines("data/bphage.microviridae.contigs") # Where is this generated?
 
-bphage_microvirus_taxonomy <- read.csv("data/bphage.microvirus.taxonomy.csv", sep=";") %>%
-  filter(contig != "NODE_A981_length_2999_cov_7.301164_RO_26024_aut_rec_d") # Special case, becasue vcontact3 classifies this as caudovirus, where geNomad thought it was a microvirus.
+bphage_microvirus_taxonomy <- read.csv("data/bphage.microvirus.taxonomy.csv", sep=";") # Where is this generated?
 
 classification_gnmd <- read.csv("output/R/phage.filt.gnmd.classification.csv") %>%
   mutate(contig_length = contig_length/1000) %>%
   rename(length_kb = contig_length)
 
-present_in_all_countries <- read_lines("data/core_contigs.txt")
+present_in_all_countries <- read_lines("data/core_contigs.txt") # Where is this generated?
+
+prevalences_tables <- list()
+for (thing in c("Bee_pools", "Hives", "Countries")) {
+  prevalences_tables[[thing]] <- read.csv(paste0("data/prevalence_tables/prevalence.",thing,".csv")) %>%
+    select(contig, prevalence_abs) %>%
+    rename(!!paste0("Prevalence_",thing) := prevalence_abs) %>% 
+    tibble()
+}
 
 host_group_df <- read.csv("data/host_groups.csv") # This df is generated in host.R and saved into data/ for convenience, so it can be used here already.
 
-# classification <- read.csv("output/vcontact3/previous_runs/vcontact3/final_assignments.csv") %>%
-# classification <- read.csv("output/vcontact3/previous_runs/vcontact3_with_inphared/final_assignments.csv") %>%
-
-classification <- read.csv("output/vcontact3/bphage_vcontact3_b38_with_inphared/final_assignments.csv")  %>% 
+classification <- read.csv("output/vcontact3/bphage_vcontact3_b38_with_inphared/final_assignments.csv")  %>%
   # filter(str_detect(GenomeName, "NODE") | str_detect(GenomeName, "Busby") | str_detect(GenomeName, "Bonilla") | str_detect(GenomeName, "Deboutte"))
   filter(str_detect(GenomeName, "NODE"))
 classification <- pick_ambiguous_taxa(vcontact_output = classification,
@@ -81,9 +83,10 @@ classification <- classification %>%
          Order = order..prediction.,
          Family = family..prediction.) %>% 
   select(contig, length_kb, Realm, Kingdom, Phylum, Class, Order, Family, Subfamily, Genus, Species) %>%
-  left_join(., bphage_microvirus_taxonomy, by ="contig") %>%
-  mutate(Family = ifelse(!is.na(Subgroup), paste0("Microvirus_", Subgroup), Family)) %>% 
-  mutate(Order = ifelse(contig %in% bphage_microvirus_contigs, "Microviruses", Order)) %>%
+  left_join(., bphage_microvirus_taxonomy, by ="contig") %>% 
+  mutate(Subgroup = ifelse(Class != "Faserviricetes|Huolimaviricetes|Malgrandaviricetes", NA, Subgroup)) %>% # Only call microvirus what was classified in the appropriate class by vcontact
+  mutate(Family = ifelse(!is.na(Subgroup), paste0("Microvirus_", Subgroup), Family)) %>%
+  mutate(Order = ifelse(contig %in% bphage_microvirus_contigs & Class == "Faserviricetes|Huolimaviricetes|Malgrandaviricetes", "Microviruses", Order)) %>% # Only call microvirus what was classified in the appropriate class by vcontact
   select(-Subgroup) %>%
   mutate(lowest_taxon = apply(., 1, function(row) tail(row[row != ""], 1))) %>%
   mutate(across(everything(), ~ifelse(. == "", "Unclassified", .))) %>%
@@ -103,7 +106,11 @@ classification <- classification %>%
   mutate(Family_group = ifelse(str_detect(Family_group, "novel_family.*of_Caudoviricetes"), "Novel_Caudoviricetes_family", Family_group)) %>%
   mutate(Family_group = ifelse(str_detect(Family_group, "novel_family.*of_Tokiviricetes"), "Novel_Tokiviricetes_family", Family_group)) %>%    
   mutate(Family_group = ifelse(!str_detect(Family_group, "Novel") & !str_detect(Family_group, "Micro") & Family_group !="Unclassified", "ICTV-named", Family_group)) %>%
-  mutate(Family_group = ifelse(str_detect(Family_group, "Micro"), "Microvirus_family", Family_group))
+  mutate(Family_group = ifelse(str_detect(Family_group, "Micro"), "Microvirus_family", Family_group)) %>%
+
+  left_join(., prevalences_tables$Bee_pools, by = "contig") %>%
+  left_join(., prevalences_tables$Hives, by = "contig") %>%
+  left_join(., prevalences_tables$Countries, by = "contig") 
 
 # This would change each "Unclassified" entry to unclassified_<taxlevel>_of_<higher_taxlevel>
 # Disabled because it would break things downstream.
@@ -215,7 +222,9 @@ for (tl in taxlevels) {
 # Generate abundance and TPM tables ####
 
 ## Generate abundance tables for different taxonomic levels.####
-taxlevels <- c("contig", "Genus", "Family", "Order", "Class", "Phylum", "Kingdom", "Realm", "Host_group", "Core", "Order_group", "Family_group")
+taxlevels <- c("contig", "Genus", "Family", "Order", "Class", "Phylum", "Kingdom", 
+               "Realm", "Host_group", "Core", "Order_group", "Family_group",
+               "Prevalence_Bee_pools", "Prevalence_Hives", "Prevalence_Countries")
 phage_ab <- list()
 phage_ab <- taxlevels %>%
   set_names() %>%
@@ -461,7 +470,7 @@ lost_bees <- discards(count_stats_core_or_not$yes$ratios, min_seq_count_core_or_
 # because this part takes by far the longest.
 
 iterations <- 1000
-source("scripts/R/helpers/alpha_beta_rarefaction.R") 
+# source("scripts/R/helpers/alpha_beta_rarefaction.R") 
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
@@ -545,6 +554,45 @@ for (core_or_not in phage_tpm$Core$Core) {
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
+# Prevalence ####
+prevalence_histo <- list()
+for (merge in names(phage_ab_meta_merges)) {
+  prevalence_histo[[merge]] <- prevalence_histogram(abtable = phage_ab_meta_merges[[merge]],
+                                                    plot_title = merge)
+}
+
+# present_in_all_countries <- prevalence_histo$Countries$table %>%
+#   filter(prevalence_prop ==1) %>%
+#   select(group) %>%
+#   unlist(use.names = FALSE) # %>%
+#   # write_lines("output/temp.txt")
+
+
+# 
+# met_v <- c("Country", "Season", "Gut_part", "Health")
+# tax_levels <- c("contig", "Species", "Genus", "Family", "Order", "Class", "Phylum", "Kingdom", "Realm")
+# prevalence_plots <- list()
+# for (hgr in names(phage_tpm_hostgroup)) {
+#   for (tlvl in tax_levels) {
+#     # trsh <- 3
+#     if (tlvl=="contig") {
+#       trsh <- 20
+#     } else {
+#       trsh <- 1
+#     }
+#     prevalence_plots[[hgr]][[tlvl]] <- prevalence_bar_plot(
+#       abtable = phage_tpm_hostgroup[[hgr]][[tlvl]],
+#       tl = tlvl, 
+#       hg = hgr,
+#       meta_vars = met_v,
+#       threshold_for_other = trsh)
+#   }
+# }
+
+
+
+#------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
 # Average TPM ####
 met_v <- c("Country", "Season", "Gut_part", "Health", "Sample_ID")
 tax_levels <- c("contig", "Genus", "Family", "Order", "Class", "Phylum", "Kingdom", "Realm")
@@ -565,9 +613,20 @@ average_tpm_core_or_not$Core_or_not <- average_tpm_bar_plot(tpm_table = phage_tp
                                                             meta_vars = met_v,
                                                             hg_or_core = "Core?",
                                                             threshold_for_other = 0)
+
+for (meta_merge in c("Prevalence_Bee_pools", "Prevalence_Hives", "Prevalence_Countries")) {
+  average_tpm_core_or_not[[meta_merge]] <- average_tpm_bar_plot(tpm_table = phage_tpm[[meta_merge]],
+                                                              tl = "Prevalence",
+                                                              hg = meta_merge,
+                                                              meta_vars = met_v,
+                                                              hg_or_core = "",
+                                                              threshold_for_other = 0)
+}
+
+average_tpm_core_or_not_taxes <- list()
 for (core_or_not in names(phage_tpm_core_or_not)) {
   for (tlvl in tax_levels) {
-    average_tpm_core_or_not[[core_or_not]][[tlvl]] <- average_tpm_bar_plot(
+    average_tpm_core_or_not_taxes[[core_or_not]][[tlvl]] <- average_tpm_bar_plot(
       tpm_table = phage_tpm_core_or_not[[core_or_not]][[tlvl]],
       tl = tlvl,
       hg = core_or_not,
@@ -631,45 +690,6 @@ for (mvar in metavars) {
              p.adjust.method="BH", hide.ns = TRUE) +
     labs(title = paste0(mvar, " - KW: H = ", round(kruskal_results$test_stat), " p = ", round(kruskal_results$pvalue)))
 }
-
-#------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------#
-# Prevalence ####
-prevalence_histo <- list()
-for (merge in names(phage_ab_meta_merges)) {
-  prevalence_histo[[merge]] <- prevalence_histogram(abtable = phage_ab_meta_merges[[merge]],
-                                                          plot_title = merge)
-}
-
-# present_in_all_countries <- prevalence_histo$Countries$table %>%
-#   filter(prevalence_prop ==1) %>%
-#   select(group) %>%
-#   unlist(use.names = FALSE) # %>%
-#   # write_lines("output/temp.txt")
-
-
-# 
-# met_v <- c("Country", "Season", "Gut_part", "Health")
-# tax_levels <- c("contig", "Species", "Genus", "Family", "Order", "Class", "Phylum", "Kingdom", "Realm")
-# prevalence_plots <- list()
-# for (hgr in names(phage_tpm_hostgroup)) {
-#   for (tlvl in tax_levels) {
-#     # trsh <- 3
-#     if (tlvl=="contig") {
-#       trsh <- 20
-#     } else {
-#       trsh <- 1
-#     }
-#     prevalence_plots[[hgr]][[tlvl]] <- prevalence_bar_plot(
-#       abtable = phage_tpm_hostgroup[[hgr]][[tlvl]],
-#       tl = tlvl, 
-#       hg = hgr,
-#       meta_vars = met_v,
-#       threshold_for_other = trsh)
-#   }
-# }
-
-
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
