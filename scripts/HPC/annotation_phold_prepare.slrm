@@ -23,7 +23,7 @@ for file in NODE*; do
 done
 
 # Move .gbk files that are not present in the input out of the structures folder because
-# the current version of phold compare will crash otherwise. There are some CDSs in the input
+# the current version of phold compare will crash otherwise. There are a few more CDSs in the input
 # than structures, because I decided to filter down the contigs from the other datasets with
 # geNomad as well, after I sent the CDSs to George...
 mkdir -p ../filtered_out_renamed_pdbs
