@@ -39,6 +39,8 @@ vcontact3 run --threads $threads --nucleotide vcontact3_with_inpha.fasta --outpu
 
 rm vcontact3_with_inpha.fasta
 
+pigz -p 12 bphage_vcontact3_b38_with_inphared/*faa
+pigz -p 12 bphage_vcontact3_b38_with_inphared/*.cyjs
 cp -r bphage_vcontact3_b38_with_inphared $repo_location/output/vcontact3
 
 

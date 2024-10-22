@@ -1,0 +1,12 @@
+name: cobra
+channels:
+  - bioconda
+  - defaults
+  - conda-forge
+  - nodefaults
+dependencies:
+  - python=3.8
+  - bioconda::cobra-meta=1.2.3
+  - ca-certificates
+  - openssl
+prefix: /data/leuven/341/vsc34111/mambaforge/envs/cobra
