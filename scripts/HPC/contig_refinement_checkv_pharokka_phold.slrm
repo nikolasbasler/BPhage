@@ -87,11 +87,11 @@ done < $repo_location/data/phold/relengthen.core.contig.names.sed
 
 # Phold plot
 phold plot --input extended_contigs_phold/phold_long_names.gbk \
-    -o extended_contigs_plots_phold
+    -o extended_contigs_phold_plots
 
 # Copy phold output
 cp -r extended_contigs_phold $repo_location/output/core_contig_refinement
-cp -r extended_contigs_plots_phold $repo_location/output/core_contig_refinement
+cp -r extended_contigs_phold_plots $repo_location/output/core_contig_refinement
 
 ################################################################################
 # Clean up
