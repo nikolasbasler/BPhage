@@ -127,12 +127,29 @@
         - Ciros plots of all contigs, except a few very short ones that crashed `phold plot`: `output/annotation/plots_phold_compare_bphage_and_others` (using original, long contig names).
 
 ### Core contig refinement
-- Prepare:
+- Prepare and run cobra (array of 97): `scripts/HPC/contig_refinement.slrm`
+    - Requires: 
+        - List of core contigs: `data/core_contigs.txt`
+        - Individual assemblies pre-clustering: `output/bphage_viper_output/CONTIGS/*_all.contigs.fasta.gz`
+        - Trimmed hostout reads from vipter ouput: `output/bphage_viper_output/READ/*.Hostout.R*.fastq.gz`
+    - Output: Cobra-refined contigs at `output/core_contig_refinement/`
+- Gather some stats: `scripts/HPC/contig_refinement_stats.slrm`
+    - Requires: Cobra outputs at `output/core_contig_refinement`
+    - Output: 
+        - Refinement stats: `output/core_contig_refinement/cobra_refinement_stats.tsv`
+        - Fasta of extended contigs: `output/core_contig_refinement/extended_contigs.fasta`
+- Completeness and annotation: `scripts/HPC/contig_refinement_checkv_pharokka_phold.slrm`
     - Requires:
+        - Refinement stats: `output/core_contig_refinement/cobra_refinement_stats.tsv`
+        - Fasta of extended contigs: `output/core_contig_refinement/extended_contigs.fasta`
+        - Original CheckV output (for comparison): `output/bphage_ALL_1kb_checkv/quality_summary.tsv.gz`
+        - Colabfold structures of proteins (Provided by George Bouras) in `output/core_contig_refinement/colabfold_structures/extended_contigs_tophits/pdbs/` 
     - Output:
-- Refine:
-    - Requires:
-    - Output:
+        - CheckV (incl. completeness comparison): `output/core_contig_refinement/extended_contigs_checkv`
+        - Pharokka: `output/core_contig_refinement/extended_contigs_pharokka`
+        - Phold: `output/core_contig_refinement/extended_contigs_phold`
+        - Phold plots: `output/core_contig_refinement/extended_contigs_plots_phold`
+
 
 ### Lifestyle prediction
 

@@ -1,0 +1,9 @@
+name: replidec
+channels:
+  - bioconda
+  - defaults
+  - conda-forge
+  - nodefaults
+dependencies:
+  - replidec=0.2.3.1
+prefix: /data/leuven/341/vsc34111/mambaforge/envs/replidec
