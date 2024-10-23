@@ -220,8 +220,6 @@ average_tpm_bar_plot <- function(tpm_table, tl, hg, meta_vars, title_prefix="", 
       ungroup() %>%                         # merge identically-
       distinct()                            # colored shapes.
     
-    
-    
     plot_list[[m_var]] <- tible_list[[m_var]] %>%
       ggplot(aes(x=.data[[m_var]], y=mean_tpm, fill = as.factor(group))) +
       geom_col() +
@@ -231,6 +229,19 @@ average_tpm_bar_plot <- function(tpm_table, tl, hg, meta_vars, title_prefix="", 
     if (tl == "Prevalence" & colnames(tpm_table)[1] == "Prevalence_Countries") {
       plot_list[[m_var]] <- plot_list[[m_var]] + 
         scale_fill_manual(values = prev_colors)
+    }
+    if (tl == "Prevalence" & colnames(tpm_table)[1] != "Prevalence_Countries") {
+      max_val <- max(tible_list[[m_var]]$group)
+      ticks <- 1:max_val %>% 
+        quantile(probs = c(0.33, 0.66)) %>% 
+        round()
+      plot_list[[m_var]] <- plot_list[[m_var]] + 
+        aes(fill = rev(group)) +
+        scale_fill_gradient(low = "#F0F0F0", high = "black",
+                            breaks = c(1, ticks, max_val),
+                            labels = c(1, ticks, max_val)) +
+        guides(fill = guide_colourbar(reverse = TRUE)) +
+        labs(fill=tl)
     }
     if (hg_or_core == "Host_group") {
       plot_list[[m_var]] <- plot_list[[m_var]] +
