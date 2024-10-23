@@ -16,12 +16,6 @@ pretty_pie$tibbles$TPM$Class <- phage_tpm$Class %>%
   ungroup() %>%
   select(Class, TPM) %>%
   distinct() %>%
-  # arrange(TPM) %>%
-  # mutate(Class = factor(Class, levels = rev(c("Caudoviricetes", 
-  #                                         "Faserviricetes|Huolimaviricetes|Malgrandaviricetes",
-  #                                         "Vidaverviricetes|Leviviricetes",
-  #                                         "Tokiviricetes",
-  #                                         "Unclassified"))))
   arrange(desc(TPM)) %>%
   mutate(Class = factor(Class, levels = c("Caudoviricetes",
                                           "Faserviricetes|Huolimaviricetes|Malgrandaviricetes",
@@ -43,18 +37,16 @@ pretty_pie$tibbles$TPM$Order <- phage_tpm$Order_group %>%
   ungroup() %>%
   select(Order_group, TPM) %>%
   distinct() %>%
-  # arrange(TPM) %>% 
-  # mutate(Order_group = factor(Order_group, levels = rev(c("Novel_Caudoviricetes_order", "Microviruses", "Novel_Tokiviricetes_order", "Unclassified")))) %>%
   arrange(desc(TPM)) %>%
   mutate(Order_group = factor(Order_group, levels = c("Novel_Caudoviricetes_order", "Microviruses", "Novel_Tokiviricetes_order", "Unclassified"))) %>%
   rename(Order = Order_group)
 
 
-pretty_pie$tibbles$n$Family <- classification %>% 
+pretty_pie$tibbles$n$Family <- classification %>%
   group_by(Family_group) %>%
   count() %>%
   arrange(desc(n)) %>%
-  mutate(Family_group = factor(Family_group, levels = c("Novel_Caudoviricetes_family", "Microvirus_family", "ICTV-named", "Novel_Tokiviricetes_family", "Unclassified"))) %>%
+  mutate(Family_group = factor(Family_group, levels = c("Novel_Caudoviricetes_family", "Microvirus_family", "ICTV-named", "Novel_Tokiviricetes_family", "Unclassified_Microvirus_family", "Other_unclassified_family"))) %>%
   rename(Family = Family_group)
 
 pretty_pie$tibbles$TPM$Family <- phage_tpm$Family_group %>%
@@ -64,10 +56,8 @@ pretty_pie$tibbles$TPM$Family <- phage_tpm$Family_group %>%
   ungroup() %>%
   select(Family_group, TPM) %>%
   distinct() %>%
-  # arrange(TPM) %>% 
-  # mutate(Family_group = factor(Family_group, levels = rev(c("Novel_Caudoviricetes_family", "Microvirus_family", "ICTV-named", "Novel_Tokiviricetes_family", "Unclassified")))) %>%
   arrange(desc(TPM)) %>%
-  mutate(Family_group = factor(Family_group, levels = c("Novel_Caudoviricetes_family", "Microvirus_family", "ICTV-named", "Novel_Tokiviricetes_family", "Unclassified"))) %>%
+  mutate(Family_group = factor(Family_group, levels = c("Novel_Caudoviricetes_family", "Microvirus_family", "ICTV-named", "Novel_Tokiviricetes_family", "Unclassified_Microvirus_family", "Other_unclassified_family"))) %>%
   rename(Family = Family_group)
 
 pretty_special_families <- list()
@@ -141,19 +131,17 @@ for (thing in names(pretty_pie$tibbles)) {
   for (tl in names(pretty_pie$tibbles[[thing]])) {
     if (tl == "Class") {
       colors <- c("#8B4513", "#FFC300", "#D2691E", "#FFA07A", "#555555")
-      labels <- c("Caudoviricetes", 
-                  "Faserviricetes|Huolimaviricetes|Malgrandaviricetes",
-                  "Vidaverviricetes|Leviviricetes",
-                  "Tokiviricetes",
-                  "Unclassified")
+      labels <- levels(pretty_pie$tibbles[[thing]][[tl]][[tl]])
     }
     if (tl == "Order") {
       colors <- c("#FFDAB9", "#FFC300", "#FFA07A", "#555555")
-      labels <- c("Novel Caudoviricetes order", "Microviruses", "Novel Tokiviricetes order", "Unclassified")
+      labels <- levels(pretty_pie$tibbles[[thing]][[tl]][[tl]]) %>%
+        str_replace_all("_", " ")
     }
     if (tl == "Family") {
-      colors <- c("#FFDAB9", "#FFC300", "#8B4513", "#FFA07A", "#555555")
-      labels <- c("Novel Caudoviricetes family", "Microvirus family", "ICTV-named", "Novel Tokiviricetes family", "Unclassified")
+      colors <- c("#FFDAB9", "#FFC300", "#8B4513", "#FFA07A", "#666666", "#444444")
+      labels <- levels(pretty_pie$tibbles[[thing]][[tl]][[tl]]) %>%
+        str_replace_all("_", " ")
     }
     if (thing == "n") {
       counts_in_order <- pretty_pie$tibbles[[thing]][[tl]] %>%
