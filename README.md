@@ -152,6 +152,10 @@
 
 
 ### Lifestyle prediction
+- Replidec: `scripts/HPC/lifestyle_replidec.slrm`
+    - Requirements: BPhage phage, picobirna and unclassified contigs at `output/bphage_ALL_1kb_*.fasta.gz`
+    - Extended core contigs: `output/core_contig_refinement/extended_contigs.fasta`
+- Output: Replidec's lifestyle prediction: `output/lifestyle/replidec/BC_predict.summary`
 
 ### Host prediction
 
