@@ -1,0 +1,44 @@
+#!/bin/bash -l
+#SBATCH --job-name="SNV_analysis_terL_read_mapping"
+#SBATCH --cluster=genius
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=9
+#SBATCH --mem-per-cpu=4G
+#SBATCH --time=30:00
+#SBATCH --account=lp_jm_virome_group
+#SBATCH --output=slurm-%x_%a_%A.out
+
+###############################################################################
+
+# Submit (from output/slurm_log)
+# sbatch --array=1-150 --export=ALL ../../scripts/HPC/SNV_analysis_terL_read_mapping.slrm
+
+source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
+conda activate viper_bphage
+repo_location="$VSC_STAGING/BPhage"
+line=$(head -n $SLURM_ARRAY_TASK_ID $repo_location/data/BPhage.bee.pool.list | tail -n1)
+
+threads=9
+
+mkdir -p $VSC_SCRATCH/BPhage/SNV/merged_reads
+mkdir -p $VSC_SCRATCH/BPhage/SNV/mapped_terL
+cd $VSC_SCRATCH/BPhage/SNV/
+
+# Merge reads per bee pool to be consistent with the split k-mer analysis
+cat $repo_location/output/bphage_viper_output/READ/${line}*Hostout.R1.fastq.gz > merged_reads/${line}.Hostout.R1.fastq.gz
+cat $repo_location/output/bphage_viper_output/READ/${line}*Hostout.R2.fastq.gz > merged_reads/${line}.Hostout.R2.fastq.gz
+
+# Map to concatenated seqs
+bwa-mem2 mem terL_ref/concatenated_core_terLs.fasta \
+    merged_reads/${line}.Hostout.R1.fastq.gz merged_reads/${line}.Hostout.R2.fastq.gz \
+    -t $threads | samtools view -h -F2052 | samtools collate -@ $threads -Ou - | samtools fixmate -@ $threads -u -m - - | \
+    samtools sort -@ $threads -u - | samtools markdup -r -s - mapped_terL/${line}_concat_core_terLs.rmdup.bam
+
+bwa-mem2 mem terL_ref/concatenated_terLs_all_contigs.fasta \
+    merged_reads/${line}.Hostout.R1.fastq.gz merged_reads/${line}.Hostout.R2.fastq.gz \
+    -t $threads | samtools view -h -F2052 | samtools collate -@ $threads -Ou - | samtools fixmate -@ $threads -u -m - - | \
+    samtools sort -@ $threads -u - | samtools markdup -r -s - mapped_terL/${line}_concat_all_terLs.rmdup.bam
+
+echo "========================================================================"
+duration=$SECONDS
+printf 'Job finished in: %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))
