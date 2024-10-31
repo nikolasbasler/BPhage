@@ -88,7 +88,7 @@ rm README.md
 
 # Index bee ref genomne
 conda activate viper_bphage
-bwa-mem2 index GCF_003254395.2_Amel_HAv3.1_genomic.fna
+# bwa-mem2 index GCF_003254395.2_Amel_HAv3.1_genomic.fna
 bowtie2-build --threads 12 GCF_003254395.2_Amel_HAv3.1_genomic.fna GCF_003254395.2_Amel_HAv3.1_genomic.fna
 
 echo "========================================================================"
