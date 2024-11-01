@@ -1,5 +1,5 @@
 #!/bin/bash -l
-#SBATCH --job-name="SNP_analysis_prepare"
+#SBATCH --job-name="SNP_analysis_SKA2_prepare"
 #SBATCH --cluster=genius
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=4
@@ -11,7 +11,7 @@
 ###############################################################################
 
 # Submit (from output/slurm_log)
-# sbatch --array=1-150 --export=ALL ../../scripts/HPC/SNP_analysis_prepare.slrm
+# sbatch --array=1-150 --export=ALL ../../scripts/HPC/SNP_analysis_SKA2_prepare.slrm
 
 source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate viper_bphage
