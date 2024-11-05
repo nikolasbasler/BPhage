@@ -75,7 +75,7 @@ cd ..
 ln bin/silix .
 rm -rf .git*
 
-# Bee ref genome
+# Apis mellifera ref genome
 conda activate ncbi
 mkdir -p $VSC_SCRATCH/BPhage/ref
 cd $VSC_SCRATCH/BPhage/ref
@@ -85,11 +85,20 @@ unzip ncbi_dataset.zip
 mv ncbi_dataset/data/GCF_003254395.2/GCF_003254395.2_Amel_HAv3.1_genomic.fna .
 rm -r ncbi_dataset*
 rm README.md
+mv md5sum.txt GCF_003254395.2_Amel_HAv3.1_genomic.md5sum.txt
 
-# Index bee ref genomne
+# Apis cerana ref genome
+datasets download genome accession GCF_029169275.1
+unzip ncbi_dataset.zip
+mv ncbi_dataset/data/GCF_029169275.1/GCF_029169275.1_AcerK_1.0_genomic.fna .
+rm -r ncbi_dataset*
+rm README.md
+mv md5sum.txt GCF_029169275.1_AcerK_1.0_genomic.md5sum.txt
+
+# Index bee ref genomnes
 conda activate viper_bphage
-# bwa-mem2 index GCF_003254395.2_Amel_HAv3.1_genomic.fna
 bowtie2-build --threads 12 GCF_003254395.2_Amel_HAv3.1_genomic.fna GCF_003254395.2_Amel_HAv3.1_genomic.fna
+bwa-mem2 index GCF_029169275.1_AcerK_1.0_genomic.fna
 
 echo "========================================================================"
 duration=$SECONDS
