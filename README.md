@@ -173,10 +173,10 @@
         - BPhage contigs manually assigned to Kirberger et al's microvirus families: `/data/bphage.microvirus.taxonomy.csv`
 
 ### SNP analysis
-- terL mapping prep
-- terL mapping
-- SKA prep
-- SKA core, terL, terL core, host, Hostout
+- mapping prep
+- mapping (array of 150)
+- SKA prep (array of 150)
+- SKA (array of 7: host, core, all_terLs, core_terLs, Acer, Acer_mt, Acer_CO1)
 
 ### R analyses
 - Filtering script `xxx`
