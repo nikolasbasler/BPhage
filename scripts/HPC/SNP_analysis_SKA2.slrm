@@ -24,7 +24,7 @@ Acer_CO1
 phages\
 ")
 
-# Spoiler for another paper (set array number to 9):
+# # Spoiler for another paper (set array number to 9):
 # datasets=$(echo -e "$datasets
 # MAG_mapped")
 
