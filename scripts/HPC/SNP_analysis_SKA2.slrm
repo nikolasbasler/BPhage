@@ -12,7 +12,7 @@
 ###############################################################################
 
 # Submit (from output/slurm_log)
-# sbatch --array=1-7 --export=ALL ../../scripts/HPC/SNP_analysis_SKA2.slrm
+# sbatch --array=1-9 --export=ALL ../../scripts/HPC/SNP_analysis_SKA2.slrm
 datasets=$(echo -e "\
 host
 core
@@ -20,7 +20,9 @@ all_terLs
 core_terLs
 Acer_genome
 Acer_mt
-Acer_CO1\
+Acer_CO1
+phages
+MAG_mapped\
 ")
 
 line=$(head -n $SLURM_ARRAY_TASK_ID <(echo "$datasets") | tail -n1)
@@ -37,7 +39,10 @@ cd $VSC_SCRATCH/BPhage/SNP/ska2_${line}
 find ../merged_reads/ | grep "${line}.R1.fastq.gz" > temp.${line}.R1.files
 sed 's/.R1./.R2./g'  temp.${line}.R1.files >  temp.${line}.R2.files
 rev temp.${line}.R1.files | cut -d"/" -f1 | rev | cut -d"." -f1 > temp.${line}.samples
-paste temp.${line}.samples temp.${line}.R1.files temp.${line}.R2.files | sort > ${line}.file.list
+# 2 samples have to be excluded from the CO1 dataset because their fastq files are empty
+paste temp.${line}.samples temp.${line}.R1.files temp.${line}.R2.files | \
+    grep -v "CH_17685_sum.Acer_CO1" | grep -v "PT_19412_spr.Acer_CO1" | \
+    sort > ${line}.file.list
 
 ska build -k 31 -o ska2_${line} -v --threads $threads -f ${line}.file.list
 ska distance -o ska2_${line}.distance -v --threads $threads ska2_${line}.skf
@@ -46,8 +51,8 @@ ska distance -o ska2_${line}.distance -v --threads $threads ska2_${line}.skf
 rm temp.*
 
 # Copy files
-mkdir -p $repo_location/output/SNP_analysis/${line}
-cp * $repo_location/output/SNP_analysis/${line}
+mkdir -p $repo_location/output/SNP_analysis/ska2_${line}
+cp * $repo_location/output/SNP_analysis/ska2_${line}
 
 echo "========================================================================"
 duration=$SECONDS

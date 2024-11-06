@@ -52,6 +52,15 @@ seqkit grep -rf $repo_location/data/core_contigs.txt terL_ref/terLs_all_contigs.
 bwa-mem2 index terL_ref/core_terLs.fasta
 bwa-mem2 index terL_ref/terLs_all_contigs.fasta
 
+# # Spoiler for another paper: Copy the bacterial MAGs over and index:
+# mkdir -p MAG_ref
+# rm -f MAG_ref/MAGs.sample.bins.fasta
+# for bin in $(ls $VSC_STAGING/bacteria/BPhage_bac/output/bacterial_mags/sample_bins | rev | cut -d"." -f2- | rev); do
+#     sed "s/>/>${bin}_/" $VSC_STAGING/bacteria/BPhage_bac/output/bacterial_mags/sample_bins/${bin}.fa \
+#         >> MAG_ref/MAGs.sample.bins.fasta
+# done
+# bwa-mem2 index MAG_ref/MAGs.sample.bins.fasta
+
 rm temp.*
 
 echo "========================================================================"
