@@ -13,6 +13,8 @@
 
 # Submit (from output/slurm_log)
 # sbatch --array=1-8 --export=ALL ../../scripts/HPC/SNP_analysis_SKA2.slrm
+
+# The last one (MAG_mapped) is a spoiler for another paper (set array number to 9):
 datasets=$(echo -e "\
 host
 core
@@ -21,12 +23,9 @@ core_terLs
 Acer_genome
 Acer_mt
 Acer_CO1
-phages\
+phages
+MAG_mapped\
 ")
-
-# # Spoiler for another paper (set array number to 9):
-# datasets=$(echo -e "$datasets
-# MAG_mapped")
 
 line=$(head -n $SLURM_ARRAY_TASK_ID <(echo "$datasets") | tail -n1)
 
