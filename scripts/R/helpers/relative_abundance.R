@@ -235,13 +235,21 @@ average_tpm_bar_plot <- function(tpm_table, tl, hg, meta_vars, title_prefix="", 
       ticks <- 1:max_val %>% 
         quantile(probs = c(0.33, 0.66)) %>% 
         round()
-      plot_list[[m_var]] <- plot_list[[m_var]] + 
-        aes(fill = rev(group)) +
+      
+      plot_list[[m_var]] <- tible_list[[m_var]] %>%
+        arrange(desc(group)) %>%
+        ggplot(aes(x=.data[[m_var]], y=mean_tpm, fill = group)) +
+        geom_col() +
+        ggtitle(paste0(title_prefix, hg_or_core, ": \"", hg,"\"")) +
+        labs(fill=tl) +
         scale_fill_gradient(low = "#F0F0F0", high = "black",
                             breaks = c(1, ticks, max_val),
                             labels = c(1, ticks, max_val)) +
         guides(fill = guide_colourbar(reverse = TRUE)) +
-        labs(fill=tl)
+        labs(fill=tl) +
+        theme_minimal() +
+        theme(panel.grid.major = element_blank(),
+          panel.grid.minor = element_blank())
     }
     if (hg_or_core == "Host_group") {
       plot_list[[m_var]] <- plot_list[[m_var]] +
