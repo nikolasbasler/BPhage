@@ -172,6 +172,12 @@
         - Filtered and colored cytoscape graph: `data/bphage_micros_id30_colored_cytoscape.cys` and `bphage_micros_id30_colored_cytoscape.png`
         - BPhage contigs manually assigned to Kirberger et al's microvirus families: `/data/bphage.microvirus.taxonomy.csv`
 
+### SNP analysis
+- mapping prep
+- mapping (array of 150)
+- SKA prep (array of 150)
+- SKA (array of 7: host, core, all_terLs, core_terLs, Acer, Acer_mt, Acer_CO1)
+
 ### R analyses
 - Filtering script `xxx`
     - Requires: 

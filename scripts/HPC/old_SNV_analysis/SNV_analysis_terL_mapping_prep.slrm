@@ -1,0 +1,58 @@
+#!/bin/bash -l
+#SBATCH --job-name="SNV_analysis_terL_mapping_prep"
+#SBATCH --cluster=genius
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=1
+#SBATCH --mem-per-cpu=4G
+#SBATCH --time=1:00
+#SBATCH --account=lp_jm_virome_group
+#SBATCH --output=slurm-%x_%j.out
+
+###############################################################################
+
+# Submit (from output/slurm_log)
+# sbatch --export=ALL ../../scripts/HPC/SNV_analysis_terL_mapping_prep.slrm
+
+source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
+conda activate viper_bphage
+repo_location="$VSC_STAGING/BPhage"
+
+mkdir -p $VSC_SCRATCH/BPhage/SNV/terL_ref
+cd $VSC_SCRATCH/BPhage/SNV
+
+grep "terminase large subunit" \
+    $repo_location/output/core_contig_refinement/extended_contigs_phold/phold_per_cds_predictions_long_names.tsv | \
+    cut -f1,3,4 | awk '{if ($2>$3) {print $1"\t"$2"\t"$3-1} else {print $0} }' > temp.terL_extended_contigs.bed # The change in the bed coordinate is necessary because seqkit would otherwise extract the wrong subsequence
+
+cut -d"_" -f1-11 temp.terL_extended_contigs.bed > temp.extended_contigs_original_names
+
+grep "^NODE" \
+    $repo_location/output/annotation/phold_compare_bphage_and_others/phold_per_cds_predictions_long_names.tsv | \
+    grep "terminase large subunit" | cut -f1,3,4 | grep -vf temp.extended_contigs_original_names | \
+    awk '{if ($2>$3) {print $1"\t"$2"\t"$3-1} else {print $0} }' > temp.terL_unextended_contigs.bed
+
+seqkit subseq --bed temp.terL_extended_contigs.bed \
+    $repo_location/output/core_contig_refinement/extended_contigs.fasta | \
+    rev | cut -d"_" -f2- | rev | sed '/^>/ s/$/_terL/' | seqkit seq -m 1000 > temp.terL_extended_contigs.fasta
+
+zcat $repo_location/output/bphage_ALL_1kb_phages.fasta.gz > temp.bphage_ALL_1kb_phages.fasta
+ seqkit subseq --bed temp.terL_unextended_contigs.bed temp.bphage_ALL_1kb_phages.fasta | \
+    rev | cut -d"_" -f2- | rev | sed '/^>/ s/$/_terL/' | seqkit seq -m 1000 > temp.terL_unextended_contigs.fasta
+
+cat temp.terL_extended_contigs.fasta temp.terL_unextended_contigs.fasta | \
+    seqkit grep -rf $repo_location/data/core_contigs.txt | grep -v ">" | tr -d '\n' | sed 's/$/\n/' | \
+    sed '1i\>concatenated_core_terLs' > terL_ref/concatenated_core_terLs.fasta
+
+cat temp.terL_extended_contigs.fasta temp.terL_unextended_contigs.fasta | grep -v ">" | tr -d '\n' | sed 's/$/\n/' | \
+    sed '1i\>concatenated_terLs_all_contigs' > terL_ref/concatenated_terLs_all_contigs.fasta
+
+bwa-mem2 index terL_ref/concatenated_core_terLs.fasta
+samtools faidx terL_ref/concatenated_core_terLs.fasta
+bwa-mem2 index terL_ref/concatenated_terLs_all_contigs.fasta
+samtools faidx  terL_ref/concatenated_terLs_all_contigs.fasta
+
+rm temp.*
+
+echo "========================================================================"
+duration=$SECONDS
+printf 'Job finished in: %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))
