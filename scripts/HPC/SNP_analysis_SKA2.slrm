@@ -12,19 +12,12 @@
 ###############################################################################
 
 # Submit (from output/slurm_log)
-# sbatch --array=1-8 --export=ALL ../../scripts/HPC/SNP_analysis_SKA2.slrm
+# sbatch --array=1-3 --export=ALL ../../scripts/HPC/SNP_analysis_SKA2.slrm
 
-# The last one (MAG_mapped) is a spoiler for another paper (set array number to 9):
 datasets=$(echo -e "\
-host
-core
 all_terLs
-core_terLs
-Acer_genome
-Acer_mt
 Acer_CO1
-phages
-MAG_mapped\
+16S\
 ")
 
 line=$(head -n $SLURM_ARRAY_TASK_ID <(echo "$datasets") | tail -n1)
@@ -48,6 +41,15 @@ paste temp.${line}.samples temp.${line}.R1.files temp.${line}.R2.files | \
 
 ska build -k 31 -o ska2_${line} -v --threads $threads -f ${line}.file.list
 ska distance -o ska2_${line}.distance -v --threads $threads ska2_${line}.skf
+ska align --filter no-filter -o ska2_${line}.alignment.fasta --threads $threads ska2_${line}.skf
+
+conda activate veryfasttree
+VeryFastTree -nt -gamma -gtr -threads $threads ska2_${line}.alignment.fasta > ska2_${line}.tree
+
+## CONTINUE HERE
+conda activate trees
+raxmlHPC -s ska2_${line}.alignment.fasta -n ska2_${line}.raxml.tree -m GTRGAMMA -p 1 -T $threads
+
 
 # Clean up
 rm temp.*
