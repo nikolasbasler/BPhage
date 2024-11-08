@@ -443,7 +443,7 @@ completeness_and_genome_length$contig_length <- classification %>%
 
 # 70% horizontal coverage cutoff
 count_stats <- report_stats(df = phage_abundance,
-                            thresholds=c(2437, 775)) # First number: quantile_90_ratio < 1000, second number: quantile_95_ratio < 2500
+                            thresholds=c(2437, 1548, 775)) # First number: quantile_90_ratio < 1000, second number: quantile_95_ratio < 2500
 count_stats
 # min_seq_count <- 2442 # For quantile_90_ratio < 1000. 12 discarded samples (9 mid, 3 ile).
 min_seq_count <- 1548 # Looks like a natural breaking point. 4 discarded samples (all mid).
@@ -453,16 +453,16 @@ lost_bees <- discards(count_stats$ratios, min_seq_count)$lost_bees # No bee pool
 min_seq_count_core_or_not <- list()
 count_stats_core_or_not <- list()
 count_stats_core_or_not$no <- report_stats(df = phage_ab_core_or_not$no$contig,
-                            thresholds=c(961, 7356))
+                            thresholds=c(961, 1694, 7356))
 count_stats_core_or_not$no
-min_seq_count_core_or_not$no <- 961 # Looks like a natural breaking point. 7 discarded samples (5 mid, 2 ile).
+min_seq_count_core_or_not$no <- 1694 # Looks like a natural breaking point. 7 discarded samples (5 mid, 2 ile).
 discarded <- discards(count_stats_core_or_not$no$ratios, min_seq_count_core_or_not$no)$discarded
 lost_bees <- discards(count_stats_core_or_not$no$ratios, min_seq_count_core_or_not$no)$lost_bees # No bee pool lost completely. Only gut parts from different locations/time points.
 
 count_stats_core_or_not$yes <- report_stats(df = phage_ab_core_or_not$yes$contig,
-                                     thresholds=c(462, 2375))
+                                     thresholds=c(462, 1073, 2375))
 count_stats_core_or_not$yes
-min_seq_count_core_or_not$yes <- 870 # Looks like a natural breaking point. 1 discarded ile sample.
+min_seq_count_core_or_not$yes <- 1073 # Looks like a natural breaking point. 1 discarded ile sample.
 discarded <- discards(count_stats_core_or_not$yes$ratios, min_seq_count_core_or_not$yes)$discarded
 lost_bees <- discards(count_stats_core_or_not$yes$ratios, min_seq_count_core_or_not$yes)$lost_bees # No bee pool lost completely. Only gut parts from different locations/time points.
 
