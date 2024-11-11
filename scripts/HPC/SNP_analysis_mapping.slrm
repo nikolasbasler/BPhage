@@ -21,6 +21,8 @@ line=$(head -n $SLURM_ARRAY_TASK_ID $repo_location/data/BPhage.bee.pool.list | t
 threads=9
 
 mkdir -p $VSC_SCRATCH/BPhage/SNP/merged_reads
+mkdir -p $VSC_SCRATCH/BPhage/SNP/CO1_consensuses
+mkdir -p $VSC_SCRATCH/BPhage/SNP/mt_consensuses
 cd $VSC_SCRATCH/BPhage/SNP/
 
 # Merge Hostout reads per bee pool
@@ -50,15 +52,50 @@ bwa-mem2 mem $VSC_SCRATCH/BPhage/ref/core_bacterial_genera_16S.fa \
 
 # Merge trimmed reads per bee pool
 cat $repo_location/output/bphage_viper_output/READ/${line}*trimmed.R1.fastq.gz > temp.${line}.trimmed.R1.fastq.gz
-cat $repo_location/output/bphage_viper_output/READ/${line}*trimmed.R2.fastq.gz > temp./${line}.trimmed.R2.fastq.gz
+cat $repo_location/output/bphage_viper_output/READ/${line}*trimmed.R2.fastq.gz > temp.${line}.trimmed.R2.fastq.gz
 
 # Map trimmed reads to A. cerana CO1 gene and retreive fastq files
 bwa-mem2 mem Acer_ref/Acer_CO1.fasta \
     temp.${line}.trimmed.R1.fastq.gz temp.${line}.trimmed.R2.fastq.gz -t $threads | \
-    samtools view -@ $threads -b -F4 | \
-    samtools collate -@ $threads -O - | \
-    samtools fastq -@ $threads -1 merged_reads/${line}.Acer_CO1.R1.fastq.gz -2 merged_reads/${line}.Acer_CO1.R2.fastq.gz \
-    -0 /dev/null -s /dev/null
+    samtools view -@ $threads -b -F4 | 
+    samtools sort -@ $threads -o temp.${line}.Acer_CO1_mapped.bam
+samtools fastq -@ $threads -1 merged_reads/${line}.Acer_CO1.R1.fastq.gz -2 merged_reads/${line}.Acer_CO1.R2.fastq.gz \
+    -0 /dev/null -s /dev/null temp.${line}.Acer_CO1_mapped.bam
+
+# Map trimmed reads to A. cerana whole genome and retreive fastq files
+bwa-mem2 mem $VSC_SCRATCH/BPhage/ref/GCF_029169275.1_AcerK_1.0_genomic.fna \
+    temp.${line}.trimmed.R1.fastq.gz temp.${line}.trimmed.R2.fastq.gz -t $threads | \
+    samtools view -@ $threads -b -F4 | 
+    samtools sort -@ $threads -o temp.${line}.Acer_genome_mapped.bam
+samtools fastq -@ $threads -1 merged_reads/${line}.Acer_genome.R1.fastq.gz -2 merged_reads/${line}.Acer_genome.R2.fastq.gz \
+    -0 /dev/null -s /dev/null temp.${line}.Acer_genome_mapped.bam
+
+# Remove duplicates from CO1 mapping and generate consensus
+samtools collate -@ $threads -O temp.${line}.Acer_CO1_mapped.bam | \
+    samtools fixmate -@ $threads -u -m - - | \
+    samtools sort -@ $threads | \
+    samtools markdup -r -s - temp.${line}.Acer_CO1_mapped.rmdup.bam
+samtools index -@ $threads temp.${line}.Acer_CO1_mapped.rmdup.bam
+samtools consensus -@ $threads --mode "simple" -a --min-depth 2 --call-fract 0.66 \
+    temp.${line}.Acer_CO1_mapped.rmdup.bam | sed "s/>/>${line}_/g" | gzip > CO1_consensuses/${line}_CO1_consensus.fasta.gz
+
+# # Map trimmed reads to A. cerana mt genome and retreive fastq files
+# bwa-mem2 mem Acer_ref/Acer_mt.fasta \
+#     temp.${line}.trimmed.R1.fastq.gz temp.${line}.trimmed.R2.fastq.gz -t $threads | \
+#     samtools view -@ $threads -b -F4 | 
+#     samtools sort -@ $threads -o temp.${line}.Acer_mt_mapped.bam
+# samtools fastq -@ $threads -1 merged_reads/${line}.Acer_mt.R1.fastq.gz -2 merged_reads/${line}.Acer_mt.R2.fastq.gz \
+#     -0 /dev/null -s /dev/null temp.${line}.Acer_mt_mapped.bam
+
+# # Remove duplicates from mt mapping and generate consensus
+# samtools collate -@ $threads -O temp.${line}.Acer_mt_mapped.bam | \
+#     samtools fixmate -@ $threads -u -m - - | \
+#     samtools sort -@ $threads | \
+#     samtools markdup -r -s - temp.${line}.Acer_mt_mapped.rmdup.bam
+# samtools index -@ $threads temp.${line}.Acer_mt_mapped.rmdup.bam
+# samtools consensus -@ $threads --mode "simple" -a --min-depth 2 --call-fract 0.66 \
+#     temp.${line}.Acer_mt_mapped.rmdup.bam | sed "s/>/>${line}_/g" | gzip > mt_consensuses/${line}_mt_consensus.fasta.gz
+
 
 # # Spoiler for another paper: Map Hostout reads to bacterial MAGs and retreive fastq files
 # bwa-mem2 mem MAG_ref/MAGs.sample.bins.fasta \

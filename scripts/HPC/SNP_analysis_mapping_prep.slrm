@@ -46,6 +46,10 @@ cat temp.terL_extended_contigs.fasta temp.terL_unextended_contigs.fasta > terL_r
 seqkit subseq --bed $repo_location/data/A_cerana_CO1.bed $VSC_SCRATCH/BPhage/ref/GCF_029169275.1_AcerK_1.0_genomic.fna \
     > Acer_ref/Acer_CO1.fasta
 
+# Make fasta file with A cerana mt genome sequence
+seqkit grep -p "NC_014295.1" $VSC_SCRATCH/BPhage/ref/GCF_029169275.1_AcerK_1.0_genomic.fna \
+    > Acer_ref/Acer_mt.fasta
+
 # Make fasta with terL sequences of core contigs
 # seqkit grep -rf $repo_location/data/core_contigs.txt terL_ref/terLs_all_contigs.fasta > terL_ref/core_terLs.fasta
 
@@ -53,6 +57,7 @@ seqkit subseq --bed $repo_location/data/A_cerana_CO1.bed $VSC_SCRATCH/BPhage/ref
 # bwa-mem2 index terL_ref/core_terLs.fasta
 bwa-mem2 index terL_ref/terLs_all_contigs.fasta
 bwa-mem2 index Acer_ref/Acer_CO1.fasta
+bwa-mem2 index Acer_ref/Acer_mt.fasta
 
 # # Spoiler for another paper: Copy the bacterial MAGs over and index:
 # mkdir -p MAG_ref

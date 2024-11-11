@@ -43,12 +43,12 @@ ska build -k 31 -o ska2_${line} -v --threads $threads -f ${line}.file.list
 ska distance -o ska2_${line}.distance -v --threads $threads ska2_${line}.skf
 ska align --filter no-filter -o ska2_${line}.alignment.fasta --threads $threads ska2_${line}.skf
 
-conda activate veryfasttree
-VeryFastTree -nt -gamma -gtr -threads $threads ska2_${line}.alignment.fasta > ska2_${line}.tree
+# conda activate veryfasttree
+# VeryFastTree -nt -gamma -gtr -threads $threads ska2_${line}.alignment.fasta > ska2_${line}.tree
 
-## CONTINUE HERE
-conda activate trees
-raxmlHPC -s ska2_${line}.alignment.fasta -n ska2_${line}.raxml.tree -m GTRGAMMA -p 1 -T $threads
+# ## CONTINUE HERE
+# conda activate trees
+# raxmlHPC -s ska2_${line}.alignment.fasta -n ska2_${line}.raxml.tree -m GTRGAMMA -p 1 -T $threads
 
 
 # Clean up
