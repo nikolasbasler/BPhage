@@ -1,0 +1,48 @@
+#!/bin/bash -l
+#SBATCH --job-name="SNP_analysis_consensus_tree"
+#SBATCH --cluster=genius
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=20
+#SBATCH --mem-per-cpu=4G
+#SBATCH --time=10:00
+#SBATCH --account=lp_jm_virome_group
+#SBATCH --output=slurm-%x_%j.out 
+
+###############################################################################
+
+# Submit (from output/slurm_log)
+# sbatch --export=ALL ../../scripts/HPC/SNP_analysis_consensus_tree.slrm
+
+source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
+conda activate viper_bphage
+repo_location="$VSC_STAGING/BPhage"
+
+mkdir -p $VSC_SCRATCH/BPhage/SNP/MSAs_and_trees
+cd $VSC_SCRATCH/BPhage/SNP/
+
+# Get CO1 consensuses
+zcat CO1_consensuses/*fasta.gz | cut -d"_" -f1-3 > temp.CO1_seqs.fasta
+seqkit subseq --bed $repo_location/data/A_mellifera_subspecies_mt.bed \
+    $VSC_SCRATCH/BPhage/ref/Amel_subspecies_mt.fa | \
+    cut -d"." -f1,3 | sed 's/\. /_A.m./g' >> temp.CO1_seqs.fasta
+
+# Get whole mt consensuses, filter for at most 20% Ns
+# zcat mt_consensuses/*.fasta.gz > temp.unfiltered.mt.seqs.fasta
+# python $repo_location/scripts/HPC/remove_seqs_with_Ns_from_fasta.py temp.unfiltered.mt.seqs.fasta 0.20 \
+#     > temp.mt_seqs.fasta
+
+conda activate phylogeo
+export OMP_NUM_THREADS=20
+muscle -threads 20 -align temp.CO1_seqs.fasta -output MSAs_and_trees/CO1_MSA.fasta
+FastTreeMP -nt MSAs_and_trees/CO1_MSA.fasta > MSAs_and_trees/CO1.tree
+
+# muscle -threads 20 -align temp.mt_seqs.fasta -output MSAs_and_trees/mt_MSA.fasta # Gets OOM-killed even on a big mem
+# FastTreeMP -nt MSAs_and_trees/mt_MSA.fasta > MSAs_and_trees/mt.tree
+
+cp -r MSAs_and_trees $repo_location/output/SNP_analysis
+
+rm  temp.CO1_seqs.fasta
+
+echo "========================================================================"
+duration=$SECONDS
+printf 'Job finished in: %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))
