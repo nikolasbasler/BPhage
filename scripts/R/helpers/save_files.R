@@ -248,8 +248,14 @@ for (p in names(hostgroup_hist)) {
 system("mkdir -p output/R/relative_abundance/relative_abundance_hostgroups/")
 for (group in names(average_tpm_host_group)) {
   for (tl in names(average_tpm_host_group[[group]]$plots)) {
+    wid <- 15
+    hei <- 8
+    if (tl == "Sample_ID") {
+      wid <- 20
+      hei <- 40
+    }
     ggsave(paste0("output/R/relative_abundance/relative_abundance_hostgroups/average_TPM_Host_groups_core.", group, ".",tl,".pdf"),
-           average_tpm_host_group[[group]]$plots[[tl]], width=15, height=8)
+           average_tpm_host_group[[group]]$plots[[tl]], width = wid, height = hei)
     write_csv(average_tpm_host_group[[group]]$tibbles[[tl]],
               paste0("output/R/relative_abundance/relative_abundance_hostgroups/average_TPM_Host_groups_core.", group, ".",tl,".csv"))
   }
@@ -284,12 +290,13 @@ system("mkdir -p output/R/relative_abundance/relative_abundance_by_metavar_core_
 for (core_or_not in names(average_tpm_core_or_not_taxes)) { 
   for (tax in names(average_tpm_core_or_not_taxes[[core_or_not]])) {
     for (metavar in names(average_tpm_core_or_not_taxes[[core_or_not]][[tax]]$plots)) {
+      hei <- 5
       wid <- 12
       if (metavar == "Sample_ID") {
         wid <- 90
       }
       ggsave(paste0("output/R/relative_abundance/relative_abundance_by_metavar_core_or_not/relative_abundance_", core_or_not, ".", tax, ".", metavar, ".pdf"),
-             average_tpm_core_or_not_taxes[[core_or_not]][[tax]]$plots[[metavar]],  width = wid, height = 5, limitsize = FALSE)
+             average_tpm_core_or_not_taxes[[core_or_not]][[tax]]$plots[[metavar]],  width = wid, height = hei, limitsize = FALSE)
       write_csv(average_tpm_core_or_not_taxes[[core_or_not]][[tax]]$tibbles[[metavar]],
                 paste0("output/R/relative_abundance/relative_abundance_by_metavar_core_or_not/relative_abundance_", core_or_not, ".", tax, ".", metavar, ".csv"))
     }
@@ -298,11 +305,13 @@ for (core_or_not in names(average_tpm_core_or_not_taxes)) {
 for (thing in names(average_tpm_core_or_not)) {
   for (metavar in names(average_tpm_core_or_not[[thing]]$plots)) {
     wid <- 12
+    hei <- 5
     if (metavar == "Sample_ID") {
-      wid <- 90
+      wid <- 20
+      hei <- 40
     }
     ggsave(paste0("output/R/relative_abundance/relative_abundance_by_metavar_core_or_not/By_prevalence_", thing, "_relative_abundance.", metavar, ".pdf"),
-           average_tpm_core_or_not[[thing]]$plots[[metavar]],  width = wid, height = 5, limitsize = FALSE)
+           average_tpm_core_or_not[[thing]]$plots[[metavar]],  width = wid, height = hei, limitsize = FALSE)
     write_csv(average_tpm_core_or_not[[thing]]$tibbles[[metavar]],
               paste0("output/R/relative_abundance/relative_abundance_by_metavar_core_or_not/By_prevalence_", thing,"_relative_abundance.", metavar, ".csv"))
   }

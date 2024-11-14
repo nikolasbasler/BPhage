@@ -194,15 +194,23 @@ phylo_heat_map <- function(ab_table, id_table) {
 
 average_tpm_bar_plot <- function(tpm_table, tl, hg, meta_vars, title_prefix="", threshold_for_other=0.01, hg_or_core = "") {
   label_for_other <- paste0("other (<", round(threshold_for_other*100, digits = 1),"%)")
-  # c_vec <- color_vector[1:(nrow(tpm_table)+1)]
-  # names(c_vec) <- c(tpm_table[[tl]],label_for_other)
-  
   tax <- colnames(tpm_table)[1]
   plot_list <- list()
   tible_list <- list()
   for (m_var in meta_vars) {
     metadata_filt <- metadata %>%
       select(Sample_ID, all_of(m_var))
+    
+    phages_in_group <- phage_abundance %>%
+      pivot_longer(-contig, names_to = "Sample_ID") %>%
+      mutate(present = ifelse(value > 0, TRUE, FALSE)) %>%
+      filter(present) %>%
+      left_join(., metadata_filt, by="Sample_ID") %>%
+      select(all_of(c("contig", m_var))) %>%
+      distinct() %>%
+      group_by(.data[[m_var]]) %>%
+      summarise(in_group = n())
+    
     tible_list[[m_var]] <- tpm_table %>%
       rename(group = all_of(tax)) %>%
       pivot_longer(-group, names_to = "Sample_ID") %>%
@@ -218,48 +226,144 @@ average_tpm_bar_plot <- function(tpm_table, tl, hg, meta_vars, title_prefix="", 
       group_by(.data[[m_var]], group) %>%
       mutate(mean_tpm = sum(mean_tpm)) %>%  # This part is only to
       ungroup() %>%                         # merge identically-
-      distinct()                            # colored shapes.
+      distinct() %>%                        # colored shapes.
+      left_join(., phages_in_group, by = m_var)
     
-    plot_list[[m_var]] <- tible_list[[m_var]] %>%
-      ggplot(aes(x=.data[[m_var]], y=mean_tpm, fill = as.factor(group))) +
-      geom_col() +
-      ggtitle(paste0(title_prefix, hg_or_core, ": \"", hg,"\"")) +
-      labs(fill=tl)
-    
-    if (tl == "Prevalence" & colnames(tpm_table)[1] == "Prevalence_Countries") {
-      plot_list[[m_var]] <- plot_list[[m_var]] + 
-        scale_fill_manual(values = prev_colors)
+    if (m_var == "Sample_ID") {
+      tible_list[[m_var]] <- tible_list[[m_var]] %>%
+        left_join(., metadata, by = "Sample_ID") %>%
+        select(Sample_ID, group, mean_tpm, in_group, Country, Hive_ID, Season, Gut_part)
     }
-    if (tl == "Prevalence" & colnames(tpm_table)[1] != "Prevalence_Countries") {
-      max_val <- max(tible_list[[m_var]]$group)
+    if (tax == c("Prevalence_Countries")) {
+      tible_list[[m_var]] <- tible_list[[m_var]] %>%
+        mutate(group = as.factor(group))
+    }
+    if (tl == "Host_group") {
+      tible_list[[m_var]] <- tible_list[[m_var]] %>%
+        mutate(group = factor(group, levels = rev(c("Bifidobacterium", "Lactobacillus", "Snodgrassella",
+                                                   "Bombilactobacillus", "Gilliamella", "Frischella",
+                                                   "Bartonella", "Bombella", "other", "unknown"))))
+    }
+    
+    if (tl == "Prevalence") {
+      max_val <- max(as.integer(tible_list[[m_var]]$group))
       ticks <- 1:max_val %>% 
         quantile(probs = c(0.33, 0.66)) %>% 
         round()
       
-      plot_list[[m_var]] <- tible_list[[m_var]] %>%
-        arrange(desc(group)) %>%
-        ggplot(aes(x=.data[[m_var]], y=mean_tpm, fill = group)) +
-        geom_col() +
-        ggtitle(paste0(title_prefix, hg_or_core, ": \"", hg,"\"")) +
-        labs(fill=tl) +
-        scale_fill_gradient(low = "#F0F0F0", high = "black",
-                            breaks = c(1, ticks, max_val),
-                            labels = c(1, ticks, max_val)) +
-        guides(fill = guide_colourbar(reverse = TRUE)) +
-        labs(fill=tl) +
-        theme_minimal() +
-        theme(panel.grid.major = element_blank(),
-          panel.grid.minor = element_blank())
-    }
+      # # BURN AFTER READING!
+      # order_by_phages_in_group <- tible_list[[m_var]] %>%
+      #   arrange(in_group) %>%
+      #   select(Sample_ID) %>%
+      #   distinct()
+      # tible_list[[m_var]] <- tible_list[[m_var]] %>%
+      #   mutate(Sample_ID = factor(Sample_ID, levels = order_by_phages_in_group$Sample_ID))
+      
+      if (m_var == "Sample_ID") {
+        country_plots <- list()
+        for (country in unique(tible_list[[m_var]]$Country)) {
+          country_plots[[country]] <- tible_list[[m_var]] %>%
+            filter(Country == country) %>% 
+            arrange(desc(group)) %>%
+            ggplot(aes(x=.data[[m_var]], y=mean_tpm, fill = group)) +
+            geom_col() +
+            ggtitle(paste0(country, title_prefix, hg_or_core, ": \"", hg,"\"")) +
+            labs(fill=tl) +
+            scale_fill_gradient(low = "#F0F0F0", high = "black",
+                                breaks = c(1, ticks, max_val),
+                                labels = c(1, ticks, max_val)) +
+            guides(fill = guide_colourbar(reverse = TRUE)) +
+            labs(fill=tl) +
+            theme(panel.grid.major = element_blank(),
+                  panel.grid.minor = element_blank(),
+                  panel.background = element_blank()) +
+            theme(axis.text.x = element_text(angle = 45, hjust=1)) +
+            scale_x_discrete(expand = c(0.025, 0)) +
+            geom_text(aes(label=in_group, y = 1.01, vjust = 0, angle = 45)) +
+            facet_wrap(Season~Hive_ID, scales = "free_x", nrow = 1)
+          if (tax == "Prevalence_Countries") {
+            country_plots[[country]] <- tible_list[[m_var]] %>%
+              filter(Country == country) %>% 
+              ggplot(aes(x=.data[[m_var]], y=mean_tpm, fill = as.factor(group))) +
+              geom_col() +
+              ggtitle(paste0(country, title_prefix, hg_or_core, ": \"", hg,"\"")) +
+              labs(fill=tl) +
+              scale_fill_manual(values = prev_colors) +
+              theme(panel.grid.major = element_blank(),
+                    panel.grid.minor = element_blank(),
+                    panel.background = element_blank()) +
+              theme(axis.text.x = element_text(angle = 45, hjust=1)) +
+              scale_x_discrete(expand = c(0.025, 0)) +
+              geom_text(aes(label=in_group, y = 1.01, vjust = 0, angle = 45)) +
+              facet_wrap(Season~Hive_ID, scales = "free_x", nrow = 1)
+          }
+        }
+        plot_list[[m_var]] <- wrap_plots(country_plots, ncol = 1)
+        
+      } else {
+        plot_list[[m_var]] <- tible_list[[m_var]] %>%
+          arrange(desc(group)) %>%
+          ggplot(aes(x=.data[[m_var]], y=mean_tpm, fill = group)) +
+          geom_col() +
+          ggtitle(paste0(title_prefix, hg_or_core, ": \"", hg,"\"")) +
+          labs(fill=tl) +
+          theme_minimal() +
+          theme(panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank())
+      }
+      if (tax == c("Prevalence_Countries")) {
+          plot_list[[m_var]] <- plot_list[[m_var]] +
+            scale_fill_manual(values = prev_colors)
+          } else {
+            plot_list[[m_var]] <- plot_list[[m_var]] +
+          scale_fill_gradient(low = "#F0F0F0", high = "black",
+                              breaks = c(1, ticks, max_val),
+                              labels = c(1, ticks, max_val)) +
+              guides(fill = guide_colourbar(reverse = TRUE))
+            }
+    } else if (tl %in% c("Core_or_not", "Host_group") & m_var == "Sample_ID") {
+      country_plots <- list()
+      for (country in unique(tible_list[[m_var]]$Country)) {
+        country_plots[[country]] <- tible_list[[m_var]] %>%
+          filter(Country == country) %>%
+          ggplot(aes(x=.data[[m_var]], y=mean_tpm, fill = as.factor(group))) +
+          geom_col() +
+          ggtitle(paste0(country, " - ", title_prefix, hg_or_core, ": \"", hg,"\"")) +
+          labs(fill=tl) +
+          theme(axis.text.x = element_text(angle = 45, hjust=1)) +
+          theme(panel.grid.major = element_blank(),
+                panel.grid.minor = element_blank(),
+                panel.background = element_blank()) +
+          scale_x_discrete(expand = c(0.025, 0)) +
+          geom_text(aes(label=in_group, y = 1.01, vjust = 0, angle = 45)) +
+          facet_wrap(Season~Hive_ID, scales = "free_x", nrow = 1)
+        
+        if (hg_or_core == "Host_group") {
+          country_plots[[country]] <- country_plots[[country]] +
+            scale_fill_manual(values = host_colors)
+        }
+      }
+      plot_list[[m_var]] <- wrap_plots(country_plots, ncol = 1)
+    } else {
+        plot_list[[m_var]] <- tible_list[[m_var]] %>%
+          ggplot(aes(x=.data[[m_var]], y=mean_tpm, fill = as.factor(group))) +
+          geom_col() +
+          ggtitle(paste0(title_prefix, hg_or_core, ": \"", hg,"\"")) +
+          labs(fill=tl) +
+          theme(panel.grid.major = element_blank(),
+                panel.grid.minor = element_blank(),
+                panel.background = element_blank())
+      }
     if (hg_or_core == "Host_group") {
       plot_list[[m_var]] <- plot_list[[m_var]] +
         scale_fill_manual(values = host_colors)
     }
-    if (m_var=="Sample_ID") {
-      plot_list[[m_var]] <- plot_list[[m_var]] +
-        theme(axis.text.x = element_text(angle = 45, hjust=1)) +
-        scale_x_discrete(expand = c(0.025, 0))
-    }
+    # if (m_var=="Sample_ID") {
+    #   plot_list[[m_var]] <- plot_list[[m_var]] +
+    #     theme(axis.text.x = element_text(angle = 45, hjust=1)) +
+    #     scale_x_discrete(expand = c(0.025, 0)) +
+    #     geom_text(aes(label=in_group, y = 1.01, vjust = 0, angle = 45))
+    # }
   }
   return(list(plots = plot_list, tibbles = tible_list))
 }
