@@ -4,7 +4,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
 #SBATCH --mem-per-cpu=4G
-#SBATCH --time=1:00
+#SBATCH --time=5:00
 #SBATCH --account=lp_jm_virome_group
 #SBATCH --output=slurm-%x_%j.out
 
@@ -18,26 +18,23 @@ conda activate viper_bphage
 repo_location="$VSC_STAGING/BPhage"
 
 mkdir -p $VSC_SCRATCH/BPhage/SNP/terL_ref
+mkdir -p $VSC_SCRATCH/BPhage/SNP/Acer_ref
 cd $VSC_SCRATCH/BPhage/SNP
 
-# Get terL coordinates of extended contigs
+# Get terL seqs of extended contigs
 grep "terminase large subunit" \
     $repo_location/output/core_contig_refinement/extended_contigs_phold/phold_per_cds_predictions_long_names.tsv | \
     cut -f1,3,4 | awk '{if ($2>$3) {print $1"\t"$2"\t"$3-1} else {print $0} }' > temp.terL_extended_contigs.bed # The change in the bed coordinate is necessary because seqkit would otherwise extract the wrong subsequence
+seqkit subseq --bed temp.terL_extended_contigs.bed \
+    $repo_location/output/core_contig_refinement/extended_contigs.fasta | \
+    rev | cut -d"_" -f2- | rev | sed '/^>/ s/$/_terL/' | seqkit seq -m 1000 > temp.terL_extended_contigs.fasta
 
-# Get terL coordinates of not-extended contigs
+# Get terL seqs of not-extended contigs
 cut -d"_" -f1-11 temp.terL_extended_contigs.bed > temp.extended_contigs_original_names
 grep "^NODE" \
     $repo_location/output/annotation/phold_compare_bphage_and_others/phold_per_cds_predictions_long_names.tsv | \
     grep "terminase large subunit" | cut -f1,3,4 | grep -vf temp.extended_contigs_original_names | \
     awk '{if ($2>$3) {print $1"\t"$2"\t"$3-1} else {print $0} }' | awk -F'\t' '!seen[$1]++' > temp.terL_unextended_contigs.bed
-
-# Get terL sequences of extended contigs
-seqkit subseq --bed temp.terL_extended_contigs.bed \
-    $repo_location/output/core_contig_refinement/extended_contigs.fasta | \
-    rev | cut -d"_" -f2- | rev | sed '/^>/ s/$/_terL/' | seqkit seq -m 1000 > temp.terL_extended_contigs.fasta
-
-# Get terL sequences of not-extended contigs
 zcat $repo_location/output/bphage_ALL_1kb_phages.fasta.gz > temp.bphage_ALL_1kb_phages.fasta
 seqkit subseq --bed temp.terL_unextended_contigs.bed temp.bphage_ALL_1kb_phages.fasta | \
     rev | cut -d"_" -f2- | rev | sed '/^>/ s/$/_terL/' | seqkit seq -m 1000 > temp.terL_unextended_contigs.fasta
@@ -45,12 +42,22 @@ seqkit subseq --bed temp.terL_unextended_contigs.bed temp.bphage_ALL_1kb_phages.
 # Make fasta file with all terL sequences
 cat temp.terL_extended_contigs.fasta temp.terL_unextended_contigs.fasta > terL_ref/terLs_all_contigs.fasta
 
+# Make fasta file with A cerana CO1 gene sequence
+seqkit subseq --bed $repo_location/data/A_cerana_CO1.bed $VSC_SCRATCH/BPhage/ref/GCF_029169275.1_AcerK_1.0_genomic.fna \
+    > Acer_ref/Acer_CO1.fasta
+
+# Make fasta file with A cerana mt genome sequence
+seqkit grep -p "NC_014295.1" $VSC_SCRATCH/BPhage/ref/GCF_029169275.1_AcerK_1.0_genomic.fna \
+    > Acer_ref/Acer_mt.fasta
+
 # Make fasta with terL sequences of core contigs
-seqkit grep -rf $repo_location/data/core_contigs.txt terL_ref/terLs_all_contigs.fasta > terL_ref/core_terLs.fasta
+# seqkit grep -rf $repo_location/data/core_contigs.txt terL_ref/terLs_all_contigs.fasta > terL_ref/core_terLs.fasta
 
 # Index for mapping
-bwa-mem2 index terL_ref/core_terLs.fasta
+# bwa-mem2 index terL_ref/core_terLs.fasta
 bwa-mem2 index terL_ref/terLs_all_contigs.fasta
+bwa-mem2 index Acer_ref/Acer_CO1.fasta
+bwa-mem2 index Acer_ref/Acer_mt.fasta
 
 # # Spoiler for another paper: Copy the bacterial MAGs over and index:
 # mkdir -p MAG_ref

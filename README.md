@@ -175,8 +175,8 @@
 ### SNP analysis
 - mapping prep
 - mapping (array of 150)
-- SKA prep (array of 150)
-- SKA (array of 7: host, core, all_terLs, core_terLs, Acer, Acer_mt, Acer_CO1)
+- Obsolete: SKA prep (array of 150)
+- SKA (array of 3: all_terLs, Acer_CO1, MAG_mapped)
 
 ### R analyses
 - Filtering script `xxx`
