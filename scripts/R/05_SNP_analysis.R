@@ -8,11 +8,13 @@ set.seed(1)
 
 metadata <- readRDS("output/R/R_variables/metadata.RDS")
 # datasets <- c("Acer_CO1", "Acer_genome", "Acer_mt", "host", "phages", "MAG_mapped", "core", "all_terLs", "core_terLs")
-datasets <- c("Acer_genome", "host", "all_terLs", "phages", "16S", "MAG_mapped")
+# datasets <- c("Acer_genome", "host", "all_terLs", "phages", "16S", "MAG_mapped")
+datasets <- c("host", "phages", "MAG_mapped")
 
 ska_distance <- list()
 for (dataset in datasets) {
   ska_distance[[dataset]] <- read.delim(paste0("output/SNP_analysis/", dataset, ".distances.tsv")) %>%
+  # ska_distance[[dataset]] <- read.delim(paste0("output/SNP_analysis/", dataset, "_sub.distances.tsv")) %>%
     separate_wider_delim(Sample.1, "_", names = c("country", "hive", "season"), too_many = "drop") %>%
     mutate(Sample1 = paste(country, hive, season, sep="_")) %>%
     select(-country, -hive, -season) %>%
@@ -107,12 +109,12 @@ tree_wrap
 
 pcoa_wrap <- wrap_plots(ska_plot$host / ska_plot$phages / ska_plot$MAG_mapped) +
   plot_layout(guides = "collect")
-ggsave("output/SNP_analysis/SNP_PCoAs.pdf", tree_wrap,
+ggsave("output/SNP_analysis/SNP_PCoAs.pdf", pcoa_wrap,
        width = 7, height = 15)
 
 tree_wrap <- wrap_plots(tree_plots$host / tree_plots$phages / tree_plots$MAG_mapped) +
   plot_layout(guides = "collect")
-ggsave("output/SNP_analysis/SNP_trees.pdf", pcoa_wrap,
+ggsave("output/SNP_analysis/SNP_trees.pdf", tree_wrap,
        width = 7, height = 15)
 
 ### Tests
