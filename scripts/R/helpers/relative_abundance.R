@@ -239,19 +239,8 @@ average_tpm_bar_plot <- function(tpm_table, tl, hg, meta_vars, title_prefix="", 
         mutate(group = as.factor(group))
     }
     
-    # plot_list[[m_var]] <- tible_list[[m_var]] %>%
-    #   ggplot(aes(x=.data[[m_var]], y=mean_tpm, fill = as.factor(group))) +
-    #   geom_col() +
-    #   ggtitle(paste0(title_prefix, hg_or_core, ": \"", hg,"\"")) +
-    #   labs(fill=tl)
-    
-    # if (tl == "Prevalence" & tax == "Prevalence_Countries") {
-    #   plot_list[[m_var]] <- plot_list[[m_var]] + 
-    #     scale_fill_manual(values = prev_colors)
-    # }
-    # if (tl == "Prevalence" & tax != "Prevalence_Countries") {
     if (tl == "Prevalence") {
-        max_val <- max(as.integer(tible_list[[m_var]]$group))
+      max_val <- max(as.integer(tible_list[[m_var]]$group))
       ticks <- 1:max_val %>% 
         quantile(probs = c(0.33, 0.66)) %>% 
         round()
@@ -312,11 +301,6 @@ average_tpm_bar_plot <- function(tpm_table, tl, hg, meta_vars, title_prefix="", 
           geom_col() +
           ggtitle(paste0(title_prefix, hg_or_core, ": \"", hg,"\"")) +
           labs(fill=tl) +
-          # scale_fill_gradient(low = "#F0F0F0", high = "black",
-          #                     breaks = c(1, ticks, max_val),
-          #                     labels = c(1, ticks, max_val)) +
-          # guides(fill = guide_colourbar(reverse = TRUE)) +
-          labs(fill=tl) +
           theme_minimal() +
           theme(panel.grid.major = element_blank(),
             panel.grid.minor = element_blank())
@@ -324,14 +308,13 @@ average_tpm_bar_plot <- function(tpm_table, tl, hg, meta_vars, title_prefix="", 
       if (tax == c("Prevalence_Countries")) {
           plot_list[[m_var]] <- plot_list[[m_var]] +
             scale_fill_manual(values = prev_colors)
-      } else {
-        plot_list[[m_var]] <- plot_list[[m_var]] +
-        scale_fill_gradient(low = "#F0F0F0", high = "black",
-                            breaks = c(1, ticks, max_val),
-                            labels = c(1, ticks, max_val)) +
-        guides(fill = guide_colourbar(reverse = TRUE))
-      }
-    
+          } else {
+            plot_list[[m_var]] <- plot_list[[m_var]] +
+          scale_fill_gradient(low = "#F0F0F0", high = "black",
+                              breaks = c(1, ticks, max_val),
+                              labels = c(1, ticks, max_val)) +
+              guides(fill = guide_colourbar(reverse = TRUE))
+            }
       } else {
         plot_list[[m_var]] <- tible_list[[m_var]] %>%
           ggplot(aes(x=.data[[m_var]], y=mean_tpm, fill = as.factor(group))) +
