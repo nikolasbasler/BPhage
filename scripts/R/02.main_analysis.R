@@ -152,6 +152,40 @@ classification %>%
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
+# Box plots of absolute viral loads ####
+vlp_stats <- metadata %>%
+  select(VLPs_per_ul) %>%
+  filter(!is.na(VLPs_per_ul)) %>%
+  summarise(q25 = round(quantile(VLPs_per_ul)[2]),
+            median = round(median(VLPs_per_ul)),
+            q75 = round(quantile(VLPs_per_ul)[4]),
+            sd = round(sd(VLPs_per_ul)),
+            norm_sd = round(sd(VLPs_per_ul) / mean(VLPs_per_ul), digits = 3)) %>%
+  mutate(q25 = paste0("q25: ", as.character(q25)),
+         median = paste0("median: ", as.character(median)),
+         q75 = paste0("q75: ", as.character(q75)),
+         sd = paste0("sd: ", as.character(sd)),
+         norm_sd = paste0("norm_sd: ", as.character(norm_sd))) %>%
+  unlist()
+
+vlp_box <- metadata %>%
+  select(VLPs_per_ul) %>%
+  filter(!is.na(VLPs_per_ul)) %>%
+  ggplot(aes(y=VLPs_per_ul)) +
+  geom_boxplot() +
+  annotate("text", x=0.4, y=seq(400000, 800000, 100000), label = vlp_stats, adj = "right") 
+
+vlp_hist <- metadata %>%
+  select(VLPs_per_ul) %>%
+  filter(!is.na(VLPs_per_ul)) %>%
+  ggplot(aes(x=VLPs_per_ul)) + 
+  geom_histogram() +
+  annotate("text", x=600000, y=seq(10, 30, 5), label = vlp_stats, adj = "right")
+
+vlp_overview <- wrap_plots(list(vlp_box, vlp_hist))
+
+#------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
 # Taxon and core pies ####
 
 core_pie <- list()
