@@ -68,7 +68,7 @@ bwa-mem2 mem $VSC_SCRATCH/BPhage/ref/core_bacterial_genera_16S.fa \
 # Spoiler for another paper: Map Hostout reads to bacterial MAGs and retreive fastq files
 bwa-mem2 mem MAG_ref/MAGs.sample.bins.fasta \
     temp.${line}.Hostout.R1.fastq.gz temp.${line}.Hostout.R2.fastq.gz -t $threads -t $threads | \
-    samtools view -@ $threads -b -F2308 | \
+    samtools view -@ $threads -b -F4 | \
     samtools collate -@ $threads -O - | \
     samtools fastq -1 merged_reads/${line}.MAG_mapped.R1.fastq.gz -2 merged_reads/${line}.MAG_mapped.R2.fastq.gz \
     -0 temp.${line}.MAG_mapped.unpaired.reads.fastq.gz -s temp.${line}.MAG_mapped.singleton.reads.fastq.gz
@@ -81,10 +81,27 @@ all_terLs
 MAG_mapped\
 ")
 
-conda activate ska
 for dataset in $(echo "$datasets"); do
-    ska fastq -o ska/skf_files/${line}_${dataset} merged_reads/${line}.${dataset}.R1.fastq.gz merged_reads/${line}.${dataset}.R2.fastq.gz
+
+    linecount=$(zcat merged_reads/${line}.${dataset}.R1.fastq.gz | head -n 4000000 | wc -l)
+    if [[ $linecount -ne 4000000 ]]; then
+        continue
+    fi
+    
+    seqkit shuffle -s 1 merged_reads/${line}.${dataset}.R1.fastq.gz | head -n 4000000 | \
+        pigz -c -p $threads > temp.${line}.${dataset}.sub.R1.fastq.gz
+    seqkit shuffle -s 1 merged_reads/${line}.${dataset}.R2.fastq.gz | head -n 4000000 | \
+        pigz -c -p $threads > temp.${line}.${dataset}.sub.R2.fastq.gz
+
+    conda activate ska
+    ska fastq -o ska/skf_files/${line}_${dataset}_sub temp.${line}.${dataset}.sub.R1.fastq.gz temp.${line}.${dataset}.sub.R2.fastq.gz
+    conda activate viper_bphage
 done
+
+# conda activate ska
+# for dataset in $(echo "$datasets"); do
+#     ska fastq -o ska/skf_files/${line}_${dataset} merged_reads/${line}.${dataset}.R1.fastq.gz merged_reads/${line}.${dataset}.R2.fastq.gz
+# done
 
 # Clean up
 rm temp.${line}*

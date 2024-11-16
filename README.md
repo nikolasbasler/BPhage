@@ -37,11 +37,14 @@
         - `output/bphage_ALL_1kb_checkv`
         - `output/other_studies_checkv`
 - geNomad (can be done in parallel with CheckV and mapping): `scripts/HPC/genomad.slrm`
-    - Requires: Cross-sample clustered contigs: `output/bphage_ALL_1kb_cross_95-85.fasta.gz`
+    - Requires: 
+        - Cross-sample clustered contigs: `output/bphage_ALL_1kb_cross_95-85.fasta.gz`
+        - Additional datasets
     - Output: `output/bphage_ALL_1kb_genomad`
 - Filter for >= 50% complete phages: `scripts/HPC/filter_classification.slrm`
     - Requires: 
         - Cross-sample clustered contigs: `output/bphage_ALL_1kb_cross_95-85.fasta.gz`
+        - And additional datasets
         - CheckV output
         - geNomad output
         - ICTV's VMR table: `data/VMR_19-250422_MSL37.xlsx` (downloaded from https://ictv.global/vmr on 14 March 2024)

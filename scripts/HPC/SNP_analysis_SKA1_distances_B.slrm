@@ -27,10 +27,11 @@ MAG_mapped\
 
 dataset=$(head -n $SLURM_ARRAY_TASK_ID <(echo "$datasets") | tail -n1)
 
-ska distance -c -o ska/${dataset} ska/skf_files/*${dataset}.skf
+# ska distance -c -o ska/${dataset} ska/skf_files/*${dataset}.skf
+ska distance -c -o ska/${dataset}_sub ska/skf_files/*${dataset}_sub.skf
 
 mkdir -p $repo_location/output/SNP_analysis
-cp ska/${dataset}.distances.tsv $repo_location/output/SNP_analysis
+cp ska/${dataset}*.distances.tsv $repo_location/output/SNP_analysis/SKA_SNP_distances
 
 echo "========================================================================"
 duration=$SECONDS
