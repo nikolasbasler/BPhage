@@ -87,20 +87,23 @@ presence_absence <- filtered_ab_long %>%
   group_by(contig, study) %>%
   mutate(present = ifelse(sum(reads >0), TRUE, FALSE)) %>%
   ungroup()
-  
+
 present_in_dataset <- list()
-# present_in_dataset$BPhage <- present_in_all_countries
 for (dataset in c("Deboutte", "Busby", "Bonilla")) {
-  present_in_dataset[[dataset]] <- presence_absence %>%
+  present_in_dataset$three_way[[dataset]] <- presence_absence %>%
     filter(study == dataset) %>%
     filter(present) %>%
     select(contig) %>%
     distinct() %>%
     unlist(use.names = FALSE)
 }
+present_in_dataset$four_way <- c(list(BPhage = present_in_all_countries), present_in_dataset$three_way)
 
-core_read_presence_overlap <- ggVennDiagram(present_in_dataset) +
-  theme(legend.position = "none")
+core_read_presence_overlap <- list()
+for (thing in names(present_in_dataset)) {
+  core_read_presence_overlap[[thing]] <- ggVennDiagram(present_in_dataset[[thing]]) +
+    theme(legend.position = "none")
+}
 core_read_presence_overlap
 read_counts
   
@@ -112,6 +115,8 @@ for (thing in names(conitg_overlap_venn)) {
   ggsave(paste0("output/R/other_studies/conitg_overlap.", thing, ".pdf"),
          conitg_overlap_venn[[thing]], width = 6, height = 6)
 }
-ggsave("output/R/other_studies/core_read_presence_overlap.pdf",
-       core_read_presence_overlap, width = 6, height = 6)
+for (thing in names(core_read_presence_overlap)) {
+  ggsave(paste0("output/R/other_studies/core_read_presence_overlap.", thing,".pdf"),
+         core_read_presence_overlap[[thing]], width = 6, height = 6)
+}
 write_csv(read_counts, "output/R/other_studies/read_counts.csv")
