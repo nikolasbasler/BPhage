@@ -64,6 +64,9 @@ for (metric in names(completeness_and_genome_length)) {
   ggsave(paste0("output/R/completeness_and_genome_length/", metric, ".pdf"), 
          completeness_and_genome_length[[metric]], width = 4, height = 4)
 }
+ggsave("output/R/completeness_and_genome_length/completeness_all_samples.pdf",
+       completeness$plot, width = 5, height = 5)
+write_csv(completeness$tibble, "output/R/completeness_and_genome_length/completeness_all_samples.csv")
 
 ## Alpha diversity plots and tables ####
 system("mkdir -p output/R/alpha")

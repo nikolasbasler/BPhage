@@ -466,6 +466,27 @@ completeness_and_genome_length$contig_length <- classification %>%
   geom_pwc(method="wilcox.test", label="p.adj.signif", hide.ns = TRUE) +
   labs(title = "Assembled contig length")
 
+completeness <- list()
+# median_completeness <- unique(median(classification$completeness, na.rm = TRUE))
+completeness$plot  <- classification %>%
+  filter(completeness >= 50) %>%
+  ggplot(aes(x = completeness)) +
+  geom_histogram(binwidth = 2) +
+  # geom_vline(xintercept = median_completeness, linetype = "dashed") +
+  labs(x = "Completeness (%)", y = "Genome count") +
+  theme_pubr()
+
+completeness$tibble <- classification %>%
+  mutate(completeness_category = case_when(
+    completeness >= 100 ~ "complete",
+    completeness >= 90  ~ "near_complete_(90%)",
+    completeness >= 50  ~ "partial",
+    TRUE ~ "NA")) %>%
+  select(completeness, completeness_category) %>%
+  group_by(completeness_category) %>%
+  summarise(count = n(), 
+            proportion = n() / 2343)
+
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 # Set min seq thresholds for rarefaction. ####
