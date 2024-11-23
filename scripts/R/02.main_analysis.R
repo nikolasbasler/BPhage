@@ -107,8 +107,8 @@ classification <- classification %>%
   mutate(Family_group = ifelse(str_detect(Family_group, "novel_family.*of_Tokiviricetes"), "Novel_Tokiviricetes_family", Family_group)) %>%    
   mutate(Family_group = ifelse(!str_detect(Family_group, "Novel") & !str_detect(Family_group, "Micro") & Family_group !="Unclassified", "ICTV-named", Family_group)) %>%
   mutate(Family_group = ifelse(str_detect(Family_group, "Micro"), "Microvirus_family", Family_group)) %>%
-  mutate(Family_group = ifelse(Family_group == "Unclassified" & Order == "Microviruses", "Unclassified_Microvirus_family", Family_group)) %>%
-  mutate(Family_group = ifelse(Family_group == "Unclassified" & Order != "Microviruses", "Other_unclassified_family", Family_group)) %>%
+  mutate(Family_group = ifelse(Family_group == "Unclassified" & Order == "Microviruses", "Unclassified_Microvirus", Family_group)) %>%
+  mutate(Family_group = ifelse(Family_group == "Unclassified" & Order != "Microviruses", "Other_unclassified", Family_group)) %>%
 
   left_join(., prevalences_tables$Bee_pools, by = "contig") %>%
   left_join(., prevalences_tables$Hives, by = "contig") %>%

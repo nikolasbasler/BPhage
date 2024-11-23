@@ -23,6 +23,13 @@ for (tax in names(taxon_pie_overlap)) {
 
 write_lines(novel_families, "output/R/taxon_pies/novel_families.txt")
 write_lines(novel_orders, "output/R/taxon_pies/novel_orders.txt")
+
+for (core_or_all in names(classified_taxa)) {
+  for (tl in names(classified_taxa[[core_or_all]])) {
+    write_csv(classified_taxa[[core_or_all]][[tl]], paste0("output/R/taxon_pies/classified.", core_or_all, ".", tl, ".csv"))
+  }
+}
+
 for (thing in names(pretty_pie$tibbles)) {
   for (tl in names(pretty_pie$tibbles[[thing]])) {
     wid <- 4.5
