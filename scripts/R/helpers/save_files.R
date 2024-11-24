@@ -336,7 +336,7 @@ system("mkdir -p output/R/prevalence/")
 system("mkdir -p data/prevalence_tables/")
 for (tl in names(prevalence_histo)) {
   if (tl=="Bee_pools") {
-    wid=20
+    wid=25
     plot <- prevalence_histo[[tl]]$plot # + scale_x_continuous(breaks = seq(3,150,3))
   } else if (tl=="Hives") {
     wid=12

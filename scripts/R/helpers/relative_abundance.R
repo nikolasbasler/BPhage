@@ -381,6 +381,16 @@ prevalence_histogram <- function(abtable, plot_title) {
     geom_text(stat = "count", aes(label = after_stat(count)), vjust = -0.5) +
     scale_x_continuous(breaks = 1:(ncol(abtable)-1)) +
     labs(title=plot_title)
+  if (plot_title != "Countries") {
+    hist_plot <- hist_plot +
+      theme(axis.text.x = element_text(angle = 45, hjust=1))
+  }
+  if (plot_title == "Countries") {
+    hist_plot <- hist_plot +
+      aes(fill = as.factor(prevalence_abs)) +
+      scale_fill_manual(values = prev_colors) +
+      theme(legend.position = "none")
+  }
   return(list(table = plot_tbl, plot = hist_plot))
 }
 
