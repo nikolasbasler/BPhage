@@ -88,7 +88,9 @@ for (tax in names(alpha)) {
     ggsave(paste0("output/R/alpha/alpha_core_or_not/alpha_core.",core_or_not,".",tax,".pdf"),
            alpha_core_or_not[[core_or_not]][[tax]]$plot, width = 12, height=10)
     write_csv(alpha_core_or_not[[core_or_not]][[tax]]$table,
-              paste0("output/R/alpha/alpha_core_or_not/alpha_core.",core_or_not,".",tax,".csv"))
+              paste0("output/R/alpha/alpha_core_or_not/alpha_core.",core_or_not,".",tax,".diversity.csv"))
+    write_csv(alpha_core_or_not[[core_or_not]][[tax]]$kruskal,
+              paste0("output/R/alpha/alpha_core_or_not/alpha_core.",core_or_not,".",tax,".kruskal.csv"))
   }
 }
 
@@ -105,7 +107,9 @@ for (country in names(alpha_by_country)) {
       ggsave(paste0("output/R/alpha/alpha_by_country_core_or_not/alpha_by_country_core.",core_or_not,".",country,".",tax,".pdf"),
              alpha_by_country_core_or_not[[core_or_not]][[country]][[tax]]$plot, width = 12, height=10)
       write_csv(alpha_by_country_core_or_not[[core_or_not]][[country]][[tax]]$table,
-                paste0("output/R/alpha/alpha_by_country_core_or_not/alpha_by_country_core.",core_or_not,".",country,".",tax,".csv"))
+                paste0("output/R/alpha/alpha_by_country_core_or_not/alpha_by_country_core.",core_or_not,".",country,".",tax,".diversity.csv"))
+      write_csv(alpha_by_country_core_or_not[[core_or_not]][[country]][[tax]]$kruskal,
+                paste0("output/R/alpha/alpha_by_country_core_or_not/alpha_by_country_core.",core_or_not,".",country,".",tax,".kruskal.csv"))
     }
   }
 }
@@ -124,7 +128,9 @@ for (tax in names(alpha_abs)) {
     ggsave(paste0("output/R/alpha/alpha_core_or_not/alpha_abs_core.",core_or_not,".",tax,".pdf"),
            alpha_abs_core_or_not[[core_or_not]][[tax]]$plot, width = 12, height=10)
     write_csv(alpha_abs_core_or_not[[core_or_not]][[tax]]$table,
-              paste0("output/R/alpha/alpha_core_or_not/alpha_abs_core.",core_or_not,".",tax,".csv"))
+              paste0("output/R/alpha/alpha_core_or_not/alpha_abs_core.",core_or_not,".",tax,".diversity.csv"))
+    write_csv(alpha_abs_core_or_not[[core_or_not]][[tax]]$kruskal,
+              paste0("output/R/alpha/alpha_core_or_not/alpha_abs_core.",core_or_not,".",tax,".kruskal.csv"))
   }
 }
 
@@ -139,7 +145,9 @@ for (country in names(alpha_abs_by_country)) {
       ggsave(paste0("output/R/alpha/alpha_by_country_core_or_not/alpha_abs_by_country_core.",core_or_not,".",tax,".pdf"),
              alpha_by_country_core_or_not[[core_or_not]][[country]][[tax]]$plot, width = 12, height=10)
       write_csv(alpha_by_country_core_or_not[[core_or_not]][[country]][[tax]]$table,
-                paste0("output/R/alpha/alpha_by_country_core_or_not/alpha_abs_by_country_core.",core_or_not,".",tax,".csv"))
+                paste0("output/R/alpha/alpha_by_country_core_or_not/alpha_abs_by_country_core.",core_or_not,".",tax,".diversity.csv"))
+      write_csv(alpha_by_country_core_or_not[[core_or_not]][[country]][[tax]]$table,
+                paste0("output/R/alpha/alpha_by_country_core_or_not/alpha_abs_by_country_core.",core_or_not,".",tax,".kruskal.csv"))
     }
   }
 }
@@ -157,19 +165,19 @@ for (tax in names(beta_plot_list)) {
   system(paste0("mkdir -p ", pcoa_path_core_or_not))
   system(paste0("mkdir -p ", hist_path_core_or_not))
   for (p in names(beta_plot_list[[tax]])) {
-    if (p=="core") {
-      width <- 17
-      height <- 15
+    if (p=="all") {
+      wid <- 12
+      hei <- 10
     } else {
-      width <- 17
-      height <- 5
+      wid <- 14
+      hei <- 4
     }
     for (q in names(beta_plot_list[[tax]][[p]])) {
       ggsave(paste0(pcoa_path,"/beta.", tax,".", p, ".", q, ".pcoa.pdf"),
-             beta_plot_list[[tax]][[p]][[q]], width = width, height = height)
+             beta_plot_list[[tax]][[p]][[q]], width = wid, height = hei)
       for (core_or_not in names(beta_plot_list_core_or_not)) {
         ggsave(paste0(pcoa_path_core_or_not,"/beta_core.", core_or_not, ".", tax,".", p, ".", q, ".pcoa.pdf"),
-               beta_plot_list_core_or_not[[core_or_not]][[tax]][[p]][[q]], width = width, height = height)
+               beta_plot_list_core_or_not[[core_or_not]][[tax]][[p]][[q]], width = wid, height = hei)
       }
       
       if (q == "control") { next }
@@ -295,8 +303,14 @@ for (tax in names(average_tpm)) {
 ## Core TPM
 system("mkdir -p output/R/relative_abundance/core_TPM/")
 for (mvar in names(core_tpm_stats)) {
+  wid <- 4
+  hei <- 4
+  if (mvar == "Country") {
+    wid <- 6
+    hei <- 6
+  }
   ggsave(paste0("output/R/relative_abundance/core_TPM/core_TPM.", mvar, ".pdf"),
-         core_tpm_plots[[mvar]], width = 6, height = 6)
+         core_tpm_plots[[mvar]], width = wid, height = hei)
   write_csv(core_tpm_stats[[mvar]], paste0("output/R/relative_abundance/core_TPM/core_TPM.", mvar, ".csv"))
 }
 
