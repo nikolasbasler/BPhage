@@ -3,6 +3,13 @@ library(patchwork)
 library(tidyverse)
 
 present_in_all_countries <- read_lines("data/core_contigs.txt")
+prevalence.Bee_pools <- read.csv("output/R/prevalence/prevalence.Bee_pools.csv") %>%
+  rename(bee_pool_prevalence = prevalence_abs) %>%
+  select(-prevalence_prop)
+prevalence.Hives <- read.csv("output/R/prevalence/prevalence.Hives.csv") %>%
+  rename(hive_prevalence = prevalence_abs) %>%
+  select(-prevalence_prop)
+
 
 ##### Contig overlap
 
@@ -40,7 +47,9 @@ for (core_or_not in names(clusters)) {
       unlist(use.names = FALSE)
   }
   
-  conitg_overlap_venn[[core_or_not]] <- ggVennDiagram(genomes_in_dataset) +
+  conitg_overlap_venn[[core_or_not]] <- ggVennDiagram(genomes_in_dataset, 
+                                                      label = "count",
+                                                      label_size = 7) +
     theme(legend.position = "none")
 }
 
@@ -60,13 +69,22 @@ stats.read.other_studies.reads <- read.delim("output/other_studies/stats.read.ot
   group_by(study) %>%
   summarise(trimmed_read_pairs = sum(Trimmed_pairs))
 
-read_counts <- read.delim("output/bphage_viper_output/read_stats.tsv") %>%
+read_counts_and_pools <- read.delim("output/bphage_viper_output/read_stats.tsv") %>%
   mutate(Trimmed_pairs = Trimmed_R1_plus_R2 / 2) %>%
   mutate(study = "BPhage") %>%
   select(study, Trimmed_pairs) %>%
   group_by(study) %>%
   summarise(trimmed_read_pairs = sum(Trimmed_pairs)) %>%
-  rbind(stats.read.other_studies.reads)
+  rbind(stats.read.other_studies.reads) %>%
+  mutate(pools = case_when(study == "BPhage" ~ 150,
+                           study == "Bonilla" ~ 2,
+                           study == "Busby" ~ 1,
+                           study == "Deboutte" ~ 102),
+         bees_per_pool = case_when(study == "BPhage" ~ 10,
+                                   study == "Bonilla" ~ 100,
+                                   study == "Busby" ~ 75,
+                                   study == "Deboutte" ~ 6)
+         )
 
 stats.other_studies.mapped_reads <- read.csv("output/other_studies/stats.other_studies.mapped_reads.csv") %>%
   pivot_longer(-contig, names_to = "SRA", values_to = "reads") 
@@ -101,13 +119,30 @@ present_in_dataset$four_way <- c(list(BPhage = present_in_all_countries), presen
 
 core_read_presence_overlap <- list()
 for (thing in names(present_in_dataset)) {
-  core_read_presence_overlap[[thing]] <- ggVennDiagram(present_in_dataset[[thing]]) +
+  set_names <- names(present_in_dataset[[thing]]) %>%
+    str_replace("Bonilla", "Bonilla-Rosso") # %>%
+    # paste0(., " et al.")
+  core_read_presence_overlap[[thing]] <- ggVennDiagram(present_in_dataset[[thing]], 
+                                                       label = "count",
+                                                       label_size = 7,
+                                                       category.names = set_names,
+                                                       set_size = 5.5) +
     theme(legend.position = "none")
 }
 core_read_presence_overlap
-read_counts
-  
-  
+read_counts_and_pools
+
+
+dataset_overlap <- tibble(contig = present_in_all_countries) %>%
+  mutate(Bphage = TRUE,
+         Deboutte = ifelse(contig %in% present_in_dataset$three_way$Deboutte, TRUE, FALSE),
+         Bonilla = ifelse(contig %in% present_in_dataset$three_way$Bonilla, TRUE, FALSE),
+         Busby = ifelse(contig %in% present_in_dataset$three_way$Busby, TRUE, FALSE),
+  ) %>%
+  left_join(., prevalence.Hives, by = "contig") %>%
+  left_join(., prevalence.Bee_pools, by = "contig") %>%
+  arrange(desc(hive_prevalence))
+
 ##### Save files
 
 system("mkdir -p output/R/other_studies")
@@ -119,4 +154,7 @@ for (thing in names(core_read_presence_overlap)) {
   ggsave(paste0("output/R/other_studies/core_read_presence_overlap.", thing,".pdf"),
          core_read_presence_overlap[[thing]], width = 6, height = 6)
 }
-write_csv(read_counts, "output/R/other_studies/read_counts.csv")
+write_csv(read_counts_and_pools, "output/R/other_studies/read_counts_and_pools.csv")
+write_csv(dataset_overlap, "output/R/other_studies/dataset_overlap.csv")
+
+
