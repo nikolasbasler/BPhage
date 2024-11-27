@@ -1,5 +1,9 @@
 
 ###### BETA DIVERSITY
+color_vec_four <- c("#FFC300", "#8B4513", "#1C3A3A", "#FFA07A")
+color_vec_eight <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#666666")
+
+
 beta_rarified <- function(ab_table, sampling_depth, lengths, seed) {
   set.seed(seed)
   ab_filt <- ab_table %>%
@@ -109,12 +113,17 @@ beta_plot = function(ordination_list, meta_vars, mapped_reads) {
       
       plotlist_for_patch <- list()
       for (meta_v in meta_vars) {
-        if (n==meta_v) {
+        if (n == meta_v) {
           next
+        }
+        color_vec <- color_vec_four
+        if (meta_v == "Country") {
+          color_vec <- color_vec_eight
         }
         plotlist_for_patch[[meta_v]] <- ggplot(plot_df, aes(x=Axis.1, y=Axis.2, color=.data[[meta_v]])) +
           labs(x=NULL, y=NULL) +
-          geom_point()
+          geom_point() +
+          scale_color_manual(values = color_vec)
       }
       patch <- wrap_plots(plotlist_for_patch)
       
