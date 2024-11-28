@@ -155,7 +155,9 @@ phrog_bar <- phrog_tibble %>%
 
 phrog_bar_horizontal <- phrog_bar + 
   coord_flip() +
-  theme(legend.position = "bottom")
+  theme(legend.position = "top",
+        legend.text = element_text(hjust = 0)) +
+  guides(fill = guide_legend(reverse=T))
 
 moron_with_groups <- phold_predictions_with_extensions %>%
   filter(contig_id %in% present_in_all_countries) %>%
@@ -260,7 +262,7 @@ system("mkdir -p output/R/gene_content")
 ggsave("output/R/gene_content/core_phrog_bar.pdf",
        phrog_bar, width = 2.5, height = 6)
 ggsave("output/R/gene_content/core_phrog_bar_horiziontal.pdf",
-       phrog_bar_horizontal, width = 6, height = 1)
+       phrog_bar_horizontal, width = 5.5, height = 1)
 write_csv(phrog_tibble, "output/R/gene_content/core_phrog_bar.csv")
 write_csv(contigs_per_phrog, "output/R/gene_content/core_contigs_per_phrog.csv")
 

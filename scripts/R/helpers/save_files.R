@@ -83,7 +83,9 @@ for (tax in names(alpha)) {
   ggsave(paste0("output/R/alpha/alpha_all/alpha.",tax,".pdf"),
          alpha[[tax]]$plot, width = 12, height=10)
   write_csv(alpha[[tax]]$table,
-            paste0("output/R/alpha/alpha_all/alpha.",tax,".csv"))
+            paste0("output/R/alpha/alpha_all/alpha.",tax,".diversity.csv"))
+  write_csv(alpha[[tax]]$kruskal,
+            paste0("output/R/alpha/alpha_all/alpha.",tax,".kruskal.csv"))
   for (core_or_not in names(alpha_core_or_not)) {
     ggsave(paste0("output/R/alpha/alpha_core_or_not/alpha_core.",core_or_not,".",tax,".pdf"),
            alpha_core_or_not[[core_or_not]][[tax]]$plot, width = 12, height=10)
@@ -270,11 +272,15 @@ for (p in names(hostgroup_hist)) {
 system("mkdir -p output/R/relative_abundance/relative_abundance_hostgroups/")
 for (group in names(average_tpm_host_group)) {
   for (tl in names(average_tpm_host_group[[group]]$plots)) {
-    wid <- 15
-    hei <- 8
+    wid <- 6
+    hei <- 6
     if (tl == "Sample_ID") {
+      wid <- 8
+      hei <- 6
+    }
+    if (tl == "Country") {
       wid <- 20
-      hei <- 40
+      hei <- 40 
     }
     ggsave(paste0("output/R/relative_abundance/relative_abundance_hostgroups/average_TPM_Host_groups_core.", group, ".",tl,".pdf"),
            average_tpm_host_group[[group]]$plots[[tl]], width = wid, height = hei)

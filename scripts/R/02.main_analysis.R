@@ -1,3 +1,5 @@
+# The script needs about 2h to run. 1.5 of them for the alpha/beta rarefaction and 30 min for saving the files. 
+# If these two things are commented out, the script runs for about 3 minutes.
 start_time <- Sys.time()
 library(phyloseq)
 library(furrr)
@@ -527,7 +529,8 @@ lost_bees <- discards(count_stats_core_or_not$yes$ratios, min_seq_count_core_or_
 # because this part takes by far the longest.
 
 iterations <- 1000
-# source("scripts/R/helpers/alpha_beta_rarefaction.R") 
+source("scripts/R/helpers/rarefaction_alpha.R")
+source("scripts/R/helpers/rarefaction_beta.R")
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
