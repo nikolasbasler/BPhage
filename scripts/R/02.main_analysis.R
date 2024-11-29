@@ -162,12 +162,14 @@ vlp_stats <- metadata %>%
             median = round(median(VLPs_per_ul)),
             q75 = round(quantile(VLPs_per_ul)[4]),
             sd = round(sd(VLPs_per_ul)),
-            norm_sd = round(sd(VLPs_per_ul) / mean(VLPs_per_ul), digits = 3)) %>%
+            # norm_sd = round(sd(VLPs_per_ul) / mean(VLPs_per_ul), digits = 3)
+            ) %>%
   mutate(q25 = paste0("q25: ", as.character(q25)),
          median = paste0("median: ", as.character(median)),
          q75 = paste0("q75: ", as.character(q75)),
          sd = paste0("sd: ", as.character(sd)),
-         norm_sd = paste0("norm_sd: ", as.character(norm_sd))) %>%
+         # norm_sd = paste0("norm_sd: ", as.character(norm_sd))
+         ) %>%
   unlist()
 
 vlp_box <- metadata %>%
@@ -175,16 +177,23 @@ vlp_box <- metadata %>%
   filter(!is.na(VLPs_per_ul)) %>%
   ggplot(aes(y=VLPs_per_ul)) +
   geom_boxplot() +
-  annotate("text", x=0.4, y=seq(400000, 800000, 100000), label = vlp_stats, adj = "right") 
+  annotate("text", x=0.4, y=seq(500000, 800000, 100000), label = vlp_stats, adj = "right") +
+  labs(x = NULL)
 
 vlp_hist <- metadata %>%
   select(VLPs_per_ul) %>%
   filter(!is.na(VLPs_per_ul)) %>%
   ggplot(aes(x=VLPs_per_ul)) + 
   geom_histogram() +
-  annotate("text", x=600000, y=seq(10, 30, 5), label = vlp_stats, adj = "right")
+  annotate("text", x=600000, y=seq(15, 30, 5), label = vlp_stats, adj = "right") +
+  labs(y = "Sample count")
 
-vlp_overview <- wrap_plots(list(vlp_box, vlp_hist))
+vlp_overview <- list()
+vlp_overview$plot <- wrap_plots(list(vlp_box, vlp_hist))
+vlp_overview$stats <- vlp_stats %>%
+  tibble() %>%
+  rename("stat" = ".") %>%
+  separate_wider_delim(cols = stat, delim = ": ", names = c("stat", "value"))
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
@@ -529,8 +538,8 @@ lost_bees <- discards(count_stats_core_or_not$yes$ratios, min_seq_count_core_or_
 # because this part takes by far the longest.
 
 iterations <- 1000
-source("scripts/R/helpers/rarefaction_alpha.R")
-source("scripts/R/helpers/rarefaction_beta.R")
+# source("scripts/R/helpers/rarefaction_alpha.R")
+# source("scripts/R/helpers/rarefaction_beta.R")
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#

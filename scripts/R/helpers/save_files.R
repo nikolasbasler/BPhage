@@ -118,8 +118,9 @@ for (country in names(alpha_by_country)) {
 
 # Absolute counts
 
-ggsave(paste0("output/R/absolute_counts_all_samples.pdf"), vlp_overview,
+ggsave("output/R/absolute_counts_all_samples.pdf", vlp_overview$plot,
        width = 8, height =4)
+write_csv(vlp_overview$stats, "output/R/absolute_counts_all_samples.csv")
 
 for (tax in names(alpha_abs)) {
   ggsave(paste0("output/R/alpha/alpha_all/alpha_abs.",tax,".pdf"),

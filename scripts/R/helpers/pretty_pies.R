@@ -46,6 +46,20 @@ pretty_pie$tibbles$TPM$Class <- phage_tpm$Class %>%
                                           "Tokiviricetes",
                                           "Unclassified")))
 
+pretty_pie$tibbles$load$Class <- phage_load$Class %>%
+  pivot_longer(-Class) %>%
+  group_by(Class) %>%
+  mutate(load = mean(value)) %>%
+  ungroup() %>%
+  select(Class, load) %>%
+  distinct() %>%
+  arrange(desc(load)) %>%
+  mutate(Class = factor(Class, levels = c("Caudoviricetes",
+                                          "Faserviricetes|Huolimaviricetes|Malgrandaviricetes",
+                                          "Vidaverviricetes|Leviviricetes",
+                                          "Tokiviricetes",
+                                          "Unclassified")))
+
 pretty_pie$tibbles$n$Order <- classification %>%
   group_by(Order_group) %>%
   count() %>%
@@ -61,6 +75,17 @@ pretty_pie$tibbles$TPM$Order <- phage_tpm$Order_group %>%
   select(Order_group, TPM) %>%
   distinct() %>%
   arrange(desc(TPM)) %>%
+  mutate(Order_group = factor(Order_group, levels = c("Novel_Caudoviricetes_order", "Microviruses", "Novel_Tokiviricetes_order", "Unclassified"))) %>%
+  rename(Order = Order_group)
+
+pretty_pie$tibbles$load$Order <- phage_load$Order_group %>%
+  pivot_longer(-Order_group) %>%
+  group_by(Order_group) %>%
+  mutate(load = mean(value)) %>%
+  ungroup() %>%
+  select(Order_group, load) %>%
+  distinct() %>%
+  arrange(desc(load)) %>%
   mutate(Order_group = factor(Order_group, levels = c("Novel_Caudoviricetes_order", "Microviruses", "Novel_Tokiviricetes_order", "Unclassified"))) %>%
   rename(Order = Order_group)
 
@@ -80,6 +105,17 @@ pretty_pie$tibbles$TPM$Family <- phage_tpm$Family_group %>%
   select(Family_group, TPM) %>%
   distinct() %>%
   arrange(desc(TPM)) %>%
+  mutate(Family_group = factor(Family_group, levels = c("Novel_Caudoviricetes_family", "Microvirus_family", "ICTV-named", "Novel_Tokiviricetes_family", "Unclassified_Microvirus", "Other_unclassified"))) %>%
+  rename(Family = Family_group)
+
+pretty_pie$tibbles$load$Family <- phage_load$Family_group %>%
+  pivot_longer(-Family_group) %>%
+  group_by(Family_group) %>%
+  mutate(load = mean(value)) %>%
+  ungroup() %>%
+  select(Family_group, load) %>%
+  distinct() %>%
+  arrange(desc(load)) %>%
   mutate(Family_group = factor(Family_group, levels = c("Novel_Caudoviricetes_family", "Microvirus_family", "ICTV-named", "Novel_Tokiviricetes_family", "Unclassified_Microvirus", "Other_unclassified"))) %>%
   rename(Family = Family_group)
 
