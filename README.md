@@ -179,7 +179,9 @@
 - mapping prep
 - mapping (array of 150)
 - Obsolete: SKA prep (array of 150)
-- SKA (array of 3: all_terLs, Acer_CO1, MAG_mapped)
+- SKA ()
+
+### Additional datasets mapping
 
 ### R analyses
 - Filtering script `xxx`
