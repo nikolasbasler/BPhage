@@ -120,7 +120,7 @@ alpha_stats = function(df, meta_vars, min_seq = NA, df_lengths = NA, absolut_val
         ggplot(aes(x=meta_value, y=value)) +
         geom_boxplot() +
         labs(x=NULL, y=NULL) +
-        annotate("text", x = -Inf, y = Inf, label = stats_text, vjust = 1, hjust = 0) +
+        # annotate("text", x = -Inf, y = Inf, label = stats_text, vjust = 1, hjust = 0) +
         coord_cartesian(clip = "off")
       if (krusk$pvalue <= 0.05) {
         p <- p + 
@@ -138,5 +138,5 @@ alpha_stats = function(df, meta_vars, min_seq = NA, df_lengths = NA, absolut_val
   }
   # plotlist$patch <- wrap_plots(panels, ncol=length(meta_vars))
   patch <- wrap_plots(panels, ncol=length(meta_vars))
-  return(list(plot=patch, table=alpha_tbl))
+  return(list(plot=patch, table=alpha_tbl, kruskal = kruskal_results))
 }

@@ -23,6 +23,13 @@ for (tax in names(taxon_pie_overlap)) {
 
 write_lines(novel_families, "output/R/taxon_pies/novel_families.txt")
 write_lines(novel_orders, "output/R/taxon_pies/novel_orders.txt")
+
+for (core_or_all in names(classified_taxa)) {
+  for (tl in names(classified_taxa[[core_or_all]])) {
+    write_csv(classified_taxa[[core_or_all]][[tl]], paste0("output/R/taxon_pies/classified.", core_or_all, ".", tl, ".csv"))
+  }
+}
+
 for (thing in names(pretty_pie$tibbles)) {
   for (tl in names(pretty_pie$tibbles[[thing]])) {
     wid <- 4.5
@@ -64,6 +71,9 @@ for (metric in names(completeness_and_genome_length)) {
   ggsave(paste0("output/R/completeness_and_genome_length/", metric, ".pdf"), 
          completeness_and_genome_length[[metric]], width = 4, height = 4)
 }
+ggsave("output/R/completeness_and_genome_length/completeness_all_samples.pdf",
+       completeness$plot, width = 5, height = 5)
+write_csv(completeness$tibble, "output/R/completeness_and_genome_length/completeness_all_samples.csv")
 
 ## Alpha diversity plots and tables ####
 system("mkdir -p output/R/alpha")
@@ -73,12 +83,16 @@ for (tax in names(alpha)) {
   ggsave(paste0("output/R/alpha/alpha_all/alpha.",tax,".pdf"),
          alpha[[tax]]$plot, width = 12, height=10)
   write_csv(alpha[[tax]]$table,
-            paste0("output/R/alpha/alpha_all/alpha.",tax,".csv"))
+            paste0("output/R/alpha/alpha_all/alpha.",tax,".diversity.csv"))
+  write_csv(alpha[[tax]]$kruskal,
+            paste0("output/R/alpha/alpha_all/alpha.",tax,".kruskal.csv"))
   for (core_or_not in names(alpha_core_or_not)) {
     ggsave(paste0("output/R/alpha/alpha_core_or_not/alpha_core.",core_or_not,".",tax,".pdf"),
            alpha_core_or_not[[core_or_not]][[tax]]$plot, width = 12, height=10)
     write_csv(alpha_core_or_not[[core_or_not]][[tax]]$table,
-              paste0("output/R/alpha/alpha_core_or_not/alpha_core.",core_or_not,".",tax,".csv"))
+              paste0("output/R/alpha/alpha_core_or_not/alpha_core.",core_or_not,".",tax,".diversity.csv"))
+    write_csv(alpha_core_or_not[[core_or_not]][[tax]]$kruskal,
+              paste0("output/R/alpha/alpha_core_or_not/alpha_core.",core_or_not,".",tax,".kruskal.csv"))
   }
 }
 
@@ -95,15 +109,18 @@ for (country in names(alpha_by_country)) {
       ggsave(paste0("output/R/alpha/alpha_by_country_core_or_not/alpha_by_country_core.",core_or_not,".",country,".",tax,".pdf"),
              alpha_by_country_core_or_not[[core_or_not]][[country]][[tax]]$plot, width = 12, height=10)
       write_csv(alpha_by_country_core_or_not[[core_or_not]][[country]][[tax]]$table,
-                paste0("output/R/alpha/alpha_by_country_core_or_not/alpha_by_country_core.",core_or_not,".",country,".",tax,".csv"))
+                paste0("output/R/alpha/alpha_by_country_core_or_not/alpha_by_country_core.",core_or_not,".",country,".",tax,".diversity.csv"))
+      write_csv(alpha_by_country_core_or_not[[core_or_not]][[country]][[tax]]$kruskal,
+                paste0("output/R/alpha/alpha_by_country_core_or_not/alpha_by_country_core.",core_or_not,".",country,".",tax,".kruskal.csv"))
     }
   }
 }
 
 # Absolute counts
 
-ggsave(paste0("output/R/absolute_counts_all_samples.pdf"), vlp_overview,
+ggsave("output/R/absolute_counts_all_samples.pdf", vlp_overview$plot,
        width = 8, height =4)
+write_csv(vlp_overview$stats, "output/R/absolute_counts_all_samples.csv")
 
 for (tax in names(alpha_abs)) {
   ggsave(paste0("output/R/alpha/alpha_all/alpha_abs.",tax,".pdf"),
@@ -114,7 +131,9 @@ for (tax in names(alpha_abs)) {
     ggsave(paste0("output/R/alpha/alpha_core_or_not/alpha_abs_core.",core_or_not,".",tax,".pdf"),
            alpha_abs_core_or_not[[core_or_not]][[tax]]$plot, width = 12, height=10)
     write_csv(alpha_abs_core_or_not[[core_or_not]][[tax]]$table,
-              paste0("output/R/alpha/alpha_core_or_not/alpha_abs_core.",core_or_not,".",tax,".csv"))
+              paste0("output/R/alpha/alpha_core_or_not/alpha_abs_core.",core_or_not,".",tax,".diversity.csv"))
+    write_csv(alpha_abs_core_or_not[[core_or_not]][[tax]]$kruskal,
+              paste0("output/R/alpha/alpha_core_or_not/alpha_abs_core.",core_or_not,".",tax,".kruskal.csv"))
   }
 }
 
@@ -129,7 +148,9 @@ for (country in names(alpha_abs_by_country)) {
       ggsave(paste0("output/R/alpha/alpha_by_country_core_or_not/alpha_abs_by_country_core.",core_or_not,".",tax,".pdf"),
              alpha_by_country_core_or_not[[core_or_not]][[country]][[tax]]$plot, width = 12, height=10)
       write_csv(alpha_by_country_core_or_not[[core_or_not]][[country]][[tax]]$table,
-                paste0("output/R/alpha/alpha_by_country_core_or_not/alpha_abs_by_country_core.",core_or_not,".",tax,".csv"))
+                paste0("output/R/alpha/alpha_by_country_core_or_not/alpha_abs_by_country_core.",core_or_not,".",tax,".diversity.csv"))
+      write_csv(alpha_by_country_core_or_not[[core_or_not]][[country]][[tax]]$table,
+                paste0("output/R/alpha/alpha_by_country_core_or_not/alpha_abs_by_country_core.",core_or_not,".",tax,".kruskal.csv"))
     }
   }
 }
@@ -147,19 +168,19 @@ for (tax in names(beta_plot_list)) {
   system(paste0("mkdir -p ", pcoa_path_core_or_not))
   system(paste0("mkdir -p ", hist_path_core_or_not))
   for (p in names(beta_plot_list[[tax]])) {
-    if (p=="core") {
-      width <- 17
-      height <- 15
+    if (p=="all") {
+      wid <- 12
+      hei <- 10
     } else {
-      width <- 17
-      height <- 5
+      wid <- 14
+      hei <- 4
     }
     for (q in names(beta_plot_list[[tax]][[p]])) {
       ggsave(paste0(pcoa_path,"/beta.", tax,".", p, ".", q, ".pcoa.pdf"),
-             beta_plot_list[[tax]][[p]][[q]], width = width, height = height)
+             beta_plot_list[[tax]][[p]][[q]], width = wid, height = hei)
       for (core_or_not in names(beta_plot_list_core_or_not)) {
         ggsave(paste0(pcoa_path_core_or_not,"/beta_core.", core_or_not, ".", tax,".", p, ".", q, ".pcoa.pdf"),
-               beta_plot_list_core_or_not[[core_or_not]][[tax]][[p]][[q]], width = width, height = height)
+               beta_plot_list_core_or_not[[core_or_not]][[tax]][[p]][[q]], width = wid, height = hei)
       }
       
       if (q == "control") { next }
@@ -252,11 +273,15 @@ for (p in names(hostgroup_hist)) {
 system("mkdir -p output/R/relative_abundance/relative_abundance_hostgroups/")
 for (group in names(average_tpm_host_group)) {
   for (tl in names(average_tpm_host_group[[group]]$plots)) {
-    wid <- 15
-    hei <- 8
+    wid <- 6
+    hei <- 6
     if (tl == "Sample_ID") {
+      wid <- 8
+      hei <- 6
+    }
+    if (tl == "Country") {
       wid <- 20
-      hei <- 40
+      hei <- 40 
     }
     ggsave(paste0("output/R/relative_abundance/relative_abundance_hostgroups/average_TPM_Host_groups_core.", group, ".",tl,".pdf"),
            average_tpm_host_group[[group]]$plots[[tl]], width = wid, height = hei)
@@ -285,8 +310,14 @@ for (tax in names(average_tpm)) {
 ## Core TPM
 system("mkdir -p output/R/relative_abundance/core_TPM/")
 for (mvar in names(core_tpm_stats)) {
+  wid <- 4
+  hei <- 4
+  if (mvar == "Country") {
+    wid <- 6
+    hei <- 6
+  }
   ggsave(paste0("output/R/relative_abundance/core_TPM/core_TPM.", mvar, ".pdf"),
-         core_tpm_plots[[mvar]], width = 6, height = 6)
+         core_tpm_plots[[mvar]], width = wid, height = hei)
   write_csv(core_tpm_stats[[mvar]], paste0("output/R/relative_abundance/core_TPM/core_TPM.", mvar, ".csv"))
 }
 
@@ -326,7 +357,7 @@ system("mkdir -p output/R/prevalence/")
 system("mkdir -p data/prevalence_tables/")
 for (tl in names(prevalence_histo)) {
   if (tl=="Bee_pools") {
-    wid=20
+    wid=25
     plot <- prevalence_histo[[tl]]$plot # + scale_x_continuous(breaks = seq(3,150,3))
   } else if (tl=="Hives") {
     wid=12

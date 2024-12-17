@@ -11,7 +11,7 @@ cutoffs <- c(40, 75, 90)
 for (completeness_cutoff in cutoffs) {
   
   prediction_result <- list()
-  prediction_result$replidec <- read.delim("~/Library/CloudStorage/OneDrive-KULeuven/PhD/Virome/BPhage/output/lifestyle/replidec/BC_predict.summary") %>%
+  prediction_result$replidec <- read.delim("output/lifestyle/replidec/BC_predict.summary") %>%
     tibble() %>%
     rename(contig = sample_name) %>%
     select(contig, final_label) %>%
@@ -85,7 +85,8 @@ for (completeness_cutoff in cutoffs) {
         geom_bar(stat = "identity", color= "black") +
         scale_fill_manual(values = lifestyle_colors) +
         labs(title = paste0(set, " - completeness: >=", completeness_cutoff, "%"),
-             fill = "Lifestyle")
+             fill = "Lifestyle") +
+        theme(legend.position = "bottom")
     }
   }
   
@@ -111,13 +112,13 @@ for (completeness_cutoff in cutoffs) {
     }
     venn_by_style[[is_core]] <- wrap_plots(venn, ncol = 1)
   }
-  
+
   system("mkdir -p output/R/lifestyle/")
   for (tool in names(lifestyle_bars)) {
     for (set in names(lifestyle_bars[[tool]])) {
       # ggsave(paste0("output/R/lifestyle/", set, ".completeness_", completeness_cutoff,".pdf"),
       ggsave(paste0("output/R/lifestyle/", tool, "_", set, ".completeness_", completeness_cutoff,".pdf"),
-             lifestyle_bars[[tool]][[set]], width = 6, height = 5)
+             lifestyle_bars[[tool]][[set]], width = 3.75, height = 7)
     }
     write_csv(lifestyle_tibble[[tool]],
               # paste0("output/R/lifestyle/lifestyle_stats.completeness_", completeness_cutoff, ".csv"))

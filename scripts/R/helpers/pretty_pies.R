@@ -1,3 +1,26 @@
+
+classified_taxa <- list()
+for (core_or_all in c("core", "all")) {
+  for (tl in c("Order", "Family")) {
+    tax_group <- paste0(tl, "_group")
+    
+    classif_filt <- classification
+    if (core_or_all == "core") {
+      classif_filt <- classification %>%
+        filter(Core == "yes") # %>%
+        # mutate(Family_group = ifelse(Family_group == "ICTV-named", Family, Family_group)) # This is breaking the logic a bit but it makes more sense here to list the actual family names
+    }
+    
+    classified_taxa[[core_or_all]][[tl]] <- classif_filt %>%
+      select(starts_with(tl)) %>%
+      filter(!str_detect(.data[[tax_group]], "Unclassified") & !str_detect(.data[[tax_group]], "unclassified")) %>%
+      distinct() %>%
+      group_by(.data[[tax_group]]) %>%
+      summarise(taxa = n()) %>%
+      rename("tax_group" = .data[[tax_group]])
+  }
+}
+
 pretty_pie <- list()
 
 pretty_pie$tibbles$n$Class <- classification %>% 
@@ -23,6 +46,20 @@ pretty_pie$tibbles$TPM$Class <- phage_tpm$Class %>%
                                           "Tokiviricetes",
                                           "Unclassified")))
 
+pretty_pie$tibbles$load$Class <- phage_load$Class %>%
+  pivot_longer(-Class) %>%
+  group_by(Class) %>%
+  mutate(load = mean(value)) %>%
+  ungroup() %>%
+  select(Class, load) %>%
+  distinct() %>%
+  arrange(desc(load)) %>%
+  mutate(Class = factor(Class, levels = c("Caudoviricetes",
+                                          "Faserviricetes|Huolimaviricetes|Malgrandaviricetes",
+                                          "Vidaverviricetes|Leviviricetes",
+                                          "Tokiviricetes",
+                                          "Unclassified")))
+
 pretty_pie$tibbles$n$Order <- classification %>%
   group_by(Order_group) %>%
   count() %>%
@@ -41,12 +78,23 @@ pretty_pie$tibbles$TPM$Order <- phage_tpm$Order_group %>%
   mutate(Order_group = factor(Order_group, levels = c("Novel_Caudoviricetes_order", "Microviruses", "Novel_Tokiviricetes_order", "Unclassified"))) %>%
   rename(Order = Order_group)
 
+pretty_pie$tibbles$load$Order <- phage_load$Order_group %>%
+  pivot_longer(-Order_group) %>%
+  group_by(Order_group) %>%
+  mutate(load = mean(value)) %>%
+  ungroup() %>%
+  select(Order_group, load) %>%
+  distinct() %>%
+  arrange(desc(load)) %>%
+  mutate(Order_group = factor(Order_group, levels = c("Novel_Caudoviricetes_order", "Microviruses", "Novel_Tokiviricetes_order", "Unclassified"))) %>%
+  rename(Order = Order_group)
+
 
 pretty_pie$tibbles$n$Family <- classification %>%
   group_by(Family_group) %>%
   count() %>%
   arrange(desc(n)) %>%
-  mutate(Family_group = factor(Family_group, levels = c("Novel_Caudoviricetes_family", "Microvirus_family", "ICTV-named", "Novel_Tokiviricetes_family", "Unclassified_Microvirus_family", "Other_unclassified_family"))) %>%
+  mutate(Family_group = factor(Family_group, levels = c("Novel_Caudoviricetes_family", "Microvirus_family", "ICTV-named", "Novel_Tokiviricetes_family", "Unclassified_Microvirus", "Other_unclassified"))) %>%
   rename(Family = Family_group)
 
 pretty_pie$tibbles$TPM$Family <- phage_tpm$Family_group %>%
@@ -57,7 +105,18 @@ pretty_pie$tibbles$TPM$Family <- phage_tpm$Family_group %>%
   select(Family_group, TPM) %>%
   distinct() %>%
   arrange(desc(TPM)) %>%
-  mutate(Family_group = factor(Family_group, levels = c("Novel_Caudoviricetes_family", "Microvirus_family", "ICTV-named", "Novel_Tokiviricetes_family", "Unclassified_Microvirus_family", "Other_unclassified_family"))) %>%
+  mutate(Family_group = factor(Family_group, levels = c("Novel_Caudoviricetes_family", "Microvirus_family", "ICTV-named", "Novel_Tokiviricetes_family", "Unclassified_Microvirus", "Other_unclassified"))) %>%
+  rename(Family = Family_group)
+
+pretty_pie$tibbles$load$Family <- phage_load$Family_group %>%
+  pivot_longer(-Family_group) %>%
+  group_by(Family_group) %>%
+  mutate(load = mean(value)) %>%
+  ungroup() %>%
+  select(Family_group, load) %>%
+  distinct() %>%
+  arrange(desc(load)) %>%
+  mutate(Family_group = factor(Family_group, levels = c("Novel_Caudoviricetes_family", "Microvirus_family", "ICTV-named", "Novel_Tokiviricetes_family", "Unclassified_Microvirus", "Other_unclassified"))) %>%
   rename(Family = Family_group)
 
 pretty_special_families <- list()
@@ -72,38 +131,6 @@ pretty_special_families$micro$tibbles$n <- classification %>%
   group_by(Family) %>%
   count() %>%
   arrange(desc(n))
-
-# This would re-calculate the TPM only for the selected families:
-#
-# ICTV_ab <- phage_ab$Family %>%
-#   filter(!str_starts(Family, "Microvirus")) %>%
-#   filter(!str_starts(Family, "novel")) %>%
-#   filter(Family != "Unclassified")
-# pretty_special_families$ictv$tibbles$TPM <- calc_tpm(abtable = ICTV_ab,
-#                               level = "Family",
-#                               lengths_df = phage_lengths$Family) %>%
-#   select_if(~ all(!is.na(.))) %>%
-#   pivot_longer(-Family) %>%
-#   group_by(Family) %>%
-#   mutate(TPM = mean(value)) %>%
-#   ungroup() %>%
-#   select(Family, TPM) %>%
-#   distinct() %>%
-#   arrange(desc(TPM))
-# 
-# microvirus_ab <- phage_ab$Family %>% 
-#   filter(str_starts(Family, "Microvirus"))
-# pretty_special_families$micro$tibbles$TPM <- calc_tpm(abtable = microvirus_ab, 
-#                                     level = "Family", 
-#                                     lengths_df = phage_lengths$Family) %>%
-#   select_if(~ all(!is.na(.)))  %>%
-#   pivot_longer(-Family) %>%
-#   group_by(Family) %>%
-#   mutate(TPM = mean(value)) %>%
-#   ungroup() %>%
-#   select(Family, TPM) %>%
-#   distinct() %>%
-#   arrange(desc(TPM)) 
 
 pretty_special_families$ictv$tibbles$TPM <- phage_tpm$Family %>%
   filter(!str_starts(Family, "Microvirus")) %>%
@@ -129,6 +156,7 @@ pretty_special_families$micro$tibbles$TPM <- phage_tpm$Family %>%
 
 for (thing in names(pretty_pie$tibbles)) {
   for (tl in names(pretty_pie$tibbles[[thing]])) {
+    labels <- NULL
     if (tl == "Class") {
       colors <- c("#8B4513", "#FFC300", "#D2691E", "#FFA07A", "#555555")
       labels <- levels(pretty_pie$tibbles[[thing]][[tl]][[tl]])
@@ -149,20 +177,34 @@ for (thing in names(pretty_pie$tibbles)) {
         arrange(.data[[tl]]) %>%
         select(n) %>%
         unlist(use.names = FALSE)
-      labels <- paste0(labels, " (", counts_in_order, ")")
+      taxcount_in_order <- NULL
+      if (!is.null(classified_taxa[[tl]])) {
+        taxcount_in_order <- pretty_pie$tibbles[[thing]][[tl]] %>%
+          ungroup() %>%
+          arrange(.data[[tl]]) %>%
+          left_join(., classified_taxa[[tl]], by = join_by(!!tl == tax_group)) %>%
+          select(taxa) %>%
+          unlist(use.names = FALSE)
+      }
+      labels <- paste0(labels, " (", counts_in_order, "/", taxcount_in_order, ")") %>%
+        str_replace("/NA", "") %>%
+        str_replace("/\\)", ")")
     }
   
     pretty_pie$plots[[thing]][[tl]] <- pretty_pie$tibbles[[thing]][[tl]] %>%
       ggplot(aes(x = "", y = .data[[thing]], fill = .data[[tl]])) +
       geom_bar(stat = "identity", color= "black") +
-      coord_polar(theta = "y", start = pi/2) +
+      # coord_polar(theta = "y", start = pi/2) +
+      # coord_polar(theta = "y", start = 3/4 * pi) +
+      # coord_polar(theta = "y", start = pi) +
+      coord_polar(theta = "y", start = 7/4 * pi) +
       theme_void() +
       labs(fill = tl) +
       theme(legend.margin=margin(0,2,0,-20)) +
       scale_fill_manual(values = colors,
                         labels = labels) +
       ggtitle(thing)
-
+    pretty_pie$plots[[thing]][[tl]] 
   }
 }
 

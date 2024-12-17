@@ -1,3 +1,5 @@
+# The script needs about 2h to run. 1.5 of them for the alpha/beta rarefaction and 30 min for saving the files. 
+# If these two things are commented out, the script runs for about 3 minutes.
 start_time <- Sys.time()
 library(phyloseq)
 library(furrr)
@@ -107,8 +109,8 @@ classification <- classification %>%
   mutate(Family_group = ifelse(str_detect(Family_group, "novel_family.*of_Tokiviricetes"), "Novel_Tokiviricetes_family", Family_group)) %>%    
   mutate(Family_group = ifelse(!str_detect(Family_group, "Novel") & !str_detect(Family_group, "Micro") & Family_group !="Unclassified", "ICTV-named", Family_group)) %>%
   mutate(Family_group = ifelse(str_detect(Family_group, "Micro"), "Microvirus_family", Family_group)) %>%
-  mutate(Family_group = ifelse(Family_group == "Unclassified" & Order == "Microviruses", "Unclassified_Microvirus_family", Family_group)) %>%
-  mutate(Family_group = ifelse(Family_group == "Unclassified" & Order != "Microviruses", "Other_unclassified_family", Family_group)) %>%
+  mutate(Family_group = ifelse(Family_group == "Unclassified" & Order == "Microviruses", "Unclassified_Microvirus", Family_group)) %>%
+  mutate(Family_group = ifelse(Family_group == "Unclassified" & Order != "Microviruses", "Other_unclassified", Family_group)) %>%
 
   left_join(., prevalences_tables$Bee_pools, by = "contig") %>%
   left_join(., prevalences_tables$Hives, by = "contig") %>%
@@ -160,12 +162,14 @@ vlp_stats <- metadata %>%
             median = round(median(VLPs_per_ul)),
             q75 = round(quantile(VLPs_per_ul)[4]),
             sd = round(sd(VLPs_per_ul)),
-            norm_sd = round(sd(VLPs_per_ul) / mean(VLPs_per_ul), digits = 3)) %>%
+            # norm_sd = round(sd(VLPs_per_ul) / mean(VLPs_per_ul), digits = 3)
+            ) %>%
   mutate(q25 = paste0("q25: ", as.character(q25)),
          median = paste0("median: ", as.character(median)),
          q75 = paste0("q75: ", as.character(q75)),
          sd = paste0("sd: ", as.character(sd)),
-         norm_sd = paste0("norm_sd: ", as.character(norm_sd))) %>%
+         # norm_sd = paste0("norm_sd: ", as.character(norm_sd))
+         ) %>%
   unlist()
 
 vlp_box <- metadata %>%
@@ -173,16 +177,23 @@ vlp_box <- metadata %>%
   filter(!is.na(VLPs_per_ul)) %>%
   ggplot(aes(y=VLPs_per_ul)) +
   geom_boxplot() +
-  annotate("text", x=0.4, y=seq(400000, 800000, 100000), label = vlp_stats, adj = "right") 
+  annotate("text", x=0.4, y=seq(500000, 800000, 100000), label = vlp_stats, adj = "right") +
+  labs(x = NULL)
 
 vlp_hist <- metadata %>%
   select(VLPs_per_ul) %>%
   filter(!is.na(VLPs_per_ul)) %>%
   ggplot(aes(x=VLPs_per_ul)) + 
   geom_histogram() +
-  annotate("text", x=600000, y=seq(10, 30, 5), label = vlp_stats, adj = "right")
+  annotate("text", x=600000, y=seq(15, 30, 5), label = vlp_stats, adj = "right") +
+  labs(y = "Sample count")
 
-vlp_overview <- wrap_plots(list(vlp_box, vlp_hist))
+vlp_overview <- list()
+vlp_overview$plot <- wrap_plots(list(vlp_box, vlp_hist))
+vlp_overview$stats <- vlp_stats %>%
+  tibble() %>%
+  rename("stat" = ".") %>%
+  separate_wider_delim(cols = stat, delim = ": ", names = c("stat", "value"))
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
@@ -466,6 +477,27 @@ completeness_and_genome_length$contig_length <- classification %>%
   geom_pwc(method="wilcox.test", label="p.adj.signif", hide.ns = TRUE) +
   labs(title = "Assembled contig length")
 
+completeness <- list()
+# median_completeness <- unique(median(classification$completeness, na.rm = TRUE))
+completeness$plot  <- classification %>%
+  filter(completeness >= 50) %>%
+  ggplot(aes(x = completeness)) +
+  geom_histogram(binwidth = 2) +
+  # geom_vline(xintercept = median_completeness, linetype = "dashed") +
+  labs(x = "Completeness (%)", y = "Genome count") +
+  theme_pubr()
+
+completeness$tibble <- classification %>%
+  mutate(completeness_category = case_when(
+    completeness >= 100 ~ "complete",
+    completeness >= 90  ~ "near_complete_(90%)",
+    completeness >= 50  ~ "partial",
+    TRUE ~ "NA")) %>%
+  select(completeness, completeness_category) %>%
+  group_by(completeness_category) %>%
+  summarise(count = n(), 
+            proportion = n() / 2343)
+
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 # Set min seq thresholds for rarefaction. ####
@@ -506,7 +538,8 @@ lost_bees <- discards(count_stats_core_or_not$yes$ratios, min_seq_count_core_or_
 # because this part takes by far the longest.
 
 iterations <- 1000
-# source("scripts/R/helpers/alpha_beta_rarefaction.R") 
+# source("scripts/R/helpers/rarefaction_alpha.R")
+# source("scripts/R/helpers/rarefaction_beta.R")
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
