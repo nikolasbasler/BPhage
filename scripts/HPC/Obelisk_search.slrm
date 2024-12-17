@@ -27,7 +27,7 @@ zcat $repo_location/output/bphage_ALL_1kb_cross_95-85.fasta.gz | \
     sed 's/NODE_A4732_length_1055_cov_1.778119_DE_18033_spr_rec_d/NODE_A4732_length_1055_cov_1.778119B/' | \
     sed 's/NODE_A5581_length_1504_cov_2.683252_CH_17687_aut_mid_d/NODE_A5581_length_1504_cov_2.683252A/' | \
     sed 's/NODE_A5581_length_1504_cov_2.683252_CH_17687_aut_mid_d/NODE_A5581_length_1504_cov_2.683252B/' | \
-    cut -d"_" -f1-6 | \
+    cut -d"_" -f1-6 \
     > bphage_ALL_1kb_cross_95-85_rename.fasta
 
 
