@@ -12,48 +12,48 @@ prevalence.Hives <- read.csv("output/R/prevalence/prevalence.Hives.csv") %>%
 
 
 ##### Contig overlap
-
-clusters <- list()
-
-clusters$all_BPhage <- read.delim("output/bphage_and_others_clusters.tsv", header=FALSE) %>%
-  rename(representative = V1, member = V2) %>%
-  separate_wider_delim(member, ",", names_sep = "_", too_few = "align_start")
-
-clusters$core_BPhage <- read.delim("output/bphage_core_and_others_clusters.tsv", header=FALSE) %>%
-  rename(representative = V1, member = V2) %>%
-  separate_wider_delim(member, ",", names_sep = "_", too_few = "align_start")
-
-conitg_overlap_venn <- list()
-for (core_or_not in names(clusters)) {
-  presence_in_datasets <- clusters[[core_or_not]] %>%
-    mutate(across(
-      starts_with("member_"),
-      ~ case_when(
-        str_detect(., "NODE") ~ "BPhage",
-        str_detect(., "Deboutte") ~ "Deboutte",
-        str_detect(., "Busby") ~ "Busby",
-        str_detect(., "Bonilla") ~ "Bonilla",
-        TRUE ~ .
-      ))) %>%
-    pivot_longer(-representative, values_drop_na = TRUE, names_to = "member", values_to = "dataset") %>%
-    select(-member) %>%
-    distinct()
-  
-  genomes_in_dataset <- list()
-  for (set in c("BPhage", "Deboutte", "Busby", "Bonilla")) {
-    genomes_in_dataset[[set]] <- presence_in_datasets %>%
-      filter(dataset == set) %>%
-      select(representative) %>%
-      unlist(use.names = FALSE)
-  }
-  
-  conitg_overlap_venn[[core_or_not]] <- ggVennDiagram(genomes_in_dataset, 
-                                                      label = "count",
-                                                      label_size = 7) +
-    theme(legend.position = "none")
-}
-
-conitg_overlap_venn
+# 
+# clusters <- list()
+# 
+# clusters$all_BPhage <- read.delim("output/bphage_and_others_clusters.tsv", header=FALSE) %>%
+#   rename(representative = V1, member = V2) %>%
+#   separate_wider_delim(member, ",", names_sep = "_", too_few = "align_start")
+# 
+# clusters$core_BPhage <- read.delim("output/bphage_core_and_others_clusters.tsv", header=FALSE) %>%
+#   rename(representative = V1, member = V2) %>%
+#   separate_wider_delim(member, ",", names_sep = "_", too_few = "align_start")
+# 
+# conitg_overlap_venn <- list()
+# for (core_or_not in names(clusters)) {
+#   presence_in_datasets <- clusters[[core_or_not]] %>%
+#     mutate(across(
+#       starts_with("member_"),
+#       ~ case_when(
+#         str_detect(., "NODE") ~ "BPhage",
+#         str_detect(., "Deboutte") ~ "Deboutte",
+#         str_detect(., "Busby") ~ "Busby",
+#         str_detect(., "Bonilla") ~ "Bonilla",
+#         TRUE ~ .
+#       ))) %>%
+#     pivot_longer(-representative, values_drop_na = TRUE, names_to = "member", values_to = "dataset") %>%
+#     select(-member) %>%
+#     distinct()
+#   
+#   genomes_in_dataset <- list()
+#   for (set in c("BPhage", "Deboutte", "Busby", "Bonilla")) {
+#     genomes_in_dataset[[set]] <- presence_in_datasets %>%
+#       filter(dataset == set) %>%
+#       select(representative) %>%
+#       unlist(use.names = FALSE)
+#   }
+#   
+#   conitg_overlap_venn[[core_or_not]] <- ggVennDiagram(genomes_in_dataset, 
+#                                                       label = "count",
+#                                                       label_size = 7) +
+#     theme(legend.position = "none")
+# }
+# 
+# conitg_overlap_venn
 
 ##### Mapping
 
@@ -79,11 +79,13 @@ read_counts_and_pools <- read.delim("output/bphage_viper_output/read_stats.tsv")
   mutate(pools = case_when(study == "BPhage" ~ 150,
                            study == "Bonilla" ~ 2,
                            study == "Busby" ~ 1,
-                           study == "Deboutte" ~ 102),
+                           study == "Deboutte" ~ 102,
+                           study == "Sbardellati" ~ 3),
          bees_per_pool = case_when(study == "BPhage" ~ 10,
                                    study == "Bonilla" ~ 100,
                                    study == "Busby" ~ 75,
-                                   study == "Deboutte" ~ 6)
+                                   study == "Deboutte" ~ 6,
+                                   study == "Sbardellati" ~ 100)
          )
 
 stats.other_studies.mapped_reads <- read.csv("output/other_studies/stats.other_studies.mapped_reads.csv") %>%
@@ -107,37 +109,36 @@ presence_absence <- filtered_ab_long %>%
   ungroup()
 
 present_in_dataset <- list()
-for (dataset in c("Deboutte", "Busby", "Bonilla")) {
-  present_in_dataset$three_way[[dataset]] <- presence_absence %>%
+for (dataset in unique(SRA_to_study$study)) {
+  present_in_dataset[[dataset]] <- presence_absence %>%
     filter(study == dataset) %>%
     filter(present) %>%
     select(contig) %>%
     distinct() %>%
     unlist(use.names = FALSE)
 }
-present_in_dataset$four_way <- c(list(BPhage = present_in_all_countries), present_in_dataset$three_way)
 
 core_read_presence_overlap <- list()
-for (thing in names(present_in_dataset)) {
-  set_names <- names(present_in_dataset[[thing]]) %>%
-    str_replace("Bonilla", "Bonilla-Rosso") # %>%
-    # paste0(., " et al.")
-  core_read_presence_overlap[[thing]] <- ggVennDiagram(present_in_dataset[[thing]], 
-                                                       label = "count",
-                                                       label_size = 7,
-                                                       category.names = set_names,
-                                                       set_size = 5.5) +
-    theme(legend.position = "none")
-}
+set_names <- names(present_in_dataset) %>%
+  str_replace("Bonilla", "Bonilla-Rosso") # %>%
+  # paste0(., " et al.")
+core_read_presence_overlap <- ggVennDiagram(present_in_dataset, 
+                                                     label = "count",
+                                                     label_size = 7,
+                                                     category.names = set_names,
+                                                     set_size = 5.5) +
+  theme(legend.position = "none") +
+  scale_x_continuous(expand = expansion(mult = 0.1))
 core_read_presence_overlap
 read_counts_and_pools
 
 
 dataset_overlap <- tibble(contig = present_in_all_countries) %>%
   mutate(Bphage = TRUE,
-         Deboutte = ifelse(contig %in% present_in_dataset$three_way$Deboutte, TRUE, FALSE),
-         Bonilla = ifelse(contig %in% present_in_dataset$three_way$Bonilla, TRUE, FALSE),
-         Busby = ifelse(contig %in% present_in_dataset$three_way$Busby, TRUE, FALSE),
+         Deboutte = ifelse(contig %in% present_in_dataset$Deboutte, TRUE, FALSE),
+         Bonilla = ifelse(contig %in% present_in_dataset$Bonilla, TRUE, FALSE),
+         Busby = ifelse(contig %in% present_in_dataset$Busby, TRUE, FALSE),
+         Sbardellati = ifelse(contig %in% present_in_dataset$Sbardellati, TRUE, FALSE)
   ) %>%
   left_join(., prevalence.Hives, by = "contig") %>%
   left_join(., prevalence.Bee_pools, by = "contig") %>%
@@ -146,14 +147,12 @@ dataset_overlap <- tibble(contig = present_in_all_countries) %>%
 ##### Save files
 
 system("mkdir -p output/R/other_studies")
-for (thing in names(conitg_overlap_venn)) {
-  ggsave(paste0("output/R/other_studies/conitg_overlap.", thing, ".pdf"),
-         conitg_overlap_venn[[thing]], width = 6, height = 6)
-}
-for (thing in names(core_read_presence_overlap)) {
-  ggsave(paste0("output/R/other_studies/core_read_presence_overlap.", thing,".pdf"),
-         core_read_presence_overlap[[thing]], width = 6, height = 6)
-}
+# for (thing in names(conitg_overlap_venn)) {
+#   ggsave(paste0("output/R/other_studies/conitg_overlap.", thing, ".pdf"),
+#          conitg_overlap_venn[[thing]], width = 8, height = 6)
+# }
+ggsave(paste0("output/R/other_studies/core_read_presence_overlap.pdf"),
+       core_read_presence_overlap, width = 8, height = 6)
 write_csv(read_counts_and_pools, "output/R/other_studies/read_counts_and_pools.csv")
 write_csv(dataset_overlap, "output/R/other_studies/dataset_overlap.csv")
 
