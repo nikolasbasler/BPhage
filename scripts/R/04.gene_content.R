@@ -177,13 +177,13 @@ moron_with_groups <- phold_predictions_with_extensions %>%
                           product == "anti-CRISPR protein" |
                           product == "host nuclease inhibitor" |
                           product == "DarB-like antirestriction" |
+                          product == "Lar-like restriction alleviation protein" |
                           product == "anti-sigma factor",
                         "Host takeover", group),
          group = ifelse(product == "Doc-like toxin"|
                           product == "MazF-like growth inhibitor" |
                           product == "toxin" |
                           product == "toxin-antitoxin system HicB-like" |
-                          product == "Lar-like restriction alleviation protein" |
                           product == "RelE-like toxin" |
                           product == "plasmid antitoxin with HTH domain" |
                           product == "ribonuclease toxin of AT system",
