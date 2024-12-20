@@ -67,7 +67,7 @@ for (dataset in names(ska_distance)) {
   
   ska_plot[[dataset]] <- ggplot(plot_df, aes(x=Axis.1, y=Axis.2, color=Country)) +
     labs(x = paste0("Axis.1 [", perc_var_axis1, "%]"), y=paste0("Axis.2 [", perc_var_axis2, "%]"), 
-         title= paste0("SKA2 - ", dataset)) +
+         title= paste0("SKA - ", dataset)) +
     geom_point() +
     scale_color_manual(values = colorvector) +
     theme_bw()
@@ -107,15 +107,21 @@ tree_wrap
 
 #########
 
-pcoa_wrap <- wrap_plots(ska_plot$host / ska_plot$phages / ska_plot$MAG_mapped) +
+system("mkdir -p output/R/SNP_analysis/")
+pcoa_wrap_vertical <- wrap_plots(ska_plot$host / ska_plot$phages / ska_plot$MAG_mapped) +
   plot_layout(guides = "collect")
-ggsave("output/SNP_analysis/SNP_PCoAs.pdf", pcoa_wrap,
+tree_wrap_vertical <- wrap_plots(tree_plots$host / tree_plots$phages / tree_plots$MAG_mapped) +
+  plot_layout(guides = "collect")
+
+ggsave("output/R/SNP_analysis/SNP_PCoAs_vertical.pdf", pcoa_wrap_vertical,
+       width = 7, height = 15)
+ggsave("output/R/SNP_analysis/SNP_trees_vertical.pdf", tree_wrap_vertical,
        width = 7, height = 15)
 
-tree_wrap <- wrap_plots(tree_plots$host / tree_plots$phages / tree_plots$MAG_mapped) +
-  plot_layout(guides = "collect")
-ggsave("output/SNP_analysis/SNP_trees.pdf", tree_wrap,
-       width = 7, height = 15)
+ggsave("output/R/SNP_analysis/SNP_PCoAs.pdf", pcoa_wrap,
+       width = 15, height = 5)
+ggsave("output/R/SNP_analysis/SNP_trees.pdf", tree_wrap,
+       width = 15, height = 5)
 
 ### Tests
 
