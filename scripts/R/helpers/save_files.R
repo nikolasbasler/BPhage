@@ -2,6 +2,12 @@
 #------------------------------------------------------------------------------#
 # Save files ####
 
+# Classification and metadata
+write_csv(classification, "output/R/classification.csv")
+metadata_clean <- metadata %>% 
+  filter(Sample_ID %in% colnames(phage_tpm$contig))
+write_csv(metadata_clean, "output/R/metadata_clean.csv")
+
 ## Metadata and classification variables
 system("mkdir -p output/R/R_variables")
 saveRDS(metadata, "output/R/R_variables/metadata.RDS")
@@ -264,8 +270,10 @@ for (tl in names(tax_collapse_heatmaps)) {
 }
 
 ## TPM ####
-# Hostgroup
 system("mkdir -p output/R/relative_abundance/relative_abundance_overall/")
+write_csv(phage_tpm$contig, "output/R/relative_abundance/phage_tpm.csv")
+
+# Hostgroup
 for (p in names(hostgroup_hist)) {
   ggsave(paste0("output/R/relative_abundance/relative_abundance_overall/hostgroup_hist_", p, ".pdf"),
          hostgroup_hist[[p]], width=8, height=4)

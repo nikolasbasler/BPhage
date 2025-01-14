@@ -17,7 +17,7 @@ for (core_or_all in c("core", "all")) {
       distinct() %>%
       group_by(.data[[tax_group]]) %>%
       summarise(taxa = n()) %>%
-      rename("tax_group" = .data[[tax_group]])
+      rename("tax_group" = all_of(tax_group))
   }
 }
 
