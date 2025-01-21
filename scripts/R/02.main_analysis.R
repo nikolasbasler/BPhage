@@ -1,6 +1,8 @@
 # The script needs about 2h to run. 1.5 of them for the alpha/beta rarefaction and 30 min for saving the files. 
 # If these two things are commented out, the script runs for about 3 minutes.
 start_time <- Sys.time()
+options("lifecycle_verbosity"="warning")
+
 library(phyloseq)
 library(furrr)
 library(patchwork)
