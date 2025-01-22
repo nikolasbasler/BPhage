@@ -35,7 +35,12 @@ clumpify.sh reorder dedupe=t overwrite=t in=temp/${line}_1.fastq.gz in2=temp/${l
 
 # Trim
 echo "Trimming"
-trimmomatic_primer="/staging/leuven/stg_00029/DB/trimmomatic/TruSeq3-PE.fa"
+if [ $(grep $line $repo_location/data/other_datasets_SRA_accessions.tsv | cut -f2) = "Sbardellati" ]; then
+	trimmomatic_primer="/staging/leuven/stg_00029/DB/trimmomatic/TruSeq3-PE.fa"
+else
+	trimmomatic_primer="/staging/leuven/stg_00029/DB/trimmomatic/primer_WTA2_Nextera.fa"
+fi
+
 trimmomatic PE \
     -threads "$threads" temp/${line}.dedup.R1.fastq.gz temp/${line}.dedup.R2.fastq.gz \
     ${line}.TRIM.R1.fastq.gz temp/${line}.R1.unpaired.fastq.gz \
