@@ -4,7 +4,7 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=12
 #SBATCH --mem-per-cpu=4G
-#SBATCH --time=24:00:00
+#SBATCH --time=72:00:00
 #SBATCH --account=lp_jm_virome_group
 #SBATCH --output=slurm-%x_%j.out
 
@@ -17,9 +17,14 @@ source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate ncbi
 repo_location="$VSC_STAGING/BPhage"
 
+mkdir -p $VSC_SCRATCH/BPhage/SNP/subspecies/SRA
 mkdir -p $VSC_SCRATCH/BPhage/additional_datasets/SRA
-cd $VSC_SCRATCH/BPhage/additional_datasets
 
+# Subspecies SRAs
+cd $VSC_SCRATCH/BPhage/SNP/subspecies
+prefetch -O SRA --max-size 100G --option-file <(cut -f1 $repo_location/data/SKA_subspecies_SRAs.tsv | sed 1d)
+
+cd $VSC_SCRATCH/BPhage/additional_datasets
 # Picobirnaviridae RefSeqs
 efetch -db nuccore -id NC_078098,NC_040753,NC_040439,NC_034161,NC_029802,NC_007027,NC_034452,NC_035206 -format fasta | \
     sed 's/ /_Picobirna_RdRP /' | gzip > Picobirna_Refseq_RdRP_segments.fa.gz
