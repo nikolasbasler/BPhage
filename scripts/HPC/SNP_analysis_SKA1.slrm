@@ -31,12 +31,12 @@ for gutpart in $(echo "mid ile rec"); do
             awk 'NR%4==1 {print $0}' | sed 's/^@//g' > temp.${line}_${gutpart}.Hostout.${pair}.readnames
         seqkit grep -v -f temp.${line}_${gutpart}.Hostout.${pair}.readnames \
             $repo_location/output/bphage_viper_output/READ/${line}_${gutpart}_*.trimmed.${pair}.fastq.gz | \
-            pigz -p $threads > temp.${line}_${gutpart}.host.${pair}.fastq.gz
+            pigz -p $threads > temp.${line}_${gutpart}.bee.${pair}.fastq.gz
     done
 done
 # Merge reads per bee pool 
-cat temp.${line}_*.host.R1.fastq.gz > merged_reads/${line}.host.R1.fastq.gz
-cat temp.${line}_*.host.R2.fastq.gz > merged_reads/${line}.host.R2.fastq.gz
+cat temp.${line}_*.bee.R1.fastq.gz > merged_reads/${line}.bee.R1.fastq.gz
+cat temp.${line}_*.bee.R2.fastq.gz > merged_reads/${line}.bee.R2.fastq.gz
 
 # Get reads mapping to all phages
 samtools merge -@ $threads - $repo_location/output/mapped_phages/${line}*.bam | \
@@ -73,7 +73,7 @@ cat $repo_location/output/bphage_viper_output/READ/${line}*Hostout.R2.fastq.gz >
 #     -0 temp.${line}.MAG_mapped.unpaired.reads.fastq.gz -s temp.${line}.MAG_mapped.singleton.reads.fastq.gz
 
 # datasets=$(echo -e "\
-# host
+# bee
 # phages
 # all_terLs
 # 16S
@@ -81,7 +81,7 @@ cat $repo_location/output/bphage_viper_output/READ/${line}*Hostout.R2.fastq.gz >
 # ")
 
 datasets=$(echo -e "\
-host
+bee
 phages\
 ")
 

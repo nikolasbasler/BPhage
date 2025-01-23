@@ -22,15 +22,15 @@ cd $VSC_SCRATCH/BPhage/SNP/
 
 datasets=$(echo -e "\
 phages
-host
+bee
 subspecies
-host_and_subspecies\
+bee_and_subspecies\
 ")
 
 dataset=$(head -n $SLURM_ARRAY_TASK_ID <(echo "$datasets") | tail -n1)
 
-if [ $dataset == "host_and_subspecies" ]; then
-    ska distance -c -o ska/${dataset} ska/skf_files/*host.skf ska/skf_files/*subspecies.skf
+if [ $dataset == "bee_and_subspecies" ]; then
+    ska distance -c -o ska/${dataset} ska/skf_files/*bee.skf ska/skf_files/*subspecies.skf
 else
     ska distance -c -o ska/${dataset} ska/skf_files/*${dataset}.skf
 fi
