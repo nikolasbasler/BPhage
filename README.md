@@ -178,8 +178,10 @@
 ### SNP analysis
 - mapping prep
 - mapping (array of 150)
-- Obsolete: SKA prep (array of 150)
+- subspecies trimming
 - SKA ()
+- SKA subspecies
+- SKA distances
 
 ### Additional datasets mapping
 
