@@ -180,6 +180,7 @@
 - mapping (array of 150)
 - subspecies trimming
 - SKA ()
+- SKA mapping
 - SKA subspecies
 - SKA distances
 
