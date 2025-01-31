@@ -18,11 +18,21 @@ conda activate ncbi
 repo_location="$VSC_STAGING/BPhage"
 
 mkdir -p $VSC_SCRATCH/BPhage/SNP/subspecies/SRA
-mkdir -p $VSC_SCRATCH/BPhage/additional_datasets/SRA
+mkdir -p $VSC_SCRATCH/BPhage/additional_datasets/
 
 # Subspecies SRAs
 cd $VSC_SCRATCH/BPhage/SNP/subspecies
 prefetch -O SRA --max-size 100G --option-file <(cut -f1 $repo_location/data/SKA_subspecies_SRAs.tsv | sed 1d)
+
+# Bacterial refseq genomes
+cd $VSC_SCRATCH/BPhage/ref/
+rm -f core.bacteria.ref.genomes.fasta
+while read accession; do
+    datasets download genome accession $accession
+    unzip ncbi_dataset.zip
+    cat ncbi_dataset/data/$accession/*.fna >> core.bacteria.ref.genomes.fasta
+    rm -r md5sum.txt ncbi_dataset ncbi_dataset.zip README.md
+done < <(cut -f2 $repo_location/data/bacteria.core.spec.tsv)
 
 cd $VSC_SCRATCH/BPhage/additional_datasets
 # Picobirnaviridae RefSeqs
@@ -102,6 +112,14 @@ mv ncbi_dataset/data/GCF_029169275.1/GCF_029169275.1_AcerK_1.0_genomic.fna .
 rm -r ncbi_dataset*
 rm README.md
 mv md5sum.txt GCF_029169275.1_AcerK_1.0_genomic.md5sum.txt
+
+# Old Apis mellifera genome (for SKA)
+datasets download genome accession GCF_000002195.4
+unzip ncbi_dataset.zip
+mv ncbi_dataset/data/GCF_000002195.4/GCF_000002195.4_Amel_4.5_genomic.fna .
+rm -r ncbi_dataset*
+rm README.md
+mv md5sum.txt GCF_000002195.4_Amel_4.5_genomic.md5sum.txt
 
 # 16S RefSeqs of bacterial core genera
 efetch -db nuccore -id $(cat $repo_location/data/16S/*.txt) -format fasta \
