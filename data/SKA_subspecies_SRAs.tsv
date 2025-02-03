@@ -1,50 +1,50 @@
-Accession	Subspecies	Pool_name
-SRR12726874	mellifera	mel_imn
-SRR12726875	mellifera	mel_imn
-SRR12726876	ruttneri	rut_mlt
-SRR12726877	ruttneri	rut_mlt
-SRR12726878	cypria	cyp_cyp
-SRR12726879	remipes	rem_arm
-SRR12726880	cypria	cyp_cyp
-SRR12726881	carnica	car_aut_hun
-SRR12726882	caucasia	cau_tur_geo
-SRR12726883	macedonica	mac_mkd_grc
-SRR12726884	carnica	car_svn_hrv
-SRR12726885	carnica	car_svn_hrv
-SRR12726886	ligustica	lig_ita
-SRR12726887	ligustica	lig_ita
-SRR12726888	mellifera	mel_dnk
-SRR12726889	mellifera	mel_dnk
-SRR12726890	ruttneri	rut_mlt
-SRR12726891	mellifera	mel_dnk
-SRR12726892	mellifera	mel_dnk
-SRR12726893	mellifera	mel_che
-SRR12726894	mellifera	mel_che
-SRR12726895	mellifera	mel_che
-SRR12726896	mellifera	mel_che
-SRR12726897	rodopica	rod_bgr
-SRR12726898	rodopica	rod_bgr
-SRR12726899	rodopica	rod_bgr
-SRR12726900	rodopica	rod_bgr
-SRR12726901	ruttneri	rut_mlt
-SRR12726902	carpatica	carp_rou_mda
-SRR12726903	carpatica	carp_rou_mda
-SRR12726904	carpatica	carp_rou_mda
-SRR12726905	carpatica	carp_rou_mda
-SRR12726906	anatoliaca	ana_tur
-SRR12726907	anatoliaca	ana_tur
-SRR12726908	anatoliaca	ana_tur
-SRR12726909	anatoliaca	ana_tur
-SRR12726910	mellifera	mel_imn
-SRR12726911	mellifera	mel_imn
-SRR12726912	remipes	rem_arm
-SRR12726913	remipes	rem_arm
-SRR12726914	remipes	rem_arm
-SRR12726915	iberiensis	ibe_esp_north
-SRR12726916	iberiensis	ibe_esp_west_prt
-SRR12726917	mellifera	mel_rus
-SRR12726918	cecropia	cec_grc
-SRR12726919	mellifera	mel_irl
-SRR12726920	iberiensis	ibe_esp_eus
-SRR12726921	iberiensis	ibe_esp_eus
-SRR12726922	adami	ada_grc
+Accession	Lineage	Subspecies	Pool_name
+SRR12726874	M	mellifera	mel_imn
+SRR12726875	M	mellifera	mel_imn
+SRR12726876	A	ruttneri	rut_mlt
+SRR12726877	A	ruttneri	rut_mlt
+SRR12726878	O	cypria	cyp_cyp
+SRR12726879	O	remipes	rem_arm
+SRR12726880	O	cypria	cyp_cyp
+SRR12726881	C	carnica	car_aut_hun
+SRR12726882	O	caucasia	cau_tur_geo
+SRR12726883	C	macedonica	mac_mkd_grc
+SRR12726884	C	carnica	car_svn_hrv
+SRR12726885	C	carnica	car_svn_hrv
+SRR12726886	C	ligustica	lig_ita
+SRR12726887	C	ligustica	lig_ita
+SRR12726888	M	mellifera	mel_dnk
+SRR12726889	M	mellifera	mel_dnk
+SRR12726890	A	ruttneri	rut_mlt
+SRR12726891	M	mellifera	mel_dnk
+SRR12726892	M	mellifera	mel_dnk
+SRR12726893	M	mellifera	mel_che
+SRR12726894	M	mellifera	mel_che
+SRR12726895	M	mellifera	mel_che
+SRR12726896	M	mellifera	mel_che
+SRR12726897	C	rodopica	rod_bgr
+SRR12726898	C	rodopica	rod_bgr
+SRR12726899	C	rodopica	rod_bgr
+SRR12726900	C	rodopica	rod_bgr
+SRR12726901	A	ruttneri	rut_mlt
+SRR12726902	C	carpatica	carp_rou_mda
+SRR12726903	C	carpatica	carp_rou_mda
+SRR12726904	C	carpatica	carp_rou_mda
+SRR12726905	C	carpatica	carp_rou_mda
+SRR12726906	O	anatoliaca	ana_tur
+SRR12726907	O	anatoliaca	ana_tur
+SRR12726908	O	anatoliaca	ana_tur
+SRR12726909	O	anatoliaca	ana_tur
+SRR12726910	M	mellifera	mel_imn
+SRR12726911	M	mellifera	mel_imn
+SRR12726912	O	remipes	rem_arm
+SRR12726913	O	remipes	rem_arm
+SRR12726914	O	remipes	rem_arm
+SRR12726915	M	iberiensis	ibe_esp_north
+SRR12726916	M	iberiensis	ibe_esp_west_prt
+SRR12726917	M	mellifera	mel_rus
+SRR12726918	C	cecropia	cec_grc
+SRR12726919	M	mellifera	mel_irl
+SRR12726920	M	iberiensis	ibe_esp_eus
+SRR12726921	M	iberiensis	ibe_esp_eus
+SRR12726922	C	adami	ada_grc
