@@ -273,5 +273,38 @@ write_csv(contigs_with_TA, "output/R/gene_content/core_TA_contigs.csv")
 write_csv(genes_in_core, "output/R/gene_content/core_all_products.csv")
 
 
+## Work in progress: Sulfor metabolism
+sulfur_phages <- phold_predictions_with_extensions %>%
+  filter(str_detect(product, "sulf")) %>% 
+  inner_join(classification, ., by = join_by("contig" == "contig_id"))
 
+sulfur_phages %>%
+  select(contig) %>%
+  distinct()
+
+sulfur_phages %>%
+  select(contig) %>%
+  filter(contig %in% present_in_all_countries) %>%
+  distinct()
+
+meta_v <- c("Family", "Genus", "Core")
+
+overall_vs_sulf <- list()
+for (met in meta_v) {
+  overall_props <- classification %>%
+    group_by(.data[[met]]) %>%
+    summarise(overall_genome_count = n()) %>%
+    arrange(desc(overall_genome_count)) %>%
+    mutate(overall_genome_prop = overall_genome_count / sum(overall_genome_count))
+  
+  overall_vs_sulf[[met]] <- sulfur_phages %>%
+    group_by(.data[[met]]) %>%
+    summarise(sulf_genome_count = n()) %>%
+    arrange(desc(sulf_genome_count)) %>%
+    mutate(sulf_genome_prop = sulf_genome_count / sum(sulf_genome_count)) %>%
+    inner_join(., overall_props) %>%
+    ggplot(aes(x = sulf_genome_prop, y = overall_genome_prop)) +
+    geom_point() +
+    labs(title = met)
+}
 
