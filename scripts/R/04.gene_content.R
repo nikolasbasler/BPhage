@@ -274,37 +274,93 @@ write_csv(genes_in_core, "output/R/gene_content/core_all_products.csv")
 
 
 ## Work in progress: Sulfor metabolism
-sulfur_phages <- phold_predictions_with_extensions %>%
-  filter(str_detect(product, "sulf")) %>% 
+sulfur_phage_annot <- phold_predictions_with_extensions %>%
+  # filter(str_detect(product, "sulf")) %>%
+  filter(product == "phosphoadenosine phosphosulfate reductase") %>% 
   inner_join(classification, ., by = join_by("contig" == "contig_id"))
 
-sulfur_phages %>%
+sulfur_phage_annot %>%
   select(contig) %>%
   distinct()
 
-sulfur_phages %>%
+sulfur_phage_annot %>%
   select(contig) %>%
   filter(contig %in% present_in_all_countries) %>%
   distinct()
 
 meta_v <- c("Family", "Genus", "Core")
 
-overall_vs_sulf <- list()
-for (met in meta_v) {
-  overall_props <- classification %>%
-    group_by(.data[[met]]) %>%
-    summarise(overall_genome_count = n()) %>%
-    arrange(desc(overall_genome_count)) %>%
-    mutate(overall_genome_prop = overall_genome_count / sum(overall_genome_count))
+# I'm not sure where I was getting at witht his...
+# overall_vs_sulf <- list()
+# for (met in meta_v) {
+#   overall_props <- classification %>%
+#     group_by(.data[[met]]) %>%
+#     summarise(overall_genome_count = n()) %>%
+#     arrange(desc(overall_genome_count)) %>%
+#     mutate(overall_genome_prop = overall_genome_count / sum(overall_genome_count))
+#   
+#   overall_vs_sulf[[met]] <- sulfur_phages %>%
+#     group_by(.data[[met]]) %>%
+#     summarise(sulf_genome_count = n()) %>%
+#     arrange(desc(sulf_genome_count)) %>%
+#     mutate(sulf_genome_prop = sulf_genome_count / sum(sulf_genome_count)) %>%
+#     inner_join(., overall_props) %>%
+#     ggplot(aes(x = sulf_genome_prop, y = overall_genome_prop)) +
+#     geom_point() +
+#     labs(title = met)
+# }
+
+
+phage_tpm <- read.csv("output/R/relative_abundance/phage_tpm.csv")
+
+sulfur_phage_meta <- phage_tpm %>%
+  filter(contig %in% sulfur_phage_annot$contig) %>%
+  pivot_longer(-contig, names_to = "Sample_ID", values_to = "TPM") %>%
+  filter(TPM > 0) %>%
+  left_join(., metadata, by = "Sample_ID") %>%
+  select(contig, Sample_ID, TPM, Hive_ID, Country, Season, Gut_part, Health)
+
+summed_suf_tpms <- sulfur_phage_meta %>%
+  group_by(Sample_ID) %>%
+  mutate(summed_sample_tpm = sum(TPM)) %>%
+  ungroup() %>% 
+  select(Country, summed_sample_tpm) %>% 
+  distinct()
+mean_sulf_tpms <- summed_suf_tpms %>%
+  group_by(Country) %>%
+  summarise(mean_TPM = mean(summed_sample_tpm)) %>%
+  arrange(desc(mean_TPM))
+
+meta_variables <- c("Country", "Season", "Gut_part")
+sulf_plot_tpm <- list()
+sulf_plot_phage_count <- list()
+sulf_stats <- list()
+tpm_KW_p_values <- list()
+for (meta_v in meta_variables) {
   
-  overall_vs_sulf[[met]] <- sulfur_phages %>%
-    group_by(.data[[met]]) %>%
-    summarise(sulf_genome_count = n()) %>%
-    arrange(desc(sulf_genome_count)) %>%
-    mutate(sulf_genome_prop = sulf_genome_count / sum(sulf_genome_count)) %>%
-    inner_join(., overall_props) %>%
-    ggplot(aes(x = sulf_genome_prop, y = overall_genome_prop)) +
-    geom_point() +
-    labs(title = met)
+  tpm_KW_p_values[[meta_v]] <- kruskal.test(sulfur_phage_meta$TPM~sulfur_phage_meta[[meta_v]])$p.value
+
+  sullf_mean_tpm <- sulfur_phage_meta %>%
+    group_by(.data[[meta_v]]) %>%
+    summarise(mean_TPM = mean(TPM))
+  sulf_stats[[meta_v]] <- sulfur_phage_meta %>%
+    select(contig, all_of(meta_v)) %>%
+    distinct() %>%
+    group_by(.data[[meta_v]]) %>%
+    summarise(phage_count = n()) %>%
+    left_join(sullf_mean_tpm, ., by = meta_v) %>%
+    arrange(desc(mean_TPM))
+  
+  sulf_plot_tpm[[meta_v]] <- sulfur_phage_meta %>%
+    ggplot(aes(x = .data[[meta_v]], y = TPM)) +
+    geom_boxplot() +
+    scale_y_continuous(trans='log10') +
+    ggtitle(paste0("KW p-value: ", KW_p_values[[meta_v]]))
 }
+
+sulf_plot_tpm
+sulf_plot_phage_count
+sulf_stats
+tpm_KW_p_values
+#
 
