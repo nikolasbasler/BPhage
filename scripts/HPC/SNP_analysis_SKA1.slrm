@@ -80,9 +80,14 @@ cat $repo_location/output/bphage_viper_output/READ/${line}*Hostout.R2.fastq.gz >
 # MAG_mapped\
 # ")
 
+echo "#####################################################"
+echo "#####################################################"
+echo "#####################################################"
+
 datasets=$(echo -e "\
 bee
-phages\
+phages
+bacteria\
 ")
 
 # Downsampling to 1 million reads in all datasets
@@ -115,12 +120,3 @@ rm temp.${line}*
 echo "========================================================================"
 duration=$SECONDS
 printf 'Job finished in: %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))
-
-
-repo_location="$VSC_STAGING/BPhage"
-echo -e "bee_pool\tread_pairs" > readpairs_phages.tsv
-while read line; do
-    echo $line
-    readpairs=$(zcat ${line}.phages.R1.fastq.gz | awk 'END {print NR/4}')
-    echo -e "${line}\t${readpairs}" >> readpairs_phages.tsv
-done < $repo_location/data/BPhage.bee.pool.list

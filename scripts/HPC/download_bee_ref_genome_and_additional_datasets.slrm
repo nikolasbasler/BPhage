@@ -106,34 +106,34 @@ rm README.md
 mv md5sum.txt GCF_003254395.2_Amel_HAv3.1_genomic.md5sum.txt
 
 # Apis cerana ref genome
-datasets download genome accession GCF_029169275.1
-unzip ncbi_dataset.zip
-mv ncbi_dataset/data/GCF_029169275.1/GCF_029169275.1_AcerK_1.0_genomic.fna .
-rm -r ncbi_dataset*
-rm README.md
-mv md5sum.txt GCF_029169275.1_AcerK_1.0_genomic.md5sum.txt
+# datasets download genome accession GCF_029169275.1
+# unzip ncbi_dataset.zip
+# mv ncbi_dataset/data/GCF_029169275.1/GCF_029169275.1_AcerK_1.0_genomic.fna .
+# rm -r ncbi_dataset*
+# rm README.md
+# mv md5sum.txt GCF_029169275.1_AcerK_1.0_genomic.md5sum.txt
 
 # Old Apis mellifera genome (for SKA)
-datasets download genome accession GCF_000002195.4
-unzip ncbi_dataset.zip
-mv ncbi_dataset/data/GCF_000002195.4/GCF_000002195.4_Amel_4.5_genomic.fna .
-rm -r ncbi_dataset*
-rm README.md
-mv md5sum.txt GCF_000002195.4_Amel_4.5_genomic.md5sum.txt
+# datasets download genome accession GCF_000002195.4
+# unzip ncbi_dataset.zip
+# mv ncbi_dataset/data/GCF_000002195.4/GCF_000002195.4_Amel_4.5_genomic.fna .
+# rm -r ncbi_dataset*
+# rm README.md
+# mv md5sum.txt GCF_000002195.4_Amel_4.5_genomic.md5sum.txt
 
 # 16S RefSeqs of bacterial core genera
-efetch -db nuccore -id $(cat $repo_location/data/16S/*.txt) -format fasta \
-    > core_bacterial_genera_16S.fa
+# efetch -db nuccore -id $(cat $repo_location/data/16S/*.txt) -format fasta \
+#     > core_bacterial_genera_16S.fa
 
-# Apis mellifera subspecies mt genomes
-efetch -db nuccore -id $(cut -f1 $repo_location/data/A_mellifera_subspecies_mt.bed) -format fasta \
-    > Amel_subspecies_mt.fa
+# # Apis mellifera subspecies mt genomes
+# efetch -db nuccore -id $(cut -f1 $repo_location/data/A_mellifera_subspecies_mt.bed) -format fasta \
+#     > Amel_subspecies_mt.fa
 
 # Index bee ref genomnes
 conda activate viper_bphage
 bowtie2-build --threads 12 GCF_003254395.2_Amel_HAv3.1_genomic.fna GCF_003254395.2_Amel_HAv3.1_genomic.fna
-bwa-mem2 index GCF_029169275.1_AcerK_1.0_genomic.fna
-bwa-mem2 index core_bacterial_genera_16S.fa
+# bwa-mem2 index GCF_029169275.1_AcerK_1.0_genomic.fna
+# bwa-mem2 index core_bacterial_genera_16S.fa
 
 echo "========================================================================"
 duration=$SECONDS
