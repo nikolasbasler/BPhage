@@ -32,23 +32,24 @@ relevant_meta <- metadata %>%
   mutate(Variable2 = factor(Variable2, levels = union(levels(Country), levels(Lineage))),
          Variable2 = droplevels(Variable2))
 
-datasets <- c("bee", "subspecies", "bee_and_subspecies", "phages", "bacteria")
+# datasets <- c("bee", "subspecies", "bee_and_subspecies", "phages", "bacteria")
+datasets <- c("bee", "phages", "bacteria")
 
 raw_input <- list()
-for (dataset in c("bee", "subspecies", "bee_and_subspecies")) {
-  raw_input[[dataset]] <- read.delim(paste0("output/SNP_analysis/SKA_SNP_distances_region_mapped/", dataset, ".distances.tsv")) %>%
-    filter(!str_starts(Sample.1, "FR_19771_aut")) %>%
-    filter(!str_starts(Sample.2, "FR_19771_aut")) %>%
-    filter(!str_starts(Sample.1, "BE_16558_sum")) %>%
-    filter(!str_starts(Sample.2, "BE_16558_sum")) %>%
-    filter(!str_starts(Sample.1, "PT_19409_sum")) %>%
-    filter(!str_starts(Sample.2, "PT_19409_sum")) %>%
-    filter(!str_starts(Sample.1, "PT_19414_aut")) %>%
-    filter(!str_starts(Sample.2, "PT_19414_aut")) %>%
-    filter(!str_starts(Sample.1, "PT_19409_spr")) %>%
-    filter(!str_starts(Sample.2, "PT_19409_spr")) # Removing a few weird outliers. The mantel tests would be the same with them.
-}
-for (dataset in c("phages", "bacteria")) {
+# for (dataset in c("bee", "subspecies", "bee_and_subspecies")) {
+#   raw_input[[dataset]] <- read.delim(paste0("output/SNP_analysis/SKA_SNP_distances_region_mapped/", dataset, ".distances.tsv")) %>%
+#     filter(!str_starts(Sample.1, "FR_19771_aut")) %>%
+#     filter(!str_starts(Sample.2, "FR_19771_aut")) %>%
+#     filter(!str_starts(Sample.1, "BE_16558_sum")) %>%
+#     filter(!str_starts(Sample.2, "BE_16558_sum")) %>%
+#     filter(!str_starts(Sample.1, "PT_19409_sum")) %>%
+#     filter(!str_starts(Sample.2, "PT_19409_sum")) %>%
+#     filter(!str_starts(Sample.1, "PT_19414_aut")) %>%
+#     filter(!str_starts(Sample.2, "PT_19414_aut")) %>%
+#     filter(!str_starts(Sample.1, "PT_19409_spr")) %>%
+#     filter(!str_starts(Sample.2, "PT_19409_spr")) # Removing a few weird outliers. The mantel tests would be the same with them.
+# }
+for (dataset in c("bee", "phages", "bacteria")) {
   raw_input[[dataset]] <- read.delim(paste0("output/SNP_analysis/SKA_SNP_distances/", dataset, ".distances.tsv")) 
 }
 
@@ -69,18 +70,18 @@ for (dataset in datasets) {
 }
 
 country_colors <- c("#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7", "#666666")
-subspec_colors <- c("#FF0000", "#00FF00", "#0000FF", "#FF00FF", "#00FFFF", "#FFFF00", "#800000", "#808000", "#008080", "#800080", "#FFA500", "#A52A2A", "#8B4513", "#4B0082")
-lineage_colors <- c("#FF0000", "#00FF00", "#0000FF", "#FF00FF")
-lineage_colors2 <- c("#FFA500", "#00FFFF", "#FFFF00", "#BFFF00")
+# subspec_colors <- c("#FF0000", "#00FF00", "#0000FF", "#FF00FF", "#00FFFF", "#FFFF00", "#800000", "#808000", "#008080", "#800080", "#FFA500", "#A52A2A", "#8B4513", "#4B0082")
+# lineage_colors <- c("#FF0000", "#00FF00", "#0000FF", "#FF00FF")
+# lineage_colors2 <- c("#FFA500", "#00FFFF", "#FFFF00", "#BFFF00")
 
 colorvector <- list()
 colorvector$phages <- country_colors
 colorvector$bee <- country_colors
 colorvector$bacteria <- country_colors
-colorvector$subspecies <- subspec_colors
-colorvector$subspecies_lin <- lineage_colors
-colorvector$bee_and_subspecies <- c(country_colors, subspec_colors)
-colorvector$bee_and_subspecies_lin <- c(country_colors, lineage_colors)
+# colorvector$subspecies <- subspec_colors
+# colorvector$subspecies_lin <- lineage_colors
+# colorvector$bee_and_subspecies <- c(country_colors, subspec_colors)
+# colorvector$bee_and_subspecies_lin <- c(country_colors, lineage_colors)
 
 ska_matrix <- list()
 ska_plot <- list()
@@ -143,9 +144,9 @@ for (dataset in names(ska_distance)) {
   }
 }
 
-# pcoa_wrap <- wrap_plots(ska_plot) +
-#   plot_layout(guides = "collect")
-# pcoa_wrap
+pcoa_wrap <- wrap_plots(ska_plot) +
+  plot_layout(guides = "collect")
+pcoa_wrap
 
 #### Trees
 
@@ -183,9 +184,9 @@ for (dataset in names(clustered)) {
   }
 }
 
-# tree_wrap <- wrap_plots(tree_plots) +
-#   plot_layout(guides = "collect")
-# tree_wrap
+tree_wrap <- wrap_plots(tree_plots) +
+  plot_layout(guides = "collect")
+tree_wrap
 
 #########
 
