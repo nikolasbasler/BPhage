@@ -178,10 +178,10 @@
 ### SNP analysis
 - mapping prep
 - mapping (array of 150)
-- subspecies trimming
+- (subspecies trimming)
 - SKA ()
-- SKA mapping
-- SKA subspecies
+- (SKA bacteria)
+- (SKA subspecies)
 - SKA distances
 
 ### Additional datasets mapping

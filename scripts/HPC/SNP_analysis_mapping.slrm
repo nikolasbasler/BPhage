@@ -4,62 +4,63 @@
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=9
 #SBATCH --mem-per-cpu=4G
-#SBATCH --time=2:00:00
+#SBATCH --time=30:00
 #SBATCH --account=lp_jm_virome_group
 #SBATCH --output=slurm-%x_%a_%A.out
 
 ###############################################################################
 
 # Submit (from output/slurm_log)
-# sbatch --array=1-199 --export=ALL ../../scripts/HPC/SNP_analysis_mapping.slrm
+# sbatch --array=1-199 --export=ALL ../../scripts/HPC/SNP_analysis_mapping.slrm # 2 hours
+# sbatch --array=1-150 --export=ALL ../../scripts/HPC/SNP_analysis_mapping.slrm
 
 source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate viper_bphage
 repo_location="$VSC_STAGING/BPhage"
-line=$(cat $repo_location/data/SKA_subspecies_SRAs.tsv $repo_location/data/BPhage.bee.pool.list | sed 1d | cut -f1 | head -n $SLURM_ARRAY_TASK_ID | tail -n 1)
+# line=$(cat $repo_location/data/SKA_subspecies_SRAs.tsv $repo_location/data/BPhage.bee.pool.list | sed 1d | cut -f1 | head -n $SLURM_ARRAY_TASK_ID | tail -n 1)
+line=$(head -n $SLURM_ARRAY_TASK_ID $repo_location/data/BPhage.bee.pool.list | tail -n 1)
 
 threads=9
 
-mkdir -p $VSC_SCRATCH/BPhage/SNP/region_mapped
+# mkdir -p $VSC_SCRATCH/BPhage/SNP/region_mapped
+mkdir -p $VSC_SCRATCH/BPhage/SNP/merged_reads
 cd $VSC_SCRATCH/BPhage/SNP/
 
-if [[ "${line:0:3}" == "SRR" ]]; then
-    read_one="subspecies/reads/${line}.TRIM.R1.fastq.gz"
-    read_two="subspecies/reads/${line}.TRIM.R2.fastq.gz"
-    dataset="subspecies"
-    bphage=false
-else
+# if [[ "${line:0:3}" == "SRR" ]]; then
+#     read_one="subspecies/reads/${line}.TRIM.R1.fastq.gz"
+#     read_two="subspecies/reads/${line}.TRIM.R2.fastq.gz"
+#     bphage=false
+# else
     read_one="merged_reads/${line}.bee.R1.fastq.gz"
     read_two="merged_reads/${line}.bee.R2.fastq.gz"
-    dataset="bee"
-    bphage=true
-fi
+    # bphage=true
+# fi
 
 # Map bee and SRA reads against old bee ref genome to retrieve reads mapping to the SNPs defined by Momemi et al
-bwa-mem2 mem $VSC_SCRATCH/BPhage/ref/GCF_000002195.4_Amel_4.5_genomic.fna \
-    $read_one $read_two -t $threads | \
-    samtools view -@ $threads -b -F4 | \
-    samtools sort -@ $threads -o temp.${line}.map.sort.bam
-samtools index temp.${line}.map.sort.bam
-samtools view -h --region-file $repo_location/data/SKA_subspecies_SNP_positions.bed temp.${line}.map.sort.bam | \
-    samtools collate -@ $threads -O - | \
-    samtools fastq -@ $threads -1 region_mapped/${line}.region_mapped.R1.fastq.gz -2 region_mapped/${line}.region_mapped.R2.fastq.gz \
-    -0 /dev/null -s /dev/null
+# bwa-mem2 mem $VSC_SCRATCH/BPhage/ref/GCF_000002195.4_Amel_4.5_genomic.fna \
+#     $read_one $read_two -t $threads | \
+#     samtools view -@ $threads -b -F4 | \
+#     samtools sort -@ $threads -o temp.${line}.map.sort.bam
+# samtools index temp.${line}.map.sort.bam
+# samtools view -h --region-file $repo_location/data/SKA_subspecies_SNP_positions.bed temp.${line}.map.sort.bam | \
+#     samtools collate -@ $threads -O - | \
+#     samtools fastq -@ $threads -1 region_mapped/${line}.region_mapped.R1.fastq.gz -2 region_mapped/${line}.region_mapped.R2.fastq.gz \
+#     -0 /dev/null -s /dev/null
 
 # Retrieve BPhage reads not mapping to any phages and map them against the bacterial genomes
-if $bphage; then
+# if $bphage; then
     samtools merge -@ $threads - $repo_location/output/mapped_phages/${line}*.bam | \
         samtools view -@ $threads -b -f4 | \
         samtools collate -@ $threads -O - | \
-        samtools fastq -1 temp.${line}.ex.phages.R1.fastq.gz -2 temp.${line}.ex.phages.R2.fastq.gz \
+        samtools fastq -1 temp.${line}.ex.phages.R1.fastq -2 temp.${line}.ex.phages.R2.fastq \
         -0 /dev/null -s /dev/null
     bwa-mem2 mem $VSC_SCRATCH/BPhage/ref/core.bacteria.ref.genomes.fasta \
-            temp.${line}.ex.phages.R1.fastq.gz temp.${line}.ex.phages.R2.fastq.gz -t $threads | \
+            temp.${line}.ex.phages.R1.fastq temp.${line}.ex.phages.R2.fastq -t $threads | \
         samtools view -@ $threads -b -F4 | \
         samtools collate -@ $threads -O - | \
         samtools fastq -@ $threads -1 merged_reads/${line}.bacteria.R1.fastq.gz -2 merged_reads/${line}.bacteria.R2.fastq.gz \
             -0 /dev/null -s /dev/null
-fi
+# fi
 
 # Clean up
 rm temp.${line}*
