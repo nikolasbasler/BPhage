@@ -19,7 +19,7 @@ source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate ska
 repo_location="$VSC_STAGING/BPhage"
 
-mkdir $VSC_SCRATCH/BPhage/SNP/distances
+mkdir $VSC_SCRATCH/BPhage/SNP/ska/distances
 cd $VSC_SCRATCH/BPhage/SNP/
 
 # datasets=$(echo -e "\
@@ -45,7 +45,7 @@ dataset=$(head -n $SLURM_ARRAY_TASK_ID <(echo "$datasets") | tail -n1)
 # fi
 
 mkdir -p $repo_location/output/SNP_analysis/SKA_SNP_distances
-cp ska/${dataset}*.distances.tsv $repo_location/output/SNP_analysis/SKA_SNP_distances
+cp ska/distances/${dataset}*.distances.tsv $repo_location/output/SNP_analysis/SKA_SNP_distances
 
 echo "========================================================================"
 duration=$SECONDS
