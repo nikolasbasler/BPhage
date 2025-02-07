@@ -398,9 +398,9 @@ write_csv(genes_in_core, "output/R/gene_content/core_all_products.csv")
 
 write_delim(sulf_positive_hives, "output/R/gene_content/sulfur/sulfur_positive_hives.tsv", delim = "\t ")
 for (meta in names(sulf_stats)) {
-  write_delim(sulf_stats[[meta]], paste0("output/R/gene_content/sulfur/sulfur_stats.", meta, ".tsv", delim = "\t"))
-  write_delim(tpm_KW[[meta]], paste0("output/R/gene_content/sulfur/tpm_krusk.", meta, ".tsv", delim = "\t"))
-  write_delim(genomes_KW[[meta]], paste0("output/R/gene_content/sulfur/genome_count_krusk.", meta, ".tsv", delim = "\t"))
+  write_delim(sulf_stats[[meta]], paste0("output/R/gene_content/sulfur/sulfur_stats.", meta, ".tsv"), delim = "\t")
+  write_delim(tpm_KW[[meta]], paste0("output/R/gene_content/sulfur/tpm_krusk.", meta, ".tsv"), delim = "\t")
+  write_delim(genomes_KW[[meta]], paste0("output/R/gene_content/sulfur/genome_count_krusk.", meta, ".tsv"), delim = "\t")
 }
 for (meta in names(sulf_tpm_plots)) {
   ggsave(paste0("output/R/gene_content/sulfur/tpm.", sulf_tpm_plots[[meta]], ".pdf"),
