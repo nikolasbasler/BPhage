@@ -6,10 +6,11 @@ host_pie_colors <- c("Bifidobacterium" = "#FFDAB9",
                      "Lactobacillus" = "#FFA07A",
                      "Snodgrassella" = "#FFC300",
                      "Bombilactobacillus" = "#ef8f01",
-                     "Gilliamella" = "#D2691E",
-                     "Frischella" = "#8B4513",
+                     "Gilliamella" = "#8B4513",
+                     "Frischella" = "#336B6B",
+                     "Commensalibacter" = "#285353",
                      "Bartonella" = "#1C3A3A",
-                     "Bombella" = "black",
+                     "Bombella" = "#112222",
                      "other" = "#555555",
                      "unknown" = "lightgrey")
 
@@ -95,7 +96,7 @@ for (set in c("all", "core", "noncore")) {
     mutate(Genus = ifelse(!Genus %in% c("Gilliamella", "Lactobacillus",
                                         "Bifidobacterium", "Snodgrassella",
                                         "Bombilactobacillus", "Bartonella", 
-                                        "Frischella", "Bombella" , "unknown"), 
+                                        "Frischella", "Bombella" , "Commensalibacter", "unknown"), 
                           "other", Genus))
   
   host_tibble[[set]] <- host_group[[set]] %>%
@@ -105,7 +106,12 @@ for (set in c("all", "core", "noncore")) {
     ungroup()
   
   genus_order <- host_tibble[[set]] %>%
-    filter(!Genus %in% c("other", "unknown")) %>%
+    filter(!Genus %in% c("other", "unknown")) %>% 
+    
+    mutate(core_bacterium = ifelse(Genus %in% c("Gilliamella", "Lactobacillus", "Bifidobacterium", "Bombilactobacillus", "Snodgrassella"), TRUE, FALSE)) %>%
+    arrange(core_bacterium) %>%
+    
+    
     select(Genus) %>%
     unlist(use.names = FALSE)
 
