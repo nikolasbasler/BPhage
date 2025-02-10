@@ -267,6 +267,7 @@ sulf_meta <- phage_tpm %>%
   filter(Gut_part == "rec") %>% # Focus on rectum for more stable values (some midgut samples have very few phages)
   group_by(Sample_ID, sulf_metabolism) %>% 
   mutate(sulf_tpm = sum(TPM)) %>%
+  mutate(Hive_ID = factor(Hive_ID)) %>%
   ungroup()
 
 sulf_positive_hives <- sulf_meta %>%
@@ -329,8 +330,8 @@ for (met_v in meta_variables) {
     mutate(parameter.df = as.numeric(parameter.df),
            p.value = as.numeric(p.value),
            chi_squared = as.numeric(chi_squared))
-  pwc_p <- pairwise.wilcox.test(genomes$sample_sulf_genome_props, genomes[[met_v]], p.adjust.method = "BH")
-  genomes_pwc[[met_v]] <- multcompLetters(pwc_p$p.value)$Letters
+  # pwc_p <- pairwise.wilcox.test(genomes$sample_sulf_genome_props, genomes[[met_v]], p.adjust.method = "BH")
+  # genomes_pwc[[met_v]] <- multcompLetters(pwc_p$p.value)$Letters
   
   sulf_tpm_plots[[met_v]] <- tpm %>%
     # mutate(!!met_v := factor(.data[[met_v]], levels = unique(tpm[[met_v]]))) %>%
@@ -377,7 +378,7 @@ system("mkdir -p output/R/gene_content/sulfur")
 #     wid <- 50
 #     hig <- 10
 #   }
-#   ggsave(paste0("output/R/gene_content/gene_content.", plot, ".pdf"), 
+#   ggsave(paste0("output/R/gene_content/gene_content.", plot, ".pdf"),
 #          annotation_core_plots[[plot]], width = wid, height = hig, limitsize = FALSE)
 # }
 
@@ -402,12 +403,11 @@ for (meta in names(sulf_stats)) {
   write_delim(tpm_KW[[meta]], paste0("output/R/gene_content/sulfur/tpm_krusk.", meta, ".tsv"), delim = "\t")
   write_delim(genomes_KW[[meta]], paste0("output/R/gene_content/sulfur/genome_count_krusk.", meta, ".tsv"), delim = "\t")
 }
+
 for (meta in names(sulf_tpm_plots)) {
-  ggsave(paste0("output/R/gene_content/sulfur/tpm.", sulf_tpm_plots[[meta]], ".pdf"),
-         width = 7, height = 7)
-  ggsave(paste0("output/R/gene_content/sulfur/genome_count.", sulf_genome_prop_plots[[meta]], ".pdf"),
-         width = 7, height = 7)
-  
-  as.matrix() %>% t() %>% as_tibble()
+  ggsave(paste0("output/R/gene_content/sulfur/tpm.", meta, ".pdf"),
+         sulf_tpm_plots[[meta]], width = 7, height = 7)
+  ggsave(paste0("output/R/gene_content/sulfur/genome_count.", meta, ".pdf"),
+         sulf_genome_prop_plots[[meta]], width = 7, height = 7)
 }
 
