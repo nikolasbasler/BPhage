@@ -90,8 +90,10 @@ unknown_host$noncore <- classification %>%
 host_pie <- list()
 host_tibble <- list()
 host_group <- list()
+all_hosts <- list()
 for (set in c("all", "core", "noncore")) {
-  host_group[[set]] <- bind_rows(confident_host_genus[[set]], tibble(unknown_host[[set]], Genus = "unknown")) %>%
+  all_hosts[[set]] <- bind_rows(confident_host_genus[[set]], tibble(unknown_host[[set]], Genus = "unknown"))
+  host_group[[set]] <- all_hosts[[set]] %>%
     mutate(Genus = ifelse(Genus == "", "unknown", Genus)) %>%
     mutate(Genus = ifelse(!Genus %in% c("Gilliamella", "Lactobacillus",
                                         "Bifidobacterium", "Snodgrassella",
@@ -135,6 +137,8 @@ for (pie in names(host_pie)) {
          host_pie[[pie]], height = 6, width = 6)
   write_csv(host_tibble[[pie]],
             paste0("output/R/host_pies/hosts.", pie, ".csv"))
+  write_csv(all_hosts[[pie]],
+            paste0("output/R/host_pies/all_hosts.", pie, ".csv"))
 }
 
 # Written do data/ for convenience to avoid back tracking. So it can be used in the main analysis R script.
