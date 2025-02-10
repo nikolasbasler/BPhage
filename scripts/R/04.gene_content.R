@@ -22,8 +22,6 @@ phold_predictions_with_extensions <-  phold_per_cds_predictions %>%
   filter(!contig_id %in% unique(extended_phold_per_cds_predictions$contig_id)) %>%
   bind_rows(., extended_phold_per_cds_predictions)
 
-
-
 ### Boxplots with differences between core and non-core genes ####
 
 # SOMEHOW MAKE IT SO THAT ONLY BOXES WITH SIGNIFICANT PWCs ARE DRAWN 
@@ -232,8 +230,17 @@ moron_tibble <- moron_grouping %>%
 
 genes_in_core <- phold_predictions_with_extensions %>%
   filter(contig_id %in% present_in_all_countries) %>%
+  group_by(product, function.) %>%
+  summarise(gene_count = n(), .groups = "drop") %>%
+  arrange(desc(gene_count))
+all_genes <- phold_predictions_with_extensions %>%
+  group_by(product, function.) %>%
+  summarise(gene_count = n(), .groups = "drop") %>%
+  arrange(desc(gene_count))
+all_morons <- phold_predictions_with_extensions %>%
+  filter(function. == "moron, auxiliary metabolic gene and host takeover") %>%
   group_by(product) %>%
-  summarise(gene_count = n()) %>%
+  summarise(gene_count = n(), .groups = "drop") %>%
   arrange(desc(gene_count))
 
 ### Pie chart for core morons ####
@@ -301,14 +308,31 @@ for (met_v in meta_variables) {
     mutate(parameter.df = as.numeric(parameter.df),
            p.value = as.numeric(p.value),
            chi_squared = as.numeric(chi_squared))
-  # See if I can make this work. Test with Season to see the problem. Letters aren't assigned to every group.
-  # pwc_p <- pairwise.wilcox.test(tpm$sulf_tpm, tpm[[met_v]], p.adjust.method = "BH")
-  # all_groups <- unique(c(rownames(pwc_p$p.value), colnames(pwc_p$p.value)))
-  # full_p_matrix <- as.data.frame(matrix(1, nrow = length(all_groups), ncol = length(all_groups), 
-  #                                       dimnames = list(all_groups, all_groups)))
-  # full_p_matrix[rownames(pwc_p$p.value), colnames(pwc_p$p.value)] <- pwc_p$p.value
-  # multcompLetters(full_p_matrix)$Letters
-  # tpm_pwc[[met_v]] <- multcompLetters(pwc_p$p.value)$Letters
+  
+  # Unfortunately, this still doesn't work. I don't understand how the input for multcompLetters()
+  # needs to be. When feeding it the output of pairwise.wilcox.test()$p.value it ignores one of 
+  # the categories When feeding it a complete symmetric df, it puts all categories into group "a"...
+  # Maybe this helps: https://www.r-bloggers.com/2017/03/perform-pairwise-wilcoxon-test-classify-groups-by-significance-and-plot-results/
+  # pwc_p <- pairwise.wilcox.test(tpm$sulf_tpm, tpm[[met_v]], p.adjust.method = "BH")$p.value
+  # multcompLetters(pwc_p)
+  # complete_triangle <- function(matr) {
+  #   missing_col <- rownames(matr) %>% 
+  #     tail(n=1)
+  #   missing_row <- colnames(matr) %>% 
+  #     head(n=1)
+  #   full <- matr %>%
+  #     as.data.frame() %>%
+  #     mutate(!!missing_col := NA) %>%
+  #     t() %>%
+  #     as.data.frame() %>%
+  #     mutate(!!missing_row := NA) %>%
+  #     relocate(all_of(missing_row), .before = everything()) %>%
+  #     t()
+  #   full[upper.tri(full)] <- t(full)[upper.tri(full)]
+  #   return(full)
+  # }
+  # pwc_full <- complete_triangle(pwc_p)
+  # genomes_pwc[[met_v]] <- multcompLetters(pwc_p_full)$Letters
 
   genomes <- sulf_meta %>%
     filter(TPM >0) %>%
@@ -330,8 +354,9 @@ for (met_v in meta_variables) {
     mutate(parameter.df = as.numeric(parameter.df),
            p.value = as.numeric(p.value),
            chi_squared = as.numeric(chi_squared))
-  # pwc_p <- pairwise.wilcox.test(genomes$sample_sulf_genome_props, genomes[[met_v]], p.adjust.method = "BH")
-  # genomes_pwc[[met_v]] <- multcompLetters(pwc_p$p.value)$Letters
+  # pwc_p <- pairwise.wilcox.test(genomes$sample_sulf_genome_props, genomes[[met_v]], p.adjust.method = "BH")$p.value
+  # pwc_full <- complete_triangle(pwc_p)
+  # genomes_pwc[[met_v]] <- multcompLetters(pwc_p_full)$Letters
   
   sulf_tpm_plots[[met_v]] <- tpm %>%
     # mutate(!!met_v := factor(.data[[met_v]], levels = unique(tpm[[met_v]]))) %>%
@@ -394,6 +419,8 @@ ggsave("output/R/gene_content/core_moron_pie.pdf",
 write_csv(moron_grouping, "output/R/gene_content/core_moron_pie.csv")
 write_csv(contigs_with_TA, "output/R/gene_content/core_TA_contigs.csv")
 write_csv(genes_in_core, "output/R/gene_content/core_all_products.csv")
+write_csv(all_genes, "output/R/gene_content/all_products.csv")
+write_csv(all_morons, "output/R/gene_content/all_moron_products.csv")
 
 ## Sulfur
 
