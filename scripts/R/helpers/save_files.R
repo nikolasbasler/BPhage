@@ -377,7 +377,7 @@ for (tl in names(prevalence_histo)) {
   ggsave(paste0("output/R/prevalence/prevalence.",tl,".pdf"),
          plot, width=wid, height=5)
   write_csv(prevalence_histo[[tl]]$table, paste0("output/R/prevalence/prevalence.",tl,".csv"))
-  write_csv(presence_absence[[tl]], paste0("output/R/prevalence/presence_absence",tl,".csv"))
+  write_csv(presence_absence[[tl]], paste0("output/R/prevalence/presence_absence.",tl,".csv"))
 
   # write_csv(prevalence_histo[[tl]]$table, paste0("data/prevalence_tables/prevalence.",tl,".csv")) # This is also written to data to avoid backtracking. So it can be used at the top of the main script already.
 }
