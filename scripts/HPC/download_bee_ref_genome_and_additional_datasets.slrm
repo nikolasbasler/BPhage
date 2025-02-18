@@ -17,12 +17,23 @@ source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate ncbi
 repo_location="$VSC_STAGING/BPhage"
 
-mkdir -p $VSC_SCRATCH/BPhage/SNP/subspecies/SRA
+# mkdir -p $VSC_SCRATCH/BPhage/SNP/subspecies/SRA
 mkdir -p $VSC_SCRATCH/BPhage/additional_datasets/
 
 # Subspecies SRAs
-cd $VSC_SCRATCH/BPhage/SNP/subspecies
-prefetch -O SRA --max-size 100G --option-file <(cut -f1 $repo_location/data/SKA_subspecies_SRAs.tsv | sed 1d)
+# cd $VSC_SCRATCH/BPhage/SNP/subspecies
+# prefetch -O SRA --max-size 100G --option-file <(cut -f1 $repo_location/data/SKA_subspecies_SRAs.tsv | sed 1d)
+
+# Nosema genome
+cd $VSC_SCRATCH/BPhage/ref/
+datasets download genome accession GCF_000988165.1
+unzip ncbi_dataset.zip
+mv ncbi_dataset/data/GCF_000988165.1/GCF_000988165.1_ASM98816v1_genomic.fna Varimorpha_genomes.fasta
+rm -r md5sum.txt ncbi_dataset ncbi_dataset.zip README.md
+datasets download genome accession GCA_000447185.1
+unzip ncbi_dataset.zip
+cat ncbi_dataset/data/GCA_000447185.1/GCA_000447185.1_NapisBRLv01_genomic.fna >> Varimorpha_genomes.fasta
+rm -r md5sum.txt ncbi_dataset ncbi_dataset.zip README.md
 
 # Bacterial refseq genomes
 cd $VSC_SCRATCH/BPhage/ref/
