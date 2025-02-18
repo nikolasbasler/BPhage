@@ -26,17 +26,17 @@
     - Output: Oririnal files from each sample's viper output are moved into a common `CONTIGS`, `QC/FASTQC` (also with multiqc) `QC/QUAST` and `READ` (containing deduped trimmed and hostout reads) folder inside `output/bphage_viper_output`
 - Cross sample clustering: `scripts/HPC/cross_sample_clustering.slrm`
     - Requires: Re-organised ViPER assemblies in `output/bphage_viper_output/CONTIGS/`
-    - Output: Cross-sampled file: `output/bphage_ALL_1kb_cross_95-85.fasta.gz`, `output/bphage_ALL_1kb_cross_95-85_clusters.tsv.gz`
+    - Output: Cross-sample clustered file: `output/bphage_ALL_1kb_cross_95-85.fasta.gz`, `output/bphage_ALL_1kb_cross_95-85_clusters.tsv.gz`
 
 ### Phage identification
-- CheckV (can be done on parallel with geNomad and mapping): `scripts/HPC/checkv.slrm`
+- CheckV (can be done on parallel with geNomad): `scripts/HPC/checkv.slrm`
     - Requires: 
         - Cross-sample clustered contigs: `output/bphage_ALL_1kb_cross_95-85.fasta.gz`
         - Data from other studies: `$VSC_SCRATCH/additional_datasets/other_studies.fa.gz`
     - Output: 
         - `output/bphage_ALL_1kb_checkv`
         - `output/other_studies_checkv`
-- geNomad (can be done in parallel with CheckV and mapping): `scripts/HPC/genomad.slrm`
+- geNomad (can be done in parallel with CheckV): `scripts/HPC/genomad.slrm`
     - Requires: 
         - Cross-sample clustered contigs: `output/bphage_ALL_1kb_cross_95-85.fasta.gz`
         - Additional datasets
