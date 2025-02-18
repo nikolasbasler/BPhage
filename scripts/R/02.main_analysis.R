@@ -323,7 +323,8 @@ for (core_or_not in unique(classification$Core)) {
 # for prevalence plots
 meta_merges <- list(Bee_pools = "Gut_part", 
                     Hives = c("Season", "Gut_part"),
-                    Countries = c("Season", "Gut_part", "Hive_ID"))
+                    Countries = c("Season", "Gut_part", "Hive_ID"),
+                    Seasons = c("Country", "Gut_part", "Hive_ID"))
 phage_ab_meta_merges <- list()
 phage_ab_meta_merges$Samples <- phage_ab$contig
 for (merge in names(meta_merges)) {
