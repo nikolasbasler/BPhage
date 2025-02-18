@@ -322,9 +322,10 @@ for (core_or_not in unique(classification$Core)) {
 # (e.g. all gut parts or all samples from the same country merged). Used 
 # for prevalence plots
 meta_merges <- list(Bee_pools = "Gut_part", 
-                    Countries = c("Season", "Gut_part", "Hive_ID"),
-                    Hives = c("Season", "Gut_part"))
+                    Hives = c("Season", "Gut_part"),
+                    Countries = c("Season", "Gut_part", "Hive_ID"))
 phage_ab_meta_merges <- list()
+phage_ab_meta_merges$Samples <- phage_ab$contig
 for (merge in names(meta_merges)) {
   phage_ab_meta_merges[[merge]] <- meta_sum(ab_table = phage_ab$contig, 
                                             meta_vars = meta_merges[[merge]])
@@ -627,9 +628,14 @@ for (core_or_not in phage_tpm$Core$Core) {
 #------------------------------------------------------------------------------#
 # Prevalence ####
 prevalence_histo <- list()
+presence_absence <- list()
 for (merge in names(phage_ab_meta_merges)) {
   prevalence_histo[[merge]] <- prevalence_histogram(abtable = phage_ab_meta_merges[[merge]],
                                                     plot_title = merge)
+  presence_absence[[merge]] <- phage_ab_meta_merges[[merge]] %>%
+    pivot_longer(-contig) %>%
+    mutate(value = ifelse(value == 0, FALSE, TRUE)) %>%
+    pivot_wider()
 }
 
 # present_in_all_countries <- prevalence_histo$Countries$table %>%

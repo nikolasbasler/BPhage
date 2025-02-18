@@ -6,10 +6,11 @@ host_pie_colors <- c("Bifidobacterium" = "#FFDAB9",
                      "Lactobacillus" = "#FFA07A",
                      "Snodgrassella" = "#FFC300",
                      "Bombilactobacillus" = "#ef8f01",
-                     "Gilliamella" = "#D2691E",
-                     "Frischella" = "#8B4513",
+                     "Gilliamella" = "#8B4513",
+                     "Frischella" = "#336B6B",
+                     "Commensalibacter" = "#285353",
                      "Bartonella" = "#1C3A3A",
-                     "Bombella" = "black",
+                     "Bombella" = "#112222",
                      "other" = "#555555",
                      "unknown" = "lightgrey")
 
@@ -89,13 +90,15 @@ unknown_host$noncore <- classification %>%
 host_pie <- list()
 host_tibble <- list()
 host_group <- list()
+all_hosts <- list()
 for (set in c("all", "core", "noncore")) {
-  host_group[[set]] <- bind_rows(confident_host_genus[[set]], tibble(unknown_host[[set]], Genus = "unknown")) %>%
+  all_hosts[[set]] <- bind_rows(confident_host_genus[[set]], tibble(unknown_host[[set]], Genus = "unknown"))
+  host_group[[set]] <- all_hosts[[set]] %>%
     mutate(Genus = ifelse(Genus == "", "unknown", Genus)) %>%
     mutate(Genus = ifelse(!Genus %in% c("Gilliamella", "Lactobacillus",
                                         "Bifidobacterium", "Snodgrassella",
                                         "Bombilactobacillus", "Bartonella", 
-                                        "Frischella", "Bombella" , "unknown"), 
+                                        "Frischella", "Bombella" , "Commensalibacter", "unknown"), 
                           "other", Genus))
   
   host_tibble[[set]] <- host_group[[set]] %>%
@@ -105,7 +108,12 @@ for (set in c("all", "core", "noncore")) {
     ungroup()
   
   genus_order <- host_tibble[[set]] %>%
-    filter(!Genus %in% c("other", "unknown")) %>%
+    filter(!Genus %in% c("other", "unknown")) %>% 
+    
+    mutate(core_bacterium = ifelse(Genus %in% c("Gilliamella", "Lactobacillus", "Bifidobacterium", "Bombilactobacillus", "Snodgrassella"), TRUE, FALSE)) %>%
+    arrange(core_bacterium) %>%
+    
+    
     select(Genus) %>%
     unlist(use.names = FALSE)
 
@@ -129,6 +137,8 @@ for (pie in names(host_pie)) {
          host_pie[[pie]], height = 6, width = 6)
   write_csv(host_tibble[[pie]],
             paste0("output/R/host_pies/hosts.", pie, ".csv"))
+  write_csv(all_hosts[[pie]],
+            paste0("output/R/host_pies/all_hosts.", pie, ".csv"))
 }
 
 # Written do data/ for convenience to avoid back tracking. So it can be used in the main analysis R script.
