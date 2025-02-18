@@ -19,12 +19,19 @@ repo_location="$VSC_STAGING/BPhage"
 
 cd $VSC_SCRATCH/BPhage/nosema_mapping
 
-echo -e "Bee_pool\tHostout_R1_plus_R2\tmapped_to_Nosema" > nosema_mapped_read_counts.tsv
+echo -e "Bee_pool\tHostout_R1_plus_R2\tmapped_to_Nosema" > nosema_mapped_counts.tsv
 for stats in *_read_counts.tsv; do
-    sed 1d $stats >> nosema_mapped_read_counts.tsv
+    sed 1d $stats >> nosema_mapped_counts.tsv
 done
 
-cp nosema_mapped_read_counts.tsv $repo_location/output/
+echo -e "Sample_ID\tHostout_R1_plus_R2\tmapped_to_Nosema" > nosema_mapped_counts_rec.tsv
+for stats in *_read_counts_rec.tsv; do
+    sed 1d $stats >> nosema_mapped_counts_rec.tsv
+done
+
+# cp nosema_mapped_counts.tsv $repo_location/output/
+cp nosema_mapped_counts.tsv $repo_location/output/
+cp nosema_mapped_counts_rec.tsv $repo_location/output/
 
 echo "========================================================================"
 duration=$SECONDS
