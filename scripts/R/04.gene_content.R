@@ -17,7 +17,8 @@ extended_phold_per_cds_predictions <- read.delim("output/core_contig_refinement/
 
 phold_predictions_with_extensions <-  phold_per_cds_predictions %>% 
   filter(!contig_id %in% unique(extended_phold_per_cds_predictions$contig_id)) %>%
-  bind_rows(., extended_phold_per_cds_predictions)
+  bind_rows(., extended_phold_per_cds_predictions) %>% 
+  filter(!str_starts(contig_id, "NODE") | contig_id %in% classification$contig)
 
 ### Boxplots with differences between core and non-core genes ####
 
