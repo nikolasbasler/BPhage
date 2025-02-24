@@ -1,6 +1,8 @@
 library(ape)
 library(patchwork)
 library(ggtree)
+library(RLdbRDA)
+source("scripts/R/custom_rldbrda.R")
 # library(TreeDist)
 library(tidyverse)
 
@@ -189,29 +191,67 @@ tree_wrap <- wrap_plots(tree_plots) +
 tree_wrap
 
 #########
+# RDAs
+
+RDAs <- list()
+RDA_plots <- list()
+for (set in names(ska_matrix)) {
+  dist_matrix <- ska_matrix[[set]] %>% 
+    as.dist()
+  
+  meta_filt <- metadata %>%
+    filter(Bee_pool %in% rownames(ska_matrix[[set]])) %>%
+    rownames_to_column("bla") %>%
+    select(Bee_pool, Season, Country) %>%
+    distinct() %>%
+    column_to_rownames("Bee_pool")
+ 
+  r_names_dist <- rownames(ska_matrix[[set]])
+  if (!identical(r_names_dist, rownames(meta_filt))) {
+    print("ROWNAMES OF DIST MATRIX AND METADATA DONT MATCH! ABORTING")
+    break
+  }
+  RDAs[[set]] <- custom_rldbrda(dist_matrix, meta_filt)
+  # detach(meta)
+  
+  plot_data <- RLdbRDA::prepare_plot_data(RDAs[[set]])
+  
+  RDA_plots[[set]] <- RLdbRDA::plot_dbrda(plot_data) + 
+    scale_fill_manual(values=c("#ef8f01", "#8B4513"),
+                      labels=c(bquote(R^2), bquote('Cumulative' ~ R^2))) +
+    ggtitle(paste0(set, " SNP distance")) +
+    theme(legend.position = "bottom")
+}
+
+RDA_patch_vertical <- RDA_plots$bee + RDA_plots$phages + RDA_plots$bacteria +
+  plot_layout(guides = 'collect', axes = "collect")  & theme(legend.position = "bottom")
+RDA_patch_horizontal <- RDA_plots$bee / RDA_plots$phages / RDA_plots$bacteria +
+  plot_layout(guides = 'collect', axes = "collect")  & theme(legend.position = "bottom")
+
+#####
 
 ### Tests
-
-common_bee_pools <- intersect(colnames(ska_matrix$bee), colnames(ska_matrix$phages)) %>%
-  intersect(colnames(ska_matrix$bacteria))
-
-ska_matrix_filt <- list()
-
-ska_matrix_filt$bee <- ska_matrix$bee %>%
-  select(any_of(common_bee_pools)) %>%
-  rownames_to_column("pools") %>%
-  filter(pools %in% common_bee_pools) %>% 
-  column_to_rownames("pools")
-ska_matrix_filt$phages <- ska_matrix$phages %>%
-  select(any_of(common_bee_pools)) %>%
-  rownames_to_column("pools") %>%
-  filter(pools %in% common_bee_pools) %>% 
-  column_to_rownames("pools")
-ska_matrix_filt$bacteria <- ska_matrix$bacteria %>%
-  select(any_of(common_bee_pools)) %>%
-  rownames_to_column("pools") %>%
-  filter(pools %in% common_bee_pools) %>% 
-  column_to_rownames("pools")
+# 
+# common_bee_pools <- intersect(colnames(ska_matrix$bee), colnames(ska_matrix$phages)) %>%
+#   intersect(colnames(ska_matrix$bacteria))
+# 
+# ska_matrix_filt <- list()
+# 
+# ska_matrix_filt$bee <- ska_matrix$bee %>%
+#   select(any_of(common_bee_pools)) %>%
+#   rownames_to_column("pools") %>%
+#   filter(pools %in% common_bee_pools) %>% 
+#   column_to_rownames("pools")
+# ska_matrix_filt$phages <- ska_matrix$phages %>%
+#   select(any_of(common_bee_pools)) %>%
+#   rownames_to_column("pools") %>%
+#   filter(pools %in% common_bee_pools) %>% 
+#   column_to_rownames("pools")
+# ska_matrix_filt$bacteria <- ska_matrix$bacteria %>%
+#   select(any_of(common_bee_pools)) %>%
+#   rownames_to_column("pools") %>%
+#   filter(pools %in% common_bee_pools) %>% 
+#   column_to_rownames("pools")
 
 #####
 # TreeDistance(clustered$bee, clustered$phages)
@@ -219,19 +259,19 @@ ska_matrix_filt$bacteria <- ska_matrix$bacteria %>%
 # TreeDistance(clustered$phages, clustered$bacteria)
 
 mantel_tests <- list()
-mantel_tests$bee_phages <- mantel.test(ska_matrix_filt$bee, ska_matrix_filt$phages) %>% 
+mantel_tests$bee_phages <- mantel.test(ska_matrix$bee, ska_matrix$phages) %>% 
   unlist() %>%
   t() %>% 
   as.data.frame() %>%
   mutate(z.stat = as.numeric(z.stat),
          p = as.numeric(p))
-mantel_tests$bee_bacteria <- mantel.test(ska_matrix_filt$bee, ska_matrix_filt$bacteria) %>% 
+mantel_tests$bee_bacteria <- mantel.test(ska_matrix$bee, ska_matrix$bacteria) %>% 
   unlist() %>%
   t() %>% 
   as.data.frame() %>%
   mutate(z.stat = as.numeric(z.stat),
          p = as.numeric(p))
-mantel_tests$phages_bacteria <- mantel.test(ska_matrix_filt$phages, ska_matrix_filt$bacteria) %>% 
+mantel_tests$phages_bacteria <- mantel.test(ska_matrix$phages, ska_matrix$bacteria) %>% 
   unlist() %>%
   t() %>% 
   as.data.frame() %>%
@@ -260,15 +300,22 @@ ggsave("output/R/SNP_analysis/SNP_trees_vertical.pdf", tree_wrap_vertical,
 ggsave("output/R/SNP_analysis/SNP_trees_horizontal.pdf", tree_wrap_horizontal,
        width = 15, height = 10)
 
+ggsave("output/R/SNP_analysis/SNP_RDA_vertical.pdf", RDA_patch_vertical,
+       width = 12, height = 3)
+ggsave("output/R/SNP_analysis/SNP_RDA_horizontal.pdf", RDA_patch_horizontal,
+       width = 8, height = 4)
+
+
+
 for (dataset in names(ska_plot)) {
   ggsave(paste0("output/R/SNP_analysis/SNP_PCoA_", dataset, ".pdf"),
          ska_plot[[dataset]], width = 6, height = 5)
-}
-
-for (dataset in names(tree_plots)) {
   ggsave(paste0("output/R/SNP_analysis/SNP_tree_", dataset, ".pdf"),
          tree_plots[[dataset]], width = 7, height = 10)
+  ggsave(paste0("output/R/SNP_analysis/SNP_RDA_", dataset, ".pdf"),
+         RDA_plots[[dataset]], width = 5, height = 4)
 }
+
 
 for (test in names(mantel_tests)) {
   write_delim(mantel_tests[[test]],
