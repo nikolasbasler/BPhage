@@ -1,17 +1,26 @@
 
+classification %>%
+  filter(Core == "yes") %>%
+  count(Order, name = "contigs")
+
 classified_taxa <- list()
-for (core_or_all in c("core", "all")) {
+core_taxonomy <- list()
+# for (core_or_all in c("core", "all")) {
   for (tl in c("Order", "Family")) {
     tax_group <- paste0(tl, "_group")
     
     classif_filt <- classification
-    if (core_or_all == "core") {
-      classif_filt <- classification %>%
-        filter(Core == "yes") # %>%
-        # mutate(Family_group = ifelse(Family_group == "ICTV-named", Family, Family_group)) # This is breaking the logic a bit but it makes more sense here to list the actual family names
-    }
+    # if (core_or_all == "core") {
+    #   classif_filt <- classification %>%
+    #     filter(Core == "yes") # %>%
+    #     # mutate(Family_group = ifelse(Family_group == "ICTV-named", Family, Family_group)) # This is breaking the logic a bit but it makes more sense here to list the actual family names
+    # }
     
-    classified_taxa[[core_or_all]][[tl]] <- classif_filt %>%
+    core_taxonomy[[tl]] <- classification %>%
+      filter(Core == "yes") %>%
+      count(.data[[tl]], name = "contigs")
+    
+    classified_taxa[[tl]] <- classif_filt %>%
       select(starts_with(tl)) %>%
       filter(!str_detect(.data[[tax_group]], "Unclassified") & !str_detect(.data[[tax_group]], "unclassified")) %>%
       distinct() %>%
@@ -19,7 +28,7 @@ for (core_or_all in c("core", "all")) {
       summarise(taxa = n()) %>%
       rename("tax_group" = all_of(tax_group))
   }
-}
+# }
 
 pretty_pie <- list()
 
