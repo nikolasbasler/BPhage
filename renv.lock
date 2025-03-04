@@ -313,6 +313,26 @@
       ],
       "Hash": "ddbdf53d15b47be4407ede6914f56fbb"
     },
+    "RLdbRDA": {
+      "Package": "RLdbRDA",
+      "Version": "0.1.2",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "raeslab",
+      "RemoteRepo": "RLdbRDA",
+      "RemoteRef": "main",
+      "RemoteSha": "50a684ae721f927377fe2453b2e11db17f50bd06",
+      "Requirements": [
+        "dplyr",
+        "ggplot2",
+        "magrittr",
+        "tibble",
+        "tidyr",
+        "vegan"
+      ],
+      "Hash": "9886f296dd61ce4d925748cf9441cf28"
+    },
     "Rcpp": {
       "Package": "Rcpp",
       "Version": "1.0.13-1",

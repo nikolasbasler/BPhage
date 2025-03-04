@@ -34,6 +34,7 @@ for (completeness_cutoff in cutoffs) {
   lifestyle_tibble <- list()
   joined_tibble_all <- list()
   lifestyle_bars <- list()
+  lifestyle_bars_horizontal <- list()
   for (tool in names(prediction_result)) {
     extended <- read.delim("output/core_contig_refinement/extended_contigs_checkv/quality_summary.tsv") %>%
       tibble() %>%
@@ -86,7 +87,11 @@ for (completeness_cutoff in cutoffs) {
         scale_fill_manual(values = lifestyle_colors) +
         labs(title = paste0(set, " - completeness: >=", completeness_cutoff, "%"),
              fill = "Lifestyle") +
-        theme(legend.position = "bottom")
+        theme_minimal() +
+        theme(legend.position = "bottom", legend.justification = "center") 
+      lifestyle_bars_horizontal[[tool]][[set]] <- lifestyle_bars[[tool]][[set]] + 
+        coord_flip() +
+        scale_x_discrete(limits = rev)
     }
   }
   
@@ -119,6 +124,8 @@ for (completeness_cutoff in cutoffs) {
       # ggsave(paste0("output/R/lifestyle/", set, ".completeness_", completeness_cutoff,".pdf"),
       ggsave(paste0("output/R/lifestyle/", tool, "_", set, ".completeness_", completeness_cutoff,".pdf"),
              lifestyle_bars[[tool]][[set]], width = 3.75, height = 7)
+      ggsave(paste0("output/R/lifestyle/", tool, "_", set, ".completeness_", completeness_cutoff,"_horizontal.pdf"),
+             lifestyle_bars_horizontal[[tool]][[set]], width = 7, height = 3.75)
     }
     write_csv(lifestyle_tibble[[tool]],
               # paste0("output/R/lifestyle/lifestyle_stats.completeness_", completeness_cutoff, ".csv"))

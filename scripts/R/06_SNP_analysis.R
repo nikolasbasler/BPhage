@@ -3,7 +3,7 @@ library(patchwork)
 library(ggtree)
 library(RLdbRDA)
 source("scripts/R/custom_rldbrda.R")
-# library(TreeDist)
+library(vegan)
 library(tidyverse)
 
 set.seed(1)
@@ -259,24 +259,19 @@ RDA_patch_horizontal <- RDA_plots$bee / RDA_plots$phages / RDA_plots$bacteria +
 # TreeDistance(clustered$phages, clustered$bacteria)
 
 mantel_tests <- list()
-mantel_tests$bee_phages <- mantel.test(ska_matrix$bee, ska_matrix$phages) %>% 
-  unlist() %>%
-  t() %>% 
-  as.data.frame() %>%
-  mutate(z.stat = as.numeric(z.stat),
-         p = as.numeric(p))
-mantel_tests$bee_bacteria <- mantel.test(ska_matrix$bee, ska_matrix$bacteria) %>% 
-  unlist() %>%
-  t() %>% 
-  as.data.frame() %>%
-  mutate(z.stat = as.numeric(z.stat),
-         p = as.numeric(p))
-mantel_tests$phages_bacteria <- mantel.test(ska_matrix$phages, ska_matrix$bacteria) %>% 
-  unlist() %>%
-  t() %>% 
-  as.data.frame() %>%
-  mutate(z.stat = as.numeric(z.stat),
-         p = as.numeric(p))
+for (mant in c("bee_phages", "bee_bacteria", "phages_bacteria")) {
+  first_set <- str_split(mant, "_")[[1]][[1]]
+  second_set <- str_split(mant, "_")[[1]][[2]]
+  
+  mantel_tests[[mant]] <- mantel(ska_matrix[[first_set]], ska_matrix[[second_set]]) %>%
+    unlist() %>%
+    t() %>% 
+    as.data.frame() %>%
+    mutate(coeff = as.numeric(statistic),
+           p = as.numeric(signif),
+           method = unlist(method)) %>%
+    select(method, coeff, p)
+}
 
 
 pcoa_wrap_vertical <- wrap_plots(ska_plot$bee / ska_plot$phages / ska_plot$bacteria) +
@@ -301,7 +296,7 @@ ggsave("output/R/SNP_analysis/SNP_trees_horizontal.pdf", tree_wrap_horizontal,
        width = 15, height = 10)
 
 ggsave("output/R/SNP_analysis/SNP_RDA_vertical.pdf", RDA_patch_vertical,
-       width = 12, height = 3)
+       width = 9, height = 3)
 ggsave("output/R/SNP_analysis/SNP_RDA_horizontal.pdf", RDA_patch_horizontal,
        width = 8, height = 4)
 

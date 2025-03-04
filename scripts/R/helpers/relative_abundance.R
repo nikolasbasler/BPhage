@@ -274,9 +274,10 @@ average_tpm_bar_plot <- function(tpm_table, tl, hg, meta_vars, title_prefix="", 
                                 labels = c(1, ticks, max_val)) +
             guides(fill = guide_colourbar(reverse = TRUE)) +
             labs(fill=tl) +
-            theme(panel.grid.major = element_blank(),
-                  panel.grid.minor = element_blank(),
-                  panel.background = element_blank()) +
+            theme_minimal() +
+            # theme(panel.grid.major = element_blank(),
+            #       panel.grid.minor = element_blank(),
+            #       panel.background = element_blank()) +
             theme(axis.text.x = element_text(angle = 45, hjust=1)) +
             scale_x_discrete(expand = c(0.025, 0)) +
             geom_text(aes(label=in_group, y = 1.01, vjust = 0, angle = 45)) +
@@ -307,9 +308,9 @@ average_tpm_bar_plot <- function(tpm_table, tl, hg, meta_vars, title_prefix="", 
           geom_col() +
           ggtitle(paste0(title_prefix, hg_or_core, ": \"", hg,"\"")) +
           labs(fill=tl) +
-          theme_minimal() +
-          theme(panel.grid.major = element_blank(),
-            panel.grid.minor = element_blank())
+          theme_minimal() # +
+          # theme(panel.grid.major = element_blank(),
+          #   panel.grid.minor = element_blank())
       }
       if (tax == c("Prevalence_Countries")) {
           plot_list[[m_var]] <- plot_list[[m_var]] +
@@ -389,7 +390,10 @@ prevalence_histogram <- function(abtable, plot_title) {
     hist_plot <- hist_plot +
       aes(fill = as.factor(prevalence_abs)) +
       scale_fill_manual(values = prev_colors) +
-      theme(legend.position = "none")
+      theme(legend.position = "none",
+            panel.grid.major = element_blank(),
+            panel.grid.minor = element_blank(),
+            panel.background = element_blank())
   }
   return(list(table = plot_tbl, plot = hist_plot))
 }

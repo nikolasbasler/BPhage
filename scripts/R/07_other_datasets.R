@@ -67,14 +67,18 @@ stats.read.other_studies.reads <- read.delim("output/other_studies/stats.read.ot
   select(SRA, Trimmed_pairs) %>%
   left_join(., SRA_to_study, by = "SRA") %>%
   group_by(study) %>%
-  summarise(trimmed_read_pairs = sum(Trimmed_pairs))
+  summarise(trimmed_read_pairs = sum(Trimmed_pairs),
+            trimmed_reads = sum(Trimmed_pairs)*2)
 
 read_counts_and_pools <- read.delim("output/bphage_viper_output/read_stats.tsv") %>%
+  tibble() %>%
+  filter(!str_starts(Sample, "Blank")) %>%
   mutate(Trimmed_pairs = Trimmed_R1_plus_R2 / 2) %>%
   mutate(study = "BPhage") %>%
   select(study, Trimmed_pairs) %>%
   group_by(study) %>%
-  summarise(trimmed_read_pairs = sum(Trimmed_pairs)) %>%
+  summarise(trimmed_read_pairs = sum(Trimmed_pairs),
+            trimmed_reads = sum(Trimmed_pairs) * 2) %>%
   rbind(stats.read.other_studies.reads) %>%
   mutate(pools = case_when(study == "BPhage" ~ 150,
                            study == "Bonilla" ~ 2,
@@ -85,7 +89,12 @@ read_counts_and_pools <- read.delim("output/bphage_viper_output/read_stats.tsv")
                                    study == "Bonilla" ~ 100,
                                    study == "Busby" ~ 75,
                                    study == "Deboutte" ~ 6,
-                                   study == "Sbardellati" ~ 100)
+                                   study == "Sbardellati" ~ 100),
+         sampling_time = case_when(study == "BPhage" ~ "2020",
+                                   study == "Bonilla" ~ "2015/16",
+                                   study == "Busby" ~ "2020",
+                                   study == "Deboutte" ~ "2012/13",
+                                   study == "Sbardellati" ~ "2023")
          )
 
 stats.other_studies.mapped_reads <- read.csv("output/other_studies/stats.other_studies.mapped_reads.csv") %>%
@@ -128,7 +137,8 @@ core_read_presence_overlap <- ggVennDiagram(present_in_dataset,
                                                      category.names = set_names,
                                                      set_size = 5.5) +
   theme(legend.position = "none") +
-  scale_x_continuous(expand = expansion(mult = 0.1))
+  scale_x_continuous(expand = expansion(mult = 0.1)) +
+  scale_fill_gradient(low = "#8B4513", high = "#FFC300")
 core_read_presence_overlap
 read_counts_and_pools
 

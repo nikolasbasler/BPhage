@@ -352,6 +352,10 @@ for (thing in names(average_tpm_core_or_not)) {
       wid <- 20
       hei <- 40
     }
+    if (metavar == "Gut_part") {
+      wid <- 7.65
+      hei <- 7
+    }
     ggsave(paste0("output/R/relative_abundance/relative_abundance_by_metavar_core_or_not/By_prevalence_", thing, "_relative_abundance.", metavar, ".pdf"),
            average_tpm_core_or_not[[thing]]$plots[[metavar]],  width = wid, height = hei, limitsize = FALSE)
     write_csv(average_tpm_core_or_not[[thing]]$tibbles[[metavar]],
@@ -373,6 +377,7 @@ for (tl in names(prevalence_histo)) {
     wid=8
     plot <- prevalence_histo[[tl]]$plot
   }
+
   ggsave(paste0("output/R/prevalence/prevalence.",tl,".pdf"),
          plot, width=wid, height=5)
   write_csv(prevalence_histo[[tl]]$table, paste0("output/R/prevalence/prevalence.",tl,".csv"))

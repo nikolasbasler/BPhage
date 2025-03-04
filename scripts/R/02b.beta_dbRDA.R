@@ -49,16 +49,16 @@ for (tax in taxlevels) {
 }
 
 family_patch_horizontal <- RDA_plots$Family$all + RDA_plots$Family$no + RDA_plots$Family$yes +
-  plot_layout(guides = 'collect', axes = "collect")  & theme(legend.position = "bottom")
+  plot_layout(guides = 'collect', axes = "collect") & theme(legend.position = "bottom")
 
 family_patch_vertical <- RDA_plots$Family$all / RDA_plots$Family$no / RDA_plots$Family$yes +
-  plot_layout(guides = 'collect', axes = "collect")  & theme(legend.position = "bottom")
+  plot_layout(guides = 'collect', axes = "collect") & theme(legend.position = "bottom")
 
 # Save files
 system("mkdir -p output/R/beta/beta_dbRDA/")
 
 ggsave("output/R/beta/beta_dbRDA/dbRDA.Family_patch.horizontal.pdf", family_patch_horizontal, width = 13, height = 5)
-ggsave("output/R/beta/beta_dbRDA/dbRDA.Family_patch.vertical.pdf", family_patch_vertical, width = 5, height = 13)
+ggsave("output/R/beta/beta_dbRDA/dbRDA.Family_patch.vertical.pdf", family_patch_vertical, width = 3.5, height = 9.5)
 for (tax in taxlevels) {
   for (set in names(beta_dists[[tax]])) {
     write_delim(RDAs[[tax]][[set]], paste0("output/R/beta/beta_dbRDA/dbRDA.", tax, ".", plotting_lable[[set]], ".tsv"))
