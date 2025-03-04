@@ -177,12 +177,15 @@
 
 ### SNP analysis
 - mapping prep
+- SKA `SNP_analysis_all_SKA1`
+- SKA distances
+<!-- - mapping prep
 - mapping (array of 150)
 - (subspecies trimming)
 - SKA ()
 - (SKA bacteria)
 - (SKA subspecies)
-- SKA distances
+- SKA distances -->
 
 ### Additional datasets mapping
 
