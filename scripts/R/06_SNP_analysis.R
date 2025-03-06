@@ -223,9 +223,9 @@ for (set in names(ska_matrix)) {
     theme(legend.position = "bottom")
 }
 
-RDA_patch_vertical <- RDA_plots$bee + RDA_plots$phages + RDA_plots$bacteria +
+RDA_patch_horizontal <- RDA_plots$bee + RDA_plots$bacteria + RDA_plots$phages +
   plot_layout(guides = 'collect', axes = "collect")  & theme(legend.position = "bottom")
-RDA_patch_horizontal <- RDA_plots$bee / RDA_plots$phages / RDA_plots$bacteria +
+RDA_patch_vertical <- RDA_plots$bee / RDA_plots$bacteria / RDA_plots$phages +
   plot_layout(guides = 'collect', axes = "collect")  & theme(legend.position = "bottom")
 
 #####
@@ -295,9 +295,9 @@ ggsave("output/R/SNP_analysis/SNP_trees_vertical.pdf", tree_wrap_vertical,
 ggsave("output/R/SNP_analysis/SNP_trees_horizontal.pdf", tree_wrap_horizontal,
        width = 15, height = 10)
 
-ggsave("output/R/SNP_analysis/SNP_RDA_vertical.pdf", RDA_patch_vertical,
-       width = 9, height = 3)
 ggsave("output/R/SNP_analysis/SNP_RDA_horizontal.pdf", RDA_patch_horizontal,
+       width = 9, height = 3)
+ggsave("output/R/SNP_analysis/SNP_RDA_vertical.pdf", RDA_patch_vertical,
        width = 8, height = 4)
 
 
