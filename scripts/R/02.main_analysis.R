@@ -534,7 +534,7 @@ lost_bees <- discards(count_stats_core_or_not$no$ratios, min_seq_count_core_or_n
 count_stats_core_or_not$yes <- report_stats(df = phage_ab_core_or_not$yes$contig,
                                      thresholds=c(462, 1073, 2375))
 count_stats_core_or_not$yes
-min_seq_count_core_or_not$yes <- 1073 # Looks like a natural breaking point. 1 discarded ile sample.
+min_seq_count_core_or_not$yes <- 1073 # Looks like a natural breaking point. 2 discarded samples (1 ile 1 mid).
 discarded <- discards(count_stats_core_or_not$yes$ratios, min_seq_count_core_or_not$yes)$discarded
 lost_bees <- discards(count_stats_core_or_not$yes$ratios, min_seq_count_core_or_not$yes)$lost_bees # No bee pool lost completely. Only gut parts from different locations/time points.
 
