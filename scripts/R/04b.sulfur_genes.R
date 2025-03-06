@@ -1,6 +1,7 @@
 library(tidyverse)
 library(ggpubr)
 library(multcompView)
+library(patchwork)
 
 set.seed(1)
 
@@ -19,7 +20,51 @@ presence_absence <- list()
 presence_absence$Countries <- read.csv("output/R/prevalence/presence_absence.Countries.csv")
 presence_absence$Seasons <- read.csv("output/R/prevalence/presence_absence.Seasons.csv")
 
-# Nosema
+FAOSTAT_data <- read.csv("data/FAOSTAT_data_en_3-4-2025.csv") %>%
+  mutate(Country = case_when(Area == "Belgium" ~ "BE",
+                          Area == "France" ~ "FR",
+                          Area == "Germany" ~ "DE",
+                          Area == "Netherlands (Kingdom of the)" ~ "NL",
+                          Area == "Portugal" ~ "PT",
+                          Area == "Romania" ~ "RO",
+                          Area == "Switzerland" ~ "CH",
+                          Area == "United Kingdom of Great Britain and Northern Ireland" ~ "UK"
+                          )
+         ) %>%
+  mutate(Country = factor(Country, levels = c("PT", "FR", "UK", "BE", "NL", "CH", "DE", "RO"))) %>%
+  tibble()
+populations <- FAOSTAT_data %>% 
+  filter(Element %in% c("Agricultural Use", "Use per capita"),
+         Item == "Pesticides (total)") %>%
+  pivot_wider(id_cols = c(Country, Year), names_from = Element, values_from = Value) %>%
+  mutate(population = `Agricultural Use` * 1000 / `Use per capita`) %>%
+  select(Country, Year, population)
+cropland <- FAOSTAT_data %>% 
+  filter(Element %in% c("Agricultural Use", "Use per area of cropland"),
+         Item == "Pesticides (total)") %>%
+  pivot_wider(id_cols = c(Country, Year), names_from = Element, values_from = Value) %>%
+  mutate(cropland = `Agricultural Use` * 1000 / `Use per area of cropland`) %>%
+  select(Country, Year, cropland)
+agri_values <- FAOSTAT_data %>% 
+  filter(Element %in% c("Agricultural Use", "Use per value of agricultural production"),
+         Item == "Pesticides (total)") %>%
+  pivot_wider(id_cols = c(Country, Year), names_from = Element, values_from = Value) %>%
+  mutate(agri_values = `Agricultural Use` / `Use per value of agricultural production`) %>%
+  select(Country, Year, agri_values)
+
+FAOSTAT_added_data <- FAOSTAT_data %>% 
+  select(Country, Element, Item, Year, Value) %>%
+  filter(!is.na(Value)) %>%
+  pivot_wider(id_cols = c(Country, Item, Year), names_from = Element, values_from = Value) %>%
+  left_join(., populations, by = c("Country", "Year")) %>%
+  left_join(., cropland, by = c("Country", "Year")) %>%
+  left_join(., agri_values, by = c("Country", "Year")) %>%
+  mutate(`Use per area of cropland` = ifelse(is.na(`Use per area of cropland`), `Agricultural Use` / cropland, `Use per area of cropland`),
+         `Use per capita` = ifelse(is.na(`Use per capita`), `Agricultural Use` / population, `Use per capita`),
+         `Use per value of agricultural production` = ifelse(is.na(`Use per value of agricultural production`), `Agricultural Use` / agri_values, `Use per value of agricultural production`)
+         )
+
+# geom_col()# Nosema
 nosema_mapped_counts <- list()
 nosema_mapped_counts$pools <- read.delim("output/nosema_mapped_counts.tsv") %>% tibble()
 nosema_mapped_counts$rec <- read.delim("output/nosema_mapped_counts_rec.tsv") %>% tibble()
@@ -322,8 +367,130 @@ for (met_v in meta_variables) {
 #   summarise(genome_count = n(), .groups = "drop") %>%
 #   arrange(desc(product)) -> hosts_of_toxin_phages
 
+## Pesticide data
+
+# elements <- c("Agricultural Use", "Use per area of cropland", "Use per capita", "Use per value of agricultural production")
+elements <- c("Use per area of cropland", "Use per capita")
+all_insecticides <- FAOSTAT_added_data %>% 
+  distinct(Item) %>% 
+  filter(str_detect(Item, "Insecticides")) %>% 
+  unlist(use.names = FALSE)
+
+FAOSTAT_plots <- list()
+for (element in elements) {
+  FAOSTAT_plots[[element]] <- FAOSTAT_added_data %>% 
+    select(all_of(c("Country", "Year", "Item", element))) %>%
+    filter(Year >= 2019,
+           Item %in% all_insecticides) %>%
+    mutate(Year = as.character(Year)) %>%
+    ggplot(aes(x = Country, y = .data[[element]], fill = Year)) +
+    geom_col(position = "dodge") +
+    ggtitle(element) +
+    facet_wrap(~Item, scales = "free")
+}
+
+# LONG STORY SHORT: CORRELATIONS PRETTY MUCH ONLY WITH "Insecticides" (I.E. NO SPECIFICT ONE) FROM 2019 and 2020
+# Chlorinated Hydrocarbons correlate strongly but only in "Agricultural Use", i.e. not corrected for population
+# or crop land. Also, for 2019 two countries have no data on the usage, for 2020 one country. So I didn't follow it 
+# further.
+# 
+# pest_cor_raw_p <- list()
+# pest_cor_tibbles <-list()
+# pest_cor_plots <- list()
+# pest_cor_tests <- list()
+# for (element in elements) {
+#   # for (item in unique(FAOSTAT_added_data$Item)) {
+#   # for (item in c("Pesticides (total)", "Insecticides", "Herbicides", "Fungicides and Bactericides", "Plant Growth Regulators", "Rodenticides")) {
+#   for (item in c("Insecticides")) {
+#   # for (item in all_insecticides) {
+#     # for (year in as.character(2017:2020)) {
+#     for (year in as.character(2019:2020)) {
+#         cor_tibble <- FAOSTAT_added_data %>%
+#         select(all_of(c("Country", "Year", "Item", element))) %>%
+#         filter(Item == item) %>%
+#         filter(Year == year) %>%
+#         left_join(., sulf_stats$Country, by = "Country") %>%
+#         select(-sulf_genome_prop)
+# 
+#       if (nrow(cor_tibble) > 1) {
+#         pest_cor_raw_p[[paste0(element, "/", item, "/", year)]] <- cor.test(cor_tibble[[element]], cor_tibble$mean_sulf_tpm, method = "spearman")$p.value
+#         # pest_cor_raw_p[[element]][[item]][[year]] <- cor.test(cor_tibble[[element]], cor_tibble$mean_sulf_tpm, method = "spearman")$p.value
+#         correlation <- cor.test(cor_tibble[[element]], cor_tibble$mean_sulf_tpm, method = "spearman")
+#         if (correlation$p.value <= 0.05) {
+#           pest_cor_tests[[element]][[item]][[year]] <- correlation
+#           pest_cor_tibbles[[element]][[item]][[year]] <- cor_tibble
+#           pest_cor_plots[[element]][[item]][[year]] <- cor_tibble %>%
+#             ggplot(aes(x = .data[[element]], y = mean_sulf_tpm)) +
+#               geom_point() +
+#               geom_smooth(method = "glm", formula = y ~ x) +
+#               stat_cor(method = "spearman", label.x = 0, label.y = max(cor_tibble$mean_sulf_tpm)*1.1) +
+#               ggtitle(paste0(element,  " - ", item, " - ", year))
+#         }
+#       }
+#     }
+#   }
+# }
+
+pest_cor_tibble <- FAOSTAT_added_data %>%
+  filter(Year >= 2019,
+         Item == "Insecticides") %>%
+  select(all_of(c("Country", "Year", "Use per capita"))) %>%
+  left_join(., sulf_stats$Country, by = "Country") %>%
+  select(-sulf_genome_prop) %>%
+  pivot_wider(id_cols = c("Country", "mean_sulf_tpm"), names_from = Year, values_from = .data[[element]]) %>%
+  rename(use_per_cap_2019 = `2019`,
+         use_per_cap_2020 = `2020`)
+pest_cor_test_2019 <- cor.test(pest_cor_tibble$mean_sulf_tpm, pest_cor_tibble$use_per_cap_2019)
+pest_cor_test_2020 <- cor.test(pest_cor_tibble$mean_sulf_tpm, pest_cor_tibble$use_per_cap_2020)
+
+pest_cor_plot <- pest_cor_tibble %>%
+  ggplot() +
+  geom_point(aes(x = use_per_cap_2019, y = mean_sulf_tpm, color = "2019")) +
+  geom_smooth(aes(x = use_per_cap_2019, y = mean_sulf_tpm, color = "2019"), 
+              method = "glm", formula = y ~ x) +
+  geom_point(aes(x = use_per_cap_2020, y = mean_sulf_tpm, color = "2020")) +
+  geom_smooth(aes(x = use_per_cap_2020, y = mean_sulf_tpm, color = "2020"), 
+              method = "glm", formula = y ~ x) +
+  stat_cor(aes(x = use_per_cap_2019, y = mean_sulf_tpm), method = "spearman", 
+           label.x = 0, label.y = max(pest_cor_tibble$mean_sulf_tpm) * 1.1, color = "blue") +
+  stat_cor(aes(x = use_per_cap_2020, y = mean_sulf_tpm), method = "spearman", 
+           label.x = 0, label.y = max(pest_cor_tibble$mean_sulf_tpm), color = "red") +
+  scale_color_manual(values = c("2019" = "blue", "2020" = "red"), name = "Year") +
+  labs(x = "Insecticide use per capita",
+       y = "Mean relative abundance of sulfur phages") +
+  theme_minimal()
 
 
+pest_cor_c_s_tibble <- sulf_meta %>%
+  filter(sulf_metabolism) %>%
+  group_by(Country, Season) %>%
+  mutate(c_s_mean_sulf_tpm = mean(sulf_tpm)) %>%
+  filter(c_s_mean_sulf_tpm > 0) %>%
+  ungroup() %>%
+  select(Country, Season, c_s_mean_sulf_tpm) %>%
+  distinct() %>%
+  arrange(desc(c_s_mean_sulf_tpm)) %>%
+  full_join(., pest_cor_tibble, by = "Country")
+
+c_s_cor_tests <- list()
+c_s_cor_plots <- list()
+for (season in c("spr", "sum", "aut")) {
+  for (year in c("use_per_cap_2019", "use_per_cap_2020")) {
+    bla <- pest_cor_c_s_tibble %>%
+      filter(Season == season) %>%
+      select(Country, Season, c_s_mean_sulf_tpm, all_of(year))
+    c_s_cor_tests[[year]][[season]] <- cor.test(bla$c_s_mean_sulf_tpm, bla[[year]])
+    
+    c_s_cor_plots[[year]][[season]] <- bla %>%
+      ggplot(aes(x = .data[[year]], y = c_s_mean_sulf_tpm)) +
+      geom_point() +
+      geom_smooth(method = "glm", formula = y ~ x) +
+      stat_cor(method = "spearman", label.x = 0, label.y = max(bla$c_s_mean_sulf_tpm)*1.1) +
+      ggtitle(paste0(year, " - ", season))
+    
+  }
+}
+c_s_wrap <- wrap_plots(wrap_plots(c_s_cor_plots$use_per_cap_2019) /wrap_plots(c_s_cor_plots$use_per_cap_2020))
 
 ## Save files
 system("mkdir -p output/R/gene_content/sulfur")
@@ -352,3 +519,8 @@ for (set in names(nosema_sulf_cor_plot)) {
   ggsave(paste0("output/R/gene_content/sulfur/nosema_sulfur_correlation.", set, ".pdf"),
          nosema_sulf_cor_plot[[set]], width = 6, height = 6)
 }
+
+
+ggsave("output/R/gene_content/sulfur/pest_cor_plot.pdf", pest_cor_plot, width = 8, height = 6)
+ggsave("output/R/gene_content/sulfur/pest_c_s_cor_plot.pdf", c_s_wrap, width = 12, height = 8)
+
