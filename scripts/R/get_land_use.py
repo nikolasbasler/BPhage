@@ -23,7 +23,7 @@ def get_cropland_fraction(lat, lon):
     try:
         # Create a point geometry and buffer it to a 2 km radius.
         center = ee.Geometry.Point([lon, lat])
-        region = center.buffer(5000)
+        region = center.buffer(2000)
         
         # Compute the mean cropland fraction over the circular region.
         # Update the band name below if necessary.
@@ -54,7 +54,7 @@ df["cropland_fraction"] = df.apply(
 print(df)
 
 # Save the results to a new CSV
-output_file = "output/R/gene_content/sulfur/land_cover_results.csv"
+output_file = "data/land_cover_results.csv"
 df.to_csv(output_file, index=False)
 
 # print(f"Results saved to {output_file}")
