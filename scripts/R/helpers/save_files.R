@@ -206,6 +206,7 @@ for (tax in names(beta_plot_list)) {
 }
 
 # Absolute counts
+write_csv(viral_loads, "output/R/absolute_counts.csv")
 for (tax in names(beta_abs_plot_list)) {
   pcoa_path <- paste0("output/R/beta/beta_all/", tax, "_pcoa")
   pcoa_path_core_or_not <- paste0("output/R/beta/beta_core_or_not/", tax, "_pcoa")
@@ -270,7 +271,11 @@ for (tl in names(tax_collapse_heatmaps)) {
 
 ## TPM ####
 system("mkdir -p output/R/relative_abundance/relative_abundance_overall/")
+
 write_csv(phage_tpm$contig, "output/R/relative_abundance/phage_tpm.csv")
+for (merge in names(phage_tpm_meta_merges)) {
+  write_csv(phage_tpm_meta_merges[[merge]], paste0("output/R/relative_abundance/phage_tpm_meta_merge.", merge, ".csv"))
+}
 
 # Hostgroup
 for (p in names(hostgroup_hist)) {

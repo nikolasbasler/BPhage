@@ -20,6 +20,11 @@ presence_absence <- list()
 presence_absence$Countries <- read.csv("output/R/prevalence/presence_absence.Countries.csv")
 presence_absence$Seasons <- read.csv("output/R/prevalence/presence_absence.Seasons.csv")
 
+cropland_fraction <- read.csv("data/land_cover_results.csv") %>% 
+  tibble() %>%
+  mutate(cropland_fraction = cropland_fraction / 100) %>%
+  rename(cropland_fraction_2k_radius = cropland_fraction)
+
 FAOSTAT_pest_data <- read.csv("data/FAOSTAT_pest_data_en_3-4-2025.csv") %>%
   mutate(Country = case_when(Area == "Belgium" ~ "BE",
                           Area == "France" ~ "FR",
@@ -368,7 +373,6 @@ csq <- chisq.test(cont_filt)
 csq$stdres
 csq$residuals
 
-
 # for_association_test <- phold_predictions_with_extensions %>%
 #   tibble() %>%
 #   filter(str_starts(contig_id, "NODE")) %>%
@@ -587,7 +591,7 @@ for (item in names(season_cor_plots)) {
 
 # Procedure
 # 1. All pesticides together
-# wraps$`Pesticides (total)`
+wraps$`Pesticides (total)`
 
 
 
@@ -682,6 +686,62 @@ for (season in c("spr", "sum", "aut")) {
   }
 }
 c_s_wrap <- wrap_plots(wrap_plots(c_s_cor_plots$use_per_cap_2019) /wrap_plots(c_s_cor_plots$use_per_cap_2020))
+
+
+
+pest_use_radius <- FAOSTAT_added_data %>%
+  filter(Year == 2019) %>%
+  select(Country, Item, `Use per area of cropland`) %>%
+  distinct() %>%
+  left_join(., cropland_fraction, by = "Country") %>%
+  select(-Latitude, -Longitude) %>%
+  mutate(pest_use_2km = `Use per area of cropland` * cropland_fraction_2k_radius)
+
+radius_plots <- list()
+radius_p_values <- list()
+for (item in unique(pest_use_radius$Item)) {
+  for (season in c("spr", "sum", "aut")) {
+    radius_tibble <- pest_use_radius %>%
+      filter(Item == item) %>%
+      # left_join(., sulf_stats$Country, by = "Country")
+      left_join(., pest_cor_c_s_tibble, by = "Country") %>%
+      filter(Season  == season)
+
+    
+    radius_p_values[[item]][[season]] <- cor.test(radius_tibble$pest_use_2km, radius_tibble$c_s_mean_sulf_tpm, method = "spearman")
+    
+    radius_plots[[item]][[season]] <- radius_tibble %>%
+      ggplot(aes(x = pest_use_2km, y = c_s_mean_sulf_tpm)) +
+      geom_point() +
+      geom_smooth(method = "glm", formula = y ~ x) +
+      stat_cor(method = "spearman", label.x = 0, label.y = max(radius_tibble$c_s_mean_sulf_tpm)*1.1) +
+      ggtitle(paste0(item, " - ", season))
+  }
+}
+
+pest_use_radius %>%
+  filter(Item == "Pesticides (total)") %>%
+  left_join(., sulf_stats$Country, by = "Country") %>%
+  ggplot(aes(x = pest_use_2km, y = mean_sulf_tpm)) +
+  geom_point() +
+  geom_smooth(method = "glm", formula = y ~ x) +
+  stat_cor(method = "spearman") +
+  ggtitle("all pests all seasons")
+wrap_plots(radius_plots$`Pesticides (total)`) + plot_layout(axis_titles = "collect")
+wrap_plots(radius_plots$Insecticides) + plot_layout(axis_titles = "collect")
+wrap_plots(radius_plots$Herbicides) + plot_layout(axis_titles = "collect")
+wrap_plots(radius_plots$`Fungicides and Bactericides`) + plot_layout(axis_titles = "collect")
+wrap_plots(radius_plots$`Plant Growth Regulators`) + plot_layout(axis_titles = "collect")
+
+sulf_meta %>%
+  left_join(., classification, by = "contig") %>%
+  select(contig, Core, sulf_metabolism) %>%
+  distinct() %>%
+  group_by(sulf_metabolism, Core) %>%
+  summarise(counts = n()) %>%
+  group_by(Core) %>%
+  mutate(prev = counts / sum(counts)) %>%
+  arrange(Core)
 
 ## Save files
 system("mkdir -p output/R/gene_content/sulfur")

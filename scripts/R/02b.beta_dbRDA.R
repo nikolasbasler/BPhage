@@ -29,7 +29,7 @@ RDA_plots <- list()
 for (tax in taxlevels) {
   for (set in names(beta_dists[[tax]])) {
     meta_filt <- metadata %>%
-      filter(Sample_ID %in% rownames(as.matrix(beta_dists[[tax]][[set]]))) %>%
+      filter(Sample_ID %in% rownames(as.matrix(beta_dists[[tax]][[set]]))) %>% 
       select(Country, Season, Gut_part)
     r_names_dist <- rownames(as.matrix(beta_dists[[tax]][[set]]))
     if (!identical(r_names_dist, rownames(meta_filt))) {
