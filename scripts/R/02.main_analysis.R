@@ -320,7 +320,7 @@ for (core_or_not in unique(classification$Core)) {
                  classif = classification))
 }
 
-## Generate contig abundance table with merged metadata variables 
+## Generate contig abundance and TPM tables with merged metadata variables 
 # (e.g. all gut parts or all samples from the same country merged). Used 
 # for prevalence plots
 meta_merges <- list(Bee_pools = "Gut_part", 
@@ -328,13 +328,26 @@ meta_merges <- list(Bee_pools = "Gut_part",
                     Countries = c("Season", "Gut_part", "Hive_ID"),
                     Seasons = c("Country", "Gut_part", "Hive_ID"))
 phage_ab_meta_merges <- list()
+phage_tpm_meta_merges <- list()
 phage_ab_meta_merges$Samples <- phage_ab$contig
 for (merge in names(meta_merges)) {
   phage_ab_meta_merges[[merge]] <- meta_sum(ab_table = phage_ab$contig, 
                                             meta_vars = meta_merges[[merge]])
+  phage_tpm_meta_merges[[merge]] <- calc_tpm(abtable = phage_ab_meta_merges[[merge]],
+                                 level = "contig", 
+                                 lengths_df = phage_lengths$contig)
 }
 
 ## Generate TPM tables for different taxonomic levels. ####
+# 
+# calc_tpm <- function(abtable, level, lengths_df) {
+#   abtable %>%
+#     inner_join(., lengths_df, by=level) %>%
+#     mutate(across(-all_of(level), ~./length_kb)) %>% 
+#     select(-length_kb) %>% 
+#     mutate(across(-all_of(level), ~./sum(.)))
+# }
+
 phage_tpm <- list()
 for (lvl in names(phage_ab)) {
   phage_tpm[[lvl]] <- calc_tpm(abtable = phage_ab[[lvl]], 

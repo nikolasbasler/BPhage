@@ -93,7 +93,8 @@ meta_sum <- function(ab_table, meta_vars) {
     mutate(merged_count = sum(count)) %>% 
     select(contig, merged, merged_count) %>%
     unique() %>%
-    pivot_wider(names_from = merged, values_from = merged_count)
+    pivot_wider(names_from = merged, values_from = merged_count) %>%
+    ungroup()
 }
 
 tax_lengths <- function(tax_level, classif) {
