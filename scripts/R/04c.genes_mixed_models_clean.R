@@ -8,8 +8,8 @@ library(patchwork)
 # library(car)
 # library(emmeans)
 # library(ggpubr)
-# library(gMCPLite)
-library(gMCP)
+library(gMCPLite)
+# library(gMCP)
 
 forest_plot <- function(tbl, axis_name = NULL, plot_title = NULL) {
   tbl %>%
@@ -93,7 +93,7 @@ CDSs_with_metabolism_kegg <- kegg_and_phold %>%
   filter(Pathway_category == "Metabolism" | 
            product %in% c("chitinase", "glutamine amidotransferase", 
                           "PnuC-like nicotinamide mononucleotide transport")) %>%
-  filter(!product %in% c("decoy of host sigma70", "MazF-like growth inhibitor", 
+  filter(!product %in% c("decoy of host sigma70", "MazF-like growth inhibitor",
                          "toxin", "VFDB virulence factor protein")) %>%
   distinct(cds_id) %>% 
   unlist(use.names = FALSE)
@@ -109,12 +109,9 @@ grene_presence_on_contigs <- phold_predictions_with_extensions %>%
   select(contig, product) %>% 
   mutate(present = 1) %>%
   distinct() %>% 
-  # mutate(product = str_replace_all(product, "-", "_"),
-  #        product = str_replace_all(product, " ", "_")) %>%
   pivot_wider(names_from = product, values_from = present, values_fill = 0)
 
-gene_tpm_long <- list()
-gene_tpm_long$Sample_ID <- grene_presence_on_contigs %>%
+gene_tpm <- grene_presence_on_contigs %>%
   pivot_longer(-contig, names_to = "gene", values_to = "present") %>%
   left_join(., phage_tpm, by = "contig") %>% 
   mutate(across(-c(contig, gene, present), ~ .x * present)) %>%
@@ -139,17 +136,15 @@ gene_tpm_long$Sample_ID <- grene_presence_on_contigs %>%
 #   distinct()
 
 
-genes_of_interest <- unique(gene_tpm_long$Sample_ID$gene)
-
-gene_tpm_long$Sample_ID
+genes_of_interest <- unique(gene_tpm$gene)
 
 test_tibble_tpm_log <- list()
 model_tpm_log <- list()
 
-model_anova <- list()
-pw_results <- list()
-emm_plots <- list()
-emm_df <- list()
+# model_anova <- list()
+# pw_results <- list()
+# emm_plots <- list()
+# emm_df <- list()
 
 # goi <- "phosphoadenosine phosphosulfate reductase" # sing # CALCULATED
 # goi <- "levanase" # CALCULATED
@@ -169,7 +164,7 @@ emm_df <- list()
 
 for (goi in genes_of_interest) {
   
-  test_tibble_tpm_log[[goi]] <- gene_tpm_long$Sample_ID %>%
+  test_tibble_tpm_log[[goi]] <- gene_tpm %>%
     filter(gene == goi) %>%
     left_join(., metadata[c("Sample_ID", "Country", "Hive_ID", "Season", "Gut_part")], by = "Sample_ID") %>%
     distinct() %>%
@@ -178,7 +173,10 @@ for (goi in genes_of_interest) {
     # left_join(., cropland_and_FAO_ranks, by = "Country") %>%
     mutate(Gut_part = factor(Gut_part, levels = c("rec", "ile", "mid"))) %>%
     mutate(log_tpm = log10(tpm)) %>%
-    filter(!is.infinite(log_tpm))
+    filter(!is.infinite(log_tpm)) %>%
+    group_by(Hive_ID) %>%
+    # filter(n() > 4) %>%
+    ungroup()
   
   countries_left <- test_tibble_tpm_log[[goi]] %>%
     distinct(Country) %>%
@@ -187,12 +185,14 @@ for (goi in genes_of_interest) {
   if (countries_left == 8 ) {
     model_tpm_log[[goi]] <- lmer(log_tpm ~ cropland_fraction_2k_radius + Gut_part + Season +
                                    (1 | Hive_ID), data = test_tibble_tpm_log[[goi]])
+    # summary(model_tpm_log[[goi]])
     
-    # model_tpm_log[[goi]] <- lmer(log_tpm ~ cropland_fraction_2k_radius * Gut_part +
-    #        cropland_fraction_2k_radius * Season + (1 | Hive_ID),
-    #      data = test_tibble_tpm_log[[goi]])
-    
-    
+
+    # model_tpm_log[[goi]] <- lmer(log_tpm ~ cropland_fraction_2k_radius + Gut_part + Season +
+    #                                (1 | Hive_ID / Country),
+    #                              data = test_tibble_tpm_log[[goi]])
+    # summary(model_tpm_log[[goi]])
+
     # As categorical
     # model_tpm_log[[goi]] <- lmer(log_tpm ~ Country + Gut_part + Season +
     #                                (1 | Hive_ID), data = test_tibble_tpm_log[[goi]])
@@ -226,13 +226,30 @@ for (goi in genes_of_interest) {
   }
 }
 
+# tpm_genes_of_particular_interest <- c("phosphoadenosine phosphosulfate reductase", "levanase", "PnuC-like nicotinamide mononucleotide transport")
+# tpm_genes_of_particular_interest <- c("phosphoadenosine phosphosulfate reductase", 
+#                                       "levanase", "glucosyltransferase", "chitinase",
+#                                       "PnuC-like nicotinamide mononucleotide transport")
 
-significant_in_anova <- c("phosphoadenosine phosphosulfate reductase", "levanase")
+tpm_genes_of_particular_interest <- names(model_tpm_log)
 
-items_of_interest <- c("cropland_fraction_2k_radius", "Pesticides (total)", "Insecticides",
-                       "Herbicides", "Fungicides and Bactericides")
-cropland_and_FAO %>% colnames()
+summary(model_tpm_log$`phosphoadenosine phosphosulfate reductase`)
+summary(model_tpm_log$levanase)
+summary(model_tpm_log$glucosyltransferase)
+summary(model_tpm_log$chitinase)
+summary(model_tpm_log$`PnuC-like nicotinamide mononucleotide transport`)
 
+summary(model_tpm_log$toxin)
+summary(model_tpm_log$`VFDB virulence factor protein`)
+summary(model_tpm_log$`MazF-like growth inhibitor`)
+
+
+# 
+# significant_in_anova <- c("phosphoadenosine phosphosulfate reductase", "levanase")
+# 
+# items_of_interest <- c("cropland_fraction_2k_radius", "Pesticides (total)", "Insecticides",
+#                        "Herbicides", "Fungicides and Bactericides")
+# cropland_and_FAO %>% colnames()
 # 
 # trend_tibble <- list()
 # trend_plot <- list()
@@ -253,20 +270,20 @@ cropland_and_FAO %>% colnames()
 #       mutate(abs_value = abs(value)) %>%
 #       group_by(name) %>%
 #       mutate(rank_value = rank(abs_value))
-#         
+# 
 #     scaling_factor <- unique(trend_tibble[[goi]][[item]]$scaling_factor)
-#       
+# 
 #     trend_plot[[goi]][[item]] <- ggplot(trend_tibble[[goi]][[item]], aes(x = Country, y = value_scaled, fill = name)) +
 #       geom_col(position = "dodge") +
 #       ggtitle(paste0(goi, " - ", item)) +
 #       scale_y_continuous(
 #         name = "emmean",
 #         sec.axis = sec_axis(~ . / scaling_factor , name = item))
-#     
+# 
 #     trend_plot_ranked[[goi]][[item]] <- ggplot(trend_tibble[[goi]][[item]], aes(x = Country, y = rank_value, fill = name)) +
 #       geom_col(position = "dodge") +
 #       ggtitle(paste0(goi, " - ", item))
-#     
+# 
 #   }
 # }
 
@@ -298,9 +315,8 @@ slopes$cropland$tpm <- coeffs_cropland_tpm_log %>%
   filter(metric == "cropland_fraction_2k_radius") %>%
   mutate(raw_significant = ifelse(`Pr(>|t|)` <= 0.05, "*", "n.s."),
          p_adjusted = p.adjust(`Pr(>|t|)`, method = "BH"),
-         adjusted_significant = ifelse(p_adjusted <= 0.05, "*", "n.s."))
-
-tpm_genes_of_particular_interest <- c("phosphoadenosine phosphosulfate reductase", "levanase", "PnuC-like nicotinamide mononucleotide transport")
+         adjusted_significant = ifelse(p_adjusted <= 0.05, "*", "n.s.")) %>%
+  mutate(test_name = paste0(gene, "; ", metric), .before = "gene")
 
 summary(model_tpm_log$`phosphoadenosine phosphosulfate reductase`)
 summary(model_tpm_log$levanase)
@@ -361,8 +377,9 @@ summary(model_tpm_log$`PnuC-like nicotinamide mononucleotide transport`)
 total_pest_test_tibble_log_tpm <- list()
 total_pest_model_log_tpm <- list()
 coeffs_total_pest_log_tpm <- tibble()
+# for (gopi in tpm_genes_of_particular_interest) {
 for (gopi in tpm_genes_of_particular_interest) {
-  for (item in "Pesticides (total)") {
+    for (item in "Pesticides (total)") {
     # total_pest_test_tibble_log_tpm[[gopi]] <- FAOSTAT_added_data %>% 
     #   filter(Item == item) %>% 
     #   select(Country, est_use_in_2k_radius) %>%
@@ -409,7 +426,9 @@ slopes$pesticides$tpm <- coeffs_total_pest_log_tpm %>%
   filter(metric == "est_use_in_2k_radius") %>%
   mutate(raw_significant = ifelse(`Pr(>|t|)` <= 0.05, "*", "n.s."),
          p_adjusted = p.adjust(`Pr(>|t|)`, method = "BH"),
-         adjusted_significant = ifelse(p_adjusted <= 0.05, "*", "n.s."))
+         adjusted_significant = ifelse(p_adjusted <= 0.05, "*", "n.s.")) %>%
+  mutate(test_name = paste0(gene, "; ", Item), .before = "gene")
+
 
 
 pest_groups_test_tibble_log_tpm <- list()
@@ -446,9 +465,8 @@ slopes$pest_groups$tpm <- coeffs_pest_groups_log_tpm %>%
   filter(metric == "est_use_in_2k_radius") %>%
   mutate(raw_significant = ifelse(`Pr(>|t|)` <= 0.05, "*", "n.s."),
          p_adjusted = p.adjust(`Pr(>|t|)`, method = "BH"),
-         adjusted_significant = ifelse(p_adjusted <= 0.05, "*", "n.s."))
-
-
+         adjusted_significant = ifelse(p_adjusted <= 0.05, "*", "n.s.")) %>%
+  mutate(test_name = paste0(gene, "; ", Item), .before = "gene")
 
 herbs <- test_tibble_tpm_log[[gopi]] %>% 
   colnames() %>% 
@@ -479,8 +497,9 @@ specific_pests_tibble_log_tpm <- list()
 specific_pests_model_log_tpm <-list()
 coeffs_specific_pests_log_tpm <- tibble()
 for (gopi in tpm_genes_of_particular_interest) {
-  for (item in gene_pest_combos[[gopi]]) {
-    # specific_pests_tibble_log_tpm[[gopi]][[item]] <- FAOSTAT_added_data %>% 
+  # for (item in gene_pest_combos[[gopi]]) {
+  for (item in c(herbs, fungs, insects)) {
+      # specific_pests_tibble_log_tpm[[gopi]][[item]] <- FAOSTAT_added_data %>% 
     #   filter(Item == item) %>%
     #   select(Country, est_use_in_2k_radius) %>%
     #   left_join(., test_tibble_tpm_log[[gopi]], by = "Country")
@@ -510,7 +529,9 @@ slopes$specific_pests$tpm <- coeffs_specific_pests_log_tpm %>%
   filter(metric == "est_use_in_2k_radius") %>%
   mutate(raw_significant = ifelse(`Pr(>|t|)` <= 0.05, "*", "n.s."),
          p_adjusted = p.adjust(`Pr(>|t|)`, method = "BH"),
-         adjusted_significant = ifelse(p_adjusted <= 0.05, "*", "n.s."))
+         adjusted_significant = ifelse(p_adjusted <= 0.05, "*", "n.s.")) %>%
+  mutate(test_name = paste0(gene, "; ", Item), .before = "gene")
+
 
 
 #########
@@ -555,42 +576,37 @@ slopes$specific_pests$tpm <- coeffs_specific_pests_log_tpm %>%
 
 ## THE STORY:
 
-layered_p_values <- list()
-# layered_p_values$cropland <- slopes$cropland$tpm$p_adjusted %>%
-layered_p_values$cropland <- slopes$cropland$tpm$`Pr(>|t|)` %>%
-  setNames(slopes$cropland$tpm$gene)
-layered_p_values$pesticides <- slopes$pesticides$tpm %>%
-  filter(gene == "phosphoadenosine phosphosulfate reductase") %>%
-  select(Item, `Pr(>|t|)`) %>%
-  deframe()
-layered_p_values$pest_groups <- slopes$pest_groups$tpm %>%
-  filter(gene == "phosphoadenosine phosphosulfate reductase") %>%
-  select(Item, `Pr(>|t|)`) %>%
-  deframe()
-layered_p_values$specific_pests <- slopes$specific_pests$tpm %>%
-  filter(gene == "phosphoadenosine phosphosulfate reductase") %>%
-  select(Item, `Pr(>|t|)`) %>%
-  deframe()
+layered_p_adjustments <- function(slop = slopes) {
 
-layered_p_adjustments <- function(p_value_list = layered_p_values) {
-
-  hypotheses <- c(names(p_value_list$cropland),
-                  names(p_value_list$pesticides),
-                  names(p_value_list$pest_groups),
-                  names(p_value_list$specific_pests)
-                  )
-
-  herbs_in_hypoths <- names(p_value_list$specific_pests) %>%
-    tibble() %>%
-    filter(str_detect(., "Herbicides ")) %>%
-    distinct(.) %>%
+  p_value_list <- list()
+  hypotheses <- c()
+  for (level in c("cropland", "pesticides", "pest_groups", "specific_pests")) {
+    p_value_list[[level]] <- slop[[level]]$tpm %>%
+      arrange(test_name) %>%
+      select(test_name, `Pr(>|t|)`) %>%
+      deframe()
+    hypotheses <- c(hypotheses, names(p_value_list[[level]]))
+  }
+  
+  layers <- list()
+  layers$genes <- slop$cropland$tpm$gene
+  layers$cropland <- "cropland_fraction_2k_radius"
+  layers$pesticides <- "Pesticides (total)"
+  layers$pest_groups <- unique(slop$pest_groups$tpm$Item)
+  layers$specific$`Fungicides and Bactericides` <- slop$specific_pests$tpm %>%
+    filter(str_detect(Item, "Fung & Bact ")) %>%
+      distinct(Item) %>%
+      unlist(use.names = FALSE)
+  layers$specific$Herbicides <- slop$specific_pests$tpm %>%
+    filter(str_detect(Item, "Herbicides ")) %>%
+    distinct(Item) %>%
     unlist(use.names = FALSE)
-  fungs_in_hypoths <- names(p_value_list$specific_pests) %>%
-    tibble() %>%
-    filter(str_detect(., "Fung & Bact ")) %>%
-    distinct(.) %>%
+  layers$specific$Insecticides <- slop$specific_pests$tpm %>%
+    filter(str_detect(Item, "Insecticides ")) %>%
+    distinct(Item) %>%
     unlist(use.names = FALSE)
-
+  
+  
   # Define the initial weights.
   # Here we allocate alpha equally to the Stage 1 tests (genes) and zero to the rest.
   # When the hypothesis of a gene-test is rejected, its weight will be transferred.
@@ -601,22 +617,24 @@ layered_p_adjustments <- function(p_value_list = layered_p_values) {
   # Create an empty transition matrix.
   transitions <- matrix(0, nrow = length(hypotheses), ncol = length(hypotheses),
                         dimnames = list(hypotheses, hypotheses))
-  # Define transitions from Stage 1 (genes) to Stage 2 (total pesticide test).
-  # Each gene for which the hypothesis is rejected passes its entire weight to the Stage 2 test.
-  for(g in names(p_value_list$cropland)){
-    transitions[g, "Pesticides (total)"] <- 1
+  for (gene in layers$genes) {
+    # Layer 1 to 2: cropland fraction to total pest
+    L1_test_name <- paste0(gene, "; cropland_fraction_2k_radius")
+    L2_test_name <- paste0(gene, "; Pesticides (total)")
+    transitions[L1_test_name, L2_test_name] <- 1
+    
+    # Later 2 to 3: total pest to pest group
+    for (Layer3 in layers$pest_groups) {
+      L3_test_name <- paste0(gene, "; ", Layer3)
+      transitions[L2_test_name, L3_test_name] <- 1 / length(layers$pest_groups)
+      
+      # Layer 3 to 4: pest group to specitic pest
+      for (Layer4 in layers$specific[[Layer3]]) {
+        L4_test_name <- paste0(gene, "; ", Layer4)
+        transitions[L3_test_name, L4_test_name] <- 1 / length(layers$specific[[Layer3]])
+      }
+    }
   }
-  # Define transitions from Stage 2 (TotalPest) to Stage 3 (pesticide groups).
-  # If the TotalPest test is rejected, split its weight equally among all 4 group tests.
-  transitions["Pesticides (total)", names(p_value_list$pest_groups)] <- rep(1/length(p_value_list$pest_groups), length(p_value_list$pest_groups))
-  # Define transitions from Stage 3 to Stage 4.
-  # Only groups with further tests pass on weight.
-  # For Group2 (assumed to have 6 specific pesticide tests):
-  transitions["Fungicides and Bactericides", fungs_in_hypoths] <- rep(1/length(fungs_in_hypoths), length(fungs_in_hypoths))
-  # For Group3 (assumed to have 7 specific pesticide tests):
-  transitions["Herbicides", herbs_in_hypoths] <- rep(1/length(herbs_in_hypoths), length(herbs_in_hypoths))
-  # Groups that are terminal (e.g., Group1 and Group4) need no transitions.
-  
   # Read the transition matrix line by line, where the row name is the test in 
   # question and the column name is the test in the next layer of testing.
   # A 0 means that this test in the row name is not propagted to the test in the 
@@ -631,12 +649,71 @@ layered_p_adjustments <- function(p_value_list = layered_p_values) {
   # Optionally, inspect the graph.
   print(graph)
   
-  cor_mat <- matrix(as.numeric(NA), nrow = length(hypotheses), ncol = length(hypotheses),
-                                     dimnames = list(hypotheses, hypotheses))
-  cor_mat[row(cor_mat)==col(cor_mat)] = 1
+  # Cor mat
+  cor_mat <- transitions %>%
+    as.data.frame() %>%
+    rownames_to_column("test_name") %>%
+    pivot_longer(-test_name) %>%
+    mutate(value = ifelse(value != 0, NA, 0),
+           value = ifelse(test_name == name, 1, value)) %>%
+    pivot_wider() %>%
+    column_to_rownames("test_name") %>%
+    as.matrix()
+  # # Ensure the matrix is symmetric by copying the upper triangle to the lower triangle
+  # # (if your procedure requires a symmetric correlation matrix)
+  cor_mat[lower.tri(cor_mat)] <- t(cor_mat)[lower.tri(cor_mat)]
 
-  result1 <- graphTest(pvalues = p_raw, graph = graph, cr = cor_mat)
-  result2 <- gMCP(pvalues = p_raw, graph = graph, correlation = cor_mat)
+  result <- gMCP(pvalues = p_raw, graph = graph)
+  # result_simes <- gMCP(pvalues = p_raw, graph = graph, test = "Simes")
+  # result_cor_bretz <- gMCP(pvalues = p_raw, graph = graph, correlation = cor_mat)
+  # result_cor_para <- gMCP(pvalues = p_raw, graph = graph, correlation = cor_mat, test = "parametric")
+  # result_cor_simes <- gMCP(pvalues = p_raw, graph = graph, correlation = cor_mat, test = "Simes")
+  
+  subgraphs <- transitions %>%
+    as.data.frame() %>%
+    rownames_to_column("test_name") %>%
+    as_tibble() %>%
+    pivot_longer(-test_name, names_to = "child") %>%
+    filter(value > 0) %>%
+    select(-value) %>%
+    mutate(gene = str_split_i(test_name, ";", 1),
+           parent_layer = str_split_i(test_name, "; ", 2),
+           child_layer = str_split_i(child, "; ", 2),
+    ) %>%
+    select(gene, parent_layer, child_layer) %>%
+    distinct()
+  
+  graph_plots <- list()
+  for (gen in unique(subgraphs$gene)) {
+    for (parent in unique(subgraphs$parent_layer)) {
+      children <- subgraphs %>%
+        filter(gene == gen,
+               parent_layer == parent) %>%
+        select(child_layer) %>%
+        unlist(use.names = FALSE)
+      
+      filt_names <- tibble(test_name = colnames(transitions)) %>%
+        separate_wider_delim(test_name, delim = "; ", names = c("gene", "test")) %>%
+        filter(gene == gen,
+               test %in% parent | test %in% children) %>%
+        mutate(test_name = paste0(gene, "; ", test)) %>%
+        select(test_name) %>%
+        unlist(use.names = FALSE)
+
+      filtered_matrix <- transitions %>%
+        as.data.frame() %>%
+        rownames_to_column("test_name") %>%
+        tibble() %>%
+        filter(test_name %in% filt_names) %>%
+        select(test_name, all_of(filt_names)) %>%
+        column_to_rownames("test_name") %>%
+        as.matrix()
+
+      graph_plots[[parent]][[gen]] <- hGraph(m = filtered_matrix, nHypotheses = nrow(filtered_matrix), nameHypotheses = rownames(filtered_matrix))
+      
+    }
+  }
+
   print(result)
   adjusted_p <- result@adjPValues
 
@@ -724,5 +801,5 @@ unfocused_forests_wrap <- wrap_plots(unfocused_forests, ncol = 1,
 #        focused_forests_wrap, width = 15, height = 14)
 # ggsave("output/R/gene_content/landuse/unfocused_forests.pdf",
 #        unfocused_forests_wrap, width = 15, height = 35)
-# write_delim(gene_tpm_long$Sample_ID, "output/R/gene_content/landuse/gene_tpm.tsv", 
+# write_delim(gene_tpm, "output/R/gene_content/landuse/gene_tpm.tsv", 
 #             delim = "\t")
