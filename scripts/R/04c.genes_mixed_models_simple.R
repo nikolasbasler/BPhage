@@ -81,7 +81,7 @@ genes_of_interest <- unique(gene_tpm$gene)
 coeffs_tpm_simple <- list()
 countries_left <- list()
 
-# TPM SIMPLE MODEL
+# CROPLAND
 test_tibble_log_tpm <- list()
 model_tpm_simple_cropland <- list()
 coeffs_tpm_simple$cropland <- tibble()
