@@ -81,7 +81,7 @@ genes_of_interest <- unique(gene_tpm$gene)
 coeffs_tpm_complex <- list()
 countries_left <- list()
 
-# TPM COMPLEX MODEL
+# CROPLAND
 test_tibble_log_tpm <- list()
 model_tpm_complex_cropland <- list()
 coeffs_tpm_complex$cropland <- tibble()
@@ -96,7 +96,7 @@ for (goi in "phosphoadenosine phosphosulfate reductase") {
     mutate(log_tpm = log10(tpm)) %>%
     filter(!is.infinite(log_tpm)) %>%
     group_by(Hive_ID) %>%
-    filter(n() > 1) %>%
+    filter(n() > 2) %>%
     ungroup()
 
   model_tpm_complex_cropland[[goi]] <- lmer(log_tpm ~ ha_cropland_in_2k_radius + Gut_part + Season +
@@ -115,8 +115,8 @@ for (goi in "phosphoadenosine phosphosulfate reductase") {
 }
 
 
-test_tibble_log_tpm[[goi]] %>%
-  count(Country)
+# test_tibble_log_tpm[[goi]] %>%
+#   count(Country)
 
 # summary(model_tpm_complex_cropland$`phosphoadenosine phosphosulfate reductase`)
 
@@ -144,7 +144,7 @@ for (gopi in "phosphoadenosine phosphosulfate reductase") {
     rbind(coeffs_tpm_complex$total_pest)
 }
 
-summary(model_tpm_complex_total_pest$`phosphoadenosine phosphosulfate reductase`$`Pesticides (total)`)
+# summary(model_tpm_complex_total_pest$`phosphoadenosine phosphosulfate reductase`$`Pesticides (total)`)
 
 
 #####
@@ -327,35 +327,35 @@ slope_plot_complex_model_all_tests <- complex_model_tibble_all_tests %>%
 # plot(model_tpm_complex_pest_groups$`phosphoadenosine phosphosulfate reductase`$`Fungicides and Bactericides`, which = 1)
 # plot(model_tpm_complex_pest_groups$`phosphoadenosine phosphosulfate reductase`$`Plant Growth Regulators`, which = 1)
 # plot(model_tpm_complex_specific_pests$`phosphoadenosine phosphosulfate reductase`$`Fung & Bact - nes`, which = 1)
-# plot(model_tpm_complex_specific_pests$`phosphoadenosine phosphosulfate reductase`$`Fung & Bact – Diazines, morpholines`, which = 1)
+# plot(model_tpm_complex_specific_pests$`phosphoadenosine phosphosulfate reductase`$`Fung & Bact – Triazoles, diazoles`, which = 1)
+# plot(model_tpm_complex_specific_pests$`phosphoadenosine phosphosulfate reductase`$`Fung & Bact – Dithiocarbamates`, which = 1)
 # plot(model_tpm_complex_specific_pests$`phosphoadenosine phosphosulfate reductase`$`Herbicides - nes`, which = 1)
 # plot(model_tpm_complex_specific_pests$`phosphoadenosine phosphosulfate reductase`$`Herbicides – Urea derivates`, which = 1)
 # plot(model_tpm_complex_specific_pests$`phosphoadenosine phosphosulfate reductase`$`Herbicides – Amides`, which = 1)
 # plot(model_tpm_complex_specific_pests$`phosphoadenosine phosphosulfate reductase`$`Herbicides – Triazines`, which = 1)
-# plot(model_tpm_complex_specific_pests$`phosphoadenosine phosphosulfate reductase`$`Herbicides – Phenoxy hormone products`, which = 1)
 
 
 #####
 # SAVE FILES
-
-system("mkdir -p output/R/gene_content/landuse/complex_model")
-ggsave("output/R/gene_content/landuse/complex_model/simple_model_patch.pdf",
-       patch_complex_model, width = 8, height = 10)
-write_delim(complex_model_tibble_focused, "output/R/gene_content/landuse/complex_model/complex_model_tibble_focused.tsv",
-            delim = "\t")
-write_delim(all_slopes, "output/R/gene_content/landuse/complex_model/complex_model_all_slopes.tsv",
-            delim = "\t")
-
-write_delim(complex_model_tibble_all_tests, "output/R/gene_content/landuse/complex_model/complex_model_all_tests.tsv",
-            delim = "\t")
-ggsave("output/R/gene_content/landuse/complex_model/simple_model_all_tests.pdf",
-       slope_plot_complex_model_all_tests, width = 12, height = 8)
-
-for (layer in names(layered_correction_list$subgraph_plots)) {
-  for (gene in names(layered_correction_list$subgraph_plots[[layer]])) {
-    ggsave(paste0("output/R/gene_content/landuse/complex_model/complex_model_subgraph.", gene, ".", layer,".pdf"),
-           layered_correction_list$subgraph_plots[[layer]][[gene]],
-           width = 20, height = 10)
-  }
-}
+# 
+# system("mkdir -p output/R/gene_content/landuse/complex_model")
+# ggsave("output/R/gene_content/landuse/complex_model/simple_model_patch.pdf",
+#        patch_complex_model, width = 8, height = 10)
+# write_delim(complex_model_tibble_focused, "output/R/gene_content/landuse/complex_model/complex_model_tibble_focused.tsv",
+#             delim = "\t")
+# write_delim(all_slopes, "output/R/gene_content/landuse/complex_model/complex_model_all_slopes.tsv",
+#             delim = "\t")
+# 
+# write_delim(complex_model_tibble_all_tests, "output/R/gene_content/landuse/complex_model/complex_model_all_tests.tsv",
+#             delim = "\t")
+# ggsave("output/R/gene_content/landuse/complex_model/simple_model_all_tests.pdf",
+#        slope_plot_complex_model_all_tests, width = 12, height = 8)
+# 
+# for (layer in names(layered_correction_list$subgraph_plots)) {
+#   for (gene in names(layered_correction_list$subgraph_plots[[layer]])) {
+#     ggsave(paste0("output/R/gene_content/landuse/complex_model/complex_model_subgraph.", gene, ".", layer,".pdf"),
+#            layered_correction_list$subgraph_plots[[layer]][[gene]],
+#            width = 20, height = 10)
+#   }
+# }
 
