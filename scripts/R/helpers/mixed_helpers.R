@@ -24,14 +24,14 @@ forest_plot <- function(tbl, axis_name = NULL, plot_title = NULL) {
     ggtitle(plot_title)
 }
 
-layered_p_adjustments_simple_model <- function(slop = slopes) {
+layered_p_adjustments <- function(slop = slopes) {
   
   p_value_list <- list()
   hypotheses <- c()
   for (level in names(slop)) {
     p_value_list[[level]] <- slop[[level]] %>%
       arrange(test_name) %>%
-      select(test_name, `Pr(>|t|)`) %>%
+      select(test_name, raw_p_value) %>%
       deframe()
     hypotheses <- c(hypotheses, names(p_value_list[[level]]))
   }
@@ -68,17 +68,26 @@ layered_p_adjustments_simple_model <- function(slop = slopes) {
     # Layer 1 to 2: cropland fraction to total pest
     L1_test_name <- paste0(gene, "; ha_cropland_in_2k_radius")
     L2_test_name <- paste0(gene, "; Pesticides (total)")
-    transitions[L1_test_name, L2_test_name] <- 1
+    
+    if ( L1_test_name %in% rownames(transitions) & L2_test_name %in% colnames(transitions) ) {
+      transitions[L1_test_name, L2_test_name] <- 1
+    }
     
     # Later 2 to 3: total pest to pest group
     for (Layer3 in layers$pest_groups) {
       L3_test_name <- paste0(gene, "; ", Layer3)
-      transitions[L2_test_name, L3_test_name] <- 1 / length(layers$pest_groups)
+      
+      if ( L2_test_name %in% rownames(transitions) & L3_test_name %in% colnames(transitions) ) {
+        transitions[L2_test_name, L3_test_name] <- 1 / length(layers$pest_groups)
+      }
       
       # Layer 3 to 4: pest group to specitic pest
       for (Layer4 in layers$specific[[Layer3]]) {
         L4_test_name <- paste0(gene, "; ", Layer4)
-        transitions[L3_test_name, L4_test_name] <- 1 / length(layers$specific[[Layer3]])
+        
+        if ( L3_test_name %in% rownames(transitions) & L4_test_name %in% colnames(transitions) ) {
+          transitions[L3_test_name, L4_test_name] <- 1 / length(layers$specific[[Layer3]])
+        }
       }
     }
   }
@@ -97,22 +106,21 @@ layered_p_adjustments_simple_model <- function(slop = slopes) {
   # print(graph)
   
   # Cor mat
-  cor_mat <- transitions %>%
-    as.data.frame() %>%
-    rownames_to_column("test_name") %>%
-    pivot_longer(-test_name) %>%
-    mutate(value = ifelse(value != 0, NA, 0),
-           value = ifelse(test_name == name, 1, value)) %>%
-    pivot_wider() %>%
-    column_to_rownames("test_name") %>%
-    as.matrix()
-  # # Ensure the matrix is symmetric by copying the upper triangle to the lower triangle
-  # # (if your procedure requires a symmetric correlation matrix)
-  cor_mat[lower.tri(cor_mat)] <- t(cor_mat)[lower.tri(cor_mat)]
+  # cor_mat <- transitions %>%
+  #   as.data.frame() %>%
+  #   rownames_to_column("test_name") %>%
+  #   pivot_longer(-test_name) %>%
+  #   mutate(value = ifelse(value != 0, NA, 0),
+  #          value = ifelse(test_name == name, 1, value)) %>%
+  #   pivot_wider() %>%
+  #   column_to_rownames("test_name") %>%
+  #   as.matrix()
+  # # # Ensure the matrix is symmetric by copying the upper triangle to the lower triangle
+  # # # (if your procedure requires a symmetric correlation matrix)
+  # cor_mat[lower.tri(cor_mat)] <- t(cor_mat)[lower.tri(cor_mat)]
   
-  start_time <- Sys.time()
   result <- gMCP(pvalues = p_raw, graph = graph)
-  
+
   adjusted_p <- tibble(test_name = names(result@adjPValues),
                        p_adjusted = result@adjPValues)
   
@@ -156,9 +164,11 @@ layered_p_adjustments_simple_model <- function(slop = slopes) {
         column_to_rownames("test_name") %>%
         as.matrix()
       
-      graph_plots[[parent]][[gen]] <- hGraph(m = filtered_matrix, nHypotheses = nrow(filtered_matrix), nameHypotheses = rownames(filtered_matrix))
+      if (nrow(filtered_matrix) > 0 ) {
+        graph_plots[[parent]][[gen]] <- hGraph(m = filtered_matrix, nHypotheses = nrow(filtered_matrix), nameHypotheses = rownames(filtered_matrix))
+      }
     }
   }
   
-  return(list(transition_matrix = transitions, correlation_matrix = cor_mat, gMCP_result = result, subgraph_plots = graph_plots, adjusted_p_values = adjusted_p))
+  return(list(transition_matrix = transitions, gMCP_result = result, subgraph_plots = graph_plots, adjusted_p_values = adjusted_p))
 }
