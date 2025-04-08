@@ -1,3 +1,5 @@
+library(lme4)
+library(lmerTest)
 library(tidyverse)
 library(ggpubr)
 library(multcompView)
@@ -184,8 +186,38 @@ nosema_sulf_cor_plot$rec <- nosema_sulf_cor_tibble$rec %>%
   ggplot(aes(x = mapped_to_nosema_prop, y = sulf_tpm)) +
   geom_point() +
   stat_cor(method = "spearman", label.x = 0, label.y = max(nosema_sulf_cor_tibble$rec$sulf_tpm)) +  # Add correlation coefficient
+  # stat_cor(method = "spearman") +  # Add correlation coefficient
   geom_smooth(method = "glm", formula = y ~ x) +
   labs(x = "Proportion of reads mapping to Varimorpha genome", y = "Mean relative abundance of sulfur phages", title = "rec")
+
+########
+# PLAYGROUND 
+
+nosema_sulf_cor_tibble$rec %>%
+  left_join(., metadata[c("Bee_pool", "Country","Hive_ID", "Season")], by = "Bee_pool") %>%
+  distinct() %>%
+  # mutate(sulf_tpm = log10(sulf_tpm),
+  #        mapped_to_nosema_prop = log10(mapped_to_nosema_prop)) %>%
+  # filter(!is.infinite(sulf_tpm),
+  #        !is.infinite(mapped_to_nosema_prop)) %>%
+  ggplot(aes(x = mapped_to_nosema_prop, y = sulf_tpm)) +
+  geom_point() +
+  # stat_cor(method = "spearman", label.x = 0, label.y = max(nosema_sulf_cor_tibble$rec$sulf_tpm)) +  # Add correlation coefficient
+  stat_cor(method = "spearman") +  # Add correlation coefficient
+  geom_smooth(method = "glm", formula = y ~ x) +
+  labs(x = "Proportion of reads mapping to Varimorpha genome", y = "Mean relative abundance of sulfur phages", title = "rec") +
+  facet_wrap(~Country + Season, scales = "free")
+
+
+nosema_sulf_cor_tibble$rec %>%
+  mutate(log_sulf_tpm = log10(sulf_tpm),
+         log_nosema_relabund = log10(mapped_to_nosema_prop)) %>%
+  filter(!is.infinite(log_sulf_tpm),
+         !is.infinite(log_nosema_relabund)) %>%
+  left_join(., metadata[c("")])
+
+#######
+
 nosema_sulf_cor_plot$pools <- nosema_sulf_cor_tibble$pools %>%
   ggplot(aes(x = mapped_to_nosema_prop, y = sulf_bee_pool_tpm)) +
   geom_point() +
