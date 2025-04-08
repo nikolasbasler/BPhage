@@ -263,7 +263,7 @@ for (mant in c("bee_phages", "bee_bacteria", "phages_bacteria")) {
   first_set <- str_split(mant, "_")[[1]][[1]]
   second_set <- str_split(mant, "_")[[1]][[2]]
   
-  mantel_tests[[mant]] <- mantel(ska_matrix[[first_set]], ska_matrix[[second_set]]) %>%
+  mantel_tests[[mant]] <- mantel(ska_matrix[[first_set]], ska_matrix[[second_set]], method = "spearman") %>%
     unlist() %>%
     t() %>% 
     as.data.frame() %>%
