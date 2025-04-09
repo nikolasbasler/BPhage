@@ -196,10 +196,10 @@ nosema_sulf_cor_plot$rec <- nosema_sulf_cor_tibble$rec %>%
 nosema_sulf_cor_tibble$rec %>%
   left_join(., metadata[c("Bee_pool", "Country","Hive_ID", "Season")], by = "Bee_pool") %>%
   distinct() %>%
-  # mutate(sulf_tpm = log10(sulf_tpm),
-  #        mapped_to_nosema_prop = log10(mapped_to_nosema_prop)) %>%
-  # filter(!is.infinite(sulf_tpm),
-  #        !is.infinite(mapped_to_nosema_prop)) %>%
+  mutate(sulf_tpm = log10(sulf_tpm),
+         mapped_to_nosema_prop = log10(mapped_to_nosema_prop)) %>%
+  filter(!is.infinite(sulf_tpm),
+         !is.infinite(mapped_to_nosema_prop)) %>%
   ggplot(aes(x = mapped_to_nosema_prop, y = sulf_tpm)) +
   geom_point() +
   # stat_cor(method = "spearman", label.x = 0, label.y = max(nosema_sulf_cor_tibble$rec$sulf_tpm)) +  # Add correlation coefficient
