@@ -82,6 +82,7 @@ coeffs_logit <- list()
 countries_with_presence <- list()
 samples_with_presence <- list()
 
+###### 
 # CROPLAND
 test_tibble_logit <- list()
 model_logit_cropland <- list()
@@ -322,7 +323,6 @@ layered_correction_list$adjusted_p_values %>% arrange(p_adjusted)
 
 # Nothing is significant after multiple testing. No plots made
 
-system("mkdir -p output/R/gene_content/landuse/")
 all_slopes <- bind_rows(slopes) %>% 
   left_join(., layered_correction_list$adjusted_p_values, by = "test_name") %>%
   mutate(p_adjust_significant = case_when(p_adjusted <= 0.001 ~ "***",
