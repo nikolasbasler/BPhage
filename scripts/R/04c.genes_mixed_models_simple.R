@@ -6,6 +6,7 @@ library(forcats)
 library(tidyverse)
 library(patchwork)
 library(gMCPLite)
+library(readxl)
 
 source("scripts/R/helpers/mixed_helpers.R")
 
@@ -81,6 +82,7 @@ genes_of_interest <- unique(gene_tpm$gene)
 coeffs_tpm_simple <- list()
 countries_left <- list()
 
+#####
 # CROPLAND
 test_tibble_log_tpm <- list()
 model_tpm_simple_cropland <- list()
@@ -310,13 +312,13 @@ simple_model_tibble_focused <- layered_correction_list$adjusted_p_values %>%
   left_join(., lowest_highest, by = "Item") %>%
   mutate(change_in_range = Estimate * (highest - lowest),
          fold_change_in_range = 10^change_in_range,
-         backtrans_estimate = 10^Estimate-1,
-         backtrans_error = 10^Estimate - 10^(Estimate - `Std. Error`)) %>%
+         estimate = 10^Estimate-1,
+         error = 10^Estimate - 10^(Estimate - `Std. Error`)) %>%
   # This only changes the axis scale but differently for croopland and pesticides:
-  mutate(backtrans_estimate = case_when(Item == "ha_cropland_in_2k_radius" ~ backtrans_estimate * 100, 
-                                        .default = backtrans_estimate * 1000),
-         backtrans_error = case_when(Item == "ha_cropland_in_2k_radius" ~ backtrans_error * 100,
-                                        .default = backtrans_error * 1000),
+  mutate(estimate = case_when(Item == "ha_cropland_in_2k_radius" ~ estimate * 100, 
+                                        .default = estimate * 1000),
+         error = case_when(Item == "ha_cropland_in_2k_radius" ~ error * 100,
+                                        .default = error * 1000),
          unit = case_when(Item == "ha_cropland_in_2k_radius" ~ "(km^2)",
                           .default = "(t)")
          )
@@ -341,8 +343,8 @@ patch_simple_model <- slope_plot_simple_model_focused + fold_change_in_range_plo
 simple_model_tibble_all_tests <- layered_correction_list$adjusted_p_values %>%
   inner_join(bind_rows(slopes), ., by = "test_name") %>%
   mutate(axis_labels = fct_rev(fct_inorder(test_name))) %>%
-  mutate(backtrans_estimate = 10^Estimate-1,
-         backtrans_error = 10^Estimate - 10^(Estimate - `Std. Error`))
+  mutate(estimate = 10^Estimate-1,
+         error = 10^Estimate - 10^(Estimate - `Std. Error`))
 
 slope_plot_simple_model_all_tests <- simple_model_tibble_all_tests %>%
   forest_plot(plot_title = "all tests")
