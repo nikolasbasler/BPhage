@@ -24,7 +24,7 @@ forest_plot <- function(tbl, axis_name = NULL, plot_title = NULL) {
     ggtitle(plot_title)
 }
 
-layered_p_adjustments <- function(slop = slopes) {
+layered_p_adjustments <- function(slop = slopes, gene_or_pathogen = "gene") {
   
   p_value_list <- list()
   hypotheses <- c()
@@ -37,7 +37,7 @@ layered_p_adjustments <- function(slop = slopes) {
   }
   
   layers <- list()
-  layers$genes <- slop$cropland$gene
+  layers$genes <- slop$cropland[[gene_or_pathogen]]
   layers$cropland <- "ha_cropland_in_2k_radius"
   layers$pesticides <- "Pesticides (total)"
   layers$pest_groups <- unique(slop$pest_groups$Item)
