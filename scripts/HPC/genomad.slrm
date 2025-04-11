@@ -17,14 +17,16 @@ source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate viper_bphage
 repo_location="$VSC_STAGING/BPhage"
 
+threads=36
+
 mkdir -p $VSC_SCRATCH/BPhage/
 cd $VSC_SCRATCH/BPhage/
 
-genomad end-to-end --disable-find-proviruses --cleanup --enable-score-calibration -t 4 \
+genomad end-to-end --disable-find-proviruses --cleanup --enable-score-calibration -t $threads \
 	$repo_location/output/bphage_ALL_1kb_cross_95-85.fasta.gz \
 	bphage_ALL_1kb_genomad /staging/leuven/stg_00029/DB/genomad/genomad_db_1.7
 
-genomad end-to-end --cleanup --enable-score-calibration -t 4 \
+genomad end-to-end --cleanup --enable-score-calibration -t $threads \
 	additional_datasets/other_studies.fa.gz \
 	other_studies_genomad /staging/leuven/stg_00029/DB/genomad/genomad_db_1.7
 
