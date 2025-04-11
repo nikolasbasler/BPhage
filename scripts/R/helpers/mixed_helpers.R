@@ -3,9 +3,9 @@ forest_plot <- function(tbl, axis_name = NULL, plot_title = NULL) {
     # ggplot(aes(x = Estimate, y = axis_labels)) +
     # geom_pointrange(aes(xmin = Estimate - `Std. Error`,
     #                     xmax = Estimate + `Std. Error`,
-    ggplot(aes(x = backtrans_estimate, y = axis_labels)) +
-    geom_pointrange(aes(xmin = backtrans_estimate - backtrans_error,
-                        xmax = backtrans_estimate + backtrans_error,
+    ggplot(aes(x = estimate, y = axis_labels)) +
+    geom_pointrange(aes(xmin = estimate - error,
+                        xmax = estimate + error,
                         alpha = p_adjusted <= 0.05),
                     color = "black",
                     size = 0.7) +

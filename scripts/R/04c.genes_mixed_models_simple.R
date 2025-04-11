@@ -99,7 +99,7 @@ for (goi in genes_of_interest) {
     filter(!is.infinite(log_tpm))
   
     model_tpm_simple_cropland[[goi]] <- lmer(log_tpm ~ ha_cropland_in_2k_radius + Gut_part + Season +
-                                               (1 | Hive_ID), data = test_tibble_log_tpm[[goi]])
+                                               (1 | Hive_ID ), data = test_tibble_log_tpm[[goi]])
     
     has_convergence_issues <- FALSE
     messages <- model_tpm_simple_cropland[[goi]]@optinfo$conv$lme4$messages
@@ -151,7 +151,7 @@ for (gopi in genes_of_interest) {
   temp_test_tibble <- test_tibble_log_tpm[[gopi]] %>% 
     rename(est_use_in_2k_radius = "Pesticides (total)")
   model_tpm_simple_total_pest[[gopi]][["Pesticides (total)"]] <- lmer(log_tpm ~ est_use_in_2k_radius + Gut_part + Season +
-                                                     (1 | Hive_ID), data = temp_test_tibble)
+                                                     (1 | Hive_ID ), data = temp_test_tibble)
   
   has_convergence_issues <- FALSE
   messages <- model_tpm_simple_total_pest[[gopi]][["Pesticides (total)"]]@optinfo$conv$lme4$messages
@@ -190,7 +190,7 @@ for (gopi in genes_of_interest) {
     temp_test_tibble <- test_tibble_log_tpm[[gopi]] %>% 
       rename(est_use_in_2k_radius = all_of(item))
     model_tpm_simple_pest_groups[[gopi]][[item]] <- lmer(log_tpm ~ est_use_in_2k_radius + Gut_part + Season +
-                                                       (1 | Hive_ID), data = temp_test_tibble)
+                                                       (1 | Hive_ID ), data = temp_test_tibble)
     
     has_convergence_issues <- FALSE
     messages <- model_tpm_simple_pest_groups[[gopi]][[item]]@optinfo$conv$lme4$messages
@@ -232,7 +232,7 @@ for (gopi in genes_of_interest) {
     temp_test_tibble <- test_tibble_log_tpm[[gopi]] %>% 
       rename(est_use_in_2k_radius = all_of(item))
     model_tpm_simple_specific_pests[[gopi]][[item]] <- lmer(log_tpm ~ est_use_in_2k_radius + Gut_part + Season +
-                                                        (1 | Hive_ID), data = temp_test_tibble)
+                                                        (1 | Hive_ID ), data = temp_test_tibble)
     
     has_convergence_issues <- FALSE
     messages <- model_tpm_simple_specific_pests[[gopi]][[item]]@optinfo$conv$lme4$messages
@@ -289,6 +289,32 @@ all_slopes <- bind_rows(slopes) %>%
                                           p_adjusted <= 0.075 ~ ".",
                                           .default = "n.s."
   ))
+
+
+### TRY OUT:
+# all_slopes %>% 
+#   mutate(layer = case_when(Item == "ha_cropland_in_2k_radius" ~ "layer_1",
+#                            Item == "Pesticides (total)" ~ "layer_2",
+#                            Item %in% c("Insecticides", "Herbicides", "Fungicides and Bactericides", "Plant Growth Regulators") ~ "layer_3",
+#                            Item %in% spec_pests ~ "layer_4"
+#   )) %>%
+#   mutate(p_all_adjust = p.adjust(raw_p_value, method = "BH")) %>%
+#   mutate(p_all_adjust_significant = case_when(p_all_adjust <= 0.001 ~ "***",
+#                                               p_all_adjust <= 0.01 ~ "**",
+#                                               p_all_adjust <= 0.05 ~ "*",
+#                                               p_all_adjust <= 0.075 ~ ".",
+#                                               .default = "n.s."
+#   )) %>%
+#   group_by(layer) %>%
+#   mutate(p_layer_adjust = p.adjust(raw_p_value, method = "BH")) %>%
+#   ungroup() %>%
+#   mutate(p_layer_adjust_significant = case_when(p_layer_adjust <= 0.001 ~ "***",
+#                                                 p_layer_adjust <= 0.01 ~ "**",
+#                                                 p_layer_adjust <= 0.05 ~ "*",
+#                                                 p_layer_adjust <= 0.075 ~ ".",
+#                                                 .default = "n.s."
+#   )) %>% filter(p_adjusted <= 0.05 | p_all_adjust <= 0.05 | p_layer_adjust <= 0.05 )  %>%
+#   write_delim("output/R/gene_content/landuse/adjust_comparison.genes.tpm.complex.tsv", delim = "\t")
 
 
 #####

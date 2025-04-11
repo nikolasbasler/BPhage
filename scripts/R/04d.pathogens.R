@@ -26,8 +26,8 @@ pathogen_data <- read_excel("data/GlobalBGOOD_WP1_Tier1_Scien.xlsx", skip = 1) %
          `Cat AFB` = Cat....38) %>%
   mutate(across(starts_with("Cat"), ~ na_if(.x, "-")),
          across(starts_with("Cat"), ~ factor(.x, levels = c("L", "M", "H")))) %>%
-  mutate(nosema_spores = ifelse(`N. spores` == "ND", NA_character_, `N. spores`),
-         nosema_spores = ifelse(`N. spores` == '< 25000', "0", nosema_spores),
+  mutate(nosema_spores = ifelse(`N. spores` == "ND", "0", `N. spores`),
+         nosema_spores = ifelse(`N. spores` == '< 25000', "25000", nosema_spores),
          nosema_spores = as.numeric(nosema_spores))
 
 pathogens_Cts <- c("DWV A", "DWV B", "ABPV", "CBPV", "BQCV", "SBV", "EFB",
@@ -73,12 +73,15 @@ NAs <- mean_gene_tpm_and_pathogens %>%
 zeros <- mean_gene_tpm_and_pathogens %>%
   filter(nosema_spores == 0) %>%
   nrow()
-tibble(pat = "nosema_spores", 
+informative_numbers <- tibble(pat = "nosema_spores", 
        NA_prop = NAs / nrow(mean_gene_tpm_and_pathogens), 
        zero_prop = zeros / nrow(mean_gene_tpm_and_pathogens),
-       informative_numbers_prop = (nrow(mean_gene_tpm_and_pathogens) - NAs - zeros) / nrow(mean_gene_tpm_and_pathogens)) 
+       informative_numbers_prop = (nrow(mean_gene_tpm_and_pathogens) - NAs - zeros) / nrow(mean_gene_tpm_and_pathogens)) %>%
+  rbind(informative_numbers, .)
 
 mean_gene_tpm_and_pathogens %>% 
+  select(Bee_pool, nosema_spores) %>%
+  distinct() %>%
   filter(!is.na(nosema_spores)) %>%
   ggplot(aes(x = nosema_spores)) +
   geom_histogram(bins = 50)
@@ -173,72 +176,84 @@ fold_change_in_range_plot <- slopes_tpm %>%
         axis.text.y=element_blank())
 
 pathogen_wrap <- lme_plot + fold_change_in_range_plot
+pathogen_wrap
 
-
-#####
-# LOGIT TEST
-pathogens_of_interest <- c("ABPV", "N. ceranae", "DWV A", "CBPV")
-
-gene_pathogen_presence_tibble <- list()
-model_logit <- list()
-coeffs_logit <- list()
-
-for (goi in "phosphoadenosine phosphosulfate reductase") {
-  for (poi in pathogens_of_interest) {
-    # goi = "phosphoadenosine phosphosulfate reductase"
-    # poi = "ABPV"
-    
-    gene_pathogen_presence_tibble[[goi]][[poi]] <- mean_gene_tpm_and_pathogens %>%
-      filter(gene == goi) %>%
-      rename(pathogen_presence = all_of(poi)) %>% 
-      filter(!is.na(pathogen_presence)) %>%
-      mutate(pathogen_presence = ifelse(pathogen_presence < 40, 1, 0)) %>%
-      select(Sample_ID, Bee_pool, Country, Hive_ID, Season, Gut_part, tpm, pathogen_presence) %>%
-      mutate(log_tpm = log10(tpm)) %>%
-      filter(!is.infinite(log_tpm))
-    
-    # model_logit[[goi]][[poi]] <- glmer(pathogen_presence ~ log_tpm + Season + Gut_part + 
-    #                               (1 | Bee_pool + Hive_ID ),
-    #                             data = gene_pathogen_presence_tibble[[goi]][[poi]],
-    #                             family = binomial)
-    
-    model_logit[[goi]][[poi]] <- lmer(log_tpm ~ pathogen_presence + Season + Gut_part + 
-                                         (1 | Bee_pool + Hive_ID ),
-                                       data = gene_pathogen_presence_tibble[[goi]][[poi]])
-
-    # summary(model_logit[[goi]][[poi]])
-    
-    coeffs_logit <- summary(model_logit[[goi]][[poi]])$coefficients %>%
-      as.data.frame() %>%
-      rownames_to_column("metric") %>%
-      tibble() %>%
-      mutate(gene = goi, 
-             pathogen = poi,
-             .before = metric) %>%
-      mutate(singular = ifelse(isSingular(model_logit[[goi]][[poi]]), TRUE, FALSE)) %>%
-      rbind(coeffs_logit)
-  }
-}
-
-
-slopes_logit <- coeffs_logit %>%
-  filter(metric == "pathogen_presence") %>%
-  mutate(p_adjusted = p.adjust(`Pr(>|t|)`, method = "BH")) %>%
-  mutate(p_adj_sig = case_when(p_adjusted <= 0.001 ~ "***",
-                               p_adjusted <= 0.01 ~ "**",
-                               p_adjusted <= 0.05 ~ "*",
-                               p_adjusted <= 0.075 ~ ".",
-                               .default = "n.s."
-  ))
-
-  left_join(., lowest_highest_logit, by = "pathogen") %>%
-  mutate(change_in_range = Estimate * (highest - lowest),
-         fold_change_in_range = 10^change_in_range,
-         backtrans_estimate = 10^Estimate-1,
-         backtrans_error = 10^Estimate - 10^(Estimate - `Std. Error`)) %>%
-  mutate(axis_labels = pathogen) %>%
-  mutate(axis_labels = fct_rev(fct_inorder(axis_labels)))
-
+# 
+# #####
+# # LOGIT TEST (nothing is significant but maybe try to correlate this rather to land use, not to tpm of sulf phages)
+# pathogens_of_interest <- c("BQCV", "SBV", "DWV B",
+#                            "ABPV", "N. ceranae", "DWV A", "CBPV")
+# 
+# gene_pathogen_presence_tibble <- list()
+# model_logit <- list()
+# coeffs_logit <- list()
+# 
+# for (goi in "phosphoadenosine phosphosulfate reductase") {
+#   for (poi in pathogens_of_interest) {
+#     # goi = "phosphoadenosine phosphosulfate reductase"
+#     # poi = "ABPV"
+#     
+#     gene_pathogen_presence_tibble[[goi]][[poi]] <- mean_gene_tpm_and_pathogens %>%
+#       filter(gene == goi) %>%
+#       rename(pathogen_presence = all_of(poi)) %>% 
+#       filter(!is.na(pathogen_presence)) %>%
+#       mutate(pathogen_presence = ifelse(pathogen_presence < 40, 1, 0)) %>%
+#       select(Sample_ID, Bee_pool, Country, Hive_ID, Season, Gut_part, tpm, pathogen_presence) %>%
+#       mutate(log_tpm = log10(tpm)) %>%
+#       filter(!is.infinite(log_tpm))
+#     
+#     # model_logit[[goi]][[poi]] <- glmer(pathogen_presence ~ log_tpm + Season + Gut_part +
+#     #                               (1 | Bee_pool + Hive_ID ),
+#     #                             data = gene_pathogen_presence_tibble[[goi]][[poi]],
+#     #                             family = binomial)
+#     
+#     model_logit[[goi]][[poi]] <- lmer(log_tpm ~ pathogen_presence + Season + Gut_part +
+#                                          (1 | Bee_pool + Hive_ID ),
+#                                        data = gene_pathogen_presence_tibble[[goi]][[poi]])
+# 
+#     # summary(model_logit[[goi]][[poi]])
+#     
+#     coeffs_logit <- summary(model_logit[[goi]][[poi]])$coefficients %>%
+#       as.data.frame() %>%
+#       rownames_to_column("metric") %>%
+#       tibble() %>%
+#       mutate(gene = goi, 
+#              pathogen = poi,
+#              .before = metric) %>%
+#       mutate(singular = ifelse(isSingular(model_logit[[goi]][[poi]]), TRUE, FALSE)) %>%
+#       rbind(coeffs_logit)
+#   }
+# }
+# 
+# 
+# slopes_logit <- coeffs_logit %>%
+#   filter(metric == "pathogen_presence") %>%
+#   mutate(p_adjusted = p.adjust(`Pr(>|t|)`, method = "BH")) %>%
+#   mutate(p_adj_sig = case_when(p_adjusted <= 0.001 ~ "***",
+#                                p_adjusted <= 0.01 ~ "**",
+#                                p_adjusted <= 0.05 ~ "*",
+#                                p_adjusted <= 0.075 ~ ".",
+#                                .default = "n.s."
+#   ))
+# 
+# slopes_logit <- coeffs_logit %>%
+#   filter(metric == "log_tpm") %>%
+#   mutate(p_adjusted = p.adjust(`Pr(>|z|)`, method = "BH")) %>%
+#   mutate(p_adj_sig = case_when(p_adjusted <= 0.001 ~ "***",
+#                                p_adjusted <= 0.01 ~ "**",
+#                                p_adjusted <= 0.05 ~ "*",
+#                                p_adjusted <= 0.075 ~ ".",
+#                                .default = "n.s."
+#   ))
+# 
+#   # left_join(., lowest_highest_logit, by = "pathogen") %>%
+#   # mutate(change_in_range = Estimate * (highest - lowest),
+#   #        fold_change_in_range = 10^change_in_range,
+#   #        backtrans_estimate = 10^Estimate-1,
+#   #        backtrans_error = 10^Estimate - 10^(Estimate - `Std. Error`)) %>%
+#   # mutate(axis_labels = pathogen) %>%
+#   # mutate(axis_labels = fct_rev(fct_inorder(axis_labels)))
+# 
 
 
 #####

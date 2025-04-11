@@ -98,7 +98,7 @@ for (goi in genes_of_interest) {
     mutate(presence = ifelse(tpm > 0, 1, 0), .before = tpm)
 
   model_logit_cropland[[goi]] <- glmer(
-    presence ~ ha_cropland_in_2k_radius + Gut_part + Season + (1 | Hive_ID),
+    presence ~ ha_cropland_in_2k_radius + Gut_part + Season + (1 | Hive_ID ),
     data = test_tibble_logit[[goi]],
     family = binomial)
 
@@ -184,7 +184,7 @@ for (goi in genes_of_interest) {
     rename(est_use_in_2k_radius = `Pesticides (total)`)
 
   model_logit_total_pest[[goi]][["Pesticides (total)"]] <- glmer(presence ~ est_use_in_2k_radius + Gut_part + Season +
-                                                             (1 | Hive_ID), data = temp_test_tibble,
+                                                             (1 | Hive_ID ), data = temp_test_tibble,
                                                              family = binomial)
   # summary( model_logit_total_pest[[goi]][["Pesticides (total)"]])
 
@@ -221,7 +221,7 @@ for (goi in genes_of_interest) {
       rename(est_use_in_2k_radius = all_of(item))
     
     model_logit_pest_groups[[goi]][[item]] <- glmer(presence ~ est_use_in_2k_radius + Gut_part + Season +
-                                                (1 | Hive_ID), data = temp_test_tibble,
+                                                (1 | Hive_ID ), data = temp_test_tibble,
                                                 family = binomial)
     
     has_convergence_issues <- FALSE
@@ -274,7 +274,7 @@ for (goi in genes_of_interest) {
       rename(est_use_in_2k_radius = all_of(item))
     
     model_logit_specific_pests[[goi]][[item]] <- glmer(presence ~ est_use_in_2k_radius + Gut_part + Season +
-                                                   (1 | Hive_ID), data = temp_test_tibble,
+                                                   (1 | Hive_ID ), data = temp_test_tibble,
                                                    family = binomial)
     
     has_convergence_issues <- FALSE
@@ -331,6 +331,32 @@ all_slopes <- bind_rows(slopes) %>%
                                           p_adjusted <= 0.075 ~ ".",
                                           .default = "n.s."
   ))
+
+### TRY OUT:
+# all_slopes %>%
+#   mutate(layer = case_when(Item == "ha_cropland_in_2k_radius" ~ "layer_1",
+#                            Item == "Pesticides (total)" ~ "layer_2",
+#                            Item %in% c("Insecticides", "Herbicides", "Fungicides and Bactericides", "Plant Growth Regulators") ~ "layer_3",
+#                            Item %in% spec_pests ~ "layer_4"
+#   )) %>%
+#   mutate(p_all_adjust = p.adjust(raw_p_value, method = "BH")) %>%
+#   mutate(p_all_adjust_significant = case_when(p_all_adjust <= 0.001 ~ "***",
+#                                               p_all_adjust <= 0.01 ~ "**",
+#                                               p_all_adjust <= 0.05 ~ "*",
+#                                               p_all_adjust <= 0.075 ~ ".",
+#                                               .default = "n.s."
+#   )) %>%
+#   group_by(layer) %>%
+#   mutate(p_layer_adjust = p.adjust(raw_p_value, method = "BH")) %>%
+#   ungroup() %>%
+#   mutate(p_layer_adjust_significant = case_when(p_layer_adjust <= 0.001 ~ "***",
+#                                                 p_layer_adjust <= 0.01 ~ "**",
+#                                                 p_layer_adjust <= 0.05 ~ "*",
+#                                                 p_layer_adjust <= 0.075 ~ ".",
+#                                                 .default = "n.s."
+#   )) %>% filter(p_adjusted <= 0.05 | p_all_adjust <= 0.05 | p_layer_adjust <= 0.05 )  %>%
+#   write_delim("output/R/gene_content/landuse/adjust_comparison.genes.logit.complex.tsv", delim = "\t")
+
 
 #####
 # SAVE FILES

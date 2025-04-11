@@ -258,6 +258,33 @@ all_slopes <- bind_rows(slopes) %>%
   ))
 
 
+### TRY OUT:
+# all_slopes %>%
+# mutate(layer = case_when(Item == "ha_cropland_in_2k_radius" ~ "layer_1",
+#                          Item == "Pesticides (total)" ~ "layer_2",
+#                          Item %in% c("Insecticides", "Herbicides", "Fungicides and Bactericides", "Plant Growth Regulators") ~ "layer_3",
+#                          Item %in% spec_pests ~ "layer_4"
+# )) %>%
+#   mutate(p_all_adjust = p.adjust(raw_p_value, method = "BH")) %>%
+#   mutate(p_all_adjust_significant = case_when(p_all_adjust <= 0.001 ~ "***",
+#                                               p_all_adjust <= 0.01 ~ "**",
+#                                               p_all_adjust <= 0.05 ~ "*",
+#                                               p_all_adjust <= 0.075 ~ ".",
+#                                               .default = "n.s."
+#   )) %>%
+#   group_by(layer) %>%
+#   mutate(p_layer_adjust = p.adjust(raw_p_value, method = "BH")) %>%
+#   ungroup() %>%
+#   mutate(p_layer_adjust_significant = case_when(p_layer_adjust <= 0.001 ~ "***",
+#                                                 p_layer_adjust <= 0.01 ~ "**",
+#                                                 p_layer_adjust <= 0.05 ~ "*",
+#                                                 p_layer_adjust <= 0.075 ~ ".",
+#                                                 .default = "n.s."
+#   )) %>% filter(p_adjusted <= 0.05 | p_all_adjust <= 0.05 | p_layer_adjust <= 0.05 )  %>%
+#   write_delim("output/R/gene_content/landuse/adjust_comparison.genes.tpm.complex2.tsv", delim = "\t")
+# 
+
+
 #####
 # MAKE PLOTS
 
