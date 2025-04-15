@@ -96,12 +96,12 @@ for (goi in genes_of_interest) {
     left_join(., cropland_and_FAO, by = "Country") %>%
     mutate(Gut_part = factor(Gut_part, levels = c("rec", "ile", "mid"))) %>%
     mutate(presence = ifelse(tpm > 0, 1, 0), .before = tpm)
-
+  
   model_logit_cropland[[goi]] <- glmer(
     presence ~ ha_cropland_in_2k_radius + Gut_part + Season + (1 | Hive_ID ),
     data = test_tibble_logit[[goi]],
     family = binomial)
-
+  
   has_convergence_issues <- FALSE
   messages <- model_logit_cropland[[goi]]@optinfo$conv$lme4$messages
   if (!is.null(messages) & any(str_detect(messages, "failed to converge"))) {
@@ -172,7 +172,7 @@ prevalence_plot_facet_genes <- bind_rows(test_tibble_logit) %>%
   labs(x = "Gene", y = "Prevalence") +
   scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +  # add 10% space at the top
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  facet_wrap(~gene)
+  facet_wrap(~gene, scale = "free")
 
 ##### 
 # PESTICIDES:
@@ -270,13 +270,13 @@ coeffs_logit$specific_pests <- tibble()
 # for (goi in genes_of_particular_interest) {
 for (goi in genes_of_interest) {
   for (item in spec_pests) {
-    temp_test_tibble <- test_tibble_logit[[goi]] %>% 
+    temp_test_tibble <- test_tibble_logit[[goi]] %>%
       rename(est_use_in_2k_radius = all_of(item))
-    
+
     model_logit_specific_pests[[goi]][[item]] <- glmer(presence ~ est_use_in_2k_radius + Gut_part + Season +
                                                    (1 | Hive_ID ), data = temp_test_tibble,
                                                    family = binomial)
-    
+
     has_convergence_issues <- FALSE
     messages <- model_logit_specific_pests[[goi]][[item]]@optinfo$conv$lme4$messages
     if (!is.null(messages) & any(str_detect(messages, "failed to converge"))) {
@@ -290,7 +290,7 @@ for (goi in genes_of_interest) {
         as.data.frame() %>%
         rownames_to_column("metric") %>%
         tibble() %>%
-        mutate(gene = goi, 
+        mutate(gene = goi,
                Item = item,
                .before = metric) %>%
         mutate(singular = ifelse(isSingular(model_logit_specific_pests[[goi]][[item]]), TRUE, FALSE)) %>%
@@ -333,7 +333,7 @@ all_slopes <- bind_rows(slopes) %>%
   ))
 
 ### TRY OUT:
-# all_slopes %>%
+# all_slopes %>% 
 #   mutate(layer = case_when(Item == "ha_cropland_in_2k_radius" ~ "layer_1",
 #                            Item == "Pesticides (total)" ~ "layer_2",
 #                            Item %in% c("Insecticides", "Herbicides", "Fungicides and Bactericides", "Plant Growth Regulators") ~ "layer_3",
@@ -354,7 +354,8 @@ all_slopes <- bind_rows(slopes) %>%
 #                                                 p_layer_adjust <= 0.05 ~ "*",
 #                                                 p_layer_adjust <= 0.075 ~ ".",
 #                                                 .default = "n.s."
-#   )) %>% filter(p_adjusted <= 0.05 | p_all_adjust <= 0.05 | p_layer_adjust <= 0.05 )  %>%
+#   )) %>% View()
+#   filter(p_adjusted <= 0.05 | p_all_adjust <= 0.05 | p_layer_adjust <= 0.05 )
 #   write_delim("output/R/gene_content/landuse/adjust_comparison.genes.logit.complex.tsv", delim = "\t")
 
 
