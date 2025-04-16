@@ -339,10 +339,8 @@ all_slopes <- bind_rows(slopes) %>%
                                           .default = "n.s."))
 
 
-################
-
-
-
+#####
+# MAKE PLOTS
 
 sig_tests <- all_slopes %>%
   filter(p_adjusted < 0.05) 
@@ -353,150 +351,36 @@ lowest_highest <- cropland_and_FAO %>%
   summarise(lowest = min(value),
             highest = max(value))
 
-logistic_fun <- function(x, intercept, slope) {
-  1 / (1 + exp(-(intercept + slope * x)))
-}
+color_list <- list(`phosphoadenosine phosphosulfate reductase` = list(dark = "#D2691E", bright = "#FFA07A"),
+                   chitinase = list(dark = "#8B4513", bright = "#FFC300"),
+                   glucosyltransferase = list(dark = "#1C3A3A", bright = "#66AFAF"))
 
+genes_logit_plots <- list()
 for (t_name in unique(sig_tests$test_name)) {
-  t_name = "phosphoadenosine phosphosulfate reductase; Insecticides"
 
-  
   logit_test <- sig_tests %>%
     filter(test_name == t_name) %>%
     left_join(., lowest_highest, by = "Item")
   
-  inter <- logit_test$intercept
-  inter_sd <- logit_test$sd_intercept
-  slo <- logit_test$Estimate
-  slo_sd <- logit_test$`Std. Error`
-  high <- logit_test$highest
-  low <- logit_test$lowest
+  tested_gene <- logit_test$gene
+  tested_item <- logit_test$Item
   
-  y_of_high <- logistic_fun(high, intercept = inter, slope = slo)
-  y_of_low <- logistic_fun(low, intercept = inter, slope = slo)
-  
-  odds_ratio <- exp(slo * (high - low))
-
-  plot_min <- low - (high - low)/5
-  plot_max <- high + (high - low)/5
-  
-  line_tibble <- tibble(x_val = seq(plot_min, plot_max, length.out = 100),
-         y_val = logistic_fun(x_val, inter = inter, slope = slo),
-         y_lower = logistic_fun(x_val, intercept = inter - inter_sd, slope = slo - slo_sd),
-         y_upper = logistic_fun(x_val, intercept = inter + inter_sd, slope = slo + slo_sd))
-  
-  # Coordinates
-  arrow_x_center <- (low + high) / 2
-  arrow_width <- (high - low) / 15  # Adjust to control how "fat" the arrow is
-  
-  arrow_base <- y_of_low
-  arrow_tip <- y_of_high
-  
-  # Define polygon for vertical arrow
-  arrow_poly <- tibble(
-    x = c(
-      arrow_x_center - arrow_width,  # bottom left
-      arrow_x_center + arrow_width,  # bottom right
-      arrow_x_center + arrow_width,  # shaft right
-      arrow_x_center + 2 * arrow_width,  # arrowhead right
-      arrow_x_center,               # arrow tip
-      arrow_x_center - 2 * arrow_width,  # arrowhead left
-      arrow_x_center - arrow_width,  # shaft left
-      arrow_x_center - arrow_width   # back to bottom left (close shape)
-    ),
-    y = c(
-      arrow_base,  # bottom
-      arrow_base,  # bottom
-      arrow_tip - (arrow_tip - arrow_base) * 0.2,  # shaft top
-      arrow_tip - (arrow_tip - arrow_base) * 0.2,  # arrowhead base right
-      arrow_tip,  # tip
-      arrow_tip - (arrow_tip - arrow_base) * 0.2,  # arrowhead base left
-      arrow_tip - (arrow_tip - arrow_base) * 0.2,  # shaft top
-      arrow_base   # close
-    )
-  )
-  
-  arrow_head_base_y <- arrow_tip - (arrow_tip - arrow_base) * 0.2
-  arrow_head_center_y <- (arrow_tip + arrow_head_base_y) / 2
-  
-  ggplot(line_tibble, aes(x = x_val, y = y_val)) +
-    
-    # Dashed line from low point to arrow base
-    annotate(
-      "segment",
-      x = low,
-      xend = arrow_x_center,
-      y = arrow_base,
-      yend = arrow_base,
-      linetype = "dashed",
-      color = "gray40"
-    ) +
-    
-    # Dashed line from high point to arrow tip
-    annotate(
-      "segment",
-      x = high,
-      xend = arrow_x_center,
-      y = arrow_tip,
-      yend = arrow_tip,
-      linetype = "dashed",
-      color = "gray40"
-    ) +
-    
-    geom_ribbon(aes(ymin = y_lower, ymax = y_upper), fill = "skyblue", alpha = 0.3) +
-    geom_line() +
-    geom_point(x = high, y = y_of_high, size = 4) +
-    geom_point(x = low, y = y_of_low, size = 4) +
-
-    geom_polygon(data = arrow_poly, aes(x = x, y = y), fill = "darkred", alpha = 1) +
-   
-    annotate(
-      "text",
-      x = arrow_x_center,
-      y = (arrow_base + arrow_tip) / 2,
-      label = round(odds_ratio, 2),
-      angle = 90,
-      size = 8,
-      fontface = "bold",
-      color = "white",
-      vjust = 0.5,
-      hjust = 0.5
-    ) +
-    
-    annotate(
-      "text",
-      x = arrow_x_center,
-      y = arrow_head_center_y,
-      label = logit_test$p_adjust_significant,
-      color = "white",
-      vjust = 1,
-      size = 7,
-      fontface = "bold"
-    ) +
-  
-    scale_x_continuous(
-      breaks = c(low, high),
-      labels = c(round(low, 0), round(high, 0))
-    ) +
-    
-    scale_y_continuous(
-      breaks = c(y_of_low, y_of_high),
-      labels = c(round(y_of_low, 2), round(y_of_high, 2))
-    ) +
-    
-    labs(x = logit_test$Item, y = "Probability") +
-    ggtitle(logit_test$gene) +
-    
-    theme_minimal() +
-    theme(
-      axis.title = element_text(size = 14, face = "bold"),
-      axis.text = element_text(size = 10)) 
-  
+  genes_logit_plots[[tested_gene]][[tested_item]] <- mixed_model_plot(filt_test_tibble = logit_test, 
+                   transform_fun = logistic_fun, 
+                   effect_fun = logistic_effect_fun,
+                   dark_col = color_list[[tested_gene]]$dark,
+                   bright_col = color_list[[tested_gene]]$bright)
 }
 
 
 
-
+wrap_of_wraps <- wrap_plots(genes_logit_plots$chitinase[1:3], nrow = 1, axes = "collect") /
+  wrap_plots(genes_logit_plots$chitinase[4:6], nrow = 1, axes = "collect") /
+  wrap_plots(genes_logit_plots$chitinase[7:9], nrow = 1, axes = "collect") /
+  wrap_plots(list(genes_logit_plots$chitinase$`Insecticides – Pyrethroids`,
+                  genes_logit_plots$chitinase$`Insecticides – Carbamates`, 
+                  genes_logit_plots$glucosyltransferase$`Insecticides – Organo-phosphates`), nrow = 1, axes = "collect") /
+  wrap_plots(genes_logit_plots$`phosphoadenosine phosphosulfate reductase`, nrow = 1, axes = "collect")
 
 
 
@@ -507,6 +391,9 @@ for (t_name in unique(sig_tests$test_name)) {
 system("mkdir -p output/R/gene_content/landuse/logit_model")
 write_delim(all_slopes, "output/R/gene_content/landuse/logit_model/logit_model_tibble_5gopi.tsv",
             delim = "\t")
+
+ggsave("output/R/gene_content/landuse/logit_model/logit_model_tibble_5gopi.pdf",
+       wrap_of_wraps, height = 10, width = 10)
 
 
 

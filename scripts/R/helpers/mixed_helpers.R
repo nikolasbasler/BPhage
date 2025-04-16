@@ -23,6 +23,174 @@ forest_plot <- function(tbl, axis_name = NULL, plot_title = NULL) {
          x = "Estimated slope") +
     ggtitle(plot_title)
 }
+
+
+logistic_fun <- function(x, intercept, slope) {
+  1 / (1 + exp(-(intercept + slope * x)))
+}
+
+logistic_effect_fun <- function(s, h, l) {
+  odds_ratio <- exp(s * (h - l))
+  return(odds_ratio)
+}
+
+linear_fun <- function(x, intercept, slope) {
+  intercept + slope * x
+}
+
+linear_effect_fun <- function(s, h, l) {
+  log_change <- s * (h - l)
+  fold_change <- 10^change_in_range
+  return(fold_change)
+}
+
+ct_effect_fun <- function(s, h, l) {
+  ct_change <- s * (h - l)
+  return(ct_change)
+}
+
+mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_col, bright_col) {
+  
+  inter <- filt_test_tibble$intercept
+  inter_sd <- filt_test_tibble$sd_intercept
+  slo <- filt_test_tibble$Estimate
+  slo_sd <- filt_test_tibble$`Std. Error`
+  high <- filt_test_tibble$highest
+  low <- filt_test_tibble$lowest
+  
+  y_of_high <- transform_fun(high, intercept = inter, slope = slo)
+  y_of_low <- transform_fun(low, intercept = inter, slope = slo)
+  
+  effect_size <- effect_fun(s = slo, h = high, l = low)
+  
+  plot_min <- low - (high - low) / 5
+  plot_max <- high + (high - low) / 5
+  
+  line_tibble <- tibble(x_val = seq(plot_min, plot_max, length.out = 100),
+                        y_val = transform_fun(x_val, intercept = inter, slope = slo),
+                        y_lower = transform_fun(x_val, intercept = inter - inter_sd, slope = slo - slo_sd),
+                        y_upper = transform_fun(x_val, intercept = inter + inter_sd, slope = slo + slo_sd))
+  
+  # Coordinates
+  arrow_x_center <- (low + high) / 2
+  arrow_width <- (high - low) / 15  # Adjust to control how "fat" the arrow is
+  
+  arrow_base <- y_of_low
+  arrow_tip <- y_of_high
+  
+  # Define polygon for vertical arrow
+  arrow_poly <- tibble(
+    x = c(
+      arrow_x_center - arrow_width,  # bottom left
+      arrow_x_center + arrow_width,  # bottom right
+      arrow_x_center + arrow_width,  # shaft right
+      arrow_x_center + 2 * arrow_width,  # arrowhead right
+      arrow_x_center,               # arrow tip
+      arrow_x_center - 2 * arrow_width,  # arrowhead left
+      arrow_x_center - arrow_width,  # shaft left
+      arrow_x_center - arrow_width   # back to bottom left (close shape)
+    ),
+    y = c(
+      arrow_base,  # bottom
+      arrow_base,  # bottom
+      arrow_tip - (arrow_tip - arrow_base) * 0.2,  # shaft top
+      arrow_tip - (arrow_tip - arrow_base) * 0.2,  # arrowhead base right
+      arrow_tip,  # tip
+      arrow_tip - (arrow_tip - arrow_base) * 0.2,  # arrowhead base left
+      arrow_tip - (arrow_tip - arrow_base) * 0.2,  # shaft top
+      arrow_base   # close
+    )
+  )
+  
+  arrow_head_base_y <- arrow_tip - (arrow_tip - arrow_base) * 0.2
+  arrow_head_center_y <- (arrow_tip + arrow_head_base_y) / 2
+  # correction_factor <- sign(slo) * 0.5 # Yes, let's over-engineer this...
+  # arrow_head_center_y <- arrow_head_base_y + (arrow_tip - arrow_head_base_y)*correction_factor / 2
+  
+  mmplot <- ggplot(line_tibble, aes(x = x_val, y = y_val)) +
+    
+    # Draw ribbon for standard error 
+    geom_ribbon(aes(ymin = y_lower, ymax = y_upper), fill = bright_col, alpha = 0.6) +
+    
+    # Dashed lines from low point to arrow
+    annotate(
+      "segment",
+      x = low,
+      xend = arrow_x_center,
+      y = arrow_base,
+      yend = arrow_base,
+      linetype = "dashed",
+      color = "black"
+    ) +
+    annotate(
+      "segment",
+      x = high,
+      xend = arrow_x_center,
+      y = arrow_tip,
+      yend = arrow_tip,
+      linetype = "dashed",
+      color = "black"
+    ) +
+    
+    # Draw curve and points for min and max observed values
+    geom_line() +
+    geom_point(x = high, y = y_of_high, size = 4) +
+    geom_point(x = low, y = y_of_low, size = 4) +
+    
+    # Draw the arrow
+    geom_polygon(data = arrow_poly, aes(x = x, y = y), fill = dark_col, alpha = 1) +
+    
+    # Print the odds ratio into the arrow
+    annotate(
+      "text",
+      x = arrow_x_center,
+      y = (arrow_base + arrow_head_base_y) / 2,
+      # label = paste0("OR = ", round(effect_size, 2)),
+      label = sprintf("%.2f", effect_size),
+      angle = 90,
+      size = 4,
+      # fontface = "bold",
+      color = "white",
+      # vjust = 0.5,
+      # hjust = 0.5
+    ) +
+    
+    # Print asterisks for siginificance level into head of arrow
+    annotate(
+      "text",
+      x = arrow_x_center,
+      y = arrow_head_center_y,
+      label = filt_test_tibble$p_adjust_significant,
+      color = "white",
+      vjust = ifelse(slo < 0, 0.5, 1),
+      size = 5,
+      fontface = "bold"
+    ) +
+    
+    # Make axis labels only for the coordinates of the points
+    scale_x_continuous(
+      breaks = c(low, high),
+      labels = c(round(low, 0), round(high, 0))) +
+    scale_y_continuous(
+      breaks = c(y_of_low, y_of_high),
+      labels = c(round(y_of_low, 2), round(y_of_high, 2))) +
+    
+    # Axis texts, title and theme
+    labs(x = filt_test_tibble$Item, y = "Probability") +
+    # ggtitle(filt_test_tibble$gene) +
+    
+    
+    theme_minimal() +
+    theme(
+      axis.title = element_text(size = 12, face = "bold"),
+      axis.text = element_text(size = 10)) 
+  
+  return(mmplot)
+  
+}
+
+
+
 # 
 # layered_p_adjustments <- function(slop = slopes, gene_or_pathogen = "gene") {
 #   
