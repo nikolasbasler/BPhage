@@ -49,7 +49,7 @@ pathogen_data <- read_excel("data/GlobalBGOOD_WP1_Tier1_Scien.xlsx", skip = 1) %
   #        nosema_spores = as.numeric(nosema_spores))
 
 pathogens_Cts <- c("DWV A", "DWV B", "ABPV", "CBPV", "BQCV", "SBV", "EFB",
-                   "AFB", "N. apis", "N. ceranae")
+                   "AFB", "N. apis", "N. ceranae", "DWV A")
 
 pathogen_ct <- pathogen_data %>% 
   filter(Years == 2020) %>%
@@ -137,19 +137,22 @@ prevalence_plot_facet_pathogens
 ###### 
 # CROPLAND
 
-pathogens_of_interest <- c("DWV A", "ABPV", "CBPV", "N. ceranae")
-# pathogens_of_interest <- c("N. ceranae")
+# pathogens_of_interest <- c("DWV A", "ABPV", "CBPV", "N. ceranae")
+pathogens_of_interest <- c("ABPV", "N. ceranae", "CBPV")
 
 coeffs_logit <- list()
 model_logit_cropland <- list()
 for (poi in pathogens_of_interest) {
 
   model_logit_cropland[[poi]] <- glmer(
-    presence ~ ha_cropland_in_2k_radius + Season + ( 1 | Hive_ID / Country ),
+    presence ~ ha_cropland_in_2k_radius + Season + ( 1 | Hive_ID ),
     data = test_tibble_logit[[poi]],
     family = binomial)
-
-  summary(model_logit_cropland[[poi]])
+  
+  test_tibble_logit[[poi]] %>% count(Country) %>% arrange(desc(n))
+  test_tibble_logit[[poi]] %>% count(Hive_ID) %>% arrange(desc(n))
+  test_tibble_logit[[poi]] %>% count(Season) %>% arrange(desc(n))
+  # summary(model_logit_cropland[[poi]])
 
   has_convergence_issues <- FALSE
   messages <- model_logit_cropland[[poi]]@optinfo$conv$lme4$messages
@@ -171,6 +174,42 @@ for (poi in pathogens_of_interest) {
       rbind(coeffs_logit$cropland)
   }
 }
+# 
+# test_tibble_joint_logit <- pathogen_ct %>%
+#   mutate(presence = ifelse(Ct < 41, 1, 0)) %>%
+#   filter(pathogen %in% pathogens_of_interest) %>%
+#   select(-Ct) %>%
+#   pivot_wider(names_from = pathogen, values_from = presence) %>%
+#   filter(if_all(everything(), ~ !is.na(.))) %>%
+#   left_join(., metadata[c("Bee_pool", "Country", "Hive_ID", "Season")], by = "Bee_pool") %>%
+#   distinct() %>%
+#   left_join(., cropland_and_FAO, by = "Country") %>%
+#   rename(n_cera = `N. ceranae`)
+# 
+# test_tibble_joint_logit %>% count(Season) %>% arrange(desc(n))
+# 
+# model_combinded_logit_cropland <- glmer(
+#   ABPV ~ ha_cropland_in_2k_radius + Season + ( 1 | Hive_ID ),
+#   data = test_tibble_joint_logit,
+#   family = binomial)
+# 
+# test_tibble_combinded_logit <- bind_rows(test_tibble_logit) %>%
+#   filter(pathogen %in% pathogens_of_interest) %>%
+#   group_by(Bee_pool) %>%
+#   mutate(num_pathogens = sum(presence), .before = presence) %>%
+#   ungroup() %>%
+#   select(-c(Ct, presence, pathogen)) %>%
+#   distinct()
+# 
+# test_tibble_combinded_logit %>% count(Country)
+# test_tibble_combinded_logit %>% count(Season) %>% arrange(n)
+
+# model_combinded_logit_cropland <- glmer(
+#   cbind(num_pathogens, 3 - num_pathogens) ~ ha_cropland_in_2k_radius + Season + ( 1 | Hive_ID ),
+#   data = test_tibble_combinded_logit,
+#   family = binomial)
+# 
+# summary(model_combinded_logit_cropland)
 
 
 ##### 
@@ -184,7 +223,7 @@ for (poi in pathogens_of_interest) {
     rename(est_use_in_2k_radius = `Pesticides (total)`)
   
   model_logit_total_pest[[poi]][["Pesticides (total)"]] <- glmer(presence ~ est_use_in_2k_radius + Season +
-                                                                   ( 1 | Hive_ID / Country ), data = temp_test_tibble,
+                                                                   ( 1 | Country / Hive_ID ), data = temp_test_tibble,
                                                                  family = binomial)
   # summary( model_logit_total_pest[[poi]][["Pesticides (total)"]])
   
@@ -221,7 +260,7 @@ for (poi in pathogens_of_interest) {
       rename(est_use_in_2k_radius = all_of(item))
     
     model_logit_pest_groups[[poi]][[item]] <- glmer(presence ~ est_use_in_2k_radius + Season +
-                                                      ( 1 | Hive_ID / Country ), data = temp_test_tibble,
+                                                      ( 1 | Country / Hive_ID ), data = temp_test_tibble,
                                                     family = binomial)
     
     has_convergence_issues <- FALSE
@@ -263,7 +302,7 @@ for (poi in pathogens_of_interest) {
       rename(est_use_in_2k_radius = all_of(item))
     
     model_logit_specific_pests[[poi]][[item]] <- glmer(presence ~ est_use_in_2k_radius + Season +
-                                                         ( 1 | Hive_ID / Country ), data = temp_test_tibble,
+                                                         ( 1 | Country / Hive_ID ), data = temp_test_tibble,
                                                        family = binomial)
     
     has_convergence_issues <- FALSE
@@ -306,51 +345,16 @@ for (level in names(coeffs_logit)) {
 }
 
 
-##### 
-# ADJUST P-VALUES
-
-slopes
-
-layered_correction_list <- layered_p_adjustments(slop = slopes, gene_or_pathogen = "pathogens")
-layered_correction_list$adjusted_p_values %>% arrange(p_adjusted)
-# Nothing is significant
-
-
-all_slopes <- bind_rows(slopes) %>% 
-  left_join(., layered_correction_list$adjusted_p_values, by = "test_name") %>%
+all_slopes <- bind_rows(slopes) %>%
+  mutate(p_adjusted = p.adjust(raw_p_value, method = "BH")) %>%
   mutate(p_adjust_significant = case_when(p_adjusted <= 0.001 ~ "***",
                                           p_adjusted <= 0.01 ~ "**",
                                           p_adjusted <= 0.05 ~ "*",
                                           p_adjusted <= 0.075 ~ ".",
-                                          .default = "n.s."))
-
-# ### TRY OUT:
-# all_slopes %>%
-#   mutate(layer = case_when(Item == "ha_cropland_in_2k_radius" ~ "layer_1",
-#                            Item == "Pesticides (total)" ~ "layer_2",
-#                            Item %in% c("Insecticides", "Herbicides", "Fungicides and Bactericides", "Plant Growth Regulators") ~ "layer_3",
-#                            Item %in% spec_pests ~ "layer_4"
-#   )) %>%
-#   mutate(p_all_adjust = p.adjust(raw_p_value, method = "BH")) %>%
-#   mutate(p_all_adjust_significant = case_when(p_all_adjust <= 0.001 ~ "***",
-#                                               p_all_adjust <= 0.01 ~ "**",
-#                                               p_all_adjust <= 0.05 ~ "*",
-#                                               p_all_adjust <= 0.075 ~ ".",
-#                                               .default = "n.s."
-#   )) %>%
-#   group_by(layer) %>%
-#   mutate(p_layer_adjust = p.adjust(raw_p_value, method = "BH")) %>%
-#   ungroup() %>%
-#   mutate(p_layer_adjust_significant = case_when(p_layer_adjust <= 0.001 ~ "***",
-#                                                 p_layer_adjust <= 0.01 ~ "**",
-#                                                 p_layer_adjust <= 0.05 ~ "*",
-#                                                 p_layer_adjust <= 0.075 ~ ".",
-#                                                 .default = "n.s."
-#   )) %>% View()
-#   filter(p_adjusted <= 0.05 | p_all_adjust <= 0.05 | p_layer_adjust <= 0.05 )  %>%
-#   write_delim("output/R/gene_content/landuse/adjust_comparison.pathogens.logit.compled.tsv", delim = "\t")
-
-
+                                          .default = "n.s.")
+  ) %>%
+  mutate(layer = ifelse(Item %in% spec_pests, "spec_pests", "upper_layer"),
+         layer = factor(layer, levels = c("spec_pests", "upper_layer")))
 
 #####
 # SAVE FILES

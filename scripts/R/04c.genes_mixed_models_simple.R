@@ -78,7 +78,13 @@ gene_tpm <- grene_presence_on_contigs %>%
   select(-contig) %>%
   distinct()
 
-genes_of_interest <- unique(gene_tpm$gene)
+# genes_of_interest <- unique(gene_tpm$gene)
+genes_of_interest <- c("chitinase",
+                       "glucosyltransferase",
+                       "levanase",
+                       "phosphoadenosine phosphosulfate reductase", 
+                       "PnuC-like nicotinamide mononucleotide transport"
+                       )
 coeffs_tpm_simple <- list()
 countries_left <- list()
 
@@ -98,32 +104,31 @@ for (goi in genes_of_interest) {
     mutate(log_tpm = log10(tpm)) %>%
     filter(!is.infinite(log_tpm))
   
-    model_tpm_simple_cropland[[goi]] <- lmer(log_tpm ~ ha_cropland_in_2k_radius + Gut_part + Season +
+  model_tpm_simple_cropland[[goi]] <- lmer(log_tpm ~ ha_cropland_in_2k_radius + Gut_part + Season +
                                                (1 | Hive_ID ), data = test_tibble_log_tpm[[goi]])
     
+  has_convergence_issues <- FALSE
+  messages <- model_tpm_simple_cropland[[goi]]@optinfo$conv$lme4$messages
+  if (is.null(messages)) {
     has_convergence_issues <- FALSE
-    messages <- model_tpm_simple_cropland[[goi]]@optinfo$conv$lme4$messages
-    if (is.null(messages)) {
-      has_convergence_issues <- FALSE
     } else {
       has_convergence_issues <- length(messages[!grepl("singular", messages, ignore.case = TRUE)]) != 0
     }
-    if (has_convergence_issues) {
-      print(paste0(goi, " - Simple model didn't converge. Removed from the list."))
-      model_tpm_simple_cropland[[goi]] <- NULL
-
-  } else {
-    coeffs_tpm_simple$cropland <- summary(model_tpm_simple_cropland[[goi]])$coefficients %>%
-      as.data.frame() %>%
-      rownames_to_column("metric") %>%
-      tibble() %>%
-      mutate(gene = goi, .before = metric) %>%
-      mutate(Item = metric, .before = metric) %>%
-      mutate(singular = ifelse(isSingular(model_tpm_simple_cropland[[goi]]), TRUE, FALSE)) %>%
-      rbind(coeffs_tpm_simple$cropland)
+  if (has_convergence_issues) {
+    print(paste0(goi, " - Simple model didn't converge. Removed from the list."))
+    model_tpm_simple_cropland[[goi]] <- NULL
+    
+    } else {
+      coeffs_tpm_simple$cropland <- summary(model_tpm_simple_cropland[[goi]])$coefficients %>%
+        as.data.frame() %>%
+        rownames_to_column("metric") %>%
+        tibble() %>%
+        mutate(gene = goi, .before = metric) %>%
+        mutate(Item = metric, .before = metric) %>%
+        mutate(singular = ifelse(isSingular(model_tpm_simple_cropland[[goi]]), TRUE, FALSE)) %>%
+        rbind(coeffs_tpm_simple$cropland)
+    }
   }
-  
-}
 
 # genes_of_particular_interest <- names(model_tpm_simple_cropland)
 
@@ -177,8 +182,6 @@ for (gopi in genes_of_interest) {
   }
 }
 
-
-names(model_tpm_simple_total_pest)
 
 #####
 # PEST GROUPS
@@ -279,43 +282,27 @@ for (level in names(coeffs_tpm_simple)) {
 ##### 
 # ADJUST P-VALUES
 
-layered_correction_list <- layered_p_adjustments(slop = slopes)
+# layered_correction_list <- layered_p_adjustments(slop = slopes)
 
-all_slopes <- bind_rows(slopes) %>% 
-  left_join(., layered_correction_list$adjusted_p_values, by = "test_name") %>%
+# all_slopes <- bind_rows(slopes) %>% 
+#   left_join(., layered_correction_list$adjusted_p_values, by = "test_name") %>%
+#   mutate(p_adjust_significant = case_when(p_adjusted <= 0.001 ~ "***",
+#                                           p_adjusted <= 0.01 ~ "**",
+#                                           p_adjusted <= 0.05 ~ "*",
+#                                           p_adjusted <= 0.075 ~ ".",
+#                                           .default = "n.s."
+#   ))
+
+all_slopes <- bind_rows(slopes) %>%
+  mutate(p_adjusted = p.adjust(raw_p_value, method = "BH")) %>%
   mutate(p_adjust_significant = case_when(p_adjusted <= 0.001 ~ "***",
                                           p_adjusted <= 0.01 ~ "**",
                                           p_adjusted <= 0.05 ~ "*",
                                           p_adjusted <= 0.075 ~ ".",
-                                          .default = "n.s."
-  ))
-
-
-### TRY OUT:
-# all_slopes %>% 
-#   mutate(layer = case_when(Item == "ha_cropland_in_2k_radius" ~ "layer_1",
-#                            Item == "Pesticides (total)" ~ "layer_2",
-#                            Item %in% c("Insecticides", "Herbicides", "Fungicides and Bactericides", "Plant Growth Regulators") ~ "layer_3",
-#                            Item %in% spec_pests ~ "layer_4"
-#   )) %>%
-#   mutate(p_all_adjust = p.adjust(raw_p_value, method = "BH")) %>%
-#   mutate(p_all_adjust_significant = case_when(p_all_adjust <= 0.001 ~ "***",
-#                                               p_all_adjust <= 0.01 ~ "**",
-#                                               p_all_adjust <= 0.05 ~ "*",
-#                                               p_all_adjust <= 0.075 ~ ".",
-#                                               .default = "n.s."
-#   )) %>%
-#   group_by(layer) %>%
-#   mutate(p_layer_adjust = p.adjust(raw_p_value, method = "BH")) %>%
-#   ungroup() %>%
-#   mutate(p_layer_adjust_significant = case_when(p_layer_adjust <= 0.001 ~ "***",
-#                                                 p_layer_adjust <= 0.01 ~ "**",
-#                                                 p_layer_adjust <= 0.05 ~ "*",
-#                                                 p_layer_adjust <= 0.075 ~ ".",
-#                                                 .default = "n.s."
-#   )) %>% filter(p_adjusted <= 0.05 | p_all_adjust <= 0.05 | p_layer_adjust <= 0.05 )  %>%
-#   write_delim("output/R/gene_content/landuse/adjust_comparison.genes.tpm.complex.tsv", delim = "\t")
-
+                                          .default = "n.s.")
+  ) %>%
+  mutate(layer = ifelse(Item %in% spec_pests, "spec_pests", "upper_layer"),
+         layer = factor(layer, levels = c("spec_pests", "upper_layer")))
 
 #####
 # MAKE PLOTS
@@ -324,17 +311,18 @@ lowest_highest <- cropland_and_FAO %>%
   pivot_longer(-Country, names_to = "Item") %>%
   group_by(Item) %>%
   summarise(lowest = min(value),
-            highest = max(value))
+            highest = max(value),
+            mean = mean(value))
 
-simple_model_tibble_focused <- layered_correction_list$adjusted_p_values %>%
+simple_model_tibble_focused <- all_slopes %>%
   filter(p_adjusted <= 0.05) %>%
-  inner_join(bind_rows(slopes), ., by = "test_name") %>%
-  mutate(adjust_p_significant = case_when(p_adjusted <= 0.001 ~ "***",
-                                          p_adjusted <= 0.01 ~ "**",
-                                          p_adjusted <= 0.05 ~ "*",
-                                          p_adjusted <= 0.075 ~ ".",
-                                       .default = "n.s."
-  )) %>%
+  # inner_join(bind_rows(slopes), ., by = "test_name") %>%
+  # mutate(adjust_p_significant = case_when(p_adjusted <= 0.001 ~ "***",
+  #                                         p_adjusted <= 0.01 ~ "**",
+  #                                         p_adjusted <= 0.05 ~ "*",
+  #                                         p_adjusted <= 0.075 ~ ".",
+  #                                      .default = "n.s."
+  # )) %>%
   left_join(., lowest_highest, by = "Item") %>%
   mutate(change_in_range = Estimate * (highest - lowest),
          fold_change_in_range = 10^change_in_range,
@@ -349,25 +337,38 @@ simple_model_tibble_focused <- layered_correction_list$adjusted_p_values %>%
                           .default = "(t)")
          )
 
-slope_plot_simple_model_focused <- simple_model_tibble_focused %>%
-  mutate(axis_labels = paste0(Item, " ", unit)) %>%
-  mutate(axis_labels = fct_rev(fct_inorder(axis_labels))) %>%
-  forest_plot(plot_title = "phosphoadenosine phosphosulfate reductase")
+slope_plot_simple_model_focused <- list()
+fold_change_in_range_plot <- list()
+prepatch_simple_model <- list()
+patch_simple_model <- list()
+for (goi in unique(simple_model_tibble_focused$gene)) {
+  for (lay in simple_model_tibble_focused %>% filter(gene == goi) %>% distinct(layer) %>% unlist(use.names = FALSE)) {
+    slope_plot_simple_model_focused[[goi]][[lay]] <- simple_model_tibble_focused %>%
+      filter(gene == goi,
+             layer == lay) %>%
+      mutate(axis_labels = paste0(Item, " ", unit)) %>%
+      mutate(axis_labels = fct_rev(fct_inorder(axis_labels))) %>%
+      forest_plot(plot_title = goi)
+    
+    fold_change_in_range_plot[[goi]][[lay]] <- simple_model_tibble_focused %>%
+      filter(gene == goi,
+             layer == lay) %>%
+      mutate(Item = fct_rev(fct_inorder(Item))) %>%
+      ggplot(aes(x = Item, y = fold_change_in_range)) +
+      geom_col() +
+      coord_flip() +
+      theme_minimal() +
+      theme(axis.title.y = element_blank(),
+            axis.text.y=element_blank())
+    prepatch_simple_model[[goi]][[lay]] <- slope_plot_simple_model_focused[[goi]][[lay]] + fold_change_in_range_plot[[goi]][[lay]]
+  }
+  patch_simple_model[[goi]] <- wrap_plots(prepatch_simple_model[[goi]])
+}
 
-fold_change_in_range_plot <- simple_model_tibble_focused %>%
-  mutate(Item = fct_rev(fct_inorder(Item))) %>%
-  ggplot(aes(x = Item, y = fold_change_in_range)) +
-  geom_col() +
-  coord_flip() +
-  theme_minimal() +
-  theme(axis.title.y = element_blank(),
-        axis.text.y=element_blank())
-
-patch_simple_model <- slope_plot_simple_model_focused + fold_change_in_range_plot
 
 
-simple_model_tibble_all_tests <- layered_correction_list$adjusted_p_values %>%
-  inner_join(bind_rows(slopes), ., by = "test_name") %>%
+simple_model_tibble_all_tests <- all_slopes %>%
+  # inner_join(bind_rows(slopes), ., by = "test_name") %>%
   mutate(axis_labels = fct_rev(fct_inorder(test_name))) %>%
   mutate(estimate = 10^Estimate-1,
          error = 10^Estimate - 10^(Estimate - `Std. Error`))
@@ -377,7 +378,7 @@ slope_plot_simple_model_all_tests <- simple_model_tibble_all_tests %>%
   
 #####
 # DIAGNOSTICS
-
+# 
 # plot(model_tpm_simple_cropland$`phosphoadenosine phosphosulfate reductase`, which = 1)
 # qqnorm(resid(model_tpm_simple_cropland$`phosphoadenosine phosphosulfate reductase`))
 # 
@@ -389,31 +390,40 @@ slope_plot_simple_model_all_tests <- simple_model_tibble_all_tests %>%
 # 
 # plot(model_tpm_simple_pest_groups$`phosphoadenosine phosphosulfate reductase`$Herbicides, which = 1)
 # qqnorm(resid(model_tpm_simple_pest_groups$`phosphoadenosine phosphosulfate reductase`$Herbicides))
-
+# 
+# plot(model_tpm_simple_pest_groups$`PnuC-like nicotinamide mononucleotide transport`$Insecticides, which = 1)
+# qqnorm(resid(model_tpm_simple_pest_groups$`PnuC-like nicotinamide mononucleotide transport`$Insecticides))
+# 
+# plot(model_tpm_simple_specific_pests$levanase$`Herbicides – Urea derivates`, which = 1)
+# qqnorm(resid(model_tpm_simple_specific_pests$levanase$`Herbicides – Urea derivates`))
+# 
+# plot(model_tpm_simple_specific_pests$levanase$`Herbicides – Amides`, which = 1)
+# qqnorm(resid(model_tpm_simple_specific_pests$levanase$`Herbicides – Amides`))
 
 #####
 # SAVE FILES
 
 system("mkdir -p output/R/gene_content/landuse/simple_model")
-ggsave("output/R/gene_content/landuse/simple_model/simple_model_patch.pdf",
-       patch_simple_model, width = 8, height = 5)
+
+for (goi in names(patch_simple_model)) {
+  ggsave(paste0("output/R/gene_content/landuse/simple_model/simple_model_patch.", goi, ".pdf"),
+         patch_simple_model[[goi]], width = 14, height = 6)
+}
+
 write_delim(gene_tpm, "output/R/gene_content/landuse/gene_tpm.tsv",
             delim = "\t")
-write_delim(simple_model_tibble_focused, "output/R/gene_content/landuse/simple_model/simple_model_tibble_focused.tsv",
-            delim = "\t")
+
 write_delim(all_slopes, "output/R/gene_content/landuse/simple_model/simple_model_all_slopes.tsv",
             delim = "\t")
 
-write_delim(simple_model_tibble_all_tests, "output/R/gene_content/landuse/simple_model/simple_model_all_tests.tsv",
-            delim = "\t")
 ggsave("output/R/gene_content/landuse/simple_model/simple_model_all_tests.pdf",
-       slope_plot_simple_model_all_tests, width = 12, height = 180, limitsize = FALSE)
+       slope_plot_simple_model_all_tests, width = 12, height = 50, limitsize = FALSE)
 
-for (layer in names(layered_correction_list$subgraph_plots)) {
-  for (gene in names(layered_correction_list$subgraph_plots[[layer]])) {
-    ggsave(paste0("output/R/gene_content/landuse/simple_model/simple_model_subgraph.", gene, ".", layer,".pdf"),
-           layered_correction_list$subgraph_plots[[layer]][[gene]],
-           width = 20, height = 10)
-  }
-}
+# for (layer in names(layered_correction_list$subgraph_plots)) {
+#   for (gene in names(layered_correction_list$subgraph_plots[[layer]])) {
+#     ggsave(paste0("output/R/gene_content/landuse/simple_model/simple_model_subgraph.", gene, ".", layer,".pdf"),
+#            layered_correction_list$subgraph_plots[[layer]][[gene]],
+#            width = 20, height = 10)
+#   }
+# }
 

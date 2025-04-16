@@ -84,7 +84,7 @@ for (poi in pathogens_of_interest) {
     mutate(cropland_scaled = scale(ha_cropland_in_2k_radius)[1])
   
   model_ct_simple_cropland[[poi]] <- lmer(Ct ~ ha_cropland_in_2k_radius + Season +
-                                            (1 | Hive_ID / Country), data = test_tibble_ct[[poi]])
+                                            (1 | Country / Hive_ID ), data = test_tibble_ct[[poi]])
   
   has_convergence_issues <- FALSE
   messages <- model_ct_simple_cropland[[poi]]@optinfo$conv$lme4$messages
@@ -120,7 +120,7 @@ for (poi in pathogens_of_interest) {
     rename(est_use_in_2k_radius = "Pesticides (total)")
   
   model_ct_simple_total_pest[[poi]][["Pesticides (total)"]] <- lmer(Ct ~ est_use_in_2k_radius + Season +
-                                                                      (1 | Hive_ID / Country), data = temp_test_tibble)
+                                                                      (1 | Country / Hive_ID ), data = temp_test_tibble)
   
   has_convergence_issues <- FALSE
   messages <- model_ct_simple_total_pest[[poi]][["Pesticides (total)"]]@optinfo$conv$lme4$messages
@@ -156,7 +156,7 @@ for (poi in pathogens_of_interest) {
     temp_test_tibble <- test_tibble_ct[[poi]] %>% 
       rename(est_use_in_2k_radius = all_of(item))
     model_ct_simple_pest_groups[[poi]][[item]] <- lmer(Ct ~ est_use_in_2k_radius + Season +
-                                                         (1 | Hive_ID / Country), data = temp_test_tibble)
+                                                         (1 | Country / Hive_ID ), data = temp_test_tibble)
     
     has_convergence_issues <- FALSE
     messages <- model_ct_simple_pest_groups[[poi]][[item]]@optinfo$conv$lme4$messages
@@ -199,7 +199,7 @@ for (poi in pathogens_of_interest) {
     temp_test_tibble <- test_tibble_ct[[poi]] %>% 
       rename(est_use_in_2k_radius = all_of(item))
     model_ct_simple_specific_pests[[poi]][[item]] <- lmer(Ct ~ est_use_in_2k_radius + Season +
-                                                            (1 | Hive_ID / Country), data = temp_test_tibble)
+                                                            (1 | Country / Hive_ID ), data = temp_test_tibble)
     
     has_convergence_issues <- FALSE
     messages <- model_ct_simple_specific_pests[[poi]][[item]]@optinfo$conv$lme4$messages
@@ -261,7 +261,7 @@ all_slopes <- bind_rows(slopes) %>%
   ))
 
 # ### TRY OUT:
-# all_slopes %>%
+# all_slopes %>% 
 #   mutate(layer = case_when(Item == "ha_cropland_in_2k_radius" ~ "layer_1",
 #                            Item == "Pesticides (total)" ~ "layer_2",
 #                            Item %in% c("Insecticides", "Herbicides", "Fungicides and Bactericides", "Plant Growth Regulators") ~ "layer_3",
@@ -282,7 +282,7 @@ all_slopes <- bind_rows(slopes) %>%
 #                                                 p_layer_adjust <= 0.05 ~ "*",
 #                                                 p_layer_adjust <= 0.075 ~ ".",
 #                                                 .default = "n.s."
-#   )) %>% View()
+#   )) %>%
 #   filter(p_adjusted <= 0.05 | p_all_adjust <= 0.05 | p_layer_adjust <= 0.05 )  %>%
 #   write_delim("output/R/gene_content/landuse/adjust_comparison.pathogens.ct.complex.tsv", delim = "\t")
 

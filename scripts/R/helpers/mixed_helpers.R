@@ -84,7 +84,7 @@ layered_p_adjustments <- function(slop = slopes, gene_or_pathogen = "gene") {
       # Layer 3 to 4: pest group to specitic pest
       for (Layer4 in layers$specific[[Layer3]]) {
         L4_test_name <- paste0(gene, "; ", Layer4)
-        
+
         if ( L3_test_name %in% rownames(transitions) & L4_test_name %in% colnames(transitions) ) {
           transitions[L3_test_name, L4_test_name] <- 1 / length(layers$specific[[Layer3]])
         }
@@ -106,19 +106,19 @@ layered_p_adjustments <- function(slop = slopes, gene_or_pathogen = "gene") {
   # print(graph)
   
   # Cor mat
-  # cor_mat <- transitions %>%
-  #   as.data.frame() %>%
-  #   rownames_to_column("test_name") %>%
-  #   pivot_longer(-test_name) %>%
-  #   mutate(value = ifelse(value != 0, NA, 0),
-  #          value = ifelse(test_name == name, 1, value)) %>%
-  #   pivot_wider() %>%
-  #   column_to_rownames("test_name") %>%
-  #   as.matrix()
-  # # # Ensure the matrix is symmetric by copying the upper triangle to the lower triangle
-  # # # (if your procedure requires a symmetric correlation matrix)
-  # cor_mat[lower.tri(cor_mat)] <- t(cor_mat)[lower.tri(cor_mat)]
-  
+  cor_mat <- transitions %>%
+    as.data.frame() %>%
+    rownames_to_column("test_name") %>%
+    pivot_longer(-test_name) %>%
+    mutate(value = ifelse(value != 0, NA, 0),
+           value = ifelse(test_name == name, 1, value)) %>%
+    pivot_wider() %>%
+    column_to_rownames("test_name") %>%
+    as.matrix()
+  # Ensure the matrix is symmetric by copying the upper triangle to the lower triangle
+  # (if your procedure requires a symmetric correlation matrix)
+  cor_mat[lower.tri(cor_mat)] <- t(cor_mat)[lower.tri(cor_mat)]
+
   result <- gMCP(pvalues = p_raw, graph = graph)
 
   adjusted_p <- tibble(test_name = names(result@adjPValues),

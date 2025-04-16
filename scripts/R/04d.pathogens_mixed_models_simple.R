@@ -51,18 +51,6 @@ pathogen_data <- read_excel("data/GlobalBGOOD_WP1_Tier1_Scien.xlsx", skip = 1) %
 pathogens_Cts <- c("DWV A", "DWV B", "ABPV", "CBPV", "BQCV", "SBV", "EFB",
                    "AFB", "N. apis", "N. ceranae")
 
-# pathogen_ct <- pathogen_data %>% 
-#   filter(Years == 2020) %>%
-#   select(BGOOD_sample_code, all_of(pathogens_Cts)) %>%
-#   left_join(metadata[c("BGOOD_sample_code", "Bee_pool")], ., by = "BGOOD_sample_code") %>%
-#   distinct() %>%
-#   select(-BGOOD_sample_code) %>%
-#   pivot_longer(-Bee_pool, names_to = "pathogen", values_to = "Ct") %>%
-#   filter(!is.na(Bee_pool)) %>% 
-#   mutate(Ct = str_replace_all(Ct, "negative", "41")) %>%
-#   mutate(Ct = as.numeric(Ct)) %>% 
-#   filter(!is.na(Ct))
-
 pathogens <- c("DWV A", "DWV B", "ABPV", "CBPV", "BQCV", "SBV", "EFB",
                "AFB", "N. apis", "N. ceranae", "N. spores")
 
@@ -82,27 +70,11 @@ pathogen_ct <- pathogen_data %>%
          # across(all_of(pathogens_Cts), ~ ifelse(.x < 2^-40, 0, .x))
          ) %>%
   select(-c(BGOOD_sample_code, `N. spores`)) %>%
-  pivot_longer(-Bee_pool, names_to = "pathogen", values_to = "Ct") %>%
-  mutate(censoring = case_when(pathogen %in% pathogens & Ct >= 41 ~ "right",
-                               pathogen %in% pathogens & Ct < 41 ~ "none",
-                               pathogen == "nosema_spores" & Ct <= 25000 & Ct != 0 ~ "left",
-                               is.na(Ct) ~ NA,
-                               .default = "none"
-                               ))
+  pivot_longer(-Bee_pool, names_to = "pathogen", values_to = "Ct")
 
 
-pathogens_of_interest <- c("DWV B", "ABPV", "CBPV", "BQCV", "SBV", "N. ceranae", "nosema_spores")
-
-hists <- list()
-for (pat in pathogens_of_interest) {
-  hists[[pat]] <- pathogen_ct %>%
-    filter(pathogen == pat,
-           Ct < 41) %>%
-    ggplot(aes(x = Ct)) +
-    geom_histogram() +
-    ggtitle(pat)
-}
-
+# pathogens_of_interest <- c("DWV B", "ABPV", "CBPV", "BQCV", "SBV", "N. ceranae", "nosema_spores")
+pathogens_of_interest <- c("DWV B", "BQCV", "SBV")
 
 coeffs_ct_simple <- list()
 countries_left <- list()
@@ -112,6 +84,7 @@ countries_left <- list()
 test_tibble_ct <- list()
 model_ct_simple_cropland <- list()
 coeffs_ct_simple$cropland <- tibble()
+model_ct_censored <- list()
 for (poi in pathogens_of_interest) {
   
   test_tibble_ct[[poi]] <- pathogen_ct %>%
@@ -119,19 +92,13 @@ for (poi in pathogens_of_interest) {
     left_join(., metadata[c("Bee_pool", "Country", "Hive_ID", "Season")], by = "Bee_pool") %>%
     distinct() %>%
     left_join(., cropland_and_FAO, by = "Country") %>%
-    mutate(Ct = if_else(rep(poi == "nosema_spores", n()), as.integer(Ct), Ct))  
+    # filter(Ct < 40)
+    # mutate(Ct = if_else(rep(poi == "nosema_spores", n()), as.integer(Ct), Ct))  
 
-  # model_ct_simple_cropland[[poi]] <- lmer(Ct ~ ha_cropland_in_2k_radius + Season +
-  #                                            ( 1 | Hive_ID / Country), data = test_tibble_ct[[poi]])
-
-  model_ct_censored <- brm(
-    formula = bf(Ct | cens(censoring) ~ ha_cropland_in_2k_radius + Season + (1 | Hive_ID / Country)),
-    data = test_tibble_ct[[poi]],
-    family = gaussian(),
-    chains = 4,         # 4 independent MCMC chains
-    iter = 2000,        # 2000 iterations per chain (roughly 1000 warmup, 1000 sampling)
-    cores = 4           # Utilize 4 CPU cores in parallel
-  )
+  model_ct_simple_cropland[[poi]] <- lmer(Ct ~ ha_cropland_in_2k_radius + Season +
+                                             ( 1 | Hive_ID ), data = test_tibble_ct[[poi]])
+  
+  
 
   has_convergence_issues <- FALSE
   messages <- model_ct_simple_cropland[[poi]]@optinfo$conv$lme4$messages
@@ -143,7 +110,7 @@ for (poi in pathogens_of_interest) {
   if (has_convergence_issues) {
     print(paste0(poi, " - Simple model didn't converge. Removed from the list."))
     model_ct_simple_cropland[[poi]] <- NULL
-    
+
   } else {
     coeffs_ct_simple$cropland <- summary(model_ct_simple_cropland[[poi]])$coefficients %>%
       as.data.frame() %>%
@@ -156,6 +123,42 @@ for (poi in pathogens_of_interest) {
   }
 }
 
+summary(model_ct_simple_cropland$`DWV B`)
+summary(model_ct_simple_cropland$BQCV)
+summary(model_ct_simple_cropland$SBV)
+
+# plot(model_ct_simple_cropland$`DWV B`, which = 1)
+# qqnorm(resid(model_ct_simple_cropland$`DWV B`))
+# 
+# plot(model_ct_simple_cropland$BQCV, which = 1)
+# qqnorm(resid(model_ct_simple_cropland$BQCV))
+# 
+# plot(model_ct_simple_cropland$SBV, which = 1)
+# qqnorm(resid(model_ct_simple_cropland$SBV))
+
+# 
+# test_tibble_combinded_ct <- pathogen_ct %>%
+#   filter(pathogen %in% pathogens_of_interest,
+#          Ct < 41) %>%
+#   mutate(rel_load = 2^-Ct) %>%
+#   group_by(Bee_pool) %>%
+#   mutate(summed_rel_load = sum(rel_load),
+#          summed_back_ct = -log2(summed_rel_load)) %>%
+#   ungroup() %>%
+#   select(-c(pathogen, rel_load, summed_rel_load, Ct)) %>%
+#   distinct() %>%
+#   left_join(., metadata[c("Bee_pool", "Country", "Hive_ID", "Season")], by = "Bee_pool") %>%
+#   distinct() %>%
+#   left_join(., cropland_and_FAO, by = "Country") 
+#   # mutate(Ct = if_else(rep(poi == "nosema_spores", n()), as.integer(Ct), Ct)) 
+# 
+# model_combinded_ct_simple_cropland <- lmer(summed_back_ct ~ ha_cropland_in_2k_radius + Season +
+#                                              ( 1 | Hive_ID ), data = test_tibble_combinded_ct)
+# summary(model_combinded_ct_simple_cropland)
+#   
+# plot(model_combinded_ct_simple_cropland, which = 1)
+# qqnorm(resid(model_combinded_ct_simple_cropland))
+
 
 ##### 
 # PESTICIDES:
@@ -167,7 +170,7 @@ for (poi in pathogens_of_interest) {
     rename(est_use_in_2k_radius = "Pesticides (total)")
   
   model_ct_simple_total_pest[[poi]][["Pesticides (total)"]] <- lmer(Ct ~ est_use_in_2k_radius + Season +
-                                                                        ( 1 | Hive_ID / Country), data = temp_test_tibble)
+                                                                        ( 1 | Hive_ID ), data = temp_test_tibble)
   
   has_convergence_issues <- FALSE
   messages <- model_ct_simple_total_pest[[poi]][["Pesticides (total)"]]@optinfo$conv$lme4$messages
@@ -203,7 +206,7 @@ for (poi in pathogens_of_interest) {
     temp_test_tibble <- test_tibble_ct[[poi]] %>% 
       rename(est_use_in_2k_radius = all_of(item))
     model_ct_simple_pest_groups[[poi]][[item]] <- lmer(Ct ~ est_use_in_2k_radius + Season +
-                                                           ( 1 | Hive_ID / Country), data = temp_test_tibble)
+                                                           ( 1 | Hive_ID ), data = temp_test_tibble)
     
     has_convergence_issues <- FALSE
     messages <- model_ct_simple_pest_groups[[poi]][[item]]@optinfo$conv$lme4$messages
@@ -246,7 +249,7 @@ for (poi in pathogens_of_interest) {
     temp_test_tibble <- test_tibble_ct[[poi]] %>% 
       rename(est_use_in_2k_radius = all_of(item))
     model_ct_simple_specific_pests[[poi]][[item]] <- lmer(Ct ~ est_use_in_2k_radius + Season +
-                                                              ( 1 | Hive_ID / Country ), data = temp_test_tibble)
+                                                              ( 1 | Hive_ID  ), data = temp_test_tibble)
     
     has_convergence_issues <- FALSE
     messages <- model_ct_simple_specific_pests[[poi]][[item]]@optinfo$conv$lme4$messages
@@ -291,48 +294,17 @@ for (level in names(coeffs_ct_simple)) {
     mutate(test_name = paste0(pathogen, "; ", Item), .before = pathogen)
 }
 
-
-##### 
-# ADJUST P-VALUES
-
-layered_correction_list <- layered_p_adjustments(slop = slopes, gene_or_pathogen = "pathogen")
-layered_correction_list$adjusted_p_values %>% arrange(p_adjusted)
-
-all_slopes <- bind_rows(slopes) %>% 
-  left_join(., layered_correction_list$adjusted_p_values, by = "test_name") %>%
+all_slopes <- bind_rows(slopes) %>%
+  mutate(p_adjusted = p.adjust(raw_p_value, method = "BH")) %>%
   mutate(p_adjust_significant = case_when(p_adjusted <= 0.001 ~ "***",
                                           p_adjusted <= 0.01 ~ "**",
                                           p_adjusted <= 0.05 ~ "*",
                                           p_adjusted <= 0.075 ~ ".",
-                                          .default = "n.s."
-  ))
+                                          .default = "n.s.")
+  ) %>%
+  mutate(layer = ifelse(Item %in% spec_pests, "spec_pests", "upper_layer"),
+         layer = factor(layer, levels = c("spec_pests", "upper_layer")))
 
-# ### TRY OUT:
-all_slopes %>%
-  mutate(layer = case_when(Item == "ha_cropland_in_2k_radius" ~ "layer_1",
-                           Item == "Pesticides (total)" ~ "layer_2",
-                           Item %in% c("Insecticides", "Herbicides", "Fungicides and Bactericides", "Plant Growth Regulators") ~ "layer_3",
-                           Item %in% spec_pests ~ "layer_4"
-  )) %>%
-  mutate(p_all_adjust = p.adjust(raw_p_value, method = "BH")) %>%
-  mutate(p_all_adjust_significant = case_when(p_all_adjust <= 0.001 ~ "***",
-                                              p_all_adjust <= 0.01 ~ "**",
-                                              p_all_adjust <= 0.05 ~ "*",
-                                              p_all_adjust <= 0.075 ~ ".",
-                                              .default = "n.s."
-  )) %>%
-  group_by(layer) %>%
-  mutate(p_layer_adjust = p.adjust(raw_p_value, method = "BH")) %>%
-  ungroup() %>%
-  mutate(p_layer_adjust_significant = case_when(p_layer_adjust <= 0.001 ~ "***",
-                                                p_layer_adjust <= 0.01 ~ "**",
-                                                p_layer_adjust <= 0.05 ~ "*",
-                                                p_layer_adjust <= 0.075 ~ ".",
-                                                .default = "n.s."
-  )) %>% View()
-#   filter(p_adjusted <= 0.05 | p_all_adjust <= 0.05 | p_layer_adjust <= 0.05 )  %>%
-# #   write_delim("output/R/gene_content/landuse/adjust_comparison.pathogens.ct.medium.tsv", delim = "\t")
- 
 #####
 # MAKE PLOTS
 
@@ -342,9 +314,8 @@ lowest_highest <- cropland_and_FAO %>%
   summarise(lowest = min(value),
             highest = max(value))
 
-simple_model_tibble_focused <- layered_correction_list$adjusted_p_values %>%
+simple_model_tibble_focused <- all_slopes %>%
   filter(p_adjusted <= 0.05) %>%
-  inner_join(bind_rows(slopes), ., by = "test_name") %>%
   mutate(adjust_p_significant = case_when(p_adjusted <= 0.001 ~ "***",
                                           p_adjusted <= 0.01 ~ "**",
                                           p_adjusted <= 0.05 ~ "*",
@@ -355,14 +326,18 @@ simple_model_tibble_focused <- layered_correction_list$adjusted_p_values %>%
   mutate(ct_change_in_range = Estimate * (highest - lowest))
 
 slope_plot_simple_model_focused <- simple_model_tibble_focused %>%
-  mutate(axis_labels = test_name) %>%
+  arrange(test_name) %>%
+  mutate(axis_labels = test_name,
+         axis_labels = fct_inorder(axis_labels)) %>%
   mutate(estimate = Estimate,
          error = `Std. Error`) %>%
   forest_plot(plot_title = "pathogens")
 
 fold_change_in_range_plot <- simple_model_tibble_focused %>%
-  mutate(Item = fct_rev(fct_inorder(Item))) %>%
-  ggplot(aes(x = Item, y = ct_change_in_range)) +
+  arrange(test_name) %>%
+  mutate(axis_labels = test_name,
+         axis_labels = fct_inorder(axis_labels)) %>%
+  ggplot(aes(x = axis_labels, y = ct_change_in_range)) +
   geom_col() +
   coord_flip() +
   theme_minimal() +
@@ -371,12 +346,10 @@ fold_change_in_range_plot <- simple_model_tibble_focused %>%
 
 patch_simple_model <- slope_plot_simple_model_focused + fold_change_in_range_plot
 
-
-simple_model_tibble_all_tests <- layered_correction_list$adjusted_p_values %>%
-  inner_join(bind_rows(slopes), ., by = "test_name") %>%
+simple_model_tibble_all_tests <- all_slopes %>%
   mutate(axis_labels = fct_rev(fct_inorder(test_name))) %>%
-  mutate(estimate = Estimate,
-         error = `Std. Error`)
+  mutate(estimate = 10^Estimate-1,
+         error = 10^Estimate - 10^(Estimate - `Std. Error`))
 
 slope_plot_simple_model_all_tests <- simple_model_tibble_all_tests %>%
   forest_plot(plot_title = "all tests")
@@ -387,6 +360,15 @@ slope_plot_simple_model_all_tests <- simple_model_tibble_all_tests %>%
 
 # plot(model_ct_simple_cropland$`DWV B`, which = 1)
 # qqnorm(resid(model_ct_simple_cropland$`DWV B`))
+# 
+# plot(model_ct_simple_specific_pests$`DWV B`$`Herbicides – Dinitroanilines` , which = 1)
+# qqnorm(resid(model_ct_simple_specific_pests$`DWV B`$`Herbicides – Dinitroanilines`))
+# 
+# plot(model_ct_simple_pest_groups$BQCV$Insecticides, which = 1)
+# qqnorm(resid(model_ct_simple_pest_groups$BQCV$Insecticides))
+# 
+# plot(model_ct_simple_specific_pests$BQCV$`Insecticides - nes`, which = 1)
+# qqnorm(resid(model_ct_simple_specific_pests$BQCV$`Insecticides - nes`))
 
 
 #####
@@ -397,13 +379,12 @@ ggsave("output/R/gene_content/landuse/pathogen_simple_model/pathogen_simple_mode
        patch_simple_model, width = 8, height = 5)
 write_delim(pathogen_ct, "output/R/gene_content/landuse/pathogen_ct.tsv",
             delim = "\t")
-write_delim(simple_model_tibble_focused, "output/R/gene_content/landuse/pathogen_simple_model/pathogen_simple_model_tibble_focused.tsv",
-            delim = "\t")
+
 write_delim(all_slopes, "output/R/gene_content/landuse/pathogen_simple_model/pathogen_simple_model_all_slopes.tsv",
             delim = "\t")
 
 write_delim(simple_model_tibble_all_tests, "output/R/gene_content/landuse/pathogen_simple_model/pathogen_simple_model_all_tests.tsv",
             delim = "\t")
 ggsave("output/R/gene_content/landuse/pathogen_simple_model/pathogen_simple_model_all_tests.pdf",
-       slope_plot_simple_model_all_tests, width = 12, height = 50, limitsize = FALSE)
+       slope_plot_simple_model_all_tests, width = 12, height = 30, limitsize = FALSE)
 
