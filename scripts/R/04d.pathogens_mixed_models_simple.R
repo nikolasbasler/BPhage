@@ -91,7 +91,7 @@ for (poi in pathogens_of_interest) {
     filter(pathogen == poi) %>%
     left_join(., metadata[c("Bee_pool", "Country", "Hive_ID", "Season")], by = "Bee_pool") %>%
     distinct() %>%
-    left_join(., cropland_and_FAO, by = "Country") %>%
+    left_join(., cropland_and_FAO, by = "Country")
     # filter(Ct < 40)
     # mutate(Ct = if_else(rep(poi == "nosema_spores", n()), as.integer(Ct), Ct))  
 

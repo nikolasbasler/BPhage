@@ -77,32 +77,76 @@ gene_tpm <- grene_presence_on_contigs %>%
   select(-contig) %>%
   distinct()
 
-genes_of_interest <- unique(gene_tpm$gene)
+# genes_of_interest <- unique(gene_tpm$gene)
+genes_of_interest <- c("chitinase",
+                       "glucosyltransferase",
+                       "levanase",
+                       "phosphoadenosine phosphosulfate reductase", 
+                       "PnuC-like nicotinamide mononucleotide transport"
+)
 coeffs_logit <- list()
 countries_with_presence <- list()
 samples_with_presence <- list()
 
 ###### 
-# TEST TIBBLE
-
+# CROPLAND
 test_tibble_logit <- list()
-# samples_with_presence$cropland <- tibble()
+model_logit_cropland <- list()
+samples_with_presence$cropland <- tibble()
 for (goi in genes_of_interest) {
-# for (goi in "phosphoadenosine phosphosulfate reductase") {
-
+  
   test_tibble_logit[[goi]] <- gene_tpm %>%
     filter(gene == goi) %>%
     left_join(., metadata[c("Sample_ID", "Country", "Hive_ID", "Season", "Gut_part")], by = "Sample_ID") %>%
     distinct() %>%
     left_join(., cropland_and_FAO, by = "Country") %>%
     mutate(Gut_part = factor(Gut_part, levels = c("rec", "ile", "mid"))) %>%
-    mutate(presence = ifelse(tpm > 0, 1, 0), .before = tpm) # %>%
-    # mutate(ha_cropland_in_2k_radius = ha_cropland_in_2k_radius / sd(ha_cropland_in_2k_radius))
-    # mutate(ha_cropland_in_2k_radius = scale(ha_cropland_in_2k_radius)[1])
+    mutate(presence = ifelse(tpm > 0, 1, 0), .before = tpm)
+  
+  model_logit_cropland[[goi]] <- glmer(
+    presence ~ ha_cropland_in_2k_radius + Gut_part + Season + (1 | Hive_ID ),
+    data = test_tibble_logit[[goi]],
+    family = binomial)
+  
+  has_convergence_issues <- FALSE
+  messages <- model_logit_cropland[[goi]]@optinfo$conv$lme4$messages
+  if (!is.null(messages) & any(str_detect(messages, "failed to converge"))) {
+    has_convergence_issues <- TRUE
+  }
+  
+  if (has_convergence_issues) {
+    print(paste0(goi, " - Model didn't converge. Removed from the list."))
+    model_logit_cropland[[goi]] <- NULL
+  } else {
+    coeffs_logit$cropland <- summary(model_logit_cropland[[goi]])$coefficients %>%
+      as.data.frame() %>%
+      rownames_to_column("metric") %>%
+      tibble() %>%
+      mutate(gene = goi, .before = metric) %>%
+      mutate(Item = metric, .before = metric) %>%
+      mutate(singular = ifelse(isSingular(model_logit_cropland[[goi]]), TRUE, FALSE)) %>%
+      rbind(coeffs_logit$cropland)
+  }
 }
 
-###### 
-# PREVALENCE PLOT
+# summary(model_logit_cropland$`phosphoadenosine phosphosulfate reductase`)
+# summary(model_logit_cropland$levanase)
+# summary(model_logit_cropland$`nicotinamide-nucleotide adenylyltransferase`)
+
+
+countries_with_presence$cropland <- list()
+samples_with_presence$cropland <- list()
+for (tpm_test in genes_of_interest) {
+  countries_with_presence$cropland <- test_tibble_logit[[tpm_test]] %>%
+    filter(presence > 0 ) %>%
+    distinct(Country) %>%
+    reframe(test = tpm_test, countries_with_presence = n()) %>%
+    rbind(countries_with_presence$cropland, .)
+  samples_with_presence$cropland <- test_tibble_logit[[tpm_test]] %>%
+    filter(presence > 0 ) %>%
+    reframe(test = tpm_test, samples_with_presence = n()) %>%
+    rbind(samples_with_presence$cropland, .)
+}
 
 prevalence_plot <- bind_rows(test_tibble_logit) %>%
   select(gene, Sample_ID, Country, presence) %>%
@@ -136,87 +180,89 @@ prevalence_plot_facet_genes <- bind_rows(test_tibble_logit) %>%
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   facet_wrap(~gene, scale = "free")
 
-###### 
-# CROPLAND
-
-model_logit_cropland <- list()
-goi = "phosphoadenosine phosphosulfate reductase"
-
-model_logit_cropland[[goi]] <- glmer(
-  presence ~ ha_cropland_in_2k_radius + Gut_part + Season + (1 | Hive_ID ),
-  data = test_tibble_logit[[goi]],
-  family = binomial)
-
-coeffs_logit$cropland <- summary(model_logit_cropland[[goi]])$coefficients %>%
-  as.data.frame() %>%
-  rownames_to_column("metric") %>%
-  tibble() %>%
-  mutate(gene = goi, .before = metric) %>%
-  mutate(Item = metric, .before = metric) %>%
-  mutate(singular = ifelse(isSingular(model_logit_cropland[[goi]]), TRUE, FALSE)) %>%
-  rbind(coeffs_logit$cropland)
-
 ##### 
 # PESTICIDES:
 
 model_logit_total_pest <- list()
 coeffs_logit$total_pest <- tibble()
-
-goi = "phosphoadenosine phosphosulfate reductase"
-
-temp_test_tibble <- test_tibble_logit[[goi]] %>%
-  rename(est_use_in_2k_radius = `Pesticides (total)`)
-
-model_logit_total_pest[[goi]] <- glmer(presence ~ est_use_in_2k_radius + Gut_part + Season +
-                                                           (1 | Hive_ID ), data = temp_test_tibble,
-                                                           family = binomial)
-
-coeffs_logit$total_pest <- summary(model_logit_total_pest[[goi]])$coefficients %>%
-  as.data.frame() %>%
-  rownames_to_column("metric") %>%
-  tibble() %>%
-  mutate(gene = goi, 
-         Item = metric,
-         .before = metric) %>%
-  mutate(singular = ifelse(isSingular(model_logit_total_pest[[goi]]), TRUE, FALSE)) %>%
-  rbind(coeffs_logit$total_pest)
+for (goi in genes_of_interest) {
+  temp_test_tibble <- test_tibble_logit[[goi]] %>%
+    rename(est_use_in_2k_radius = `Pesticides (total)`)
+  
+  model_logit_total_pest[[goi]][["Pesticides (total)"]] <- glmer(presence ~ est_use_in_2k_radius + Gut_part + Season +
+                                                                   (1 | Hive_ID ), data = temp_test_tibble,
+                                                                 family = binomial)
+  # summary( model_logit_total_pest[[goi]][["Pesticides (total)"]])
+  
+  has_convergence_issues <- FALSE
+  messages <- model_logit_total_pest[[goi]][["Pesticides (total)"]]@optinfo$conv$lme4$messages
+  if (!is.null(messages) & any(str_detect(messages, "failed to converge"))) {
+    has_convergence_issues <- TRUE
+  }
+  
+  if (has_convergence_issues) {
+    print(paste0(goi, " - Model didn't converge. Removed from the list."))
+    model_logit_total_pest[[goi]] <- NULL
+  } else {
+    coeffs_logit$total_pest <- summary(model_logit_total_pest[[goi]][["Pesticides (total)"]])$coefficients %>%
+      as.data.frame() %>%
+      rownames_to_column("metric") %>%
+      tibble() %>%
+      mutate(gene = goi, 
+             Item = "Pesticides (total)",
+             .before = metric) %>%
+      mutate(singular = ifelse(isSingular(model_logit_total_pest[[goi]][["Pesticides (total)"]]), TRUE, FALSE)) %>%
+      rbind(coeffs_logit$total_pest)
+  }
+}
 
 
 #####
 # PEST GROUPS
 model_logit_pest_groups <- list()
 coeffs_logit$pest_groups <- tibble()
-goi = "phosphoadenosine phosphosulfate reductase"
-
-for (item in c("Insecticides", "Herbicides", "Fungicides and Bactericides", "Plant Growth Regulators")) {
-  temp_test_tibble <- test_tibble_logit[[goi]] %>% 
-    rename(est_use_in_2k_radius = all_of(item))
-  
-  model_logit_pest_groups[[goi]][[item]] <- glmer(presence ~ est_use_in_2k_radius + Gut_part + Season +
-                                              (1 | Hive_ID ), data = temp_test_tibble,
-                                              family = binomial)
-  
-  has_convergence_issues <- FALSE
-  messages <- model_logit_pest_groups[[goi]][[item]]@optinfo$conv$lme4$messages
-  if (!is.null(messages) & any(str_detect(messages, "failed to converge"))) {
-    has_convergence_issues <- TRUE
-  }
-  
-  if (has_convergence_issues) {
-    print(paste0(goi, "; ", item, " - Model didn't converge. Removed from the list."))
-    model_logit_pest_groups[[goi]][[item]] <- NULL
-  } else {
-    coeffs_logit$pest_groups <- summary(model_logit_pest_groups[[goi]][[item]])$coefficients %>%
-      as.data.frame() %>%
-      rownames_to_column("metric") %>%
-      tibble() %>%
-      mutate(gene = goi, 
-             Item = item,
-             .before = metric) %>%
-      mutate(singular = ifelse(isSingular(model_logit_pest_groups[[goi]][[item]]), TRUE, FALSE)) %>%
-      rbind(coeffs_logit$pest_groups)
+for (goi in genes_of_interest) {
+  for (item in c("Insecticides", "Herbicides", "Fungicides and Bactericides", "Plant Growth Regulators")) {
+    temp_test_tibble <- test_tibble_logit[[goi]] %>% 
+      rename(est_use_in_2k_radius = all_of(item))
+    
+    model_logit_pest_groups[[goi]][[item]] <- glmer(presence ~ est_use_in_2k_radius + Gut_part + Season +
+                                                      (1 | Hive_ID ), data = temp_test_tibble,
+                                                    family = binomial)
+    
+    has_convergence_issues <- FALSE
+    messages <- model_logit_pest_groups[[goi]][[item]]@optinfo$conv$lme4$messages
+    if (!is.null(messages) & any(str_detect(messages, "failed to converge"))) {
+      has_convergence_issues <- TRUE
+    }
+    
+    if (has_convergence_issues) {
+      print(paste0(goi, "; ", item, " - Model didn't converge. Removed from the list."))
+      model_logit_pest_groups[[goi]][[item]] <- NULL
+    } else {
+      coeffs_logit$pest_groups <- summary(model_logit_pest_groups[[goi]][[item]])$coefficients %>%
+        as.data.frame() %>%
+        rownames_to_column("metric") %>%
+        tibble() %>%
+        mutate(gene = goi, 
+               Item = item,
+               .before = metric) %>%
+        mutate(singular = ifelse(isSingular(model_logit_pest_groups[[goi]][[item]]), TRUE, FALSE)) %>%
+        rbind(coeffs_logit$pest_groups)
+    }
   }
 }
+
+# summary(model_logit_pest_groups$`NrdD-like anaerobic ribonucleotide reductase large subunit`$Herbicides)
+# summary(model_logit_pest_groups$`nicotinamide-nucleotide adenylyltransferase`$`Fungicides and Bactericides`)
+# summary(model_logit_pest_groups$`nicotinamide-nucleotide adenylyltransferase`$Herbicides)
+# summary(model_logit_pest_groups$`nicotinamide-nucleotide adenylyltransferase`$Insecticides)
+# summary(model_logit_pest_groups$chitinase$`Fungicides and Bactericides`)
+# summary(model_logit_pest_groups$chitinase$Herbicides)
+# summary(model_logit_pest_groups$chitinase$Insecticides)
+# summary(model_logit_pest_groups$`ribosomal protein S6 glutaminyl transferase`$Insecticides)
+# summary(model_logit_pest_groups$`phosphoadenosine phosphosulfate reductase`$`Plant Growth Regulators`)
+# summary(model_logit_pest_groups$`phosphoadenosine phosphosulfate reductase`$Insecticides)
 
 #####
 # SPECIFIC PESTS
@@ -228,35 +274,34 @@ spec_pests <- tibble(Item = colnames(cropland_and_FAO)) %>%
 model_logit_specific_pests <- list()
 coeffs_logit$specific_pests <- tibble()
 # for (goi in genes_of_particular_interest) {
-# for (goi in genes_of_interest) {
-goi = "phosphoadenosine phosphosulfate reductase"
-
-for (item in spec_pests) {
-  temp_test_tibble <- test_tibble_logit[[goi]] %>%
-    rename(est_use_in_2k_radius = all_of(item))
-
-  model_logit_specific_pests[[goi]][[item]] <- glmer(presence ~ est_use_in_2k_radius + Gut_part + Season +
-                                                 (1 | Hive_ID ), data = temp_test_tibble,
-                                                 family = binomial)
-
-  has_convergence_issues <- FALSE
-  messages <- model_logit_specific_pests[[goi]][[item]]@optinfo$conv$lme4$messages
-  if (!is.null(messages) & any(str_detect(messages, "failed to converge"))) {
-    has_convergence_issues <- TRUE
-  }
-  if (has_convergence_issues) {
-    print(paste0(goi, "; ", item, " - Model didn't converge. Removed from the list."))
-    model_logit_pest_groups[[goi]][[item]] <- NULL
-  } else {
-    coeffs_logit$specific_pests <- summary(model_logit_specific_pests[[goi]][[item]])$coefficients %>%
-      as.data.frame() %>%
-      rownames_to_column("metric") %>%
-      tibble() %>%
-      mutate(gene = goi,
-             Item = item,
-             .before = metric) %>%
-      mutate(singular = ifelse(isSingular(model_logit_specific_pests[[goi]][[item]]), TRUE, FALSE)) %>%
-      rbind(coeffs_logit$specific_pests)
+for (goi in genes_of_interest) {
+  for (item in spec_pests) {
+    temp_test_tibble <- test_tibble_logit[[goi]] %>%
+      rename(est_use_in_2k_radius = all_of(item))
+    
+    model_logit_specific_pests[[goi]][[item]] <- glmer(presence ~ est_use_in_2k_radius + Gut_part + Season +
+                                                         (1 | Hive_ID ), data = temp_test_tibble,
+                                                       family = binomial)
+    
+    has_convergence_issues <- FALSE
+    messages <- model_logit_specific_pests[[goi]][[item]]@optinfo$conv$lme4$messages
+    if (!is.null(messages) & any(str_detect(messages, "failed to converge"))) {
+      has_convergence_issues <- TRUE
+    }
+    if (has_convergence_issues) {
+      print(paste0(goi, "; ", item, " - Model didn't converge. Removed from the list."))
+      model_logit_pest_groups[[goi]][[item]] <- NULL
+    } else {
+      coeffs_logit$specific_pests <- summary(model_logit_specific_pests[[goi]][[item]])$coefficients %>%
+        as.data.frame() %>%
+        rownames_to_column("metric") %>%
+        tibble() %>%
+        mutate(gene = goi,
+               Item = item,
+               .before = metric) %>%
+        mutate(singular = ifelse(isSingular(model_logit_specific_pests[[goi]][[item]]), TRUE, FALSE)) %>%
+        rbind(coeffs_logit$specific_pests)
+    }
   }
 }
 
@@ -264,20 +309,19 @@ for (item in spec_pests) {
 # EXTRACT SLOPES
 slopes <- list()
 for (level in names(coeffs_logit)) {
-  slopes[[level]] <- coeffs_logit[[level]] %>%
-    filter(metric == "ha_cropland_in_2k_radius" | metric == "est_use_in_2k_radius") %>%
-    rename(raw_p_value = `Pr(>|z|)`) %>%
-    mutate(raw_p_significant = case_when(raw_p_value <= 0.001 ~ "***",
-                                         raw_p_value <= 0.01 ~ "**",
-                                         raw_p_value <= 0.05 ~ "*",
-                                         raw_p_value <= 0.075 ~ ".",
-                                         .default = "n.s."
-    )) %>%
-    mutate(test_name = paste0(gene, "; ", Item), .before = gene)
+  if (nrow(coeffs_logit[[level]]) > 0) {
+    slopes[[level]] <- coeffs_logit[[level]] %>%
+      filter(metric == "ha_cropland_in_2k_radius" | metric == "est_use_in_2k_radius") %>%
+      rename(raw_p_value = `Pr(>|z|)`) %>%
+      mutate(raw_p_significant = case_when(raw_p_value <= 0.001 ~ "***",
+                                           raw_p_value <= 0.01 ~ "**",
+                                           raw_p_value <= 0.05 ~ "*",
+                                           raw_p_value <= 0.075 ~ ".",
+                                           .default = "n.s."
+      )) %>%
+      mutate(test_name = paste0(gene, "; ", Item), .before = gene)
+  }
 }
-
-##### 
-# ADJUST P-VALUES
 
 all_slopes <- bind_rows(slopes) %>%
   mutate(p_adjusted = p.adjust(raw_p_value, method = "BH")) %>%
@@ -291,17 +335,11 @@ all_slopes <- bind_rows(slopes) %>%
 #####
 # SAVE FILES
 system("mkdir -p output/R/gene_content/landuse/logit_model")
-write_delim(all_slopes, "output/R/gene_content/landuse/logit_model/logit_model_tibble.tsv",
-              delim = "\t")
-ggsave("output/R/gene_content/landuse/logit_model/prevalence_total.pdf",
-       prevalence_plot, width = 7, height = 7)
-ggsave("output/R/gene_content/landuse/logit_model/prevalence_country_facet.pdf",
-       prevalence_plot_facet_countries, width = 12, height = 12)
-ggsave("output/R/gene_content/landuse/logit_model/prevalence_gene_facet.pdf",
-       prevalence_plot_facet_genes, width = 15, height = 10)
+write_delim(all_slopes, "output/R/gene_content/landuse/logit_model/logit_model_tibble_5gopi.tsv",
+            delim = "\t")
 
 
 
 
-  
+
 
