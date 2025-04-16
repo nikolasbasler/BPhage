@@ -89,10 +89,8 @@ countries_with_presence <- list()
 samples_with_presence <- list()
 
 ###### 
-# CROPLAND
+# TEST TIBBLE
 test_tibble_logit <- list()
-model_logit_cropland <- list()
-samples_with_presence$cropland <- tibble()
 for (goi in genes_of_interest) {
   
   test_tibble_logit[[goi]] <- gene_tpm %>%
@@ -102,6 +100,51 @@ for (goi in genes_of_interest) {
     left_join(., cropland_and_FAO, by = "Country") %>%
     mutate(Gut_part = factor(Gut_part, levels = c("rec", "ile", "mid"))) %>%
     mutate(presence = ifelse(tpm > 0, 1, 0), .before = tpm)
+}
+
+
+###### 
+# PREVALENCE PLOT
+prevalence_plot <- bind_rows(test_tibble_logit) %>%
+  select(gene, Sample_ID, Country, presence) %>%
+  ggplot(aes(x = reorder(gene, -presence, FUN = mean), y = presence)) +
+  geom_bar(stat = "summary", fun = mean) +
+  geom_text(
+    stat = "summary",
+    fun = mean,
+    aes(label = round(after_stat(y), 2)),
+    vjust = -0.5,
+    # size = 3  # smaller text (default is ~5)
+  ) +  
+  labs(x = "Gene", y = "Prevalence") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +  # add 10% space at the top
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))
+
+prevalence_plot_facet_countries <- prevalence_plot + facet_wrap(~Country)
+
+prevalence_plot_facet_genes <- bind_rows(test_tibble_logit) %>%
+  select(gene, Sample_ID, Country, presence) %>%
+  ggplot(aes(x = Country, y = presence)) +
+  geom_bar(stat = "summary", fun = mean) +
+  geom_text(
+    stat = "summary",
+    fun = mean,
+    aes(label = round(after_stat(y), 2)),
+    vjust = -0.5,
+    # size = 3  # smaller text (default is ~5)
+  ) +  
+  labs(x = "Gene", y = "Prevalence") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +  # add 10% space at the top
+  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
+  facet_wrap(~gene, scale = "free")
+
+
+###### 
+# CROPLAND
+
+model_logit_cropland <- list()
+samples_with_presence$cropland <- tibble()
+for (goi in genes_of_interest) {
   
   model_logit_cropland[[goi]] <- glmer(
     presence ~ ha_cropland_in_2k_radius + Gut_part + Season + (1 | Hive_ID ),
@@ -132,53 +175,6 @@ for (goi in genes_of_interest) {
 # summary(model_logit_cropland$`phosphoadenosine phosphosulfate reductase`)
 # summary(model_logit_cropland$levanase)
 # summary(model_logit_cropland$`nicotinamide-nucleotide adenylyltransferase`)
-
-
-countries_with_presence$cropland <- list()
-samples_with_presence$cropland <- list()
-for (tpm_test in genes_of_interest) {
-  countries_with_presence$cropland <- test_tibble_logit[[tpm_test]] %>%
-    filter(presence > 0 ) %>%
-    distinct(Country) %>%
-    reframe(test = tpm_test, countries_with_presence = n()) %>%
-    rbind(countries_with_presence$cropland, .)
-  samples_with_presence$cropland <- test_tibble_logit[[tpm_test]] %>%
-    filter(presence > 0 ) %>%
-    reframe(test = tpm_test, samples_with_presence = n()) %>%
-    rbind(samples_with_presence$cropland, .)
-}
-
-prevalence_plot <- bind_rows(test_tibble_logit) %>%
-  select(gene, Sample_ID, Country, presence) %>%
-  ggplot(aes(x = reorder(gene, -presence, FUN = mean), y = presence)) +
-  geom_bar(stat = "summary", fun = mean) +
-  geom_text(
-    stat = "summary",
-    fun = mean,
-    aes(label = round(after_stat(y), 2)),
-    vjust = -0.5,
-    # size = 3  # smaller text (default is ~5)
-  ) +  
-  labs(x = "Gene", y = "Prevalence") +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +  # add 10% space at the top
-  theme(axis.text.x = element_text(angle = 90, hjust = 1))
-prevalence_plot_facet_countries <- prevalence_plot + facet_wrap(~Country)
-
-prevalence_plot_facet_genes <- bind_rows(test_tibble_logit) %>%
-  select(gene, Sample_ID, Country, presence) %>%
-  ggplot(aes(x = Country, y = presence)) +
-  geom_bar(stat = "summary", fun = mean) +
-  geom_text(
-    stat = "summary",
-    fun = mean,
-    aes(label = round(after_stat(y), 2)),
-    vjust = -0.5,
-    # size = 3  # smaller text (default is ~5)
-  ) +  
-  labs(x = "Gene", y = "Prevalence") +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +  # add 10% space at the top
-  theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-  facet_wrap(~gene, scale = "free")
 
 ##### 
 # PESTICIDES:
@@ -310,8 +306,9 @@ for (goi in genes_of_interest) {
 slopes <- list()
 for (level in names(coeffs_logit)) {
   if (nrow(coeffs_logit[[level]]) > 0) {
-    slopes[[level]] <- coeffs_logit[[level]] %>%
-      filter(metric == "ha_cropland_in_2k_radius" | metric == "est_use_in_2k_radius") %>%
+    
+    temp_slope_tibble <- coeffs_logit[[level]] %>%
+      filter(metric %in% c("ha_cropland_in_2k_radius", "est_use_in_2k_radius")) %>%
       rename(raw_p_value = `Pr(>|z|)`) %>%
       mutate(raw_p_significant = case_when(raw_p_value <= 0.001 ~ "***",
                                            raw_p_value <= 0.01 ~ "**",
@@ -320,6 +317,16 @@ for (level in names(coeffs_logit)) {
                                            .default = "n.s."
       )) %>%
       mutate(test_name = paste0(gene, "; ", Item), .before = gene)
+    
+    slopes[[level]] <- coeffs_logit[[level]] %>%
+      filter(metric == "(Intercept)") %>%
+      mutate(test_name = paste0(gene, "; ", temp_slope_tibble$Item), .before = gene) %>%
+      rename(intercept = Estimate,
+             sd_intercept = `Std. Error`) %>%
+      select(test_name, intercept, sd_intercept) %>%
+      full_join(temp_slope_tibble, ., by = "test_name") %>%
+      relocate(c(intercept, sd_intercept), .after = `Std. Error`)
+    
   }
 }
 
@@ -329,8 +336,171 @@ all_slopes <- bind_rows(slopes) %>%
                                           p_adjusted <= 0.01 ~ "**",
                                           p_adjusted <= 0.05 ~ "*",
                                           p_adjusted <= 0.075 ~ ".",
-                                          .default = "n.s.")
+                                          .default = "n.s."))
+
+
+################
+
+
+
+
+sig_tests <- all_slopes %>%
+  filter(p_adjusted < 0.05) 
+
+lowest_highest <- cropland_and_FAO %>%
+  pivot_longer(-Country, names_to = "Item") %>%
+  group_by(Item) %>%
+  summarise(lowest = min(value),
+            highest = max(value))
+
+logistic_fun <- function(x, intercept, slope) {
+  1 / (1 + exp(-(intercept + slope * x)))
+}
+
+for (t_name in unique(sig_tests$test_name)) {
+  t_name = "phosphoadenosine phosphosulfate reductase; Insecticides"
+
+  
+  logit_test <- sig_tests %>%
+    filter(test_name == t_name) %>%
+    left_join(., lowest_highest, by = "Item")
+  
+  inter <- logit_test$intercept
+  inter_sd <- logit_test$sd_intercept
+  slo <- logit_test$Estimate
+  slo_sd <- logit_test$`Std. Error`
+  high <- logit_test$highest
+  low <- logit_test$lowest
+  
+  y_of_high <- logistic_fun(high, intercept = inter, slope = slo)
+  y_of_low <- logistic_fun(low, intercept = inter, slope = slo)
+  
+  odds_ratio <- exp(slo * (high - low))
+
+  plot_min <- low - (high - low)/5
+  plot_max <- high + (high - low)/5
+  
+  line_tibble <- tibble(x_val = seq(plot_min, plot_max, length.out = 100),
+         y_val = logistic_fun(x_val, inter = inter, slope = slo),
+         y_lower = logistic_fun(x_val, intercept = inter - inter_sd, slope = slo - slo_sd),
+         y_upper = logistic_fun(x_val, intercept = inter + inter_sd, slope = slo + slo_sd))
+  
+  # Coordinates
+  arrow_x_center <- (low + high) / 2
+  arrow_width <- (high - low) / 15  # Adjust to control how "fat" the arrow is
+  
+  arrow_base <- y_of_low
+  arrow_tip <- y_of_high
+  
+  # Define polygon for vertical arrow
+  arrow_poly <- tibble(
+    x = c(
+      arrow_x_center - arrow_width,  # bottom left
+      arrow_x_center + arrow_width,  # bottom right
+      arrow_x_center + arrow_width,  # shaft right
+      arrow_x_center + 2 * arrow_width,  # arrowhead right
+      arrow_x_center,               # arrow tip
+      arrow_x_center - 2 * arrow_width,  # arrowhead left
+      arrow_x_center - arrow_width,  # shaft left
+      arrow_x_center - arrow_width   # back to bottom left (close shape)
+    ),
+    y = c(
+      arrow_base,  # bottom
+      arrow_base,  # bottom
+      arrow_tip - (arrow_tip - arrow_base) * 0.2,  # shaft top
+      arrow_tip - (arrow_tip - arrow_base) * 0.2,  # arrowhead base right
+      arrow_tip,  # tip
+      arrow_tip - (arrow_tip - arrow_base) * 0.2,  # arrowhead base left
+      arrow_tip - (arrow_tip - arrow_base) * 0.2,  # shaft top
+      arrow_base   # close
+    )
   )
+  
+  arrow_head_base_y <- arrow_tip - (arrow_tip - arrow_base) * 0.2
+  arrow_head_center_y <- (arrow_tip + arrow_head_base_y) / 2
+  
+  ggplot(line_tibble, aes(x = x_val, y = y_val)) +
+    
+    # Dashed line from low point to arrow base
+    annotate(
+      "segment",
+      x = low,
+      xend = arrow_x_center,
+      y = arrow_base,
+      yend = arrow_base,
+      linetype = "dashed",
+      color = "gray40"
+    ) +
+    
+    # Dashed line from high point to arrow tip
+    annotate(
+      "segment",
+      x = high,
+      xend = arrow_x_center,
+      y = arrow_tip,
+      yend = arrow_tip,
+      linetype = "dashed",
+      color = "gray40"
+    ) +
+    
+    geom_ribbon(aes(ymin = y_lower, ymax = y_upper), fill = "skyblue", alpha = 0.3) +
+    geom_line() +
+    geom_point(x = high, y = y_of_high, size = 4) +
+    geom_point(x = low, y = y_of_low, size = 4) +
+
+    geom_polygon(data = arrow_poly, aes(x = x, y = y), fill = "darkred", alpha = 1) +
+   
+    annotate(
+      "text",
+      x = arrow_x_center,
+      y = (arrow_base + arrow_tip) / 2,
+      label = round(odds_ratio, 2),
+      angle = 90,
+      size = 8,
+      fontface = "bold",
+      color = "white",
+      vjust = 0.5,
+      hjust = 0.5
+    ) +
+    
+    annotate(
+      "text",
+      x = arrow_x_center,
+      y = arrow_head_center_y,
+      label = logit_test$p_adjust_significant,
+      color = "white",
+      vjust = 1,
+      size = 7,
+      fontface = "bold"
+    ) +
+  
+    scale_x_continuous(
+      breaks = c(low, high),
+      labels = c(round(low, 0), round(high, 0))
+    ) +
+    
+    scale_y_continuous(
+      breaks = c(y_of_low, y_of_high),
+      labels = c(round(y_of_low, 2), round(y_of_high, 2))
+    ) +
+    
+    labs(x = logit_test$Item, y = "Probability") +
+    ggtitle(logit_test$gene) +
+    
+    theme_minimal() +
+    theme(
+      axis.title = element_text(size = 14, face = "bold"),
+      axis.text = element_text(size = 10)) 
+  
+}
+
+
+
+
+
+
+
+##################
 
 #####
 # SAVE FILES
