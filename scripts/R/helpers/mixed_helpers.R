@@ -40,7 +40,7 @@ linear_fun <- function(x, intercept, slope) {
 
 linear_effect_fun <- function(s, h, l) {
   log_change <- s * (h - l)
-  fold_change <- 10^change_in_range
+  fold_change <- 10^log_change
   return(fold_change)
 }
 
@@ -49,7 +49,7 @@ ct_effect_fun <- function(s, h, l) {
   return(ct_change)
 }
 
-mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_col, bright_col) {
+mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_col, bright_col, y_axis_label) {
   
   inter <- filt_test_tibble$intercept
   inter_sd <- filt_test_tibble$sd_intercept
@@ -57,7 +57,7 @@ mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_c
   slo_sd <- filt_test_tibble$`Std. Error`
   high <- filt_test_tibble$highest
   low <- filt_test_tibble$lowest
-  
+
   y_of_high <- transform_fun(high, intercept = inter, slope = slo)
   y_of_low <- transform_fun(low, intercept = inter, slope = slo)
   
@@ -70,6 +70,15 @@ mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_c
                         y_val = transform_fun(x_val, intercept = inter, slope = slo),
                         y_lower = transform_fun(x_val, intercept = inter - inter_sd, slope = slo - slo_sd),
                         y_upper = transform_fun(x_val, intercept = inter + inter_sd, slope = slo + slo_sd))
+  
+  y_stretched <- c(NA, NA)
+  # if (slo < 0 ) {
+  if (filt_test_tibble$which_y_end_to_stretch == "lower_end") {
+    y_stretched <- c(min(line_tibble$y_lower) * filt_test_tibble$y_stretching_factor, NA)
+  }
+  if (filt_test_tibble$which_y_end_to_stretch == "upper_end") {
+    y_stretched <- c(NA, max(line_tibble$y_upper) * filt_test_tibble$y_stretching_factor)
+  }
   
   # Arrow Coordinates
   arrow_x_center <- (low + high) / 2
@@ -116,7 +125,8 @@ mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_c
     # Dashed lines from low point to arrow
     annotate(
       "segment",
-      x = low,
+      # x = low,
+      x = -Inf,
       xend = arrow_x_center,
       y = arrow_base,
       yend = arrow_base,
@@ -126,7 +136,9 @@ mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_c
     annotate(
       "segment",
       x = high,
-      xend = arrow_x_center,
+      # x = -Inf,
+      # xend = arrow_x_center,
+      xend = -Inf,
       y = arrow_tip,
       yend = arrow_tip,
       linetype = "dashed",
@@ -141,7 +153,7 @@ mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_c
     # Draw the arrow
     geom_polygon(data = arrow_poly, aes(x = x, y = y), fill = dark_col, alpha = 1) +
     
-    # Print the odds ratio into the arrow
+    # Print the effect size into the arrow
     annotate(
       "text",
       x = arrow_x_center,
@@ -149,7 +161,8 @@ mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_c
       # label = paste0("OR = ", round(effect_size, 2)),
       label = sprintf("%.2f", effect_size),
       angle = 90,
-      size = ifelse(relative_arror_length < 0.35, 2.75, 4),
+      # size = ifelse(relative_arror_length < 0.35, 2.75, 4),
+      size = 4,
       color = "white"
     ) +
     
@@ -161,8 +174,9 @@ mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_c
       label = filt_test_tibble$p_adjust_significant,
       color = "white",
       vjust = ifelse(slo < 0, 0.5, 1),
-      size = ifelse(relative_arror_length < 0.35, 3.5, 5),
-      fontface = "bold"
+      # size = ifelse(relative_arror_length < 0.35, 3.5, 5),
+      size = 4.5,
+      # fontface = "bold"
     ) +
     
     # Make axis labels only for the coordinates of the points
@@ -170,19 +184,24 @@ mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_c
       breaks = c(low, high),
       labels = c(round(low, 0), round(high, 0))) +
     scale_y_continuous(
+      limits = y_stretched,
       breaks = c(y_of_low, y_of_high),
       labels = c(round(y_of_low, 2), round(y_of_high, 2))) +
     
     # Axis texts, title and theme
-    labs(x = filt_test_tibble$Item, y = "Probability") +
+    labs(x = filt_test_tibble$Item, y = y_axis_label) +
     # ggtitle(filt_test_tibble$gene) +
     
     
     theme_minimal() +
     theme(
       axis.title = element_text(size = 12, face = "bold"),
-      axis.text = element_text(size = 10)) 
-  
+      axis.text = element_text(size = 10),
+      panel.grid.major.y = element_blank(),
+      panel.grid.minor.y = element_blank(),
+      panel.grid.minor.x = element_blank()
+      ) 
+    
   return(mmplot)
   
 }
@@ -206,7 +225,7 @@ legend_factory <- function(title, items, colors, position) {
     
     # force the legend symbols to show at a normal size
     guides(color = guide_legend(
-      override.aes = list(size = 4.5)
+      override.aes = list(size = 5)
     )) +
     
     # strip out axes / grid

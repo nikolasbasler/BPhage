@@ -282,7 +282,8 @@ for (poi in pathogens_of_interest) {
 # EXTRACT SLOPES
 slopes <- list()
 for (level in names(coeffs_ct_simple)) {
-  slopes[[level]] <- coeffs_ct_simple[[level]] %>%
+  
+  temp_slope_tibble <- coeffs_ct_simple[[level]] %>%
     filter(metric == "ha_cropland_in_2k_radius" | metric == "est_use_in_2k_radius") %>%
     rename(raw_p_value = `Pr(>|t|)`) %>%
     mutate(raw_p_significant = case_when(raw_p_value <= 0.001 ~ "***",
@@ -292,6 +293,17 @@ for (level in names(coeffs_ct_simple)) {
                                          .default = "n.s."
     )) %>%
     mutate(test_name = paste0(pathogen, "; ", Item), .before = pathogen)
+  
+  slopes[[level]] <- coeffs_ct_simple[[level]] %>%
+    filter(metric == "(Intercept)") %>%
+    mutate(test_name = paste0(pathogen, "; ", temp_slope_tibble$Item), .before = pathogen) %>%
+    rename(intercept = Estimate,
+           sd_intercept = `Std. Error`) %>%
+    select(test_name, intercept, sd_intercept) %>%
+    full_join(temp_slope_tibble, ., by = "test_name") %>%
+    relocate(c(intercept, sd_intercept), .after = `Std. Error`)
+
+
 }
 
 all_slopes <- bind_rows(slopes) %>%
@@ -314,37 +326,93 @@ lowest_highest <- cropland_and_FAO %>%
   summarise(lowest = min(value),
             highest = max(value))
 
-simple_model_tibble_focused <- all_slopes %>%
-  filter(p_adjusted <= 0.05) %>%
-  mutate(adjust_p_significant = case_when(p_adjusted <= 0.001 ~ "***",
-                                          p_adjusted <= 0.01 ~ "**",
-                                          p_adjusted <= 0.05 ~ "*",
-                                          p_adjusted <= 0.075 ~ ".",
-                                          .default = "n.s."
-  )) %>%
+sig_tests <- all_slopes %>%
+  filter(p_adjusted < 0.05) %>%
   left_join(., lowest_highest, by = "Item") %>%
-  mutate(ct_change_in_range = Estimate * (highest - lowest))
+  mutate(effect = ct_effect_fun(s = Estimate, h = highest, l = lowest)) %>%
+  group_by(pathogen) %>%
+  mutate(y_stretching_factor = max(abs(effect)) / abs(effect),
+         y_stretching_factor = ifelse(effect < 0, 1 / y_stretching_factor, y_stretching_factor)) %>%
+  # mutate(y_stretching_factor = max(effect) / effect) %>%
+  # mutate(which_y_end_to_stretch = ifelse(pathogen == "DWV B", "lower_end", "upper_end")) %>%
+  mutate(which_y_end_to_stretch = if_else(
+    Estimate[y_stretching_factor == 1] > 0,
+    "upper_end",
+    "lower_end")) %>%
+  ungroup() %>%
+  mutate(y_stretching_factor = case_when(
+    which_y_end_to_stretch == "upper_end" & Estimate < 0 ~ 1/y_stretching_factor,
+    which_y_end_to_stretch == "lower_end" & Estimate > 0 ~ 1/y_stretching_factor,
+    .default = y_stretching_factor)) %>%
+  select(-effect)
 
-slope_plot_simple_model_focused <- simple_model_tibble_focused %>%
-  arrange(test_name) %>%
-  mutate(axis_labels = test_name,
-         axis_labels = fct_inorder(axis_labels)) %>%
-  mutate(estimate = Estimate,
-         error = `Std. Error`) %>%
-  forest_plot(plot_title = "pathogens")
+color_list <- list(dark = list(BQCV = "black", `DWV B` = "#ef8f01"),
+                   bright = list(BQCV = "black", `DWV B` = "#8B4513"))
 
-fold_change_in_range_plot <- simple_model_tibble_focused %>%
-  arrange(test_name) %>%
-  mutate(axis_labels = test_name,
-         axis_labels = fct_inorder(axis_labels)) %>%
-  ggplot(aes(x = axis_labels, y = ct_change_in_range)) +
-  geom_col() +
-  coord_flip() +
-  theme_minimal() +
-  theme(axis.title.y = element_blank(),
-        axis.text.y=element_blank())
 
-patch_simple_model <- slope_plot_simple_model_focused + fold_change_in_range_plot
+pathogens_ct_plots <- list()
+for (t_name in unique(sig_tests$test_name)) {
+  
+  ct_test <- sig_tests %>%
+    filter(test_name == t_name)
+  
+  tested_pathogen <- ct_test$pathogen
+  tested_item <- ct_test$Item
+  
+  pathogens_ct_plots[[tested_pathogen]][[tested_item]] <- 
+    mixed_model_plot(filt_test_tibble = ct_test,
+                     transform_fun = linear_fun,
+                     effect_fun = ct_effect_fun,
+                     dark_col = color_list$dark[[tested_pathogen]],
+                     bright_col = color_list$bright[[tested_pathogen]],
+                     y_axis_label = "Ct")
+}
+
+
+common_legend <- legend_factory(title = "Pathogen", 
+                                items = names(color_list$dark),
+                                colors = unlist(color_list$dark),
+                                position = "bottom")
+
+wrap_of_wraps <- wrap_plots(
+  wrap_plots(pathogens_ct_plots$`DWV B`, nrow = 1, axes = "collect"),
+    wrap_plots(pathogens_ct_plots$BQCV, nrow = 1, axes = "collect"),
+    common_legend,
+  nrow = 3, heights = c(rep(4, 2), 1)
+)
+
+
+# simple_model_tibble_focused <- all_slopes %>%
+#   filter(p_adjusted <= 0.05) %>%
+#   mutate(adjust_p_significant = case_when(p_adjusted <= 0.001 ~ "***",
+#                                           p_adjusted <= 0.01 ~ "**",
+#                                           p_adjusted <= 0.05 ~ "*",
+#                                           p_adjusted <= 0.075 ~ ".",
+#                                           .default = "n.s."
+#   )) %>%
+#   left_join(., lowest_highest, by = "Item") %>%
+#   mutate(ct_change_in_range = Estimate * (highest - lowest))
+# 
+# slope_plot_simple_model_focused <- simple_model_tibble_focused %>%
+#   arrange(test_name) %>%
+#   mutate(axis_labels = test_name,
+#          axis_labels = fct_inorder(axis_labels)) %>%
+#   mutate(estimate = Estimate,
+#          error = `Std. Error`) %>%
+#   forest_plot(plot_title = "pathogens")
+# 
+# fold_change_in_range_plot <- simple_model_tibble_focused %>%
+#   arrange(test_name) %>%
+#   mutate(axis_labels = test_name,
+#          axis_labels = fct_inorder(axis_labels)) %>%
+#   ggplot(aes(x = axis_labels, y = ct_change_in_range)) +
+#   geom_col() +
+#   coord_flip() +
+#   theme_minimal() +
+#   theme(axis.title.y = element_blank(),
+#         axis.text.y=element_blank())
+# 
+# patch_simple_model <- slope_plot_simple_model_focused + fold_change_in_range_plot
 
 simple_model_tibble_all_tests <- all_slopes %>%
   mutate(axis_labels = fct_rev(fct_inorder(test_name))) %>%
@@ -375,8 +443,11 @@ slope_plot_simple_model_all_tests <- simple_model_tibble_all_tests %>%
 # SAVE FILES
 
 system("mkdir -p output/R/gene_content/landuse/pathogen_simple_model")
-ggsave("output/R/gene_content/landuse/pathogen_simple_model/pathogen_simple_model_patch.pdf",
-       patch_simple_model, width = 8, height = 5)
+
+ggsave("output/R/gene_content/landuse/pathogen_simple_model/ct_mixed_model_wrap.pdf",
+       wrap_of_wraps, width = 6, height = 6)
+
+
 write_delim(pathogen_ct, "output/R/gene_content/landuse/pathogen_ct.tsv",
             delim = "\t")
 

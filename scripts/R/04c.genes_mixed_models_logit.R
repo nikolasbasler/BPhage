@@ -342,14 +342,31 @@ all_slopes <- bind_rows(slopes) %>%
 #####
 # MAKE PLOTS
 
-sig_tests <- all_slopes %>%
-  filter(p_adjusted < 0.05) 
-
 lowest_highest <- cropland_and_FAO %>%
   pivot_longer(-Country, names_to = "Item") %>%
   group_by(Item) %>%
   summarise(lowest = min(value),
             highest = max(value))
+
+sig_tests <- all_slopes %>%
+  filter(p_adjusted < 0.05) %>%
+  left_join(., lowest_highest, by = "Item") %>%
+  mutate(effect = logistic_effect_fun(s = Estimate, h = highest, l = lowest),
+         effect = ifelse(effect < 1, 1 / effect, effect)) %>%
+  group_by(gene) %>%
+  # mutate(y_stretching_factor = 1+log10( max(effect) / effect)) %>%
+  mutate(y_stretching_factor = max(effect) / effect) %>%
+  mutate(which_y_end_to_stretch = if_else(
+    Estimate[y_stretching_factor == 1] > 0,
+    "upper_end",
+    "lower_end")) %>% 
+  ungroup() %>%
+  mutate(y_stretching_factor = case_when(
+    which_y_end_to_stretch == "upper_end" & Estimate < 0 ~ 1/y_stretching_factor,
+    which_y_end_to_stretch == "lower_end" & Estimate > 0 ~ 1/y_stretching_factor,
+    .default = y_stretching_factor
+  )) %>%
+  select(-effect) 
 
 color_list <- list(dark = list(chitinase = "#D2691E", glucosyltransferase = "#1C3A3A", `phosphoadenosine phosphosulfate reductase` = "#8B4513"),
                    bright = list(chitinase = "#FFA07A", glucosyltransferase = "#66AFAF", `phosphoadenosine phosphosulfate reductase` = "#FFC300"))
@@ -358,8 +375,7 @@ genes_logit_plots <- list()
 for (t_name in unique(sig_tests$test_name)) {
 
   logit_test <- sig_tests %>%
-    filter(test_name == t_name) %>%
-    left_join(., lowest_highest, by = "Item")
+    filter(test_name == t_name)
   
   tested_gene <- logit_test$gene
   tested_item <- logit_test$Item
@@ -369,8 +385,8 @@ for (t_name in unique(sig_tests$test_name)) {
                      transform_fun = logistic_fun,
                      effect_fun = logistic_effect_fun,
                      dark_col = color_list$dark[[tested_gene]],
-                     bright_col = color_list$bright[[tested_gene]]
-                     )
+                     bright_col = color_list$bright[[tested_gene]],
+                     y_axis_label = "Probability")
 }
 
 
@@ -398,7 +414,7 @@ write_delim(all_slopes, "output/R/gene_content/landuse/logit_model/logit_model_t
             delim = "\t")
 
 ggsave("output/R/gene_content/landuse/logit_model/logit_model_tibble_5gopi.pdf",
-       wrap_of_wraps, height = 11, width = 10)
+       wrap_of_wraps, height = 13, width = 12)
 
 
 

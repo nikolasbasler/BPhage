@@ -267,16 +267,27 @@ for (gopi in genes_of_interest) {
 # EXTRACT SLOPES
 slopes <- list()
 for (level in names(coeffs_tpm_simple)) {
-  slopes[[level]] <- coeffs_tpm_simple[[level]] %>%
-    filter(metric == "ha_cropland_in_2k_radius" | metric == "est_use_in_2k_radius") %>%
+
+  temp_slope_tibble <- coeffs_tpm_simple[[level]] %>%
+    filter(metric %in% c("ha_cropland_in_2k_radius", "est_use_in_2k_radius")) %>%
     rename(raw_p_value = `Pr(>|t|)`) %>%
     mutate(raw_p_significant = case_when(raw_p_value <= 0.001 ~ "***",
                                          raw_p_value <= 0.01 ~ "**",
                                          raw_p_value <= 0.05 ~ "*",
                                          raw_p_value <= 0.075 ~ ".",
                                          .default = "n.s."
-                                         )) %>%
+    )) %>%
     mutate(test_name = paste0(gene, "; ", Item), .before = gene)
+  
+  slopes[[level]] <- coeffs_tpm_simple[[level]] %>%
+    filter(metric == "(Intercept)") %>%
+    mutate(test_name = paste0(gene, "; ", temp_slope_tibble$Item), .before = gene) %>%
+    rename(intercept = Estimate,
+           sd_intercept = `Std. Error`) %>%
+    select(test_name, intercept, sd_intercept) %>%
+    full_join(temp_slope_tibble, ., by = "test_name") %>%
+    relocate(c(intercept, sd_intercept), .after = `Std. Error`)
+  
 }
 
 ##### 
@@ -300,9 +311,10 @@ all_slopes <- bind_rows(slopes) %>%
                                           p_adjusted <= 0.05 ~ "*",
                                           p_adjusted <= 0.075 ~ ".",
                                           .default = "n.s.")
-  ) %>%
-  mutate(layer = ifelse(Item %in% spec_pests, "spec_pests", "upper_layer"),
-         layer = factor(layer, levels = c("spec_pests", "upper_layer")))
+  )# %>%
+  
+  # mutate(layer = ifelse(Item %in% spec_pests, "spec_pests", "upper_layer"),
+  #        layer = factor(layer, levels = c("spec_pests", "upper_layer")))
 
 #####
 # MAKE PLOTS
@@ -311,61 +323,63 @@ lowest_highest <- cropland_and_FAO %>%
   pivot_longer(-Country, names_to = "Item") %>%
   group_by(Item) %>%
   summarise(lowest = min(value),
-            highest = max(value),
-            mean = mean(value))
+            highest = max(value))
 
-simple_model_tibble_focused <- all_slopes %>%
-  filter(p_adjusted <= 0.05) %>%
-  # inner_join(bind_rows(slopes), ., by = "test_name") %>%
-  # mutate(adjust_p_significant = case_when(p_adjusted <= 0.001 ~ "***",
-  #                                         p_adjusted <= 0.01 ~ "**",
-  #                                         p_adjusted <= 0.05 ~ "*",
-  #                                         p_adjusted <= 0.075 ~ ".",
-  #                                      .default = "n.s."
-  # )) %>%
+sig_tests <- all_slopes %>%
+  filter(p_adjusted < 0.05) %>%
   left_join(., lowest_highest, by = "Item") %>%
-  mutate(change_in_range = Estimate * (highest - lowest),
-         fold_change_in_range = 10^change_in_range,
-         estimate = 10^Estimate-1,
-         error = 10^Estimate - 10^(Estimate - `Std. Error`)) %>%
-  # This only changes the axis scale but differently for croopland and pesticides:
-  mutate(estimate = case_when(Item == "ha_cropland_in_2k_radius" ~ estimate * 100, 
-                                        .default = estimate * 1000),
-         error = case_when(Item == "ha_cropland_in_2k_radius" ~ error * 100,
-                                        .default = error * 1000),
-         unit = case_when(Item == "ha_cropland_in_2k_radius" ~ "(km^2)",
-                          .default = "(t)")
-         )
+  mutate(effect = linear_effect_fun(s = Estimate, h = highest, l = lowest)) %>%
+  group_by(gene) %>%
+  mutate(y_stretching_factor = max(effect) / effect) %>%
+  mutate(which_y_end_to_stretch = if_else(
+    Estimate[y_stretching_factor == 1] > 0,
+    "upper_end",
+    "lower_end")) %>% 
+  ungroup() %>%
+  mutate(y_stretching_factor = case_when(
+    which_y_end_to_stretch == "upper_end" & Estimate < 0 ~ 1/y_stretching_factor,
+    which_y_end_to_stretch == "lower_end" & Estimate > 0 ~ 1/y_stretching_factor,
+    .default = y_stretching_factor
+  )) %>%
+  select(-effect)
 
-slope_plot_simple_model_focused <- list()
-fold_change_in_range_plot <- list()
-prepatch_simple_model <- list()
-patch_simple_model <- list()
-for (goi in unique(simple_model_tibble_focused$gene)) {
-  for (lay in simple_model_tibble_focused %>% filter(gene == goi) %>% distinct(layer) %>% unlist(use.names = FALSE)) {
-    slope_plot_simple_model_focused[[goi]][[lay]] <- simple_model_tibble_focused %>%
-      filter(gene == goi,
-             layer == lay) %>%
-      mutate(axis_labels = paste0(Item, " ", unit)) %>%
-      mutate(axis_labels = fct_rev(fct_inorder(axis_labels))) %>%
-      forest_plot(plot_title = goi)
-    
-    fold_change_in_range_plot[[goi]][[lay]] <- simple_model_tibble_focused %>%
-      filter(gene == goi,
-             layer == lay) %>%
-      mutate(Item = fct_rev(fct_inorder(Item))) %>%
-      ggplot(aes(x = Item, y = fold_change_in_range)) +
-      geom_col() +
-      coord_flip() +
-      theme_minimal() +
-      theme(axis.title.y = element_blank(),
-            axis.text.y=element_blank())
-    prepatch_simple_model[[goi]][[lay]] <- slope_plot_simple_model_focused[[goi]][[lay]] + fold_change_in_range_plot[[goi]][[lay]]
-  }
-  patch_simple_model[[goi]] <- wrap_plots(prepatch_simple_model[[goi]])
+color_list <- list(dark = list( `phosphoadenosine phosphosulfate reductase` = "#8B4513", `PnuC-like nicotinamide mononucleotide transport` = "#1C3A3A", levanase = "#D2691E"),
+                   bright = list( `phosphoadenosine phosphosulfate reductase` = "#FFC300", `PnuC-like nicotinamide mononucleotide transport` = "#66AFAF", levanase = "#FFA07A"))
+
+genes_log_tpm_plots <- list()
+for (t_name in unique(sig_tests$test_name)) {
+      
+  log_tpm_test <- sig_tests %>%
+    filter(test_name == t_name)
+  
+  tested_gene <- log_tpm_test$gene
+  tested_item <- log_tpm_test$Item
+
+  genes_log_tpm_plots[[tested_gene]][[tested_item]] <- 
+    mixed_model_plot(filt_test_tibble = log_tpm_test,
+                     transform_fun = linear_fun,
+                     effect_fun = linear_effect_fun,
+                     dark_col = color_list$dark[[tested_gene]],
+                     bright_col = color_list$bright[[tested_gene]],
+                     y_axis_label = "Log relative abundance")
 }
 
+common_legend <- legend_factory(title = "Gene", 
+                                items = names(color_list$dark),
+                                colors = unlist(color_list$dark),
+                                position = "bottom")
 
+wrap_of_wraps <- wrap_plots(
+  wrap_plots(genes_log_tpm_plots$`phosphoadenosine phosphosulfate reductase`[1:4], nrow = 1, axes = "collect"),
+  wrap_plots(genes_log_tpm_plots$`phosphoadenosine phosphosulfate reductase`[5:8], nrow = 1, axes = "collect"),
+  wrap_plots(genes_log_tpm_plots$`phosphoadenosine phosphosulfate reductase`[9:12], nrow = 1, axes = "collect"),
+  wrap_plots(list(genes_log_tpm_plots$`phosphoadenosine phosphosulfate reductase`$`Insecticides – Carbamates`,
+                  genes_log_tpm_plots$`PnuC-like nicotinamide mononucleotide transport`$Insecticides,
+                  genes_log_tpm_plots$levanase$`Herbicides – Urea derivates`,
+                  genes_log_tpm_plots$levanase$`Herbicides – Amides`), nrow = 1, axes = "collect"),
+  common_legend,
+  nrow = 5, heights = c(rep(4, 4), 1)
+  )
 
 simple_model_tibble_all_tests <- all_slopes %>%
   # inner_join(bind_rows(slopes), ., by = "test_name") %>%
@@ -405,10 +419,13 @@ slope_plot_simple_model_all_tests <- simple_model_tibble_all_tests %>%
 
 system("mkdir -p output/R/gene_content/landuse/simple_model")
 
-for (goi in names(patch_simple_model)) {
-  ggsave(paste0("output/R/gene_content/landuse/simple_model/simple_model_patch.", goi, ".pdf"),
-         patch_simple_model[[goi]], width = 14, height = 6)
-}
+# for (goi in names(patch_simple_model)) {
+#   ggsave(paste0("output/R/gene_content/landuse/simple_model/simple_model_patch.", goi, ".pdf"),
+#          patch_simple_model[[goi]], width = 14, height = 6)
+# }
+
+ggsave("output/R/gene_content/landuse/simple_model/log_tpm_mixed_model_wrap.pdf",
+       wrap_of_wraps, width = 12, height = 12)
 
 write_delim(gene_tpm, "output/R/gene_content/landuse/gene_tpm.tsv",
             delim = "\t")
