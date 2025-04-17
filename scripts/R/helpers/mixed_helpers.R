@@ -62,7 +62,7 @@ mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_c
   y_of_low <- transform_fun(low, intercept = inter, slope = slo)
   
   effect_size <- effect_fun(s = slo, h = high, l = low)
-  
+
   plot_min <- low - (high - low) / 5
   plot_max <- high + (high - low) / 5
   
@@ -71,12 +71,18 @@ mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_c
                         y_lower = transform_fun(x_val, intercept = inter - inter_sd, slope = slo - slo_sd),
                         y_upper = transform_fun(x_val, intercept = inter + inter_sd, slope = slo + slo_sd))
   
-  # Coordinates
+  # Arrow Coordinates
   arrow_x_center <- (low + high) / 2
   arrow_width <- (high - low) / 15  # Adjust to control how "fat" the arrow is
   
   arrow_base <- y_of_low
   arrow_tip <- y_of_high
+  
+  # More coordinates (used later. Yes, it's a bit over-engineered...)
+  arrow_head_base_y <- arrow_tip - (arrow_tip - arrow_base) * 0.2
+  arrow_head_center_y <- (arrow_tip + arrow_head_base_y) / 2
+  relative_arror_length <- abs(arrow_head_base_y - arrow_base) /
+    max(line_tibble$y_upper - min(line_tibble$y_lower))
   
   # Define polygon for vertical arrow
   arrow_poly <- tibble(
@@ -101,11 +107,6 @@ mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_c
       arrow_base   # close
     )
   )
-  
-  arrow_head_base_y <- arrow_tip - (arrow_tip - arrow_base) * 0.2
-  arrow_head_center_y <- (arrow_tip + arrow_head_base_y) / 2
-  # correction_factor <- sign(slo) * 0.5 # Yes, let's over-engineer this...
-  # arrow_head_center_y <- arrow_head_base_y + (arrow_tip - arrow_head_base_y)*correction_factor / 2
   
   mmplot <- ggplot(line_tibble, aes(x = x_val, y = y_val)) +
     
@@ -148,11 +149,8 @@ mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_c
       # label = paste0("OR = ", round(effect_size, 2)),
       label = sprintf("%.2f", effect_size),
       angle = 90,
-      size = 4,
-      # fontface = "bold",
-      color = "white",
-      # vjust = 0.5,
-      # hjust = 0.5
+      size = ifelse(relative_arror_length < 0.35, 2.75, 4),
+      color = "white"
     ) +
     
     # Print asterisks for siginificance level into head of arrow
@@ -163,7 +161,7 @@ mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_c
       label = filt_test_tibble$p_adjust_significant,
       color = "white",
       vjust = ifelse(slo < 0, 0.5, 1),
-      size = 5,
+      size = ifelse(relative_arror_length < 0.35, 3.5, 5),
       fontface = "bold"
     ) +
     
@@ -187,6 +185,46 @@ mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_c
   
   return(mmplot)
   
+}
+
+
+legend_factory <- function(title, items, colors, position) {
+  legend_df <- tibble(items = factor(items, levels = items),
+                      x = seq_along(items),
+                      y = 1)
+  
+  dummy_plot <- ggplot(legend_df, aes(x, y, color = items)) +
+    # draw zero‐size points (so nothing appears in the panel)
+    geom_point(size = -1, show.legend = TRUE) +
+    
+    # define exactly the keys you want
+    scale_color_manual(
+      name   = title,
+      values = setNames(colors, items),
+      breaks = items
+    ) +
+    
+    # force the legend symbols to show at a normal size
+    guides(color = guide_legend(
+      override.aes = list(size = 4.5)
+    )) +
+    
+    # strip out axes / grid
+    theme_void() +
+    theme(
+      legend.position = position
+    )
+  
+  legend_only <- dummy_plot + 
+    guide_area() +
+    plot_layout(
+      # define a 2‑row layout: "A" is the plot, "L" is the legend
+      design  = "A\nL",
+      guides  = "collect",
+      # give the plot row zero height so only the legend shows
+      heights = c(0, 1)
+    )
+  return(legend_only)
 }
 
 

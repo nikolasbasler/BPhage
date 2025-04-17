@@ -351,9 +351,8 @@ lowest_highest <- cropland_and_FAO %>%
   summarise(lowest = min(value),
             highest = max(value))
 
-color_list <- list(`phosphoadenosine phosphosulfate reductase` = list(dark = "#D2691E", bright = "#FFA07A"),
-                   chitinase = list(dark = "#8B4513", bright = "#FFC300"),
-                   glucosyltransferase = list(dark = "#1C3A3A", bright = "#66AFAF"))
+color_list <- list(dark = list(chitinase = "#D2691E", glucosyltransferase = "#1C3A3A", `phosphoadenosine phosphosulfate reductase` = "#8B4513"),
+                   bright = list(chitinase = "#FFA07A", glucosyltransferase = "#66AFAF", `phosphoadenosine phosphosulfate reductase` = "#FFC300"))
 
 genes_logit_plots <- list()
 for (t_name in unique(sig_tests$test_name)) {
@@ -365,26 +364,32 @@ for (t_name in unique(sig_tests$test_name)) {
   tested_gene <- logit_test$gene
   tested_item <- logit_test$Item
   
-  genes_logit_plots[[tested_gene]][[tested_item]] <- mixed_model_plot(filt_test_tibble = logit_test, 
-                   transform_fun = logistic_fun, 
-                   effect_fun = logistic_effect_fun,
-                   dark_col = color_list[[tested_gene]]$dark,
-                   bright_col = color_list[[tested_gene]]$bright)
+  genes_logit_plots[[tested_gene]][[tested_item]] <- 
+    mixed_model_plot(filt_test_tibble = logit_test,
+                     transform_fun = logistic_fun,
+                     effect_fun = logistic_effect_fun,
+                     dark_col = color_list$dark[[tested_gene]],
+                     bright_col = color_list$bright[[tested_gene]]
+                     )
 }
 
 
+common_legend <- legend_factory(title = "Gene", 
+                      items = names(color_list$dark),
+                      colors = unlist(color_list$dark),
+                      position = "bottom")
 
-wrap_of_wraps <- wrap_plots(genes_logit_plots$chitinase[1:3], nrow = 1, axes = "collect") /
-  wrap_plots(genes_logit_plots$chitinase[4:6], nrow = 1, axes = "collect") /
-  wrap_plots(genes_logit_plots$chitinase[7:9], nrow = 1, axes = "collect") /
-  wrap_plots(list(genes_logit_plots$chitinase$`Insecticides – Pyrethroids`,
-                  genes_logit_plots$chitinase$`Insecticides – Carbamates`, 
-                  genes_logit_plots$glucosyltransferase$`Insecticides – Organo-phosphates`), nrow = 1, axes = "collect") /
-  wrap_plots(genes_logit_plots$`phosphoadenosine phosphosulfate reductase`, nrow = 1, axes = "collect")
-
-
-
-##################
+wrap_of_wraps <- wrap_plots(
+  wrap_plots(genes_logit_plots$chitinase[1:3], nrow = 1, axes = "collect"),
+    wrap_plots(genes_logit_plots$chitinase[4:6], nrow = 1, axes = "collect"),
+    wrap_plots(genes_logit_plots$chitinase[7:9], nrow = 1, axes = "collect"),
+    wrap_plots(list(genes_logit_plots$chitinase$`Insecticides – Pyrethroids`,
+                    genes_logit_plots$chitinase$`Insecticides – Carbamates`, 
+                    genes_logit_plots$glucosyltransferase$`Insecticides – Organo-phosphates`), nrow = 1, axes = "collect"),
+    wrap_plots(genes_logit_plots$`phosphoadenosine phosphosulfate reductase`, nrow = 1, axes = "collect"),
+    common_legend,
+  nrow = 6, heights = c(rep(4, 5), 1)
+)
 
 #####
 # SAVE FILES
@@ -393,7 +398,7 @@ write_delim(all_slopes, "output/R/gene_content/landuse/logit_model/logit_model_t
             delim = "\t")
 
 ggsave("output/R/gene_content/landuse/logit_model/logit_model_tibble_5gopi.pdf",
-       wrap_of_wraps, height = 10, width = 10)
+       wrap_of_wraps, height = 11, width = 10)
 
 
 
