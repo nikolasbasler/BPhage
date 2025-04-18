@@ -51,6 +51,7 @@ ct_effect_fun <- function(s, h, l) {
 
 mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_col, bright_col, y_axis_label) {
   
+  x_axis_label <- str_replace_all(filt_test_tibble$Item, "_", " ")
   inter <- filt_test_tibble$intercept
   inter_sd <- filt_test_tibble$sd_intercept
   slo <- filt_test_tibble$Estimate
@@ -179,7 +180,7 @@ mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_c
       # fontface = "bold"
     ) +
     
-    # Make axis labels only for the coordinates of the points
+    # Make axis ticks only for the coordinates of the points
     scale_x_continuous(
       breaks = c(low, high),
       labels = c(round(low, 0), round(high, 0))) +
@@ -189,7 +190,7 @@ mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_c
       labels = c(round(y_of_low, 2), round(y_of_high, 2))) +
     
     # Axis texts, title and theme
-    labs(x = filt_test_tibble$Item, y = y_axis_label) +
+    labs(x = x_axis_label, y = y_axis_label) +
     # ggtitle(filt_test_tibble$gene) +
     
     

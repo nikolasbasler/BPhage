@@ -368,8 +368,8 @@ sig_tests <- all_slopes %>%
   )) %>%
   select(-effect) 
 
-color_list <- list(dark = list(chitinase = "#D2691E", glucosyltransferase = "#1C3A3A", `phosphoadenosine phosphosulfate reductase` = "#8B4513"),
-                   bright = list(chitinase = "#FFA07A", glucosyltransferase = "#66AFAF", `phosphoadenosine phosphosulfate reductase` = "#FFC300"))
+color_list <- list(dark = list(chitinase = "#ef8f01", glucosyltransferase = "#555555", `phosphoadenosine phosphosulfate reductase` = "#8B4513"),
+                   bright = list(chitinase = "#ef8f01", glucosyltransferase = "#555555", `phosphoadenosine phosphosulfate reductase` = "#FFC300"))
 
 genes_logit_plots <- list()
 for (t_name in unique(sig_tests$test_name)) {

@@ -432,6 +432,21 @@ pest_use_plot <- cropland_and_FAO %>%
 # plot(model_tpm_simple_pest_groups$`phosphoadenosine phosphosulfate reductase`$Herbicides, which = 1)
 # qqnorm(resid(model_tpm_simple_pest_groups$`phosphoadenosine phosphosulfate reductase`$Herbicides))
 # 
+# plot(model_tpm_simple_specific_pests$`phosphoadenosine phosphosulfate reductase`$`Fung & Bact - nes`, which = 1)
+# qqnorm(resid(model_tpm_simple_specific_pests$`phosphoadenosine phosphosulfate reductase`$`Fung & Bact - nes`))
+# 
+# plot(model_tpm_simple_specific_pests$`phosphoadenosine phosphosulfate reductase`$`Fung & Bact – Dithiocarbamates`, which = 1)
+# qqnorm(resid(model_tpm_simple_specific_pests$`phosphoadenosine phosphosulfate reductase`$`Fung & Bact – Dithiocarbamates`))
+# 
+# plot(model_tpm_simple_specific_pests$`phosphoadenosine phosphosulfate reductase`$`Herbicides - nes`, which = 1)
+# qqnorm(resid(model_tpm_simple_specific_pests$`phosphoadenosine phosphosulfate reductase`$`Herbicides - nes`))
+# 
+# plot(model_tpm_simple_specific_pests$`phosphoadenosine phosphosulfate reductase`$`Herbicides – Urea derivates`, which = 1)
+# qqnorm(resid(model_tpm_simple_specific_pests$`phosphoadenosine phosphosulfate reductase`$`Herbicides – Urea derivates`))
+# 
+# plot(model_tpm_simple_specific_pests$`phosphoadenosine phosphosulfate reductase`$`Herbicides – Amides`, which = 1)
+# qqnorm(resid(model_tpm_simple_specific_pests$`phosphoadenosine phosphosulfate reductase`$`Herbicides – Amides`))
+# 
 # plot(model_tpm_simple_pest_groups$`PnuC-like nicotinamide mononucleotide transport`$Insecticides, which = 1)
 # qqnorm(resid(model_tpm_simple_pest_groups$`PnuC-like nicotinamide mononucleotide transport`$Insecticides))
 # 
@@ -461,12 +476,4 @@ write_delim(all_slopes, "output/R/gene_content/landuse/simple_model/simple_model
 
 ggsave("output/R/gene_content/landuse/simple_model/simple_model_all_tests.pdf",
        slope_plot_simple_model_all_tests, width = 12, height = 50, limitsize = FALSE)
-
-# for (layer in names(layered_correction_list$subgraph_plots)) {
-#   for (gene in names(layered_correction_list$subgraph_plots[[layer]])) {
-#     ggsave(paste0("output/R/gene_content/landuse/simple_model/simple_model_subgraph.", gene, ".", layer,".pdf"),
-#            layered_correction_list$subgraph_plots[[layer]][[gene]],
-#            width = 20, height = 10)
-#   }
-# }
 
