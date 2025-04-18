@@ -7,6 +7,8 @@ library(tidyverse)
 library(patchwork)
 library(gMCPLite)
 library(readxl)
+library(tidytext)
+
 
 source("scripts/R/helpers/mixed_helpers.R")
 
@@ -325,7 +327,7 @@ lowest_highest <- cropland_and_FAO %>%
   summarise(lowest = min(value),
             highest = max(value))
 
-sig_tests <- all_slopes %>%
+sig_tests <- all_slopes %>% 
   filter(p_adjusted < 0.05) %>%
   left_join(., lowest_highest, by = "Item") %>%
   mutate(effect = linear_effect_fun(s = Estimate, h = highest, l = lowest)) %>%
@@ -389,6 +391,31 @@ simple_model_tibble_all_tests <- all_slopes %>%
 
 slope_plot_simple_model_all_tests <- simple_model_tibble_all_tests %>%
   forest_plot(plot_title = "all tests")
+
+#
+
+facet_order <- c("Pesticides (total)",
+              "Insecticides",
+              "Herbicides",
+              "Fungicides and Bactericides",
+              spec_pests)
+pest_use_plot <- cropland_and_FAO %>%
+  select(Country, ha_cropland_in_2k_radius, all_of(facet_order)) %>%
+  rename(`Cropland in 2km radius` = ha_cropland_in_2k_radius) %>%
+  pivot_longer(-Country, names_to = "parameter") %>%
+  mutate(Country = reorder_within(Country, value, parameter),
+         parameter = factor(parameter, levels = c("Cropland in 2km radius", facet_order))) %>%
+  ggplot(aes(x = Country, y = value)) +
+  geom_col() +
+  geom_text(aes(label = round(value)),
+            vjust = -0.3,              
+            size = 3) +  
+  facet_wrap(~parameter, scales = "free") +
+  scale_x_reordered() +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15)))
+
+
+#
   
 #####
 # DIAGNOSTICS
@@ -419,10 +446,9 @@ slope_plot_simple_model_all_tests <- simple_model_tibble_all_tests %>%
 
 system("mkdir -p output/R/gene_content/landuse/simple_model")
 
-# for (goi in names(patch_simple_model)) {
-#   ggsave(paste0("output/R/gene_content/landuse/simple_model/simple_model_patch.", goi, ".pdf"),
-#          patch_simple_model[[goi]], width = 14, height = 6)
-# }
+ggsave("output/R/gene_content/landuse/land_and_pest_use.pdf",
+       pest_use_plot, width = 14, height = 10)
+
 
 ggsave("output/R/gene_content/landuse/simple_model/log_tpm_mixed_model_wrap.pdf",
        wrap_of_wraps, width = 12, height = 12)
