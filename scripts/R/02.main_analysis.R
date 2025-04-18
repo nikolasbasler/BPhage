@@ -17,6 +17,8 @@ library(tidyverse)
 library(ggforce)
 library(RColorBrewer)
 library(UpSetR)
+library(rstatix)
+library(multcompView)
 
 source("scripts/R/helpers/tpm_and_reads_per_kb.R")
 source("scripts/R/helpers/read_count_stats.R")
@@ -111,7 +113,7 @@ classification <- classification %>%
   mutate(Family_group = Family) %>%
   mutate(Family_group = ifelse(str_detect(Family_group, "novel_family.*of_Caudoviricetes"), "Novel_Caudoviricetes_family", Family_group)) %>%
   mutate(Family_group = ifelse(str_detect(Family_group, "novel_family.*of_Tokiviricetes"), "Novel_Tokiviricetes_family", Family_group)) %>%    
-  mutate(Family_group = ifelse(!str_detect(Family_group, "Novel") & !str_detect(Family_group, "Micro") & Family_group !="Unclassified", "ICTV-named", Family_group)) %>%
+  mutate(Family_group = ifelse(!str_detect(Family_group, "Novel") & !str_detect(Family_group, "Micro") & Family_group !="Unclassified", "ICTV-named_Caudoviricetes_family", Family_group)) %>%
   mutate(Family_group = ifelse(str_detect(Family_group, "Micro"), "Microvirus_family", Family_group)) %>%
   mutate(Family_group = ifelse(Family_group == "Unclassified" & Order == "Microviruses", "Unclassified_Microvirus", Family_group)) %>%
   mutate(Family_group = ifelse(Family_group == "Unclassified" & Order != "Microviruses", "Other_unclassified", Family_group)) %>%
@@ -559,6 +561,20 @@ lost_bees <- discards(count_stats_core_or_not$yes$ratios, min_seq_count_core_or_
 iterations <- 1000
 # source("scripts/R/helpers/rarefaction_alpha.R")
 # source("scripts/R/helpers/rarefaction_beta.R")
+
+# For manuscript figure:
+
+# all <- alpha$Family$single_plots
+# non_core_singles <- alpha_core_or_not$no$Family$single_plots
+# core_singles <- alpha_core_or_not$yes$Family$single_plots
+# for (n in 5:7) {
+#   all[[n]] <- all[[n]] + theme(axis.text.x=element_blank())
+#   non_core_singles[[n]] <- non_core_singles[[n]] + theme(axis.text.x=element_blank())
+#   
+# }
+# pretty_alpha_selection <- wrap_plots( wrap_plots(all[5:7], axes = "collect_y", widths = c(3,4,3)) / 
+#               wrap_plots(non_core_singles[5:7], axes = "collect_y", widths = c(3,4,3)) /
+#               wrap_plots(core_singles[5:7], axes = "collect_y", widths = c(3,4,3)))
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#

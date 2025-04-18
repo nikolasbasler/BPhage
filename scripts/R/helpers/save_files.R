@@ -100,6 +100,8 @@ for (tax in names(alpha)) {
               paste0("output/R/alpha/alpha_core_or_not/alpha_core.",core_or_not,".",tax,".kruskal.csv"))
   }
 }
+ggsave("output/R/alpha/pretty_alpha_selection.pdf",
+       pretty_alpha_selection, height = 8, width = 8)
 
 # By country
 system("mkdir -p output/R/alpha/alpha_by_country")

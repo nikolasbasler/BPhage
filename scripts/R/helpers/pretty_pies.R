@@ -13,7 +13,7 @@ core_taxonomy <- list()
     # if (core_or_all == "core") {
     #   classif_filt <- classification %>%
     #     filter(Core == "yes") # %>%
-    #     # mutate(Family_group = ifelse(Family_group == "ICTV-named", Family, Family_group)) # This is breaking the logic a bit but it makes more sense here to list the actual family names
+    #     # mutate(Family_group = ifelse(Family_group == "ICTV-named_Caudoviricetes_family", Family, Family_group)) # This is breaking the logic a bit but it makes more sense here to list the actual family names
     # }
     
     core_taxonomy[[tl]] <- classification %>%
@@ -103,7 +103,7 @@ pretty_pie$tibbles$n$Family <- classification %>%
   group_by(Family_group) %>%
   count() %>%
   arrange(desc(n)) %>%
-  mutate(Family_group = factor(Family_group, levels = c("Novel_Caudoviricetes_family", "Microvirus_family", "ICTV-named", "Novel_Tokiviricetes_family", "Unclassified_Microvirus", "Other_unclassified"))) %>%
+  mutate(Family_group = factor(Family_group, levels = c("Novel_Caudoviricetes_family", "Microvirus_family", "ICTV-named_Caudoviricetes_family", "Novel_Tokiviricetes_family", "Unclassified_Microvirus", "Other_unclassified"))) %>%
   rename(Family = Family_group)
 
 pretty_pie$tibbles$TPM$Family <- phage_tpm$Family_group %>%
@@ -114,7 +114,7 @@ pretty_pie$tibbles$TPM$Family <- phage_tpm$Family_group %>%
   select(Family_group, TPM) %>%
   distinct() %>%
   arrange(desc(TPM)) %>%
-  mutate(Family_group = factor(Family_group, levels = c("Novel_Caudoviricetes_family", "Microvirus_family", "ICTV-named", "Novel_Tokiviricetes_family", "Unclassified_Microvirus", "Other_unclassified"))) %>%
+  mutate(Family_group = factor(Family_group, levels = c("Novel_Caudoviricetes_family", "Microvirus_family", "ICTV-named_Caudoviricetes_family", "Novel_Tokiviricetes_family", "Unclassified_Microvirus", "Other_unclassified"))) %>%
   rename(Family = Family_group)
 
 pretty_pie$tibbles$load$Family <- phage_load$Family_group %>%
@@ -125,13 +125,13 @@ pretty_pie$tibbles$load$Family <- phage_load$Family_group %>%
   select(Family_group, load) %>%
   distinct() %>%
   arrange(desc(load)) %>%
-  mutate(Family_group = factor(Family_group, levels = c("Novel_Caudoviricetes_family", "Microvirus_family", "ICTV-named", "Novel_Tokiviricetes_family", "Unclassified_Microvirus", "Other_unclassified"))) %>%
+  mutate(Family_group = factor(Family_group, levels = c("Novel_Caudoviricetes_family", "Microvirus_family", "ICTV-named_Caudoviricetes_family", "Novel_Tokiviricetes_family", "Unclassified_Microvirus", "Other_unclassified"))) %>%
   rename(Family = Family_group)
 
 pretty_special_families <- list()
 
 pretty_special_families$ictv$tibbles$n <- classification %>%
-  filter(Family_group == "ICTV-named") %>%
+  filter(Family_group == "ICTV-named_Caudoviricetes_family") %>%
   group_by(Family) %>%
   count() %>%
   arrange(desc(n))

@@ -24,6 +24,8 @@ for (yes_no in core_or_not) {
   }
 }
 
+custom_colors <- c("#ef8f01", "#1C3A3A", "#8B4513", "#1C3A3A", "#FFA07A", "#1C3A3A")
+
 RDAs <- list()
 RDA_plots <- list()
 for (tax in taxlevels) {
@@ -40,25 +42,33 @@ for (tax in taxlevels) {
     
     plot_data <- RLdbRDA::prepare_plot_data(RDAs[[tax]][[set]])
     
-    RDA_plots[[tax]][[set]] <- RLdbRDA::plot_dbrda(plot_data) + 
-      scale_fill_manual(values=c("#ef8f01", "#8B4513"),
-                        labels=c(bquote(R^2), bquote('Cumulative' ~ R^2))) +
-      ggtitle(paste0(tax, "_", plotting_lable[[set]])) +
-      theme(legend.position = "bottom")
+    p <- RLdbRDA::plot_dbrda(plot_data)
+    p$data$bar_color <- custom_colors
+    
+    RDA_plots[[tax]][[set]] <- p + aes(fill = bar_color) + scale_fill_identity() # +
+      # ggtitle(paste0(tax, "_", plotting_lable[[set]])) 
   }
 }
 
-family_patch_horizontal <- RDA_plots$Family$all + RDA_plots$Family$no + RDA_plots$Family$yes +
-  plot_layout(guides = 'collect', axes = "collect") & theme(legend.position = "bottom")
+source("scripts/R/helpers/mixed_helpers.R")
+common_legend <- legend_factory(title = "Thing", 
+                                items = c("R2_A", "R2_B", "R2_C", "Cumulative R2"),
+                                colors = c("#ef8f01", "#8B4513", "#FFA07A", "#1C3A3A"),
+                                position = "bottom")
 
-family_patch_vertical <- RDA_plots$Family$all / RDA_plots$Family$no / RDA_plots$Family$yes +
-  plot_layout(guides = 'collect', axes = "collect") & theme(legend.position = "bottom")
+family_patch_horizontal <- 
+  (RDA_plots$Family$all + RDA_plots$Family$no + RDA_plots$Family$yes) /
+  common_legend +
+  plot_layout(axes = "collect", heights = c(12,1))
+
+family_patch_vertical <- RDA_plots$Family$all / RDA_plots$Family$no / RDA_plots$Family$yes / common_legend +
+  plot_layout(axes = "collect", heights = c(rep(6,3),1))
 
 # Save files
 system("mkdir -p output/R/beta/beta_dbRDA/")
 
-ggsave("output/R/beta/beta_dbRDA/dbRDA.Family_patch.horizontal.pdf", family_patch_horizontal, width = 13, height = 5)
-ggsave("output/R/beta/beta_dbRDA/dbRDA.Family_patch.vertical.pdf", family_patch_vertical, width = 3.5, height = 9.5)
+ggsave("output/R/beta/beta_dbRDA/dbRDA.Family_patch.horizontal.pdf", family_patch_horizontal, width = 10, height = 3)
+ggsave("output/R/beta/beta_dbRDA/dbRDA.Family_patch.vertical.pdf", family_patch_vertical, width = 3.5, height = 9)
 for (tax in taxlevels) {
   for (set in names(beta_dists[[tax]])) {
     write_delim(RDAs[[tax]][[set]], paste0("output/R/beta/beta_dbRDA/dbRDA.", tax, ".", plotting_lable[[set]], ".tsv"))
