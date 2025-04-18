@@ -263,7 +263,7 @@ legend_factory <- function(title, items, colors, position) {
 #   
 #   layers <- list()
 #   layers$genes <- slop$cropland[[gene_or_pathogen]]
-#   layers$cropland <- "ha_cropland_in_2k_radius"
+#   layers$cropland <- "Cropland_in_2km_radius"
 #   layers$pesticides <- "Pesticides (total)"
 #   layers$pest_groups <- unique(slop$pest_groups$Item)
 #   layers$specific$`Fungicides and Bactericides` <- slop$specific_pests %>%
@@ -291,7 +291,7 @@ legend_factory <- function(title, items, colors, position) {
 #                         dimnames = list(hypotheses, hypotheses))
 #   for (gene in layers$genes) {
 #     # Layer 1 to 2: cropland fraction to total pest
-#     L1_test_name <- paste0(gene, "; ha_cropland_in_2k_radius")
+#     L1_test_name <- paste0(gene, "; Cropland_in_2km_radius")
 #     L2_test_name <- paste0(gene, "; Pesticides (total)")
 #     
 #     if ( L1_test_name %in% rownames(transitions) & L2_test_name %in% colnames(transitions) ) {

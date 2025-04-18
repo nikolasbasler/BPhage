@@ -21,7 +21,7 @@ cropland_and_FAO <- FAOSTAT_added_data %>%
   select(Country, Item, est_use_in_2k_radius) %>%
   pivot_wider(id_cols = Country, values_from = est_use_in_2k_radius, names_from = Item) %>%
   # left_join(cropland_fraction[c("Country", "cropland_fraction_2k_radius")], ., by = "Country") %>%
-  left_join(FAOSTAT_added_data[c("Country", "cropland_fraction_2k_radius", "ha_cropland_in_2k_radius")],. , by = "Country") %>%
+  left_join(FAOSTAT_added_data[c("Country", "cropland_fraction_2k_radius", "Cropland_in_2km_radius")],. , by = "Country") %>%
   distinct() %>%
   select_if(~ !any(is.na(.)))
 
@@ -97,8 +97,8 @@ for (goi in genes_of_interest) {
     left_join(., cropland_and_FAO, by = "Country") %>%
     mutate(Gut_part = factor(Gut_part, levels = c("rec", "ile", "mid"))) %>%
     mutate(presence = ifelse(tpm > 0, 1, 0), .before = tpm) # %>%
-    # mutate(ha_cropland_in_2k_radius = ha_cropland_in_2k_radius / sd(ha_cropland_in_2k_radius))
-    # mutate(ha_cropland_in_2k_radius = scale(ha_cropland_in_2k_radius)[1])
+    # mutate(Cropland_in_2km_radius = Cropland_in_2km_radius / sd(Cropland_in_2km_radius))
+    # mutate(Cropland_in_2km_radius = scale(Cropland_in_2km_radius)[1])
 }
 
 ###### 
@@ -143,7 +143,7 @@ model_logit_cropland <- list()
 goi = "phosphoadenosine phosphosulfate reductase"
 
 model_logit_cropland[[goi]] <- glmer(
-  presence ~ ha_cropland_in_2k_radius + Gut_part + Season + (1 | Hive_ID ),
+  presence ~ Cropland_in_2km_radius + Gut_part + Season + (1 | Hive_ID ),
   data = test_tibble_logit[[goi]],
   family = binomial)
 
@@ -265,7 +265,7 @@ for (item in spec_pests) {
 slopes <- list()
 for (level in names(coeffs_logit)) {
   slopes[[level]] <- coeffs_logit[[level]] %>%
-    filter(metric == "ha_cropland_in_2k_radius" | metric == "est_use_in_2k_radius") %>%
+    filter(metric == "Cropland_in_2km_radius" | metric == "est_use_in_2k_radius") %>%
     rename(raw_p_value = `Pr(>|z|)`) %>%
     mutate(raw_p_significant = case_when(raw_p_value <= 0.001 ~ "***",
                                          raw_p_value <= 0.01 ~ "**",

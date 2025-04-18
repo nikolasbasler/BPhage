@@ -23,7 +23,7 @@ cropland_and_FAO <- FAOSTAT_added_data %>%
   select(Country, Item, est_use_in_2k_radius) %>%
   pivot_wider(id_cols = Country, values_from = est_use_in_2k_radius, names_from = Item) %>%
   # left_join(cropland_fraction[c("Country", "cropland_fraction_2k_radius")], ., by = "Country") %>%
-  left_join(FAOSTAT_added_data[c("Country", "cropland_fraction_2k_radius", "ha_cropland_in_2k_radius")],. , by = "Country") %>%
+  left_join(FAOSTAT_added_data[c("Country", "cropland_fraction_2k_radius", "Cropland_in_2km_radius")],. , by = "Country") %>%
   distinct() %>%
   select_if(~ !any(is.na(.)))
 
@@ -133,7 +133,7 @@ for (poi in pathogens_of_interest) {
   
   
   # Example formulas (replace variable names with yours)
-  bf_total <- bf(total_pest ~ ha_cropland_in_2k_radius)                    # Layer 2
+  bf_total <- bf(total_pest ~ Cropland_in_2km_radius)                    # Layer 2
   bf_insect <- bf(Insecticides ~ total_pest)                                 # Layer 3 (Insecticides)
   bf_herb   <- bf(Herbicides ~ total_pest)                                   # Layer 3 (Herbicides)
   bf_fung   <- bf(fung_and_bact ~ total_pest)                                   # Layer 3 (Fungicides/Bactericides)
@@ -161,7 +161,7 @@ for (poi in pathogens_of_interest) {
   
   
   # Finally, the outcome model for Ct
-  bf_Ct <- bf(Ct | cens(censoring) ~ ha_cropland_in_2k_radius + total_pest +
+  bf_Ct <- bf(Ct | cens(censoring) ~ Cropland_in_2km_radius + total_pest +
                 Insecticides + Herbicides + fung_and_bact + plant_G + 
                 Season + (1 | Hive_ID))
   
@@ -193,7 +193,7 @@ for (poi in pathogens_of_interest) {
   # 
     
   # model_ct_censored[[poi]] <- brm(
-  #   formula = bf(Ct | cens(censoring) ~ ha_cropland_in_2k_radius + Season + (1 | Hive_ID )),
+  #   formula = bf(Ct | cens(censoring) ~ Cropland_in_2km_radius + Season + (1 | Hive_ID )),
   #   seed = 1,
   #   data = test_tibble_ct[[poi]],
   #   prior(normal(20, 5), class = "Intercept", lb = 1, ub = 40),

@@ -22,7 +22,7 @@ cropland_and_FAO <- FAOSTAT_added_data %>%
   select(Country, Item, est_use_in_2k_radius) %>%
   pivot_wider(id_cols = Country, values_from = est_use_in_2k_radius, names_from = Item) %>%
   # left_join(cropland_fraction[c("Country", "cropland_fraction_2k_radius")], ., by = "Country") %>%
-  left_join(FAOSTAT_added_data[c("Country", "cropland_fraction_2k_radius", "ha_cropland_in_2k_radius")],. , by = "Country") %>%
+  left_join(FAOSTAT_added_data[c("Country", "cropland_fraction_2k_radius", "Cropland_in_2km_radius")],. , by = "Country") %>%
   distinct() %>%
   select_if(~ !any(is.na(.)))
 
@@ -96,7 +96,7 @@ for (poi in pathogens_of_interest) {
     # filter(Ct < 40)
     # mutate(Ct = if_else(rep(poi == "nosema_spores", n()), as.integer(Ct), Ct))  
   
-    model_ct_simple_cropland[[poi]] <- glmer.nb(Ct ~ ha_cropland_in_2k_radius + Season +
+    model_ct_simple_cropland[[poi]] <- glmer.nb(Ct ~ Cropland_in_2km_radius + Season +
                                               ( 1 | Hive_ID ), data = test_tibble_ct[[poi]])
     
     summary(model_ct_simple_cropland[[poi]])

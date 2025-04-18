@@ -24,7 +24,7 @@ cropland_and_FAO <- FAOSTAT_added_data %>%
   select(Country, Item, est_use_in_2k_radius) %>%
   pivot_wider(id_cols = Country, values_from = est_use_in_2k_radius, names_from = Item) %>%
   # left_join(cropland_fraction[c("Country", "cropland_fraction_2k_radius")], ., by = "Country") %>%
-  left_join(FAOSTAT_added_data[c("Country", "cropland_fraction_2k_radius", "ha_cropland_in_2k_radius")],. , by = "Country") %>%
+  left_join(FAOSTAT_added_data[c("Country", "cropland_fraction_2k_radius", "Cropland_in_2km_radius")],. , by = "Country") %>%
   distinct() %>%
   select_if(~ !any(is.na(.)))
 
@@ -106,7 +106,7 @@ for (goi in genes_of_interest) {
     mutate(log_tpm = log10(tpm)) %>%
     filter(!is.infinite(log_tpm))
   
-  model_tpm_simple_cropland[[goi]] <- lmer(log_tpm ~ ha_cropland_in_2k_radius + Gut_part + Season +
+  model_tpm_simple_cropland[[goi]] <- lmer(log_tpm ~ Cropland_in_2km_radius + Gut_part + Season +
                                                (1 | Hive_ID ), data = test_tibble_log_tpm[[goi]])
     
   has_convergence_issues <- FALSE
@@ -271,7 +271,7 @@ slopes <- list()
 for (level in names(coeffs_tpm_simple)) {
 
   temp_slope_tibble <- coeffs_tpm_simple[[level]] %>%
-    filter(metric %in% c("ha_cropland_in_2k_radius", "est_use_in_2k_radius")) %>%
+    filter(metric %in% c("Cropland_in_2km_radius", "est_use_in_2k_radius")) %>%
     rename(raw_p_value = `Pr(>|t|)`) %>%
     mutate(raw_p_significant = case_when(raw_p_value <= 0.001 ~ "***",
                                          raw_p_value <= 0.01 ~ "**",
@@ -400,8 +400,8 @@ facet_order <- c("Pesticides (total)",
               "Fungicides and Bactericides",
               spec_pests)
 pest_use_plot <- cropland_and_FAO %>%
-  select(Country, ha_cropland_in_2k_radius, all_of(facet_order)) %>%
-  rename(`Cropland in 2km radius` = ha_cropland_in_2k_radius) %>%
+  select(Country, Cropland_in_2km_radius, all_of(facet_order)) %>%
+  rename(`Cropland in 2km radius` = Cropland_in_2km_radius) %>%
   pivot_longer(-Country, names_to = "parameter") %>%
   mutate(Country = reorder_within(Country, value, parameter),
          parameter = factor(parameter, levels = c("Cropland in 2km radius", facet_order))) %>%

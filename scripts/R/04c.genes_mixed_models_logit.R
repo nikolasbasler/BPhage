@@ -21,7 +21,7 @@ cropland_and_FAO <- FAOSTAT_added_data %>%
   select(Country, Item, est_use_in_2k_radius) %>%
   pivot_wider(id_cols = Country, values_from = est_use_in_2k_radius, names_from = Item) %>%
   # left_join(cropland_fraction[c("Country", "cropland_fraction_2k_radius")], ., by = "Country") %>%
-  left_join(FAOSTAT_added_data[c("Country", "cropland_fraction_2k_radius", "ha_cropland_in_2k_radius")],. , by = "Country") %>%
+  left_join(FAOSTAT_added_data[c("Country", "cropland_fraction_2k_radius", "Cropland_in_2km_radius")],. , by = "Country") %>%
   distinct() %>%
   select_if(~ !any(is.na(.)))
 
@@ -147,7 +147,7 @@ samples_with_presence$cropland <- tibble()
 for (goi in genes_of_interest) {
   
   model_logit_cropland[[goi]] <- glmer(
-    presence ~ ha_cropland_in_2k_radius + Gut_part + Season + (1 | Hive_ID ),
+    presence ~ Cropland_in_2km_radius + Gut_part + Season + (1 | Hive_ID ),
     data = test_tibble_logit[[goi]],
     family = binomial)
   
@@ -308,7 +308,7 @@ for (level in names(coeffs_logit)) {
   if (nrow(coeffs_logit[[level]]) > 0) {
     
     temp_slope_tibble <- coeffs_logit[[level]] %>%
-      filter(metric %in% c("ha_cropland_in_2k_radius", "est_use_in_2k_radius")) %>%
+      filter(metric %in% c("Cropland_in_2km_radius", "est_use_in_2k_radius")) %>%
       rename(raw_p_value = `Pr(>|z|)`) %>%
       mutate(raw_p_significant = case_when(raw_p_value <= 0.001 ~ "***",
                                            raw_p_value <= 0.01 ~ "**",

@@ -22,7 +22,7 @@ cropland_and_FAO <- FAOSTAT_added_data %>%
   select(Country, Item, est_use_in_2k_radius) %>%
   pivot_wider(id_cols = Country, values_from = est_use_in_2k_radius, names_from = Item) %>%
   # left_join(cropland_fraction[c("Country", "cropland_fraction_2k_radius")], ., by = "Country") %>%
-  left_join(FAOSTAT_added_data[c("Country", "cropland_fraction_2k_radius", "ha_cropland_in_2k_radius")],. , by = "Country") %>%
+  left_join(FAOSTAT_added_data[c("Country", "cropland_fraction_2k_radius", "Cropland_in_2km_radius")],. , by = "Country") %>%
   distinct() %>%
   select_if(~ !any(is.na(.)))
 
@@ -145,7 +145,7 @@ model_logit_cropland <- list()
 for (poi in pathogens_of_interest) {
 
   model_logit_cropland[[poi]] <- glmer(
-    presence ~ ha_cropland_in_2k_radius + Season + ( 1 | Hive_ID ),
+    presence ~ Cropland_in_2km_radius + Season + ( 1 | Hive_ID ),
     data = test_tibble_logit[[poi]],
     family = binomial)
   
@@ -189,7 +189,7 @@ for (poi in pathogens_of_interest) {
 # test_tibble_joint_logit %>% count(Season) %>% arrange(desc(n))
 # 
 # model_combinded_logit_cropland <- glmer(
-#   ABPV ~ ha_cropland_in_2k_radius + Season + ( 1 | Hive_ID ),
+#   ABPV ~ Cropland_in_2km_radius + Season + ( 1 | Hive_ID ),
 #   data = test_tibble_joint_logit,
 #   family = binomial)
 # 
@@ -205,7 +205,7 @@ for (poi in pathogens_of_interest) {
 # test_tibble_combinded_logit %>% count(Season) %>% arrange(n)
 
 # model_combinded_logit_cropland <- glmer(
-#   cbind(num_pathogens, 3 - num_pathogens) ~ ha_cropland_in_2k_radius + Season + ( 1 | Hive_ID ),
+#   cbind(num_pathogens, 3 - num_pathogens) ~ Cropland_in_2km_radius + Season + ( 1 | Hive_ID ),
 #   data = test_tibble_combinded_logit,
 #   family = binomial)
 # 
@@ -333,7 +333,7 @@ for (poi in pathogens_of_interest) {
 slopes <- list()
 for (level in names(coeffs_logit)) {
   slopes[[level]] <- coeffs_logit[[level]] %>%
-    filter(metric == "ha_cropland_in_2k_radius" | metric == "est_use_in_2k_radius") %>%
+    filter(metric == "Cropland_in_2km_radius" | metric == "est_use_in_2k_radius") %>%
     rename(raw_p_value = `Pr(>|z|)`) %>%
     mutate(raw_p_significant = case_when(raw_p_value <= 0.001 ~ "***",
                                          raw_p_value <= 0.01 ~ "**",

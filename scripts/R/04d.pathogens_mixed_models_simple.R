@@ -22,7 +22,7 @@ cropland_and_FAO <- FAOSTAT_added_data %>%
   select(Country, Item, est_use_in_2k_radius) %>%
   pivot_wider(id_cols = Country, values_from = est_use_in_2k_radius, names_from = Item) %>%
   # left_join(cropland_fraction[c("Country", "cropland_fraction_2k_radius")], ., by = "Country") %>%
-  left_join(FAOSTAT_added_data[c("Country", "cropland_fraction_2k_radius", "ha_cropland_in_2k_radius")],. , by = "Country") %>%
+  left_join(FAOSTAT_added_data[c("Country", "cropland_fraction_2k_radius", "Cropland_in_2km_radius")],. , by = "Country") %>%
   distinct() %>%
   select_if(~ !any(is.na(.)))
 
@@ -95,7 +95,7 @@ for (poi in pathogens_of_interest) {
     # filter(Ct < 40)
     # mutate(Ct = if_else(rep(poi == "nosema_spores", n()), as.integer(Ct), Ct))  
 
-  model_ct_simple_cropland[[poi]] <- lmer(Ct ~ ha_cropland_in_2k_radius + Season +
+  model_ct_simple_cropland[[poi]] <- lmer(Ct ~ Cropland_in_2km_radius + Season +
                                              ( 1 | Hive_ID ), data = test_tibble_ct[[poi]])
   
   
@@ -152,7 +152,7 @@ summary(model_ct_simple_cropland$SBV)
 #   left_join(., cropland_and_FAO, by = "Country") 
 #   # mutate(Ct = if_else(rep(poi == "nosema_spores", n()), as.integer(Ct), Ct)) 
 # 
-# model_combinded_ct_simple_cropland <- lmer(summed_back_ct ~ ha_cropland_in_2k_radius + Season +
+# model_combinded_ct_simple_cropland <- lmer(summed_back_ct ~ Cropland_in_2km_radius + Season +
 #                                              ( 1 | Hive_ID ), data = test_tibble_combinded_ct)
 # summary(model_combinded_ct_simple_cropland)
 #   
@@ -284,7 +284,7 @@ slopes <- list()
 for (level in names(coeffs_ct_simple)) {
   
   temp_slope_tibble <- coeffs_ct_simple[[level]] %>%
-    filter(metric == "ha_cropland_in_2k_radius" | metric == "est_use_in_2k_radius") %>%
+    filter(metric == "Cropland_in_2km_radius" | metric == "est_use_in_2k_radius") %>%
     rename(raw_p_value = `Pr(>|t|)`) %>%
     mutate(raw_p_significant = case_when(raw_p_value <= 0.001 ~ "***",
                                          raw_p_value <= 0.01 ~ "**",

@@ -1,0 +1,10 @@
+04c.genes_mixed_models_logit_only_sulf.R
+04c.genes_mixed_models_logit.R
+04c.genes_mixed_models_simple.R
+04d.nosema_spores_mixed_models.R
+04d.pathogens_mixed_models_logit.R
+04d.pathogens_mixed_models_simple.R
+04e.pathogens_vs_genes_mixed_models.R
+bayes_test.R
+helpers/FAOstat_table.R
+helpers/mixed_helpers.R

@@ -39,9 +39,9 @@ FAOSTAT_added_data <- FAOSTAT_pest_data %>%
          use_per_active_cropland = `Agricultural Use` / active_crops,
          use_per_land_area = `Agricultural Use` / `Land area`) %>%
   left_join(., cropland_fraction, by = "Country") %>%
-  mutate(ha_cropland_in_2k_radius = (pi*2000^2 / 10000) * cropland_fraction_2k_radius) %>%
-  mutate(est_use_in_2k_radius = `Use per area of cropland` * ha_cropland_in_2k_radius) %>%
+  mutate(Cropland_in_2km_radius = (pi*2000^2 / 10000) * cropland_fraction_2k_radius) %>%
+  mutate(est_use_in_2k_radius = `Use per area of cropland` * Cropland_in_2km_radius) %>%
   # mutate(est_use_in_2k_radius = `Use per area of cropland` * cropland_fraction_2k_radius) %>%
   select(Country, Item, Year, `Agricultural Use`, `Use per area of cropland`, 
          `Use per capita`, `Use per value of agricultural production`, 
-         use_per_active_cropland, use_per_land_area, est_use_in_2k_radius, cropland_fraction_2k_radius, ha_cropland_in_2k_radius)
+         use_per_active_cropland, use_per_land_area, est_use_in_2k_radius, cropland_fraction_2k_radius, Cropland_in_2km_radius)
