@@ -184,7 +184,7 @@ mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_c
       breaks = c(low, high),
       labels = c(round(low, 0), round(high, 0))) +
     scale_y_continuous(
-      limits = y_stretched,
+      limits = y_stretched, # This will stretch the y-axis, i.e. compress the arrow
       breaks = c(y_of_low, y_of_high),
       labels = c(round(y_of_low, 2), round(y_of_high, 2))) +
     
