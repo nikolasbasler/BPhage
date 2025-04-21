@@ -9,7 +9,6 @@ library(gMCPLite)
 library(readxl)
 library(tidytext)
 
-
 source("scripts/R/helpers/mixed_helpers.R")
 
 cropland_fraction <- read.csv("data/land_cover_results.csv") %>% 
@@ -89,6 +88,12 @@ genes_of_interest <- c("chitinase",
                        )
 coeffs_tpm_simple <- list()
 countries_left <- list()
+
+
+all_hosts <- read.csv("output/R/host_pies/all_hosts.all.csv") %>%
+  tibble() %>%
+  rename(contig = Virus,
+         host_genus = Genus)
 
 #####
 # CROPLAND
@@ -363,7 +368,7 @@ for (t_name in unique(sig_tests$test_name)) {
                      effect_fun = linear_effect_fun,
                      dark_col = color_list$dark[[tested_gene]],
                      bright_col = color_list$bright[[tested_gene]],
-                     y_axis_label = "Log relative abundance")
+                     y_axis_label = "Log gene relative abundance")
 }
 
 common_legend <- legend_factory(title = "Gene", 
@@ -455,6 +460,30 @@ pest_use_plot <- cropland_and_FAO %>%
 # 
 # plot(model_tpm_simple_specific_pests$levanase$`Herbicides – Amides`, which = 1)
 # qqnorm(resid(model_tpm_simple_specific_pests$levanase$`Herbicides – Amides`))
+
+#####
+# WiP look at the hosts
+
+
+phold_predictions_with_extensions %>%
+  tibble() %>%
+  filter(product %in% genes_of_interest) %>%
+  filter(str_starts(contig_id, "NODE")) %>% 
+  select(contig_id, product) %>% 
+  distinct() %>%
+  rename(contig = contig_id) %>%
+  left_join(., all_hosts, by = "contig") %>%
+  group_by(product, host_genus) %>%
+  summarise(contig_count = n(), .groups = "drop") %>%
+  group_by(product) %>%
+  mutate(contigs_with_product = sum(contig_count),
+         host_fraction_per_product = contig_count / sum(contig_count),
+         contigs_with_product_known_host = ifelse(host_genus == "unknown", 0, contig_count),
+         known_host_fraction_per_product = contig_count / sum(contigs_with_product_known_host),
+         known_host_fraction_per_product = ifelse(host_genus == "unknown", NA, known_host_fraction_per_product)) %>% 
+  select(-contigs_with_product_known_host)
+
+## Werent there 64 sulf genes? Here there are only 60. A few contigs with 2 sulf genes?
 
 #####
 # SAVE FILES

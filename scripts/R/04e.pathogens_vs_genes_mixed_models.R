@@ -109,7 +109,7 @@ genes_of_interest <- c("chitinase",
 
 coeffs <- list()
 
-pathogens_of_interest <- c("DWV B", "BQCV", "SBV")
+pathogens_of_interest <- c("DWV B", "BQCV", "SBV", "N. ceranae")
 #####
 # GENE PRESENCE VS CT
 test_tibble_gene_presence <- list()
@@ -167,7 +167,7 @@ for (goi in genes_of_interest) {
       filter(!is.infinite(log_tpm))
     
 
-    model_abundances[[goi]][[poi]] <- lmer(Ct ~ log_tpm + Gut_part + Season +
+    model_abundances[[goi]][[poi]] <- lmer(log_tpm ~ Ct + Gut_part + Season +
                                              (1 | Hive_ID ), 
                                            data = test_tibble_abundances[[goi]][[poi]])
     
@@ -261,7 +261,7 @@ for (goi in genes_of_interest) {
       mutate(pathogen_presence = ifelse(Ct < 41, 1, 0))
     
     model_both_presence[[goi]][[poi]] <- glmer(
-      pathogen_presence ~ gene_presence + Season + Gut_part + ( 1 | Hive_ID ),
+      gene_presence ~ pathogen_presence + Season + Gut_part + ( 1 | Hive_ID ),
       data = test_tibble_both_presence[[goi]][[poi]],
       family = binomial)
     

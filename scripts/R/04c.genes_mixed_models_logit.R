@@ -414,8 +414,7 @@ write_delim(all_slopes, "output/R/gene_content/landuse/logit_model/logit_model_t
             delim = "\t")
 
 ggsave("output/R/gene_content/landuse/logit_model/logit_model_tibble_5gopi.pdf",
-       wrap_of_wraps, height = 13, width = 12)
-
+       wrap_of_wraps, height = 13, width = 9.25)
 
 
 

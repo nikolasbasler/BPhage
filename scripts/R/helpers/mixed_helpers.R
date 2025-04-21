@@ -54,14 +54,13 @@ mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_c
   x_axis_label <- str_replace_all(filt_test_tibble$Item, "_", " ")
   inter <- filt_test_tibble$intercept
   inter_sd <- filt_test_tibble$sd_intercept
-  slo <- filt_test_tibble$Estimate
-  slo_sd <- filt_test_tibble$`Std. Error`
   high <- filt_test_tibble$highest
   low <- filt_test_tibble$lowest
-
+  slo <- filt_test_tibble$Estimate
   y_of_high <- transform_fun(high, intercept = inter, slope = slo)
   y_of_low <- transform_fun(low, intercept = inter, slope = slo)
-  
+  slo_sd <- ifelse(high < 0 , -filt_test_tibble$`Std. Error`, filt_test_tibble$`Std. Error`)
+
   effect_size <- effect_fun(s = slo, h = high, l = low)
 
   plot_min <- low - (high - low) / 5
@@ -71,7 +70,7 @@ mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_c
                         y_val = transform_fun(x_val, intercept = inter, slope = slo),
                         y_lower = transform_fun(x_val, intercept = inter - inter_sd, slope = slo - slo_sd),
                         y_upper = transform_fun(x_val, intercept = inter + inter_sd, slope = slo + slo_sd))
-  
+
   y_stretched <- c(NA, NA)
   # if (slo < 0 ) {
   if (filt_test_tibble$which_y_end_to_stretch == "lower_end") {
