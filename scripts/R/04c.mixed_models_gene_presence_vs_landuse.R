@@ -105,7 +105,8 @@ for (goi in genes_of_interest) {
 
 ###### 
 # PREVALENCE PLOT
-prevalence_plot <- bind_rows(test_tibble_logit) %>%
+prevalence_plots <- list()
+prevalence_plots$overall <- bind_rows(test_tibble_logit) %>%
   select(gene, Sample_ID, Country, presence) %>%
   ggplot(aes(x = reorder(gene, -presence, FUN = mean), y = presence)) +
   geom_bar(stat = "summary", fun = mean) +
@@ -120,9 +121,9 @@ prevalence_plot <- bind_rows(test_tibble_logit) %>%
   scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +  # add 10% space at the top
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
 
-prevalence_plot_facet_countries <- prevalence_plot + facet_wrap(~Country)
+prevalence_plots$country_facet <- prevalence_plots$overall + facet_wrap(~Country)
 
-prevalence_plot_facet_genes <- bind_rows(test_tibble_logit) %>%
+prevalence_plots$gene_facet <- bind_rows(test_tibble_logit) %>%
   select(gene, Sample_ID, Country, presence) %>%
   ggplot(aes(x = Country, y = presence)) +
   geom_bar(stat = "summary", fun = mean) +
@@ -342,6 +343,7 @@ all_slopes <- bind_rows(slopes) %>%
 #####
 # MAKE PLOTS
 
+# Significant results
 lowest_highest <- cropland_and_FAO %>%
   pivot_longer(-Country, names_to = "Item") %>%
   group_by(Item) %>%
@@ -407,16 +409,31 @@ wrap_of_wraps <- wrap_plots(
   nrow = 6, heights = c(rep(4, 5), 1)
 )
 
+# All results
+all_tests_forest_plot <- all_slopes %>%
+  mutate(axis_labels = fct_rev(fct_inorder(test_name))) %>%
+  mutate(estimate = Estimate,
+         error = `Std. Error`) %>%
+  forest_plot(plot_title = "all tests")
+
 #####
 # SAVE FILES
-system("mkdir -p output/R/gene_content/landuse/logit_model")
-write_delim(all_slopes, "output/R/gene_content/landuse/logit_model/logit_model_tibble_5gopi.tsv",
-            delim = "\t")
+system("mkdir -p output/R/genes_pathogens_and_landuse/gene_tpmvs_landuse/")
 
-ggsave("output/R/gene_content/landuse/logit_model/logit_model_tibble_5gopi.pdf",
+write_delim(bind_rows(coeffs_logit), "output/R/genes_pathogens_and_landuse/gene_tpmvs_landuse/gene_presence_vs_landuse.all_coeffs.tsv",
+            delim = "\t")
+write_delim(all_slopes, "output/R/genes_pathogens_and_landuse/gene_tpmvs_landuse/gene_presence_vs_landuse.all_sloppes.tsv",
+            delim = "\t")
+ggsave("output/R/genes_pathogens_and_landuse/gene_tpmvs_landuse/gene_presence_vs_landuse.all_tests.pdf",
+       all_tests_forest_plot, width = 12, height = 40, limitsize = FALSE)
+
+ggsave("output/R/genes_pathogens_and_landuse/gene_tpmvs_landuse/gene_presence_vs_landuse.wrap.pdf",
        wrap_of_wraps, height = 13, width = 9.25)
 
-
-
-
+ggsave("output/R/genes_pathogens_and_landuse/gene_tpmvs_landuse/gene_prevalence.overall.pdf",
+       prevalence_plots$overall, height = 6, width = 6)
+ggsave("output/R/genes_pathogens_and_landuse/gene_tpmvs_landuse/gene_prevalence.country_facet.pdf",
+       prevalence_plots$country_facet, height = 8, width = 10)
+ggsave("output/R/genes_pathogens_and_landuse/gene_tpmvs_landuse/gene_prevalence.gene_facet.pdf",
+       prevalence_plots$gene_facet, height = 8, width = 10)
 

@@ -326,6 +326,7 @@ all_slopes <- bind_rows(slopes) %>%
 #####
 # MAKE PLOTS
 
+# Significant results
 lowest_highest <- cropland_and_FAO %>%
   pivot_longer(-Country, names_to = "Item") %>%
   group_by(Item) %>%
@@ -388,39 +389,49 @@ wrap_of_wraps <- wrap_plots(
   nrow = 5, heights = c(rep(4, 4), 1)
   )
 
-simple_model_tibble_all_tests <- all_slopes %>%
-  # inner_join(bind_rows(slopes), ., by = "test_name") %>%
+# All results
+all_tests_forest_plot <- all_slopes %>%
   mutate(axis_labels = fct_rev(fct_inorder(test_name))) %>%
-  mutate(estimate = 10^Estimate-1,
-         error = 10^Estimate - 10^(Estimate - `Std. Error`))
-
-slope_plot_simple_model_all_tests <- simple_model_tibble_all_tests %>%
+  mutate(estimate = Estimate,
+         error = `Std. Error`) %>%
   forest_plot(plot_title = "all tests")
 
-#
-
+# Pest and land use 
 facet_order <- c("Pesticides (total)",
               "Insecticides",
               "Herbicides",
               "Fungicides and Bactericides",
               spec_pests)
-pest_use_plot <- cropland_and_FAO %>%
+pest_use_tibble <- cropland_and_FAO %>%
   select(Country, Cropland_in_2km_radius, all_of(facet_order)) %>%
   rename(`Cropland in 2km radius` = Cropland_in_2km_radius) %>%
   pivot_longer(-Country, names_to = "parameter") %>%
-  mutate(Country = reorder_within(Country, value, parameter),
-         parameter = factor(parameter, levels = c("Cropland in 2km radius", facet_order))) %>%
-  ggplot(aes(x = Country, y = value)) +
+  mutate(within_ordered_Country = reorder_within(Country, value, parameter),
+         parameter = factor(parameter, levels = c("Cropland in 2km radius", facet_order)))
+
+pest_use_plot <- list()
+pest_use_plot$country_facet <- pest_use_tibble %>%
+  ggplot(aes(x = within_ordered_Country, y = value)) +
   geom_col() +
   geom_text(aes(label = round(value)),
             vjust = -0.3,              
             size = 3) +  
   facet_wrap(~parameter, scales = "free") +
   scale_x_reordered() +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.15)))
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  labs(y = "Cropland (ha) or estimated pesticide use (kg) in 2km radius",
+       x = "Country")
+pest_use_plot$pest_facet <- pest_use_tibble %>%
+  ggplot(aes(x = parameter, y = value)) +
+  geom_col() +
+  geom_text(aes(label = round(value)),
+            vjust = -0.3,              
+            size = 3) +  
+  facet_wrap(~Country, scales = "free") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1)) +
+  labs(y = "Cropland (ha) or estimated pesticide use (kg) in 2km radius")
 
-
-#
   
 #####
 # DIAGNOSTICS
@@ -465,44 +476,50 @@ pest_use_plot <- cropland_and_FAO %>%
 # WiP look at the hosts
 
 
-phold_predictions_with_extensions %>%
-  tibble() %>%
-  filter(product %in% genes_of_interest) %>%
-  filter(str_starts(contig_id, "NODE")) %>% 
-  select(contig_id, product) %>% 
-  distinct() %>%
-  rename(contig = contig_id) %>%
-  left_join(., all_hosts, by = "contig") %>%
-  group_by(product, host_genus) %>%
-  summarise(contig_count = n(), .groups = "drop") %>%
-  group_by(product) %>%
-  mutate(contigs_with_product = sum(contig_count),
-         host_fraction_per_product = contig_count / sum(contig_count),
-         contigs_with_product_known_host = ifelse(host_genus == "unknown", 0, contig_count),
-         known_host_fraction_per_product = contig_count / sum(contigs_with_product_known_host),
-         known_host_fraction_per_product = ifelse(host_genus == "unknown", NA, known_host_fraction_per_product)) %>% 
-  select(-contigs_with_product_known_host)
+# phold_predictions_with_extensions %>%
+#   tibble() %>%
+#   filter(product %in% genes_of_interest) %>%
+#   filter(str_starts(contig_id, "NODE")) %>% 
+#   select(contig_id, product) %>% 
+#   distinct() %>%
+#   rename(contig = contig_id) %>%
+#   left_join(., all_hosts, by = "contig") %>%
+#   group_by(product, host_genus) %>%
+#   summarise(contig_count = n(), .groups = "drop") %>%
+#   group_by(product) %>%
+#   mutate(contigs_with_product = sum(contig_count),
+#          host_fraction_per_product = contig_count / sum(contig_count),
+#          contigs_with_product_known_host = ifelse(host_genus == "unknown", 0, contig_count),
+#          known_host_fraction_per_product = contig_count / sum(contigs_with_product_known_host),
+#          known_host_fraction_per_product = ifelse(host_genus == "unknown", NA, known_host_fraction_per_product)) %>% 
+#   select(-contigs_with_product_known_host)
 
-## Werent there 64 sulf genes? Here there are only 60. A few contigs with 2 sulf genes?
 
 #####
 # SAVE FILES
 
-system("mkdir -p output/R/gene_content/landuse/simple_model")
+system("mkdir -p output/R/genes_pathogens_and_landuse/gene_tpmvs_landuse/")
 
-ggsave("output/R/gene_content/landuse/land_and_pest_use.pdf",
-       pest_use_plot, width = 14, height = 10)
+write_delim(bind_rows(coeffs_tpm_simple), "output/R/genes_pathogens_and_landuse/gene_tpmvs_landuse/gene_tpm_vs_landuse.all_coeffs.tsv",
+            delim = "\t")
+write_delim(all_slopes, "output/R/genes_pathogens_and_landuse/gene_tpmvs_landuse/gene_tpm_vs_landuse.all_slopes.tsv",
+            delim = "\t")
+ggsave("output/R/genes_pathogens_and_landuse/gene_tpmvs_landuse/gene_tpm_vs_landuse.all_tests.pdf",
+       all_tests_forest_plot, width = 12, height = 50, limitsize = FALSE)
 
-
-ggsave("output/R/gene_content/landuse/simple_model/log_tpm_mixed_model_wrap.pdf",
+ggsave("output/R/genes_pathogens_and_landuse/gene_tpmvs_landuse/gene_tpm_vs_landuse.wrap.pdf",
        wrap_of_wraps, width = 12, height = 12)
 
-write_delim(gene_tpm, "output/R/gene_content/landuse/gene_tpm.tsv",
+write_delim(gene_tpm, "output/R/genes_pathogens_and_landuse/gene_tpmvs_landuse/gene_tpm.tsv",
             delim = "\t")
 
-write_delim(all_slopes, "output/R/gene_content/landuse/simple_model/simple_model_all_slopes.tsv",
+ggsave("output/R/genes_pathogens_and_landuse/land_and_pest_use.country_facet.pdf",
+       pest_use_plot$country_facet, width = 14, height = 10)
+ggsave("output/R/genes_pathogens_and_landuse/land_and_pest_use.pest_facet.pdf",
+       pest_use_plot$pest_facet, width = 15, height = 20)
+write_delim(pest_use_tibble, "output/R/genes_pathogens_and_landuse/land_and_pest_use.tsv",
             delim = "\t")
 
-ggsave("output/R/gene_content/landuse/simple_model/simple_model_all_tests.pdf",
-       slope_plot_simple_model_all_tests, width = 12, height = 50, limitsize = FALSE)
+
+
 

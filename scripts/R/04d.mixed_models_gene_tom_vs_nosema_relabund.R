@@ -233,6 +233,7 @@ all_slopes <- bind_rows(slopes) %>%
 #####
 # MAKE PLOTS
 
+# Significant results
 lowest_highest <- nosema_relabund %>%
   filter(nosema_relabund > 0) %>%
   reframe(Item = "log_nosema_relabund",
@@ -279,27 +280,29 @@ common_legend <- legend_factory(title = "Gene",
 
 wrap_of_one <- tpm_plot / common_legend + plot_layout(heights = c(20,1))
 
-simple_model_tibble_all_tests <- all_slopes %>%
+# All results
+all_tests_forest_plot <- all_slopes %>%
   mutate(axis_labels = fct_rev(fct_inorder(test_name))) %>%
-  mutate(estimate = 10^Estimate-1,
-         error = 10^Estimate - 10^(Estimate - `Std. Error`))
-
-slope_plot_simple_model_all_tests <- simple_model_tibble_all_tests %>%
+  mutate(estimate = Estimate,
+         error = `Std. Error`) %>%
   forest_plot(plot_title = "all tests")
 
 #####
 # SAVE FILES
 
-system("mkdir -p output/R/gene_content/landuse/nosema_tpm")
+system("mkdir -p output/R/genes_pathogens_and_landuse/gene_tpm_vs_nosema_relabund/")
 
-ggsave("output/R/gene_content/landuse/nosema_tpm/gene_tpm_vs_nosema_relabund.pdf",
+write_delim(coeffs$tpm, "output/R/genes_pathogens_and_landuse/gene_tpm_vs_nosema_relabund/gene_tpm_vs_nosema_relabund.all_coeffs.tsv",
+            delim = "\t")
+write_delim(all_slopes, "output/R/genes_pathogens_and_landuse/gene_tpm_vs_nosema_relabund/gene_tpm_vs_nosema_relabund.all_slopes.tsv",
+            delim = "\t")
+ggsave("output/R/genes_pathogens_and_landuse/gene_tpm_vs_nosema_relabund/gene_tpm_vs_nosema_relabund.all_tests.pdf",
+       all_tests_forest_plot, width = 8, height = 4)
+
+ggsave("output/R/genes_pathogens_and_landuse/gene_tpm_vs_nosema_relabund/gene_tpm_vs_nosema_relabund.wrap.pdf",
        wrap_of_one, width = 3.2, height = 3)
 
-ggsave("output/R/gene_content/landuse/nosema_tpm/gene_tpm_vs_nosema_relabund_all_tests.pdf",
-       slope_plot_simple_model_all_tests, width = 8, height = 4)
+write_delim(nosema_relabund, "output/R/genes_pathogens_and_landuse/gene_tpm_vs_nosema_relabund/nosema_relabund.tsv",
+            delim = "\t")
 
 
-write_delim(coeffs$tpm, "output/R/gene_content/landuse/nosema_tpm/gene_tpm_vs_nosema_relabund_coeffs.tsv",
-            delim = "\t")
-write_delim(all_slopes, "output/R/gene_content/landuse/nosema_tpm/gene_tpm_vs_nosema_relabund_slopes.tsv",
-            delim = "\t")

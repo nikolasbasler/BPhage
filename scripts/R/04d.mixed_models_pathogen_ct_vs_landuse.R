@@ -123,9 +123,9 @@ for (poi in pathogens_of_interest) {
   }
 }
 
-summary(model_ct_simple_cropland$`DWV B`)
-summary(model_ct_simple_cropland$BQCV)
-summary(model_ct_simple_cropland$SBV)
+# summary(model_ct_simple_cropland$`DWV B`)
+# summary(model_ct_simple_cropland$BQCV)
+# summary(model_ct_simple_cropland$SBV)
 
 # plot(model_ct_simple_cropland$`DWV B`, which = 1)
 # qqnorm(resid(model_ct_simple_cropland$`DWV B`))
@@ -313,13 +313,12 @@ all_slopes <- bind_rows(slopes) %>%
                                           p_adjusted <= 0.05 ~ "*",
                                           p_adjusted <= 0.075 ~ ".",
                                           .default = "n.s.")
-  ) %>%
-  mutate(layer = ifelse(Item %in% spec_pests, "spec_pests", "upper_layer"),
-         layer = factor(layer, levels = c("spec_pests", "upper_layer")))
+  )
 
 #####
 # MAKE PLOTS
 
+# Significant results
 lowest_highest <- cropland_and_FAO %>%
   pivot_longer(-Country, names_to = "Item") %>%
   group_by(Item) %>%
@@ -381,45 +380,11 @@ wrap_of_wraps <- wrap_plots(
   nrow = 3, heights = c(rep(4, 2), 1)
 )
 
-
-# simple_model_tibble_focused <- all_slopes %>%
-#   filter(p_adjusted <= 0.05) %>%
-#   mutate(adjust_p_significant = case_when(p_adjusted <= 0.001 ~ "***",
-#                                           p_adjusted <= 0.01 ~ "**",
-#                                           p_adjusted <= 0.05 ~ "*",
-#                                           p_adjusted <= 0.075 ~ ".",
-#                                           .default = "n.s."
-#   )) %>%
-#   left_join(., lowest_highest, by = "Item") %>%
-#   mutate(ct_change_in_range = Estimate * (highest - lowest))
-# 
-# slope_plot_simple_model_focused <- simple_model_tibble_focused %>%
-#   arrange(test_name) %>%
-#   mutate(axis_labels = test_name,
-#          axis_labels = fct_inorder(axis_labels)) %>%
-#   mutate(estimate = Estimate,
-#          error = `Std. Error`) %>%
-#   forest_plot(plot_title = "pathogens")
-# 
-# fold_change_in_range_plot <- simple_model_tibble_focused %>%
-#   arrange(test_name) %>%
-#   mutate(axis_labels = test_name,
-#          axis_labels = fct_inorder(axis_labels)) %>%
-#   ggplot(aes(x = axis_labels, y = ct_change_in_range)) +
-#   geom_col() +
-#   coord_flip() +
-#   theme_minimal() +
-#   theme(axis.title.y = element_blank(),
-#         axis.text.y=element_blank())
-# 
-# patch_simple_model <- slope_plot_simple_model_focused + fold_change_in_range_plot
-
-simple_model_tibble_all_tests <- all_slopes %>%
+# All results
+all_tests_forest_plot <- all_slopes %>%
   mutate(axis_labels = fct_rev(fct_inorder(test_name))) %>%
-  mutate(estimate = 10^Estimate-1,
-         error = 10^Estimate - 10^(Estimate - `Std. Error`))
-
-slope_plot_simple_model_all_tests <- simple_model_tibble_all_tests %>%
+  mutate(estimate = Estimate,
+         error = `Std. Error`) %>%
   forest_plot(plot_title = "all tests")
 
 
@@ -442,20 +407,19 @@ slope_plot_simple_model_all_tests <- simple_model_tibble_all_tests %>%
 #####
 # SAVE FILES
 
-system("mkdir -p output/R/gene_content/landuse/pathogen_simple_model")
+system("mkdir -p output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/")
 
-ggsave("output/R/gene_content/landuse/pathogen_simple_model/ct_mixed_model_wrap.pdf",
+write_delim(bind_rows(coeffs_ct_simple), "output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/pathogen_ct_vs_landuse_all_coeffs.tsv",
+            delim = "\t")
+write_delim(all_slopes, "output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/pathogen_ct_vs_landuse_all_slopes.tsv",
+            delim = "\t")
+ggsave("output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/pathogen_ct_vs_landuse_all_tests.pdf",
+       all_tests_forest_plot, width = 12, height = 30, limitsize = FALSE)
+
+ggsave("output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/pathogen_ct_vs_landuse_wrap.pdf",
        wrap_of_wraps, width = 6, height = 6)
 
-
-write_delim(pathogen_ct, "output/R/gene_content/landuse/pathogen_ct.tsv",
+write_delim(pathogen_ct, "output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/pathogen_ct.tsv",
             delim = "\t")
 
-write_delim(all_slopes, "output/R/gene_content/landuse/pathogen_simple_model/pathogen_simple_model_all_slopes.tsv",
-            delim = "\t")
-
-write_delim(simple_model_tibble_all_tests, "output/R/gene_content/landuse/pathogen_simple_model/pathogen_simple_model_all_tests.tsv",
-            delim = "\t")
-ggsave("output/R/gene_content/landuse/pathogen_simple_model/pathogen_simple_model_all_tests.pdf",
-       slope_plot_simple_model_all_tests, width = 12, height = 30, limitsize = FALSE)
 
