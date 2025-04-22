@@ -417,8 +417,6 @@ all_tests_forest_plot <- all_slopes %>%
 #####
 # SAVE FILES
 
-# saveRDS(prevalence_plots$overall, file = "data/goi_prevalence_plot.rds") # saved to avoid backtracking. Used in gene content script
-
 system("mkdir -p output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/")
 
 write_delim(bind_rows(coeffs_logit), "output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/gene_presence_vs_landuse.all_coeffs.tsv",
