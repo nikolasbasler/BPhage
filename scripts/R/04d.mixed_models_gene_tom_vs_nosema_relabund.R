@@ -1,12 +1,9 @@
 library(lme4)
 library(lmerTest)
-library(DHARMa)
 library(ggrepel)
 library(forcats)
 library(tidyverse)
 library(patchwork)
-library(gMCPLite)
-library(readxl)
 library(tidytext)
 
 source("scripts/R/helpers/mixed_helpers.R")
