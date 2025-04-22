@@ -24,6 +24,15 @@ forest_plot <- function(tbl, axis_name = NULL, plot_title = NULL) {
     ggtitle(plot_title)
 }
 
+extract_legend <- function(ggplot_object) {
+  extracted_legend <- ggplot_object  + 
+    guide_area() +
+    plot_layout(
+      guides  = "collect",
+      heights = c(0, 1))
+  return(extracted_legend)
+}
+
 
 logistic_fun <- function(x, intercept, slope) {
   1 / (1 + exp(-(intercept + slope * x)))
