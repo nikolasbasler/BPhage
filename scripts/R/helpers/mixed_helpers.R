@@ -255,7 +255,42 @@ legend_factory <- function(title, items, colors, position) {
   return(legend_only)
 }
 
+diagnostics_logistic_model <- function(model, name = "") {
+  simRes <- simulateResiduals(fittedModel = model, n = 1000)
+  resDat <- data.frame(
+    predicted = simRes$fittedPredictedResponse,
+    residual  = simRes$scaledResiduals
+  )
+  
+  p <- ggplot(resDat, aes(x = predicted, y = residual)) +
+    geom_point(alpha = 0.5, color = "blue") +
+    geom_hline(yintercept = 0.5, linetype = "dashed") +
+    labs(
+      x    = "Predicted probability",
+      y    = "DHARMa scaled residuals",
+      title= name
+    ) +
+    theme_minimal()
+  return(p)
+}
 
+diagnostics_linear_model <- function(model, name = "") {
+  resDat <- data.frame(
+    fitted   = fitted(model),
+    residual = resid(model)
+  )
+  
+  p <- ggplot(resDat, aes(x = fitted, y = residual)) +
+    geom_point(alpha = 0.5, color = "blue") +
+    geom_hline(yintercept = 0, linetype = "dashed") +
+    labs(
+      x    = "Fitted values",
+      y    = "Raw residuals",
+      title= name
+    ) +
+    theme_minimal()
+  return(p)
+}
 
 # 
 # layered_p_adjustments <- function(slop = slopes, gene_or_pathogen = "gene") {

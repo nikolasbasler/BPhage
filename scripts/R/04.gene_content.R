@@ -38,11 +38,10 @@ kegg_and_phold <- kegg_mapping %>%
 phage_tpm <- read.csv("output/R/relative_abundance/phage_tpm.csv") %>%
   tibble()
 
-
 #####
 # PHROG BARS
 
-moron_bar_colors <- rev(c("lightgrey", "#FFC300", "#555555"))
+moron_bar_colors <- rev(c("lightgrey", "#DDA0DD", "#555555"))
 
 phrog_tibble <- phold_predictions_with_extensions %>%
   rename(contig = contig_id) %>%
@@ -116,7 +115,6 @@ for(set in names(phrog_bar_vertical)) {
 CDSs_with_metabolism_kegg <- kegg_and_phold %>%
   filter(Pathway_category == "Metabolism" | 
            product %in% c("Chitinase", "GATase", "PnuC")) %>%
-  
   filter(!product %in% c("decoy of host sigma70", "MazF-like growth inhibitor",
                          "toxin", "VFDB virulence factor protein")) %>%
   filter(!str_detect(product, "Que")) %>% # This will remove 3 genes. All of them are only present in one sample (the same one for all 3)
@@ -132,14 +130,14 @@ kegg_or_not_kegg <- phold_predictions_with_extensions %>%
   mutate(kegg_mapping = ifelse(product %in% genes_with_kegg, TRUE, FALSE),
          is_moron = ifelse(function. == "moron, auxiliary metabolic gene and host takeover", TRUE, FALSE)) %>%
   reframe(mapped_to_kegg = c("No", "Yes"),
-            gene_count = c(sum(is_moron) - sum(kegg_mapping), sum(kegg_mapping))) %>%
-  mutate(mapped_to_kegg = paste0(mapped_to_kegg, " (", gene_count, ")"))
+            gene_count = c(sum(is_moron) - sum(kegg_mapping), sum(kegg_mapping))) # %>%
+  # mutate(mapped_to_kegg = paste0(mapped_to_kegg, " (", gene_count, ")"))
 
 kegg_bar <- kegg_or_not_kegg %>%
   mutate(mapped_to_kegg = factor(mapped_to_kegg, levels = kegg_or_not_kegg$mapped_to_kegg)) %>%
   ggplot(aes(x = 1, y = gene_count, fill = mapped_to_kegg)) +
   geom_col(position = "fill") +
-  scale_fill_manual(values = c("#555555", "#ef8f01")) +
+  scale_fill_manual(values = c("#555555", "#4B0082")) +
   theme_void() +
   theme(
     plot.margin = margin(r = 5, l = 5, b = 5, t = 5, unit = "pt"),
@@ -170,8 +168,8 @@ metabolism_tibble <- phold_predictions_with_extensions %>%
          product_label = paste0(asterisk, asterisk, product, " (", gene_count, ")", asterisk, asterisk)) %>%
   select(-asterisk)
 
-gene_colors <- rev(c("PAPS reductase" = "#8B4513", 
-                     "Chitinase" = "#ef8f01",
+gene_colors <- rev(c("PAPS reductase" = "#ef8f01", 
+                     "Chitinase" = "#8B4513",
                      "Glucosyltransferase" = "#FFC300", 
                      "Levanase" = "#FFA07A", 
                      "RimK" = "#66CCCC", 
@@ -290,6 +288,11 @@ legends_plot <- legend_phrog / legend_kegg
 
 # #####
 # SAVE FILES
+
+
+write_delim(phold_predictions_with_extensions, 
+            "output/R/gene_content/phold_predictions_with_extensions_bphage_renamed_genes.tsv",
+            delim = "\t")
 
 system("mkdir -p output/R/genes_pathogens_and_landuse/phrog_and_kegg")
 

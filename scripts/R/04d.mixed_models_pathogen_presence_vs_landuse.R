@@ -343,20 +343,20 @@ all_tests_forest_plot <- all_slopes %>%
 
 #####
 # SAVE FILES
-system("mkdir -p output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/")
+system("mkdir -p output/R/genes_pathogens_and_landuse/pathogen_presence_vs_landuse/")
 
-write_delim(bind_rows(coeffs_logit), "output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/pathogen_presence_vs_landuse.all_coeffs.tsv",
+write_delim(bind_rows(coeffs_logit), "output/R/genes_pathogens_and_landuse/pathogen_presence_vs_landuse/pathogen_presence_vs_landuse.all_coeffs.tsv",
             delim = "\t")
-write_delim(all_slopes, "output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/pathogen_presence_vs_landuse.all_slopes.tsv",
+write_delim(all_slopes, "output/R/genes_pathogens_and_landuse/pathogen_presence_vs_landuse/pathogen_presence_vs_landuse.all_slopes.tsv",
             delim = "\t")
-ggsave("output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/pathogen_presence_vs_landuse.all_tests.pdf",
+ggsave("output/R/genes_pathogens_and_landuse/pathogen_presence_vs_landuse/pathogen_presence_vs_landuse.all_tests.pdf",
        all_tests_forest_plot, height = 25, width  = 12)
 
-ggsave("output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/pathogen_prevalence_country_facet.pdf",
+ggsave("output/R/genes_pathogens_and_landuse/pathogen_presence_vs_landuse/pathogen_prevalence_country_facet.pdf",
        prevalence_plots$country_facet, width = 10, height = 10)
-ggsave("output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/pathogen_prevalence_pathogen_facet.pdf",
+ggsave("output/R/genes_pathogens_and_landuse/pathogen_presence_vs_landuse/pathogen_prevalence_pathogen_facet.pdf",
        prevalence_plots$pathogen_facet, width = 10, height = 8)
-ggsave("output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/pathogen_prevalence.overall.pdf",
+ggsave("output/R/genes_pathogens_and_landuse/pathogen_presence_vs_landuse/pathogen_prevalence.overall.pdf",
        prevalence_plots$overall, width = 5, height = 5)
 
 

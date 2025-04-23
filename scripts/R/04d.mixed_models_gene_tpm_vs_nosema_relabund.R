@@ -20,9 +20,7 @@ nosema_relabund <- read.delim("output/nosema_mapped_counts_all.tsv") %>%
 phage_tpm <- read.csv("output/R/relative_abundance/phage_tpm.csv") %>%
   tibble()
 
-phold_predictions_with_extensions <- read.csv("output/R/gene_content/phold_predictions_with_extensions.csv") %>%
-  tibble() %>%
-  filter(str_starts(contig_id, "NODE"))
+phold_predictions_with_extensions <- read.delim("output/R/gene_content/phold_predictions_with_extensions_bphage_renamed_genes.tsv")
 
 kegg_mapping <- read.delim("data/kegg_mapping.tsv", colClasses = "character") %>%
   tibble()
@@ -32,8 +30,7 @@ kegg_and_phold <- kegg_mapping %>%
 
 CDSs_with_metabolism_kegg <- kegg_and_phold %>%
   filter(Pathway_category == "Metabolism" | 
-           product %in% c("chitinase", "glutamine amidotransferase", 
-                          "PnuC-like nicotinamide mononucleotide transport")) %>%
+           product %in% c("Chitinase", "GATase", "PnuC")) %>%
   filter(!product %in% c("decoy of host sigma70", "MazF-like growth inhibitor",
                          "toxin", "VFDB virulence factor protein")) %>%
   filter(!str_detect(product, "Que")) %>% # This will remove 3 genes. All of them are only present in one sample (the same one for all 3)
@@ -65,12 +62,12 @@ gene_tpm <- grene_presence_on_contigs %>%
   select(-contig) %>%
   distinct()
 
-genes_of_interest <- c("chitinase",
-                       "glucosyltransferase",
-                       "levanase",
-                       "phosphoadenosine phosphosulfate reductase", 
-                       "PnuC-like nicotinamide mononucleotide transport"
-)
+genes_of_interest <- c("Chitinase",
+                       "Glucosyltransferase",
+                       "Levanase",
+                       "PAPS reductase", 
+                       "PnuC")
+
 coeffs <- list()
 
 #####
@@ -87,11 +84,11 @@ for (goi in genes_of_interest) {
     left_join(., nosema_relabund, by = "Sample_ID") %>%
     mutate(Gut_part = factor(Gut_part, levels = c("rec", "ile", "mid"))) %>%
     mutate(log_tpm = log10(tpm),
-           log_nosema_relabund = log10(nosema_relabund)) %>%
+           log_Varimorpha_relabund = log10(nosema_relabund)) %>%
     filter(!is.infinite(log_tpm),
-           !is.infinite(log_nosema_relabund))
+           !is.infinite(log_Varimorpha_relabund))
   
-  model_tpm[[goi]] <- lmer(log_tpm ~ log_nosema_relabund + Gut_part + Season +
+  model_tpm[[goi]] <- lmer(log_tpm ~ log_Varimorpha_relabund + Gut_part + Season +
                                              (1 | Hive_ID ), data = test_tibble_log_tpm[[goi]])
   
   has_convergence_issues <- FALSE
@@ -117,28 +114,28 @@ for (goi in genes_of_interest) {
   }
 }
 
+
 # 
-# #####
-# # Gene presence vs Nosema relabund
 # test_tibble_presence <- list()
 # model_presence <- list()
 # coeffs$presence <- tibble()
+# genes_of_interest <- c("Chitinase", "Glucosyltransferase", "PAPS reductase", "PnuC")
 # for (goi in genes_of_interest) {
-# 
+#   
 #   test_tibble_presence[[goi]] <- gene_tpm %>%
 #     filter(gene == goi) %>%
 #     left_join(., metadata[c("Sample_ID", "Country", "Hive_ID", "Season", "Gut_part")], by = "Sample_ID") %>%
 #     distinct() %>%
 #     left_join(., nosema_relabund, by = "Sample_ID") %>%
 #     mutate(Gut_part = factor(Gut_part, levels = c("rec", "ile", "mid"))) %>%
-#     mutate(gene_presence = ifelse(tpm > 0, 1 , 0),
-#            log_nosema_relabund = log10(nosema_relabund)) %>%
-#     filter(!is.infinite(log_nosema_relabund))
-# 
-#   model_presence[[goi]] <- glmer(gene_presence ~ log_nosema_relabund + Gut_part + Season +
-#                                              (1 | Hive_ID ), data = test_tibble_presence[[goi]],
-#                                             family = binomial)
-# 
+#     mutate(Varimorpha_presence = ifelse(nosema_relabund > 0.01, 1 , 0),
+#            log_tpm = log10(tpm)) %>%
+#     filter(!is.infinite(log_tpm))
+#   
+#   model_presence[[goi]] <- glmer(Varimorpha_presence ~ log_tpm + Gut_part + Season +
+#                                    (1 | Hive_ID ), data = test_tibble_presence[[goi]],
+#                                  family = binomial)
+#   
 #   has_convergence_issues <- FALSE
 #   messages <- model_presence[[goi]]@optinfo$conv$lme4$messages
 #   if (is.null(messages)) {
@@ -149,7 +146,7 @@ for (goi in genes_of_interest) {
 #   if (has_convergence_issues) {
 #     print(paste0(goi, " - Simple model didn't converge. Removed from the list."))
 #     model_presence[[goi]] <- NULL
-# 
+#     
 #   } else {
 #     coeffs$presence <- summary(model_presence[[goi]])$coefficients %>%
 #       as.data.frame() %>%
@@ -161,21 +158,8 @@ for (goi in genes_of_interest) {
 #       rbind(coeffs$presence)
 #   }
 # }
-# 
-# 
-# summary(model_presence$chitinase)
-# summary(model_presence$glucosyltransferase)
-# summary(model_presence$levanase)
-# summary(model_presence$`phosphoadenosine phosphosulfate reductase`)
-# summary(model_presence$`PnuC-like nicotinamide mononucleotide transport`)
-# 
-# ## DONT TRUST THESE MODELS!!
-# plot(model_presence$chitinase)
-# plot(model_presence$glucosyltransferase)
-# plot(model_presence$levanase)
-# plot(model_presence$`phosphoadenosine phosphosulfate reductase`)
-# plot(model_presence$`PnuC-like nicotinamide mononucleotide transport`)
-# 
+#
+# No significant results, so dropped at this point
 
 
 #####
@@ -184,7 +168,7 @@ slopes <- list()
 for (level in names(coeffs)) {
   
   temp_slope_tibble <- coeffs[[level]] %>%
-    filter(metric %in% c("log_nosema_relabund")) %>%
+    filter(metric %in% c("log_Varimorpha_relabund")) %>%
     rename(raw_p_value = `Pr(>|t|)`) %>%
     mutate(raw_p_significant = case_when(raw_p_value <= 0.001 ~ "***",
                                          raw_p_value <= 0.01 ~ "**",
@@ -208,17 +192,6 @@ for (level in names(coeffs)) {
 ##### 
 # ADJUST P-VALUES
 
-# layered_correction_list <- layered_p_adjustments(slop = slopes)
-
-# all_slopes <- bind_rows(slopes) %>% 
-#   left_join(., layered_correction_list$adjusted_p_values, by = "test_name") %>%
-#   mutate(p_adjust_significant = case_when(p_adjusted <= 0.001 ~ "***",
-#                                           p_adjusted <= 0.01 ~ "**",
-#                                           p_adjusted <= 0.05 ~ "*",
-#                                           p_adjusted <= 0.075 ~ ".",
-#                                           .default = "n.s."
-#   ))
-
 all_slopes <- bind_rows(slopes) %>%
   mutate(p_adjusted = p.adjust(raw_p_value, method = "BH")) %>%
   mutate(p_adjust_significant = case_when(p_adjusted <= 0.001 ~ "***",
@@ -233,7 +206,7 @@ all_slopes <- bind_rows(slopes) %>%
 # Significant results
 lowest_highest <- nosema_relabund %>%
   filter(nosema_relabund > 0) %>%
-  reframe(Item = "log_nosema_relabund",
+  reframe(Item = "log_Varimorpha_relabund",
           lowest = min(log10(nosema_relabund)),
           highest = max(log10(nosema_relabund)))
 
@@ -256,11 +229,11 @@ sig_tests <- all_slopes %>%
   )) %>%
   select(-effect)
 
-color_list <- list(dark = list(chitinase = "#ef8f01"),
-                   bright = list(chitinase = "#ef8f01"))
+color_list <- list(dark = list(Chitinase = "#8B4513"),
+                   bright = list(Chitinase = "#8B4513"))
 
-tested_gene <- "chitinase"
-tested_item <- "log_nosema_relabund"
+tested_gene <- "Chitinase"
+tested_item <- "log_Varimorpha_relabund"
 
 tpm_plot <- mixed_model_plot(filt_test_tibble = sig_tests,
                    transform_fun = linear_fun,
@@ -268,7 +241,7 @@ tpm_plot <- mixed_model_plot(filt_test_tibble = sig_tests,
                    dark_col = color_list$dark[[tested_gene]],
                    bright_col = color_list$bright[[tested_gene]],
                    y_axis_label = "Log gene relative abundance") +
-  labs(x = "Log nosema relative abundance")
+  labs(x = "Log Varimorpha relative abundance")
 
 common_legend <- legend_factory(title = "Gene", 
                                 items = names(color_list$dark),
@@ -285,6 +258,23 @@ all_tests_forest_plot <- all_slopes %>%
   forest_plot(plot_title = "all tests")
 
 #####
+# DIAGNOSTICS
+
+model_diagnostics <- list()
+for (item in "log_Varimorpha_relabund") {
+  for (goi in names(model_tpm)) {
+    slope_of_interest <- all_slopes %>%
+      filter(Item == item,
+             gene == goi) %>%
+      reframe(test_name = test_name,
+              is_significant = p_adjusted < 0.05)
+    if (slope_of_interest$is_significant) {
+      model_diagnostics[[item]][[goi]] <- diagnostics_linear_model(model_tpm[[goi]], name = slope_of_interest$test_name)
+    }
+  }
+}
+
+#####
 # SAVE FILES
 
 system("mkdir -p output/R/genes_pathogens_and_landuse/gene_tpm_vs_nosema_relabund/")
@@ -297,9 +287,16 @@ ggsave("output/R/genes_pathogens_and_landuse/gene_tpm_vs_nosema_relabund/gene_tp
        all_tests_forest_plot, width = 8, height = 4)
 
 ggsave("output/R/genes_pathogens_and_landuse/gene_tpm_vs_nosema_relabund/gene_tpm_vs_nosema_relabund.wrap.pdf",
-       wrap_of_one, width = 3.2, height = 3)
+       wrap_of_one, width = 3.5, height = 3.5)
+
+ggsave("output/R/genes_pathogens_and_landuse/gene_tpm_vs_nosema_relabund/single_panel.Citinase.Varimorpha_relabund.pdf",
+       tpm_plot, width = 3.5, height = 3.5)
+ggsave("output/R/genes_pathogens_and_landuse/gene_tpm_vs_nosema_relabund/single_panel.common_legend.pdf",
+       common_legend, width = 6, height = 1)
 
 write_delim(nosema_relabund, "output/R/genes_pathogens_and_landuse/gene_tpm_vs_nosema_relabund/nosema_relabund.tsv",
             delim = "\t")
 
+ggsave(paste0("output/R/genes_pathogens_and_landuse/gene_tpm_vs_nosema_relabund/model_diagnostics.log_Varimorpha_relabund.Chitinase.pdf"),
+       model_diagnostics$log_Varimorpha_relabund$Chitinase, width = 6, height = 6)
 
