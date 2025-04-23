@@ -376,7 +376,7 @@ system("mkdir -p output/R/genes_pathogens_and_landuse/gene_presence_vs_landuse/m
 
 write_delim(bind_rows(coeffs_logit), "output/R/genes_pathogens_and_landuse/gene_presence_vs_landuse/gene_presence_vs_landuse.all_coeffs.tsv",
             delim = "\t")
-write_delim(all_slopes, "output/R/genes_pathogens_and_landuse/gene_presence_vs_landuse/gene_presence_vs_landuse.all_sloppes.tsv",
+write_delim(all_slopes, "output/R/genes_pathogens_and_landuse/gene_presence_vs_landuse/gene_presence_vs_landuse.all_slopes.tsv",
             delim = "\t")
 ggsave("output/R/genes_pathogens_and_landuse/gene_presence_vs_landuse/gene_presence_vs_landuse.all_tests.pdf",
        all_tests_forest_plot, width = 12, height = 40, limitsize = FALSE)
