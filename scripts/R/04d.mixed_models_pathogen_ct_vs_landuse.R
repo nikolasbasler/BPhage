@@ -362,14 +362,14 @@ for (item in names(model_ct)) {
 system("mkdir -p output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/single_panels")
 system("mkdir -p output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/model_diagnostics")
 
-write_delim(bind_rows(coeffs_ct_simple), "output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/pathogen_ct_vs_landuse_all_coeffs.tsv",
+write_delim(bind_rows(coeffs_ct_simple), "output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/pathogen_ct_vs_landuse.all_coeffs.tsv",
             delim = "\t")
-write_delim(all_slopes, "output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/pathogen_ct_vs_landuse_all_slopes.tsv",
+write_delim(all_slopes, "output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/pathogen_ct_vs_landuse.all_slopes.tsv",
             delim = "\t")
-ggsave("output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/pathogen_ct_vs_landuse_all_tests.pdf",
+ggsave("output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/pathogen_ct_vs_landuse.all_tests.pdf",
        all_tests_forest_plot, width = 12, height = 30, limitsize = FALSE)
 
-ggsave("output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/pathogen_ct_vs_landuse_wrap.pdf",
+ggsave("output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/pathogen_ct_vs_landuse.wrap.pdf",
        wrap_of_wraps, width = 6, height = 6)
 
 write_delim(pathogen_ct, "output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/pathogen_ct.tsv",
