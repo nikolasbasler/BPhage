@@ -4,6 +4,7 @@ library(ggrepel)
 library(forcats)
 library(tidyverse)
 library(patchwork)
+library(DHARMa)
 
 source("scripts/R/helpers/mixed_helpers.R")
 
@@ -18,7 +19,6 @@ source("scripts/R/helpers/FAOstat_table.R")
 cropland_and_FAO <- FAOSTAT_added_data %>%
   select(Country, Item, est_use_in_2k_radius) %>%
   pivot_wider(id_cols = Country, values_from = est_use_in_2k_radius, names_from = Item) %>%
-  # left_join(cropland_fraction[c("Country", "cropland_fraction_2k_radius")], ., by = "Country") %>%
   left_join(FAOSTAT_added_data[c("Country", "cropland_fraction_2k_radius", "Cropland_in_2km_radius")],. , by = "Country") %>%
   distinct() %>%
   select_if(~ !any(is.na(.)))
@@ -30,9 +30,7 @@ classification <- readRDS("output/R/R_variables/classification.RDS")
 phage_tpm <- read.csv("output/R/relative_abundance/phage_tpm.csv") %>%
   tibble()
 
-phold_predictions_with_extensions <- read.csv("output/R/gene_content/phold_predictions_with_extensions.csv") %>%
-  tibble() %>%
-  filter(str_starts(contig_id, "NODE"))
+phold_predictions_with_extensions <- read.delim("output/R/gene_content/phold_predictions_with_extensions_bphage_renamed_genes.tsv")
 
 kegg_mapping <- read.delim("data/kegg_mapping.tsv", colClasses = "character") %>%
   tibble()
@@ -41,9 +39,8 @@ kegg_and_phold <- kegg_mapping %>%
   left_join(., phold_predictions_with_extensions[c("cds_id", "phrog", "function.", "product")], by = "cds_id")
 
 CDSs_with_metabolism_kegg <- kegg_and_phold %>%
-  filter(Pathway_category == "Metabolism" |
-           product %in% c("chitinase", "glutamine amidotransferase",
-                          "PnuC-like nicotinamide mononucleotide transport")) %>%
+  filter(Pathway_category == "Metabolism" | 
+           product %in% c("Chitinase", "GATase", "PnuC")) %>%
   filter(!product %in% c("decoy of host sigma70", "MazF-like growth inhibitor",
                          "toxin", "VFDB virulence factor protein")) %>%
   filter(!str_detect(product, "Que")) %>% # This will remove 3 genes. All of them are only present in one sample (the same one for all 3)
@@ -75,13 +72,12 @@ gene_tpm <- grene_presence_on_contigs %>%
   select(-contig) %>%
   distinct()
 
-# genes_of_interest <- unique(gene_tpm$gene)
-genes_of_interest <- c("chitinase",
-                       "glucosyltransferase",
-                       "levanase",
-                       "phosphoadenosine phosphosulfate reductase", 
-                       "PnuC-like nicotinamide mononucleotide transport"
-)
+genes_of_interest <- c("Chitinase",
+                       "Glucosyltransferase",
+                       "Levanase",
+                       "PAPS reductase", 
+                       "PnuC")
+
 coeffs_logit <- list()
 countries_with_presence <- list()
 samples_with_presence <- list()
@@ -99,44 +95,6 @@ for (goi in genes_of_interest) {
     mutate(Gut_part = factor(Gut_part, levels = c("rec", "ile", "mid"))) %>%
     mutate(presence = ifelse(tpm > 0, 1, 0), .before = tpm)
 }
-
-
-# ###### 
-# # PREVALENCE PLOT (already done in gene content script)
-# prevalence_plots <- list()
-# prevalence_plots$overall <- bind_rows(test_tibble_logit) %>%
-#   select(gene, Sample_ID, Country, presence) %>%
-#   ggplot(aes(x = reorder(gene, -presence, FUN = mean), y = presence)) +
-#   geom_bar(stat = "summary", fun = mean) +
-#   geom_text(
-#     stat = "summary",
-#     fun = mean,
-#     aes(label = round(after_stat(y), 2)),
-#     vjust = -0.5,
-#     # size = 3  # smaller text (default is ~5)
-#   ) +  
-#   labs(x = "Gene", y = "Prevalence") +
-#   scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +  # add 10% space at the top
-#   theme(axis.text.x = element_text(angle = 90, hjust = 1))
-# 
-# prevalence_plots$country_facet <- prevalence_plots$overall + facet_wrap(~Country)
-# 
-# prevalence_plots$gene_facet <- bind_rows(test_tibble_logit) %>%
-#   select(gene, Sample_ID, Country, presence) %>%
-#   ggplot(aes(x = Country, y = presence)) +
-#   geom_bar(stat = "summary", fun = mean) +
-#   geom_text(
-#     stat = "summary",
-#     fun = mean,
-#     aes(label = round(after_stat(y), 2)),
-#     vjust = -0.5,
-#     # size = 3  # smaller text (default is ~5)
-#   ) +  
-#   labs(x = "Gene", y = "Prevalence") +
-#   scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +  # add 10% space at the top
-#   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
-#   facet_wrap(~gene, scale = "free")
-
 
 ###### 
 # CROPLAND
@@ -171,9 +129,7 @@ for (goi in genes_of_interest) {
   }
 }
 
-# summary(model_logit_cropland$`phosphoadenosine phosphosulfate reductase`)
-# summary(model_logit_cropland$levanase)
-# summary(model_logit_cropland$`nicotinamide-nucleotide adenylyltransferase`)
+######
 
 ##### 
 # PESTICIDES:
@@ -187,7 +143,6 @@ for (goi in genes_of_interest) {
   model_logit_total_pest[[goi]][["Pesticides (total)"]] <- glmer(presence ~ est_use_in_2k_radius + Gut_part + Season +
                                                                    (1 | Hive_ID ), data = temp_test_tibble,
                                                                  family = binomial)
-  # summary( model_logit_total_pest[[goi]][["Pesticides (total)"]])
   
   has_convergence_issues <- FALSE
   messages <- model_logit_total_pest[[goi]][["Pesticides (total)"]]@optinfo$conv$lme4$messages
@@ -248,17 +203,6 @@ for (goi in genes_of_interest) {
   }
 }
 
-# summary(model_logit_pest_groups$`NrdD-like anaerobic ribonucleotide reductase large subunit`$Herbicides)
-# summary(model_logit_pest_groups$`nicotinamide-nucleotide adenylyltransferase`$`Fungicides and Bactericides`)
-# summary(model_logit_pest_groups$`nicotinamide-nucleotide adenylyltransferase`$Herbicides)
-# summary(model_logit_pest_groups$`nicotinamide-nucleotide adenylyltransferase`$Insecticides)
-# summary(model_logit_pest_groups$chitinase$`Fungicides and Bactericides`)
-# summary(model_logit_pest_groups$chitinase$Herbicides)
-# summary(model_logit_pest_groups$chitinase$Insecticides)
-# summary(model_logit_pest_groups$`ribosomal protein S6 glutaminyl transferase`$Insecticides)
-# summary(model_logit_pest_groups$`phosphoadenosine phosphosulfate reductase`$`Plant Growth Regulators`)
-# summary(model_logit_pest_groups$`phosphoadenosine phosphosulfate reductase`$Insecticides)
-
 #####
 # SPECIFIC PESTS
 
@@ -268,7 +212,6 @@ spec_pests <- tibble(Item = colnames(cropland_and_FAO)) %>%
 
 model_logit_specific_pests <- list()
 coeffs_logit$specific_pests <- tibble()
-# for (goi in genes_of_particular_interest) {
 for (goi in genes_of_interest) {
   for (item in spec_pests) {
     temp_test_tibble <- test_tibble_logit[[goi]] %>%
@@ -354,7 +297,6 @@ sig_tests <- all_slopes %>%
   mutate(effect = logistic_effect_fun(s = Estimate, h = highest, l = lowest),
          effect = ifelse(effect < 1, 1 / effect, effect)) %>%
   group_by(gene) %>%
-  # mutate(y_stretching_factor = 1+log10( max(effect) / effect)) %>%
   mutate(y_stretching_factor = max(effect) / effect) %>%
   mutate(which_y_end_to_stretch = if_else(
     Estimate[y_stretching_factor == 1] > 0,
@@ -368,8 +310,8 @@ sig_tests <- all_slopes %>%
   )) %>%
   select(-effect) 
 
-color_list <- list(dark = list(chitinase = "#ef8f01", glucosyltransferase = "#555555", `phosphoadenosine phosphosulfate reductase` = "#8B4513"),
-                   bright = list(chitinase = "#ef8f01", glucosyltransferase = "#555555", `phosphoadenosine phosphosulfate reductase` = "#FFC300"))
+color_list <- list(dark = list(Chitinase = "#8B4513", Glucosyltransferase = "#FFC300", `PAPS reductase` = "#ef8f01"),
+                   bright = list(Chitinase = "#8B4513", Glucosyltransferase = "#FFC300", `PAPS reductase` = "#ef8f01"))
 
 genes_logit_plots <- list()
 for (t_name in unique(sig_tests$test_name)) {
@@ -396,13 +338,13 @@ common_legend <- legend_factory(title = "Gene",
                       position = "bottom")
 
 wrap_of_wraps <- wrap_plots(
-  wrap_plots(genes_logit_plots$chitinase[1:3], nrow = 1, axes = "collect"),
-    wrap_plots(genes_logit_plots$chitinase[4:6], nrow = 1, axes = "collect"),
-    wrap_plots(genes_logit_plots$chitinase[7:9], nrow = 1, axes = "collect"),
-    wrap_plots(list(genes_logit_plots$chitinase$`Insecticides – Pyrethroids`,
-                    genes_logit_plots$chitinase$`Insecticides – Carbamates`, 
-                    genes_logit_plots$glucosyltransferase$`Insecticides – Organo-phosphates`), nrow = 1, axes = "collect"),
-    wrap_plots(genes_logit_plots$`phosphoadenosine phosphosulfate reductase`, nrow = 1, axes = "collect"),
+  wrap_plots(genes_logit_plots$Chitinase[1:3], nrow = 1, axes = "collect"),
+    wrap_plots(genes_logit_plots$Chitinase[4:6], nrow = 1, axes = "collect"),
+    wrap_plots(genes_logit_plots$Chitinase[7:9], nrow = 1, axes = "collect"),
+    wrap_plots(list(genes_logit_plots$Chitinase$`Insecticides – Pyrethroids`,
+                    genes_logit_plots$Chitinase$`Insecticides – Carbamates`, 
+                    genes_logit_plots$Glucosyltransferase$`Insecticides – Organo-phosphates`), nrow = 1, axes = "collect"),
+    wrap_plots(genes_logit_plots$`PAPS reductase`, nrow = 1, axes = "collect"),
     common_legend,
   nrow = 6, heights = c(rep(4, 5), 1)
 )
@@ -415,24 +357,50 @@ all_tests_forest_plot <- all_slopes %>%
   forest_plot(plot_title = "all tests")
 
 #####
+# DIAGNISTICS
+
+
+model_diagnostics <- list()
+for (goi in genes_of_interest) {
+  model_diagnostics$cropland[[goi]] <- diagnostics_logistic_model(model_logit_cropland[[goi]], name = paste0(goi, "presence vs. Cropland_in_2km_radius"))
+  model_diagnostics$total_pest[[goi]] <- diagnostics_logistic_model(model_logit_total_pest[[goi]], name = paste0(goi, "presence vs. Pesticides (total)"))
+  for (computed_model in names(model_logit_pest_groups)) {
+    model_logit_pest_groups
+    
+  }
+  
+  for (computed_model in names(model_logit_specific_pests)) {
+    model_logit_specific_pests
+    
+  }
+}
+
+
+diagnostics_logistic_model
+
+#####
 # SAVE FILES
 
-system("mkdir -p output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/")
+system("mkdir -p output/R/genes_pathogens_and_landuse/gene_presence_vs_landuse/single_panels")
 
-write_delim(bind_rows(coeffs_logit), "output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/gene_presence_vs_landuse.all_coeffs.tsv",
+write_delim(bind_rows(coeffs_logit), "output/R/genes_pathogens_and_landuse/gene_presence_vs_landuse/gene_presence_vs_landuse.all_coeffs.tsv",
             delim = "\t")
-write_delim(all_slopes, "output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/gene_presence_vs_landuse.all_sloppes.tsv",
+write_delim(all_slopes, "output/R/genes_pathogens_and_landuse/gene_presence_vs_landuse/gene_presence_vs_landuse.all_sloppes.tsv",
             delim = "\t")
-ggsave("output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/gene_presence_vs_landuse.all_tests.pdf",
+ggsave("output/R/genes_pathogens_and_landuse/gene_presence_vs_landuse/gene_presence_vs_landuse.all_tests.pdf",
        all_tests_forest_plot, width = 12, height = 40, limitsize = FALSE)
 
-ggsave("output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/gene_presence_vs_landuse.wrap.pdf",
+ggsave("output/R/genes_pathogens_and_landuse/gene_presence_vs_landuse/gene_presence_vs_landuse.wrap.pdf",
        wrap_of_wraps, height = 13, width = 9.25)
 
-# ggsave("output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/gene_prevalence.overall.pdf",
-#        prevalence_plots$overall, height = 6, width = 6)
-# ggsave("output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/gene_prevalence.country_facet.pdf",
-#        prevalence_plots$country_facet, height = 8, width = 10)
-# ggsave("output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/gene_prevalence.gene_facet.pdf",
-#        prevalence_plots$gene_facet, height = 8, width = 10)
+for (goi in names(genes_logit_plots)) {
+  for (item in names(genes_logit_plots[[goi]])) {
+    ggsave(paste0("output/R/genes_pathogens_and_landuse/gene_presence_vs_landuse/single_panels/", goi, ".", item, ".pdf"),
+           genes_logit_plots[[goi]][[item]], height = 3.5, width = 3.5)
+  }
+}
+ggsave("output/R/genes_pathogens_and_landuse/gene_presence_vs_landuse/single_panels/common_legend.pdf",
+       common_legend, height = 1, width = 6)
+
+
 
