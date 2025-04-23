@@ -379,6 +379,8 @@ for (goi in names(pathogens_ct_plots)) {
   for (item in names(pathogens_ct_plots[[goi]])) {
     ggsave(paste0("output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/single_panels/", goi, ".", item, ".pdf"),
            pathogens_ct_plots[[goi]][[item]], height = 3.5, width = 3.5)
+    saveRDS(pathogens_ct_plots[[goi]][[item]], 
+            paste0("output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/single_panels/RDS.", goi, ".", item, ".rds"))
   }
 }
 ggsave("output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/single_panels/common_legend.pdf",

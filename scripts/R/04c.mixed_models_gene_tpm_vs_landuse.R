@@ -449,6 +449,8 @@ for (goi in names(genes_log_tpm_plots)) {
   for (item in names(genes_log_tpm_plots[[goi]])) {
     ggsave(paste0("output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/single_panels/", goi, ".", item, ".pdf"),
            genes_log_tpm_plots[[goi]][[item]], height = 3.5, width = 3.5)
+    saveRDS(genes_log_tpm_plots[[goi]][[item]],
+            paste0("output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/single_panels/RDS.", goi, ".", item, ".rds"))
   }
 }
 ggsave("output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/single_panels/common_legend.pdf",

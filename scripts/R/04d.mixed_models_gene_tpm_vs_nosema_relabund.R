@@ -300,3 +300,5 @@ write_delim(nosema_relabund, "output/R/genes_pathogens_and_landuse/gene_tpm_vs_n
 ggsave(paste0("output/R/genes_pathogens_and_landuse/gene_tpm_vs_nosema_relabund/model_diagnostics.log_Varimorpha_relabund.Chitinase.pdf"),
        model_diagnostics$log_Varimorpha_relabund$Chitinase, width = 6, height = 6)
 
+saveRDS(tpm_plot, "output/R/genes_pathogens_and_landuse/gene_tpm_vs_nosema_relabund/single_panel.RDS.Citinase.Varimorpha_relabund.rds")
+
