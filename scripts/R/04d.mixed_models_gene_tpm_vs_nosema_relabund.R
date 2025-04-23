@@ -240,8 +240,8 @@ tpm_plot <- mixed_model_plot(filt_test_tibble = sig_tests,
                    effect_fun = linear_effect_fun,
                    dark_col = color_list$dark[[tested_gene]],
                    bright_col = color_list$bright[[tested_gene]],
-                   y_axis_label = "Log gene relative abundance") +
-  labs(x = "Log Varimorpha relative abundance")
+                   y_axis_label = "Log gene rel. abundance") +
+  labs(x = "Log Varimorpha rel. abundance")
 
 common_legend <- legend_factory(title = "Gene", 
                                 items = names(color_list$dark),

@@ -337,7 +337,7 @@ for (t_name in unique(sig_tests$test_name)) {
                      effect_fun = linear_effect_fun,
                      dark_col = color_list$dark[[tested_gene]],
                      bright_col = color_list$bright[[tested_gene]],
-                     y_axis_label = "Log gene relative abundance")
+                     y_axis_label = "Log gene rel. abundance")
 }
 
 common_legend <- legend_factory(title = "Gene", 
