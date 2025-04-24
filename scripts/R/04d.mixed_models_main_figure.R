@@ -47,27 +47,21 @@ lowest_highest <- cropland_and_FAO %>%
   summarise(lowest = min(value),
             highest = max(value))
 
-# color_list_genes <- list(dark = list(Chitinase = "#8B4513", 
-#                                Glucosyltransferase = "#FFC300", 
-#                                `PAPS reductase` = "#ef8f01",
-#                                PnuC = "#FFB89A", 
-#                                Levanase = "#FF8C69"),
-#                    bright = list(Chitinase = "#8B4513", 
-#                                  Glucosyltransferase = "#FFC300", 
-#                                  `PAPS reductase` = "#ef8f01",
-#                                  PnuC = "#FFB89A", 
-#                                  Levanase = "#FF8C69"))
+color_list <- list(dark = list(Chitinase = "#8B4513",
+                                     Glucosyltransferase = "#FFC300",
+                                     `PAPS reductase` = "#ef8f01",
+                                     PnuC = "#FFB89A",
+                                     Levanase = "#FF8C69",
+                                     `DWV B` = "#6A0DAD",
+                                     BQCV = "black"),
+                         bright = list(Chitinase = "#8B4513",
+                                       Glucosyltransferase = "#FFC300",
+                                       `PAPS reductase` = "#ef8f01",
+                                       PnuC = "#FFB89A",
+                                       Levanase = "#FF8C69",
+                                       `DWV B` = "#6A0DAD",
+                                       BQCV = "black"))
 
-color_list_genes <- list(dark = list(`PAPS reductase` = "#ef8f01",
-                                     Chitinase = "#8B4513"),
-                         bright = list(`PAPS reductase` = "#ef8f01",
-                                       Chitinase = "#8B4513", 
-                                       Glucosyltransferase = "#FFC300"))
-
-color_list_pathogens <- list(dark = list(`DWV B` = "#6A0DAD",
-                                         BQCV = "black"),
-                             bright = list(`DWV B` = "#6A0DAD",
-                                           BQCV = "black"))
 
 in_figure_gene_tpm <- c("PAPS reductase; Cropland_in_2km_radius", 
                         "PAPS reductase; Pesticides (total)",
@@ -104,9 +98,9 @@ for (t_name in in_figure_gene_tpm) {
     mixed_model_plot(filt_test_tibble = log_tpm_test,
                      transform_fun = linear_fun,
                      effect_fun = linear_effect_fun,
-                     dark_col = color_list_genes$dark[[tested_gene]],
-                     bright_col = color_list_genes$bright[[tested_gene]],
-                     y_axis_label = "Log rel. gene abundance")
+                     dark_col = color_list$dark[[tested_gene]],
+                     bright_col = color_list$bright[[tested_gene]],
+                     y_axis_label = "Log rel. gene abund.")
 }
 
 
@@ -114,13 +108,35 @@ for (t_name in in_figure_gene_tpm) {
 # PATCH
 
 common_legend_genes <- legend_factory(title = "Gene", 
-                                items = names(color_list_genes$dark),
-                                colors = unlist(color_list_genes$dark),
+                                items = names(color_list$dark)[c(3,1)],
+                                colors = unlist(color_list$dark[c(3,1)]),
                                 position = "left")
 common_legend_pathogens <- legend_factory(title = "Pathogen", 
-                                      items = names(color_list_pathogens$dark),
-                                      colors = unlist(color_list_pathogens$dark),
+                                      items = names(color_list$dark)[6:7],
+                                      colors = unlist(color_list$dark[6:7]),
                                       position = "left")
+
+common_legend_row1 <- legend_factory(title = "Gene", 
+                                     items = names(color_list$dark)[3],
+                                     colors = unlist(color_list$dark)[3],
+                                     position = "top")
+common_legend_row2 <- legend_factory(title = "Gene", 
+                                     items = names(color_list$dark)[c(1,3)],
+                                     colors = unlist(color_list$dark)[c(1,3)],
+                                     position = "top")
+common_legend_row3a <- legend_factory(title = "Pathogen", 
+                                     items = names(color_list$dark)[6:7],
+                                     colors = unlist(color_list$dark)[6:7],
+                                     position = "left")
+common_legend_row3b <- legend_factory(title = "Gene", 
+                                      items = names(color_list$dark)[1],
+                                      colors = unlist(color_list$dark)[1],
+                                      position = "left")
+
+# common_legend_row3 <- wrap_plots(common_legend_row3a, common_legend_row3b, plot_spacer(), nrow = 1, widths = c(2,1, 1))
+common_legend_row3 <- wrap_plots(plot_spacer(), common_legend_row3a, common_legend_row3b, plot_spacer(), nrow = 1, widths = c(1, 4, 2, 1))
+common_legend_row3 <- wrap_plots(plot_spacer(), common_legend_row3a, common_legend_row3b, plot_spacer(), nrow = 1)
+
 
 first_row <- plots$gene_tpm$`PAPS reductase`$Cropland_in_2km_radius +
   plots$gene_tpm$`PAPS reductase`$`Pesticides (total)` +
@@ -134,17 +150,49 @@ second_row <- plots$gene_presence$Chitinase$`Fungicides and Bactericides` +
   plots$gene_presence$`PAPS reductase`$`Herbicides – Dinitroanilines` +
   plot_layout(nrow = 1, axes = "collect")
 
-third_row <- plots$pathogen_ct$`DWV B`$Cropland_in_2km_radius +
+# third_row <- plots$pathogen_ct$`DWV B`$Cropland_in_2km_radius +
+#   plots$pathogen_ct$BQCV$Insecticides +
+#   plots$gene_tpm$nosema_relabund +
+#   plot_spacer() +
+#   plot_layout(nrow = 1, axes = "collect")
+#   # common_legend_genes +
+#   # common_legend_pathogens +
+#   # plot_layout(nrow = 1, axes = "collect", widths = c(7, 7, 7, 1, 3, 3))
+
+third_row <- plot_spacer() +
+  plots$pathogen_ct$`DWV B`$Cropland_in_2km_radius +
   plots$pathogen_ct$BQCV$Insecticides +
   plots$gene_tpm$nosema_relabund +
-  common_legend_genes +
-  common_legend_pathogens +
-  plot_layout(nrow = 1, axes = "collect", widths = c(2,2,2,1,1))
+  plot_spacer() +
+  plot_layout(nrow = 1, axes = "collect", widths = c(1, 2, 2, 2, 1))
 
+third_row <-   plot_spacer() +
+  plots$pathogen_ct$`DWV B`$Cropland_in_2km_radius +
+  plots$pathogen_ct$BQCV$Insecticides +
+  plots$gene_tpm$nosema_relabund +
+  plot_spacer() +
+  plot_layout(nrow = 1, axes = "collect", widths = c(1,20,20,20,19))
 
+# common_legend_genes +
+# common_legend_pathogens +
+# plot_layout(nrow = 1, axes = "collect", widths = c(7, 7, 7, 1, 3, 3))
 
-main_figure <- first_row / plot_spacer() / second_row / plot_spacer()/ third_row + plot_layout(heights = c(20,1,20,1,20))
+# main_figure <- first_row / plot_spacer() / second_row / plot_spacer()/ third_row + plot_layout(heights = c(20,1,20,1,20))
+
+# main_figure <- common_legend_row1 / first_row / plot_spacer() / 
+#   common_legend_row2 / second_row / plot_spacer() / 
+#   common_legend_row3 / third_row + plot_layout(heights = c(2,20,1,2,20,1,2,20))
+
+# main_figure <- common_legend_row1 / first_row /
+#   common_legend_row2 / second_row /
+#   common_legend_row3 / third_row + plot_layout(heights = c(2,20,2,20,2,20))
+
+main_figure <- common_legend_row1 / first_row /
+  common_legend_row2 / second_row /
+  third_row + plot_layout(heights = c(2,20,2,20,20))
 
 ggsave("output/R/genes_pathogens_and_landuse/selected_graphs.pdf",
        main_figure, height = 9, width = 12)
+ggsave("output/R/genes_pathogens_and_landuse/selected_graphs_3rd_row_legend.pdf",
+       common_legend_row3, height = 3, width = 4)
 
