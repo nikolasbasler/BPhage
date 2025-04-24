@@ -12,13 +12,15 @@ plots$gene_presence$Chitinase$`Fungicides and Bactericides` <- readRDS("output/R
 plots$gene_presence$Chitinase$Herbicides <- readRDS("output/R/genes_pathogens_and_landuse/gene_presence_vs_landuse/single_panels/RDS.Chitinase.Herbicides.rds")
 plots$gene_presence$`PAPS reductase`$Insecticides <- readRDS("output/R/genes_pathogens_and_landuse/gene_presence_vs_landuse/single_panels/RDS.PAPS reductase.Insecticides.rds")
 plots$gene_presence$`PAPS reductase`$`Herbicides – Dinitroanilines` <- readRDS("output/R/genes_pathogens_and_landuse/gene_presence_vs_landuse/single_panels/RDS.PAPS reductase.Herbicides – Dinitroanilines.rds")
-
-plots$pathogen_ct$`DWV B`$Cropland_in_2km_radius <- readRDS("output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/single_panels/RDS.DWV B.Cropland_in_2km_radius.rds")
-plots$pathogen_ct$BQCV$Insecticides <- readRDS("output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/single_panels/RDS.BQCV.Insecticides.rds")
-
+plots$pathogen_ct$`DWV B`$Cropland_in_2km_radius <- readRDS("output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/single_panels/RDS.DWV B.Cropland_in_2km_radius.rds") +
+  scale_y_continuous(limits = c(NA, NA),
+                     breaks = c(24.84, 33.22),
+                     labels = c(24.84, 33.22))
+plots$pathogen_ct$BQCV$Insecticides <- readRDS("output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/single_panels/RDS.BQCV.Insecticides.rds") +
+  scale_y_continuous(limits = c(NA, NA),
+                     breaks = c(23.37, 26.53),
+                     labels = c(23.37, 26.53))
 plots$gene_tpm$nosema_relabund <- readRDS("output/R/genes_pathogens_and_landuse/gene_tpm_vs_nosema_relabund/single_panel.RDS.Citinase.Varimorpha_relabund.rds")
-
-
 
 
 #####
@@ -104,7 +106,7 @@ for (t_name in in_figure_gene_tpm) {
                      effect_fun = linear_effect_fun,
                      dark_col = color_list_genes$dark[[tested_gene]],
                      bright_col = color_list_genes$bright[[tested_gene]],
-                     y_axis_label = "Log gene rel. abundance")
+                     y_axis_label = "Log rel. gene abundance")
 }
 
 
@@ -141,8 +143,7 @@ third_row <- plots$pathogen_ct$`DWV B`$Cropland_in_2km_radius +
 
 
 
-main_figure <- first_row / plot_spacer() / second_row / plot_spacer()/ third_row + plot_layout(heights = c(10,1,10,1,10))
-
+main_figure <- first_row / plot_spacer() / second_row / plot_spacer()/ third_row + plot_layout(heights = c(20,1,20,1,20))
 
 ggsave("output/R/genes_pathogens_and_landuse/selected_graphs.pdf",
        main_figure, height = 9, width = 12)
