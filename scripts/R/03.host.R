@@ -143,7 +143,12 @@ for (pie in names(host_pie)) {
 
 # Written do data/ for convenience to avoid back tracking. So it can be used in the main analysis R script.
 # host_group$all %>%
-#   rename(contig = Virus) %>%
-#   rename(Host_group = Genus) %>%
+#   left_join(., all_hosts$all, by = "Virus") %>%
+#   rename(contig = Virus,
+#          Host_group = Genus.x,
+#          Host_genus = Genus.y) %>%
 #   write_csv("data/host_groups.csv")
- 
+
+
+
+# 
