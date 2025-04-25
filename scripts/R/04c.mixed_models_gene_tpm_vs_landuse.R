@@ -80,14 +80,6 @@ genes_of_interest <- c("Chitinase",
                        "PnuC")
 
 coeffs_tpm_simple <- list()
-countries_left <- list()
-
-
-all_hosts <- read.csv("output/R/host_pies/all_hosts.all.csv") %>%
-  tibble() %>%
-  rename(contig = Virus,
-         host_genus = Genus)
-
 
 model_tpm <- list()
 
@@ -131,14 +123,6 @@ for (goi in genes_of_interest) {
         rbind(coeffs_tpm_simple$cropland)
     }
   }
-
-countries_left$tpm_simple_model <- tibble()
-for (tpm_test in genes_of_interest) {
-  countries_left$tpm_simple_model <- test_tibble_log_tpm[[tpm_test]] %>%
-    distinct(Country) %>%
-    reframe(test = tpm_test, countries_left = n()) %>%
-    rbind(countries_left$tpm_simple_model, .)
-}
 
 ##### 
 # PESTICIDES:
