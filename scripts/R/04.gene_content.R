@@ -33,15 +33,15 @@ kegg_mapping <- read.delim("data/kegg_mapping.tsv", colClasses = "character") %>
   tibble()
 
 kegg_and_phold <- kegg_mapping %>%
-  left_join(., phold_predictions_with_extensions[c("cds_id", "phrog", "function.", "product")], by = "cds_id")
+  left_join(., phold_predictions_with_extensions[c("contig_id", "cds_id", "phrog", "function.", "product")], by = "cds_id")
 
 phage_tpm <- read.csv("output/R/relative_abundance/phage_tpm.csv") %>%
   tibble()
 
 #####
 # PHROG BARS
-
-moron_bar_colors <- rev(c("lightgrey", "#DDA0DD", "#555555"))
+# moron_bar_colors <- rev(c("lightgrey", "#E4B3E4", "#555555"))
+moron_bar_colors <- rev(c("lightgrey", "#F9DDF9", "#555555"))
 
 phrog_tibble <- phold_predictions_with_extensions %>%
   rename(contig = contig_id) %>%
@@ -56,12 +56,12 @@ phrog_tibble <- phold_predictions_with_extensions %>%
   rename(count_core = count) %>%
   mutate(collapsed_cat = case_when(function. == "unknown function" ~"unknown function",
                                    function. == "moron, auxiliary metabolic gene and host takeover" ~ '"moron", AMG\nand host takeover',
-                                   .default = "Other PHROG\ncategories"
+                                   .default = "other PHROG\ncategories"
                                    )) %>%
   group_by(collapsed_cat) %>%
   summarise(core = sum(count_core),
             all = sum(count_all)) %>%
-  mutate(collapsed_cat = factor(collapsed_cat, levels = c("Other PHROG\ncategories", '"moron", AMG\nand host takeover', "unknown function")))
+  mutate(collapsed_cat = factor(collapsed_cat, levels = c("other PHROG\ncategories", '"moron", AMG\nand host takeover', "unknown function")))
 
 phrog_bar_vertical <- list()
 phrog_bar_vertical$both <- phrog_tibble %>%
@@ -81,20 +81,36 @@ phrog_bar_vertical$both <- phrog_tibble %>%
   guides(fill = guide_legend(label.position = "left"))
 
 for (set in c("all", "core")) {
+  # phrog_bar_vertical[[set]] <- phrog_tibble %>%
+  #   pivot_longer(-collapsed_cat) %>%
+  #   filter(name == set) %>%
+  #   ggplot(aes(x = name, y = value, fill = collapsed_cat)) +
+  #   geom_col(position = "fill") +
+  #   theme_void() +
+  #   theme(
+  #     legend.position = "bottom",
+  #     plot.margin = margin(r = 5, l = 5, t = 5, b = 5),
+  #     legend.title = element_text(face = "bold")
+  #   ) +
+  #   scale_fill_manual(values = moron_bar_colors) +
+  #   labs(fill = "PHROG category") +
+  #   guides(fill = guide_legend(byrow = TRUE, reverse = TRUE))
+  
   phrog_bar_vertical[[set]] <- phrog_tibble %>%
     pivot_longer(-collapsed_cat) %>%
     filter(name == set) %>%
-    ggplot(aes(x = name, y = value, fill = collapsed_cat)) +
+    ggplot(aes(
+      x    = name,
+      y    = value,
+      fill = collapsed_cat
+    )) +
     geom_col(position = "fill") +
+    scale_fill_manual(values = moron_bar_colors) +
     theme_void() +
     theme(
-      legend.position = "bottom",
-      plot.margin = margin(r = 5, l = 5, t = 5, b = 5),
-      legend.title = element_text(face = "bold")
-    ) +
-    scale_fill_manual(values = moron_bar_colors) +
-    labs(fill = "PHROG category") +
-    guides(fill = guide_legend(byrow = TRUE, reverse = TRUE))
+      legend.position = "none",
+      plot.margin = margin(5, 5, 5, 5, "pt")
+    )
 }
 
 phrog_bar_horizontal <- list()
@@ -126,28 +142,63 @@ genes_with_kegg <- phold_predictions_with_extensions %>%
   distinct(product) %>%
   unlist(use.names = FALSE)
 
-kegg_or_not_kegg <- phold_predictions_with_extensions %>%
-  mutate(kegg_mapping = ifelse(product %in% genes_with_kegg, TRUE, FALSE),
-         is_moron = ifelse(function. == "moron, auxiliary metabolic gene and host takeover", TRUE, FALSE)) %>%
-  reframe(mapped_to_kegg = c("No", "Yes"),
-            gene_count = c(sum(is_moron) - sum(kegg_mapping), sum(kegg_mapping))) # %>%
-  # mutate(mapped_to_kegg = paste0(mapped_to_kegg, " (", gene_count, ")"))
+kegg_tibble <- phold_predictions_with_extensions %>%
+  filter(product %in% genes_with_kegg) %>%
+  reframe(placeholder = "placeholder",
+          `Mapped to metabolism` = length(CDSs_with_metabolism_kegg),
+          `other mapped` = n_distinct(kegg_mapping$cds_id) - `Mapped to metabolism`,
+          Transferred = n_distinct(cds_id) - `Mapped to metabolism`,
+          unmapped = phold_predictions_with_extensions %>% 
+            filter(function. == "moron, auxiliary metabolic gene and host takeover") %>% 
+            n_distinct("cds_id") - sum(`Mapped to metabolism`, `other mapped`)
+          ) %>%
+  pivot_longer(-placeholder, names_to = "mapping", values_to = "gene_count") %>%
+  select(-placeholder) %>%
+  mutate(mapping_label = paste0(mapping, " (", gene_count, ")")) %>%
+  mutate(mapping = factor(mapping, levels = c("Transferred", "Mapped to metabolism", "other mapped", "unmapped"))) %>%
+  arrange(mapping)
+# 
+# kegg_or_not_kegg <- phold_predictions_with_extensions %>%
+#   mutate(kegg_mapping = ifelse(product %in% genes_with_kegg, TRUE, FALSE),
+#          is_moron = ifelse(function. == "moron, auxiliary metabolic gene and host takeover", TRUE, FALSE)) %>%
+#   reframe(mapped_to_kegg = c("No", "Yes"),
+#             gene_count = c(sum(is_moron) - sum(kegg_mapping), sum(kegg_mapping))) # %>%
+#   # mutate(mapped_to_kegg = paste0(mapped_to_kegg, " (", gene_count, ")"))
 
-kegg_bar <- kegg_or_not_kegg %>%
-  mutate(mapped_to_kegg = factor(mapped_to_kegg, levels = kegg_or_not_kegg$mapped_to_kegg)) %>%
-  ggplot(aes(x = 1, y = gene_count, fill = mapped_to_kegg)) +
+kegg_bar <- kegg_tibble %>%
+  mutate(mapping_label = factor(mapping_label, levels = kegg_tibble$mapping_label)) %>%
+  ggplot(aes(x = 1, y = gene_count, fill = mapping_label)) +
   geom_col(position = "fill") +
-  scale_fill_manual(values = c("#555555", "#4B0082")) +
+  scale_fill_manual(values = c("#DDA0DD", "#DA70D6", "#555555", "lightgrey")) +
   theme_void() +
   theme(
-    plot.margin = margin(r = 5, l = 5, b = 5, t = 5, unit = "pt"),
-    legend.position = "bottom",
-    legend.title = element_text(face = "bold")
-  ) +
-  guides(fill = guide_legend(title = "Mapped to KEGG",
-                             label.position = "left",
-                             reverse = TRUE))
+    legend.position = "none",
+    plot.margin = margin(c(5,5,5,5), unit = "pt"),
+    # legend.position = "bottom",
+    # legend.title = element_text(face = "bold")
+  ) # +
+  # guides(fill = guide_legend(title = "KEGG mapping_label",
+  #                            label.position = "left",
+  #                            reverse = TRUE))
 
+# c("lightgrey", "#555555", "#9B59B6", "#DA70D6")
+# "#DDA0DD"
+# 
+# kegg_bar <- kegg_or_not_kegg %>%
+#   mutate(mapped_to_kegg = factor(mapped_to_kegg, levels = kegg_or_not_kegg$mapped_to_kegg)) %>%
+#   ggplot(aes(x = 1, y = gene_count, fill = mapped_to_kegg)) +
+#   geom_col(position = "fill") +
+#   scale_fill_manual(values = c("#555555", "#DA70D6")) +
+#   theme_void() +
+#   theme(
+#     plot.margin = margin(r = 5, l = 5, b = 5, t = 5, unit = "pt"),
+#     legend.position = "bottom",
+#     legend.title = element_text(face = "bold")
+#   ) +
+#   guides(fill = guide_legend(title = "Mapped to KEGG",
+#                              label.position = "left",
+#                              reverse = TRUE))
+# 
 
 
 #####
@@ -188,11 +239,12 @@ goi_bar <- metabolism_tibble %>%
   geom_col(position = "fill") +
   theme_void() +
   theme(
-    legend.text = element_markdown(),
-    plot.margin = margin(r = 5, l = 5, b = 5, t = 5, unit = "pt"),
-    legend.title = element_text(face = "bold")
+    legend.position = "none",
+    # legend.text = element_markdown(),
+    plot.margin = margin(c(5,5,5,5), unit = "pt"),
+    # legend.title = element_text(face = "bold")
     ) +
-  guides(fill = guide_legend(title = "Gene product")) +
+  # guides(fill = guide_legend(title = "Gene product")) +
   scale_fill_manual(values = gene_colors,
                     labels = setNames(as.character(metabolism_tibble$product_label),
                                       metabolism_tibble$product)
@@ -256,8 +308,57 @@ prevalence_plot$gene_facet <- prevalence_plot$overall +
   theme_grey()
 
 #####
-# PATCH IT 
+# Hosts
 
+host_pie_colors <- c("Bifidobacterium" = "#FFDAB9",
+                     "Lactobacillus" = "#FFA07A",
+                     "Snodgrassella" = "#FFC300",
+                     "Bombilactobacillus" = "#ef8f01",
+                     "Gilliamella" = "#8B4513",
+                     "Frischella" = "black",
+                     "Commensalibacter" = "#1C3A3A",
+                     "Bartonella" = "#66AFAF",
+                     "Bombella" = "#336B6B",
+                     "other" = "#555555",
+                     "unknown" = "lightgrey")
+
+hosts_of_genes_tibble <- grene_presence_on_contigs %>%
+  pivot_longer(-contig, names_to = "gene") %>%
+  filter(value > 0) %>%
+  left_join(., classification[c("contig", "Host_group")], by = "contig") %>%
+  group_by(gene, Host_group) %>%
+  reframe(host_count = n()) %>%
+  arrange(gene)
+
+hosts_of_genes_plot_all_genes <- hosts_of_genes_tibble %>%
+  mutate(gene = factor(gene, levels = c("PAPS reductase", "Chitinase", "Glucosyltransferase", "Levanase", "PnuC",
+                                        "RimK", "GATase", "RmlC", "NrdD", "CobT", "NMNAT", "Porphyrin synthesis protein")),
+         Host_group = factor(Host_group, levels = rev(c("unknown", "other", "Gilliamella", "Snodgrassella", "Bombella", "Bartonella", "Frischella")))) %>%
+  ggplot(aes(x = gene, y = host_count, fill = Host_group)) +
+  geom_col() +
+  scale_fill_manual(values = host_pie_colors) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1)) +
+  labs(x = "Metabolic gene", y = "Host genus count")
+
+hosts_of_genes_plot_goi <- hosts_of_genes_tibble %>%
+  filter(gene %in% genes_of_interest) %>%
+  mutate(gene = factor(gene, levels = c("PAPS reductase", "Chitinase", "Glucosyltransferase", "Levanase", "PnuC",
+                                        "RimK", "GATase", "RmlC", "NrdD", "CobT", "NMNAT", "Porphyrin synthesis protein")),
+         Host_group = factor(Host_group, levels = rev(c("unknown", "other", "Gilliamella", "Snodgrassella", "Bombella", "Bartonella", "Frischella")))) %>%
+  ggplot(aes(x = gene, y = host_count, fill = Host_group)) +
+  geom_col() +
+  scale_fill_manual(values = host_pie_colors) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1)) +
+  labs(x = "Metabolic gene", y = "Host genus count")
+
+#####
+# Disassemble for making pretty figure
+
+legend_gg <- list()
+
+# PREVALENCE
 # Remove geom_text
 p <- prevalence_plot$overall
 p$layers <- Filter(function(l) !inherits(l$geom, "GeomText"), p$layers)
@@ -267,24 +368,76 @@ prev_plot <- p +
         axis.text.x = element_blank(),
   ) +
   coord_flip() +
+  scale_y_reverse(expand = expansion(mult = c(0.1, 0))) +
   geom_text(
     stat = "summary",
     fun = mean,
     aes(label = round(after_stat(y), 2)),
     vjust = 0.5,
-    hjust = -0.25
+    hjust = 1.2,
+    size = 5
   )
 
-legend_phrog <- extract_legend(phrog_bar_vertical$all)
-legend_kegg <- extract_legend(kegg_bar)
-# legend_goi <- extract_legend(goi_bar)
+# PHROG
+phrog_with_legend <- phrog_bar_vertical$all +
+  guides(
+    fill = guide_legend(
+      title            = "PHROG category",
+      title.theme      = element_text(face = "bold"),
+      nrow             = 1,
+      byrow            = TRUE,
+      reverse          = TRUE,
+      direction        = "horizontal"
+    )
+  ) +
+  theme(
+    legend.position = "bottom"
+  )
+legend_gg$phrog <- extract_legend(phrog_with_legend)
 
-pure_phrog <- phrog_bar_vertical$all + theme(legend.position = "none")
-pure_kegg <- kegg_bar + theme(legend.position = "none")
-# pure_goi <- goi_bar + theme(legend.position = "none")
+# KEGG
+kegg_with_legend <- kegg_bar +
+  guides(
+    fill = guide_legend(
+      title            = "KEGG mapping",
+      title.theme      = element_text(face = "bold"),
+      nrow             = 2,
+      byrow            = TRUE,
+      reverse          = TRUE,
+      direction        = "horizontal"
+    )
+  ) +
+  theme(
+    legend.position = "bottom"
+  )
+legend_gg$kegg <- extract_legend(kegg_with_legend)
 
-bar_patch <- pure_phrog + plot_spacer() + pure_kegg + plot_spacer() + goi_bar + plot_spacer() + prev_plot + plot_layout(nrow = 1, widths = c(1.2, 0.5, 1, 0.5, 1, 0.1, 3) )
-legends_plot <- legend_phrog / legend_kegg
+# GOI
+goi_with_legend <- goi_bar +
+  guides(
+    fill = guide_legend(
+      title            = "Gene product",
+      title.theme      = element_text(face = "bold"),
+    )
+  ) +
+  theme(
+    legend.position = "right",
+    legend.text = element_markdown(),
+  )
+legend_gg$goi <- extract_legend(goi_with_legend)
+
+
+# 
+# legend_phrog <- extract_legend(phrog_bar_vertical$all)
+# legend_kegg <- extract_legend(kegg_bar)
+# # legend_goi <- extract_legend(goi_bar)
+# 
+# pure_phrog <- phrog_bar_vertical$all + theme(legend.position = "none")
+# pure_kegg <- kegg_bar + theme(legend.position = "none")
+# # pure_goi <- goi_bar + theme(legend.position = "none")
+# 
+# bar_patch <- pure_phrog + plot_spacer() + pure_kegg + plot_spacer() + goi_bar + plot_spacer() + prev_plot + plot_layout(nrow = 1, widths = c(1.2, 0.5, 1, 0.5, 1, 0.1, 3) )
+# legends_plot <- legend_phrog / legend_kegg
 
 # #####
 # SAVE FILES
@@ -305,15 +458,35 @@ ggsave("output/R/genes_pathogens_and_landuse/gene_prevalence.gene_facet.pdf",
 
 for (set in names(phrog_bar_vertical)) {
   ggsave(paste0("output/R/genes_pathogens_and_landuse/phrog_and_kegg/phrog_bar.vertical.", set, ".pdf"),
-         phrog_bar_vertical[[set]], height = 12, width = 6)
+         phrog_bar_vertical[[set]], height = 5.85, width = 1.75)
   ggsave(paste0("output/R/genes_pathogens_and_landuse/phrog_and_kegg/phrog_bar.horizontal.", set, ".pdf"),
          phrog_bar_horizontal[[set]], height = 3, width = 6)
 }
 
 ggsave("output/R/genes_pathogens_and_landuse/phrog_and_kegg/kegg_bar.pdf",
-       kegg_bar, height = 12, width = 6)
+       kegg_bar, height = 5.85, width = 1.5)
+ggsave("output/R/genes_pathogens_and_landuse/phrog_and_kegg/goi_bar.pdf",
+       goi_bar, height = 5.85, width = 1.5)
 
-ggsave("output/R/genes_pathogens_and_landuse/phrog_and_kegg_patch.pdf",
-       bar_patch, height = 6, width = 13.5)
-ggsave("output/R/genes_pathogens_and_landuse/phrog_and_kegg_legends.pdf",
-       legends_plot, height = 3, width = 6)
+ggsave("output/R/genes_pathogens_and_landuse/phrog_and_kegg/gene_prevalence.overall.nolegend.pdf",
+       prev_plot, height = 5.85, width = 4)
+
+
+for (legend in names(legend_gg)) {
+  ggsave(paste0("output/R/genes_pathogens_and_landuse/phrog_and_kegg/legend.", legend, ".pdf"),
+         legend_gg[[legend]], height = 6, width = 6)
+}
+
+write_delim(hosts_of_genes_tibble, "output/R/genes_pathogens_and_landuse/hosts_of_genes.tsv",
+            delim = "\t")
+
+ggsave("output/R/genes_pathogens_and_landuse/hosts_of_genes_all.pdf", hosts_of_genes_plot_all_genes,
+       width = 8, height = 6)
+ggsave("output/R/genes_pathogens_and_landuse/hosts_of_genes_goi.pdf", hosts_of_genes_plot_goi,
+       width = 6, height = 6)
+
+
+# ggsave("output/R/genes_pathogens_and_landuse/phrog_and_kegg_patch.pdf",
+#        bar_patch, height = 6, width = 13.5)
+# ggsave("output/R/genes_pathogens_and_landuse/phrog_and_kegg_legends.pdf",
+#        legends_plot, height = 3, width = 6)
