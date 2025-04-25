@@ -145,17 +145,17 @@ genes_with_kegg <- phold_predictions_with_extensions %>%
 kegg_tibble <- phold_predictions_with_extensions %>%
   filter(product %in% genes_with_kegg) %>%
   reframe(placeholder = "placeholder",
-          `Mapped to metabolism` = length(CDSs_with_metabolism_kegg),
-          `other mapped` = n_distinct(kegg_mapping$cds_id) - `Mapped to metabolism`,
-          Transferred = n_distinct(cds_id) - `Mapped to metabolism`,
-          unmapped = phold_predictions_with_extensions %>% 
+          `Mapped metabol. gene` = length(CDSs_with_metabolism_kegg),
+          `other mapped` = n_distinct(kegg_mapping$cds_id) - `Mapped metabol. gene`,
+          `Unmapped metabol. gene` = n_distinct(cds_id) - `Mapped metabol. gene`,
+          `other unmapped` = phold_predictions_with_extensions %>% 
             filter(function. == "moron, auxiliary metabolic gene and host takeover") %>% 
-            n_distinct("cds_id") - sum(`Mapped to metabolism`, `other mapped`)
+            n_distinct("cds_id") - sum(`Mapped metabol. gene`, `other mapped`, `Unmapped metabol. gene`)
           ) %>%
   pivot_longer(-placeholder, names_to = "mapping", values_to = "gene_count") %>%
   select(-placeholder) %>%
   mutate(mapping_label = paste0(mapping, " (", gene_count, ")")) %>%
-  mutate(mapping = factor(mapping, levels = c("Transferred", "Mapped to metabolism", "other mapped", "unmapped"))) %>%
+  mutate(mapping = factor(mapping, levels = c("Unmapped metabol. gene", "Mapped metabol. gene", "other mapped", "other unmapped"))) %>%
   arrange(mapping)
 # 
 # kegg_or_not_kegg <- phold_predictions_with_extensions %>%
@@ -284,7 +284,7 @@ prevalence_plot$overall <- gene_presence_in_samples %>%
   geom_text(
     stat = "summary",
     fun = mean,
-    aes(label = round(after_stat(y), 2)),
+    aes(label = paste0(round(after_stat(y*100)), "%")),
     vjust = -0.5,
   ) +  
   labs(x = "Gene", y = "Prevalence") +
@@ -345,12 +345,30 @@ hosts_of_genes_plot_goi <- hosts_of_genes_tibble %>%
   filter(gene %in% genes_of_interest) %>%
   mutate(gene = factor(gene, levels = c("PAPS reductase", "Chitinase", "Glucosyltransferase", "Levanase", "PnuC",
                                         "RimK", "GATase", "RmlC", "NrdD", "CobT", "NMNAT", "Porphyrin synthesis protein")),
-         Host_group = factor(Host_group, levels = rev(c("unknown", "other", "Gilliamella", "Snodgrassella", "Bombella", "Bartonella", "Frischella")))) %>%
+         Host_group = factor(Host_group, levels = rev(c("unknown", "other", "Bombella", "Bartonella", "Frischella", "Gilliamella", "Snodgrassella")))) %>%
   ggplot(aes(x = gene, y = host_count, fill = Host_group)) +
   geom_col() +
   scale_fill_manual(values = host_pie_colors) +
   theme_minimal() +
   theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1)) +
+  labs(x = "Metabolic gene", y = "Host genus count")
+
+
+hosts_of_genes_plot_goi2 <- hosts_of_genes_tibble %>%
+  rename(`Host genus` = Host_group) %>%
+  filter(gene %in% genes_of_interest) %>%
+  mutate(gene = factor(gene, levels = c("PAPS reductase", "Chitinase", "Glucosyltransferase", "Levanase", "PnuC",
+                                        "RimK", "GATase", "RmlC", "NrdD", "CobT", "NMNAT", "Porphyrin synthesis protein")),
+         `Host genus` = factor(`Host genus`, levels = rev(c("unknown", "other", "Bombella", "Bartonella", "Frischella", "Gilliamella", "Snodgrassella")))) %>%
+  ggplot(aes(x = gene, y = host_count, fill = `Host genus`)) +
+  geom_col() +
+  scale_fill_manual(values = host_pie_colors) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle=35, vjust=1, hjust=1),
+        plot.margin = margin(c(5,5,5,5), unit = "pt"),
+        legend.title = element_text(face = "bold"),
+        axis.title.x = element_blank()
+        ) +
   labs(x = "Metabolic gene", y = "Host genus count")
 
 #####
@@ -366,13 +384,14 @@ p$layers <- Filter(function(l) !inherits(l$geom, "GeomText"), p$layers)
 prev_plot <- p + 
   theme(legend.position = "none",
         axis.text.x = element_blank(),
+        plot.margin = margin(c(5,5,5,5), unit = "pt")
   ) +
   coord_flip() +
   scale_y_reverse(expand = expansion(mult = c(0.1, 0))) +
   geom_text(
     stat = "summary",
     fun = mean,
-    aes(label = round(after_stat(y), 2)),
+    aes(label = paste0(round(after_stat(y*100)), "%")),
     vjust = 0.5,
     hjust = 1.2,
     size = 5
@@ -484,7 +503,8 @@ ggsave("output/R/genes_pathogens_and_landuse/hosts_of_genes_all.pdf", hosts_of_g
        width = 8, height = 6)
 ggsave("output/R/genes_pathogens_and_landuse/hosts_of_genes_goi.pdf", hosts_of_genes_plot_goi,
        width = 6, height = 6)
-
+ggsave("output/R/genes_pathogens_and_landuse/hosts_of_genes_goi2.pdf", hosts_of_genes_plot_goi2,
+       width = 5, height = 5.85)
 
 # ggsave("output/R/genes_pathogens_and_landuse/phrog_and_kegg_patch.pdf",
 #        bar_patch, height = 6, width = 13.5)
