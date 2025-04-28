@@ -342,19 +342,6 @@ hosts_of_genes_plot_all_genes <- hosts_of_genes_tibble %>%
   labs(x = "Metabolic gene", y = "Host genus count")
 
 hosts_of_genes_plot_goi <- hosts_of_genes_tibble %>%
-  filter(gene %in% genes_of_interest) %>%
-  mutate(gene = factor(gene, levels = c("PAPS reductase", "Chitinase", "Glucosyltransferase", "Levanase", "PnuC",
-                                        "RimK", "GATase", "RmlC", "NrdD", "CobT", "NMNAT", "Porphyrin synthesis protein")),
-         Host_group = factor(Host_group, levels = rev(c("unknown", "other", "Bombella", "Bartonella", "Frischella", "Gilliamella", "Snodgrassella")))) %>%
-  ggplot(aes(x = gene, y = host_count, fill = Host_group)) +
-  geom_col() +
-  scale_fill_manual(values = host_pie_colors) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1)) +
-  labs(x = "Metabolic gene", y = "Host genus count")
-
-
-hosts_of_genes_plot_goi2 <- hosts_of_genes_tibble %>%
   rename(`Host genus` = Host_group) %>%
   filter(gene %in% genes_of_interest) %>%
   mutate(gene = factor(gene, levels = c("PAPS reductase", "Chitinase", "Glucosyltransferase", "Levanase", "PnuC",
@@ -364,12 +351,15 @@ hosts_of_genes_plot_goi2 <- hosts_of_genes_tibble %>%
   geom_col() +
   scale_fill_manual(values = host_pie_colors) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle=35, vjust=1, hjust=1),
+  theme(axis.text.x = element_text(angle=35, vjust=1.1, hjust=1),
         plot.margin = margin(c(5,5,5,5), unit = "pt"),
         legend.title = element_text(face = "bold"),
-        axis.title.x = element_blank()
-        ) +
-  labs(x = "Metabolic gene", y = "Host genus count")
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(face = "bold"),
+        legend.text = element_markdown()
+  ) +
+  labs(x = "Metabolic gene", y = "Genome count")
+hosts_of_genes_plot_goi
 
 #####
 # Disassemble for making pretty figure
@@ -477,15 +467,18 @@ ggsave("output/R/genes_pathogens_and_landuse/gene_prevalence.gene_facet.pdf",
 
 for (set in names(phrog_bar_vertical)) {
   ggsave(paste0("output/R/genes_pathogens_and_landuse/phrog_and_kegg/phrog_bar.vertical.", set, ".pdf"),
-         phrog_bar_vertical[[set]], height = 5.85, width = 1.75)
+         # phrog_bar_vertical[[set]], height = 5.85, width = 1.75)
+         phrog_bar_vertical[[set]], height = 5.85, width = 0.875)
   ggsave(paste0("output/R/genes_pathogens_and_landuse/phrog_and_kegg/phrog_bar.horizontal.", set, ".pdf"),
          phrog_bar_horizontal[[set]], height = 3, width = 6)
 }
 
 ggsave("output/R/genes_pathogens_and_landuse/phrog_and_kegg/kegg_bar.pdf",
-       kegg_bar, height = 5.85, width = 1.5)
+       # kegg_bar, height = 5.85, width = 1.5)
+       kegg_bar, height = 5.85, width = 0.75)
 ggsave("output/R/genes_pathogens_and_landuse/phrog_and_kegg/goi_bar.pdf",
-       goi_bar, height = 5.85, width = 1.5)
+       # goi_bar, height = 5.85, width = 1.5)
+       goi_bar, height = 5.85, width = 0.75)
 
 ggsave("output/R/genes_pathogens_and_landuse/phrog_and_kegg/gene_prevalence.overall.nolegend.pdf",
        prev_plot, height = 5.85, width = 4)
@@ -502,9 +495,7 @@ write_delim(hosts_of_genes_tibble, "output/R/genes_pathogens_and_landuse/hosts_o
 ggsave("output/R/genes_pathogens_and_landuse/hosts_of_genes_all.pdf", hosts_of_genes_plot_all_genes,
        width = 8, height = 6)
 ggsave("output/R/genes_pathogens_and_landuse/hosts_of_genes_goi.pdf", hosts_of_genes_plot_goi,
-       width = 6, height = 6)
-ggsave("output/R/genes_pathogens_and_landuse/hosts_of_genes_goi2.pdf", hosts_of_genes_plot_goi2,
-       width = 5, height = 5.85)
+       width = 6, height = 5.2)
 
 # ggsave("output/R/genes_pathogens_and_landuse/phrog_and_kegg_patch.pdf",
 #        bar_patch, height = 6, width = 13.5)

@@ -290,7 +290,9 @@ sig_tests <- all_slopes %>%
   left_join(., lowest_highest, by = "Item") %>%
   mutate(effect = linear_effect_fun(s = Estimate, h = highest, l = lowest)) %>%
   group_by(gene) %>%
-  mutate(y_stretching_factor = max(effect) / effect) %>%
+  mutate(effect = ifelse(effect < 1 , 1/effect, effect),
+         y_stretching_factor = max(effect) / effect) %>%
+  # mutate(y_stretching_factor = max(effect) / effect) %>%
   mutate(which_y_end_to_stretch = if_else(
     Estimate[y_stretching_factor == 1] > 0,
     "upper_end",

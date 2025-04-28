@@ -240,7 +240,8 @@ legend_factory <- function(title, items, colors, position) {
     # strip out axes / grid
     theme_void() +
     theme(
-      legend.position = position
+      legend.position = position,
+      legend.title = element_text(face = "bold")
     )
   
   legend_only <- dummy_plot + 
