@@ -35,18 +35,36 @@ for (tl in names(classified_taxa)) {
   write_csv(core_taxonomy[[tl]], paste0("output/R/taxon_pies/classified_core_taxa.", tl, ".csv"))
 }
 
+source("scripts/R/helpers/mixed_helpers.R")
+
 for (thing in names(pretty_pie$tibbles)) {
   for (tl in names(pretty_pie$tibbles[[thing]])) {
-    wid <- 4.5
-    hei <- 4.5
-    if (tl == "Class") {
-      wid <- 5.75
-      hei <- 4.5
-    }
+    # wid <- 5
+    # hei <- 5
+    # if (tl == "Class") {
+    #   wid <- 7.5
+    #   hei <- 7.5
+    # }
+    
+    pie <- pretty_pie$plots[[thing]][[tl]] +
+      theme(legend.position = "none")
+    
+    bar <- pretty_pie$plots[[thing]][[tl]] +
+      theme(legend.position = "none") +
+      coord_cartesian()
+    
+    legend <- extract_legend(pretty_pie$plots[[thing]][[tl]])
+    
     write_csv(pretty_pie$tibbles[[thing]][[tl]],
               paste0("output/R/taxon_pies/pretty_pie.", thing, ".", tl,".csv"))
-    ggsave(paste0("output/R/taxon_pies/pretty_pie.", thing, ".", tl,".pdf"),
-           pretty_pie$plots[[thing]][[tl]], width = wid, height = hei)
+    # ggsave(paste0("output/R/taxon_pies/pretty_pie.", thing, ".", tl,".pdf"),
+    #        pretty_pie$plots[[thing]][[tl]], width = wid, height = hei)
+    ggsave(paste0("output/R/taxon_pies/pretty_pie.", thing, ".", tl,".pie.pdf"),
+           pie, width = 4.5, height = 4.5)
+    ggsave(paste0("output/R/taxon_pies/pretty_pie.", thing, ".", tl,".bar.pdf"),
+           bar, width = 1, height = 5)
+    ggsave(paste0("output/R/taxon_pies/pretty_pie.", thing, ".", tl,".legend.pdf"),
+           legend, width = 5, height = 3)
   }
 }
 
