@@ -310,15 +310,15 @@ prevalence_plot$gene_facet <- prevalence_plot$overall +
 #####
 # Hosts
 
-host_pie_colors <- c("Bifidobacterium" = "#FFDAB9",
-                     "Lactobacillus" = "#FFA07A",
-                     "Snodgrassella" = "#FFC300",
-                     "Bombilactobacillus" = "#ef8f01",
-                     "Gilliamella" = "#8B4513",
-                     "Frischella" = "black",
-                     "Commensalibacter" = "#1C3A3A",
-                     "Bartonella" = "#66AFAF",
-                     "Bombella" = "#336B6B",
+host_pie_colors <- c("***Bifidobacterium***" = "#FFDAB9",
+                     "***Lactobacillus***" = "#FFA07A",
+                     "***Snodgrassella***" = "#FFC300",
+                     "***Bombilactobacillus***" = "#ef8f01",
+                     "***Gilliamella***" = "#8B4513",
+                     "*Frischella*" = "#1C3A3A",
+                     "*Commensalibacter*" = "#2A6666",
+                     "*Bartonella*" = "#4CB3B3",
+                     "*Bombella*" = "#338080",
                      "other" = "#555555",
                      "unknown" = "lightgrey")
 
@@ -328,30 +328,39 @@ hosts_of_genes_tibble <- grene_presence_on_contigs %>%
   left_join(., classification[c("contig", "Host_group")], by = "contig") %>%
   group_by(gene, Host_group) %>%
   reframe(host_count = n()) %>%
-  arrange(gene)
+  arrange(gene) %>%
+  mutate()
 
 hosts_of_genes_plot_all_genes <- hosts_of_genes_tibble %>%
   mutate(gene = factor(gene, levels = c("PAPS reductase", "Chitinase", "Glucosyltransferase", "Levanase", "PnuC",
                                         "RimK", "GATase", "RmlC", "NrdD", "CobT", "NMNAT", "Porphyrin synthesis protein")),
-         Host_group = factor(Host_group, levels = rev(c("unknown", "other", "Gilliamella", "Snodgrassella", "Bombella", "Bartonella", "Frischella")))) %>%
+         Host_group = case_when(Host_group %in% c("Gilliamella", "Lactobacillus", "Bifidobacterium", "Bombilactobacillus", "Snodgrassella") ~ paste0("***", Host_group, "***"),
+                                Host_group %in% c("other", "unknown") ~ Host_group,
+                                .default = paste0("*", Host_group, "*")),
+         Host_group = factor(Host_group, levels = rev(c("unknown", "other", "***Gilliamella***", "***Snodgrassella***", "*Bombella*", "*Bartonella*", "*Frischella*")))
+         ) %>%
   ggplot(aes(x = gene, y = host_count, fill = Host_group)) +
   geom_col() +
   scale_fill_manual(values = host_pie_colors) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1)) +
+  theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1),
+        legend.text = element_markdown()) +
   labs(x = "Metabolic gene", y = "Host genus count")
 
 hosts_of_genes_plot_goi <- hosts_of_genes_tibble %>%
-  rename(`Host genus` = Host_group) %>%
   filter(gene %in% genes_of_interest) %>%
   mutate(gene = factor(gene, levels = c("PAPS reductase", "Chitinase", "Glucosyltransferase", "Levanase", "PnuC",
                                         "RimK", "GATase", "RmlC", "NrdD", "CobT", "NMNAT", "Porphyrin synthesis protein")),
-         `Host genus` = factor(`Host genus`, levels = rev(c("unknown", "other", "Bombella", "Bartonella", "Frischella", "Gilliamella", "Snodgrassella")))) %>%
+         Host_group = case_when(Host_group %in% c("Gilliamella", "Lactobacillus", "Bifidobacterium", "Bombilactobacillus", "Snodgrassella") ~ paste0("***", Host_group, "***"),
+                                Host_group %in% c("other", "unknown") ~ Host_group,
+                                .default = paste0("*", Host_group, "*")),
+         Host_group = factor(Host_group, levels = rev(c("unknown", "other", "*Bombella*", "*Bartonella*", "*Frischella*", "***Gilliamella***", "***Snodgrassella***")))) %>%
+  rename(`Host genus` = Host_group) %>%
   ggplot(aes(x = gene, y = host_count, fill = `Host genus`)) +
   geom_col() +
   scale_fill_manual(values = host_pie_colors) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle=35, vjust=1.1, hjust=1),
+  theme(axis.text.x = element_text(angle=35, vjust=1.1, hjust=1, size = 11),
         plot.margin = margin(c(5,5,5,5), unit = "pt"),
         legend.title = element_text(face = "bold"),
         axis.title.x = element_blank(),
@@ -360,7 +369,8 @@ hosts_of_genes_plot_goi <- hosts_of_genes_tibble %>%
   ) +
   labs(x = "Metabolic gene", y = "Genome count")
 hosts_of_genes_plot_goi
-
+  
+  
 #####
 # Disassemble for making pretty figure
 
