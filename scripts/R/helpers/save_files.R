@@ -102,6 +102,12 @@ write_csv(completeness$tibble, "output/R/completeness_and_genome_length/complete
 system("mkdir -p output/R/alpha")
 system("mkdir -p output/R/alpha/alpha_all")
 system("mkdir -p output/R/alpha/alpha_core_or_not")
+
+# Raw bee pool richness:
+
+ggsave("output/R/alpha/raw_bee_pool_richness.pdf",
+       raw_bee_pool_richness, width = 6, height = 4)
+
 for (tax in names(alpha)) {
   ggsave(paste0("output/R/alpha/alpha_all/alpha.",tax,".pdf"),
          alpha[[tax]]$plot, width = 12, height=10)

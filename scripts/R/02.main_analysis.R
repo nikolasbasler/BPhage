@@ -576,6 +576,23 @@ iterations <- 1000
 #               wrap_plots(non_core_singles[5:7], axes = "collect_y", widths = c(3,4,3)) /
 #               wrap_plots(core_singles[5:7], axes = "collect_y", widths = c(3,4,3)))
 
+
+# Simple un-rarified richness:
+pool_richness <- phage_tpm$contig %>%
+  pivot_longer(-contig, names_to = "Sample_ID") %>%
+  left_join(., metadata[c("Sample_ID", "Country", "Hive_ID", "Bee_pool")], by = "Sample_ID") %>%
+  mutate(presence = ifelse(value > 0, 1, 0)) %>%
+  group_by(Bee_pool) %>%
+  summarise(pool_richness = sum(presence))
+
+median_pool <- median(pool_richness$pool_richness)
+raw_bee_pool_richness <- pool_richness %>%
+  ggplot(aes(x = pool_richness)) +
+  geom_histogram(bins = 50) +
+  geom_vline(xintercept = median_pool) +
+  annotate("text", x = median_pool, y = 10, label = paste0("median: ", median_pool), hjust = -0.25) +
+  labs(x = "raw bee pool phage richness")
+
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 # Heatmaps ####
