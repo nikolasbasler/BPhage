@@ -61,6 +61,13 @@ bacteria\
 conda activate ska
 for dataset in $(echo "$datasets"); do
     ska fastq -o ska/skf_files/${line}_${dataset} merged_reads/${line}.${dataset}.R1.fastq.gz merged_reads/${line}.${dataset}.R2.fastq.gz
+    
+    # For diagnosis. Should not yield too many variant sites per sample because we are running under a haploid assumption.
+    # Meaning that only one allele per site will be recorded. If there are too many sites with variants surviving the filters
+    # (e.g. frequency >0.2) then a random one will be picked (the last one that the code sees, in fact). 
+    ska humanise -i ska/skf_files/${line}_${dataset}.skf -o ska/skf_files/${line}_${dataset}.kmers
+    sed 1d ska/skf_files/${line}_${dataset}.kmers.tsv | cut -f1 | sort | uniq -c | sort -r -n -k1 > ska/skf_files/${line}_${dataset}.kmercounts
+
 done
 
 # Clean up
