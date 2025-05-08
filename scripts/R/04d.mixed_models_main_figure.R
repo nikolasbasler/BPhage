@@ -74,7 +74,7 @@ common_legend_row3b <- legend_factory(title = "Gene",
                                       items = names(color_list$dark)[1],
                                       colors = unlist(color_list$dark)[1],
                                       position = "left") /
-  plot_spacer() + plot_layout(heights = c(50,1))
+  plot_spacer() + plot_layout(heights = c(25,1))
 
 
 common_legend_row3 <- wrap_plots(plot_spacer(), common_legend_row3a, common_legend_row3b, plot_spacer(), nrow = 1)
