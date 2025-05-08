@@ -145,17 +145,17 @@ genes_with_kegg <- phold_predictions_with_extensions %>%
 kegg_tibble <- phold_predictions_with_extensions %>%
   filter(product %in% genes_with_kegg) %>%
   reframe(placeholder = "placeholder",
-          `Mapped metabol. gene` = length(CDSs_with_metabolism_kegg),
-          `other mapped` = n_distinct(kegg_mapping$cds_id) - `Mapped metabol. gene`,
-          `Unmapped metabol. gene` = n_distinct(cds_id) - `Mapped metabol. gene`,
-          `other unmapped` = phold_predictions_with_extensions %>% 
+          `Assigned metabol. gene` = length(CDSs_with_metabolism_kegg),
+          `other assigned` = n_distinct(kegg_mapping$cds_id) - `Assigned metabol. gene`,
+          `Unass. metabol. gene` = n_distinct(cds_id) - `Assigned metabol. gene`,
+          `other unassigned` = phold_predictions_with_extensions %>% 
             filter(function. == "moron, auxiliary metabolic gene and host takeover") %>% 
-            n_distinct("cds_id") - sum(`Mapped metabol. gene`, `other mapped`, `Unmapped metabol. gene`)
+            n_distinct("cds_id") - sum(`Assigned metabol. gene`, `other assigned`, `Unass. metabol. gene`)
           ) %>%
   pivot_longer(-placeholder, names_to = "mapping", values_to = "gene_count") %>%
   select(-placeholder) %>%
   mutate(mapping_label = paste0(mapping, " (", gene_count, ")")) %>%
-  mutate(mapping = factor(mapping, levels = c("Unmapped metabol. gene", "Mapped metabol. gene", "other mapped", "other unmapped"))) %>%
+  mutate(mapping = factor(mapping, levels = c("Unass. metabol. gene", "Assigned metabol. gene", "other assigned", "other unassigned"))) %>%
   arrange(mapping)
 # 
 # kegg_or_not_kegg <- phold_predictions_with_extensions %>%
@@ -368,8 +368,6 @@ hosts_of_genes_plot_goi <- hosts_of_genes_tibble %>%
         legend.text = element_markdown()
   ) +
   labs(x = "Metabolic gene", y = "Genome count")
-hosts_of_genes_plot_goi
-  
   
 #####
 # Disassemble for making pretty figure
@@ -418,7 +416,7 @@ legend_gg$phrog <- extract_legend(phrog_with_legend)
 kegg_with_legend <- kegg_bar +
   guides(
     fill = guide_legend(
-      title            = "KEGG mapping",
+      title            = "KEGG assignment",
       title.theme      = element_text(face = "bold"),
       nrow             = 2,
       byrow            = TRUE,
