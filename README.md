@@ -176,8 +176,9 @@
         - BPhage contigs manually assigned to Kirberger et al's microvirus families: `/data/bphage.microvirus.taxonomy.csv`
 
 ### SNP analysis
-- mapping prep
-- SKA `SNP_analysis_all_SKA1`
+- mapping prep (bact)
+- mapping vs bact
+- SKA `SNP_analysis_SKA1`
 - SKA distances
 <!-- - mapping prep
 - mapping (array of 150)
