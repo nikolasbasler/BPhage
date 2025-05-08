@@ -24,6 +24,15 @@ forest_plot <- function(tbl, axis_name = NULL, plot_title = NULL) {
     ggtitle(plot_title)
 }
 
+extract_legend <- function(ggplot_object) {
+  extracted_legend <- ggplot_object  + 
+    guide_area() +
+    plot_layout(
+      guides  = "collect",
+      heights = c(0, 1))
+  return(extracted_legend)
+}
+
 
 logistic_fun <- function(x, intercept, slope) {
   1 / (1 + exp(-(intercept + slope * x)))
@@ -51,16 +60,16 @@ ct_effect_fun <- function(s, h, l) {
 
 mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_col, bright_col, y_axis_label) {
   
+  x_axis_label <- str_replace_all(filt_test_tibble$Item, "_", " ")
   inter <- filt_test_tibble$intercept
   inter_sd <- filt_test_tibble$sd_intercept
-  slo <- filt_test_tibble$Estimate
-  slo_sd <- filt_test_tibble$`Std. Error`
   high <- filt_test_tibble$highest
   low <- filt_test_tibble$lowest
-
+  slo <- filt_test_tibble$Estimate
   y_of_high <- transform_fun(high, intercept = inter, slope = slo)
   y_of_low <- transform_fun(low, intercept = inter, slope = slo)
-  
+  slo_sd <- ifelse(high < 0 , -filt_test_tibble$`Std. Error`, filt_test_tibble$`Std. Error`)
+
   effect_size <- effect_fun(s = slo, h = high, l = low)
 
   plot_min <- low - (high - low) / 5
@@ -70,7 +79,7 @@ mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_c
                         y_val = transform_fun(x_val, intercept = inter, slope = slo),
                         y_lower = transform_fun(x_val, intercept = inter - inter_sd, slope = slo - slo_sd),
                         y_upper = transform_fun(x_val, intercept = inter + inter_sd, slope = slo + slo_sd))
-  
+
   y_stretched <- c(NA, NA)
   # if (slo < 0 ) {
   if (filt_test_tibble$which_y_end_to_stretch == "lower_end") {
@@ -179,7 +188,7 @@ mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_c
       # fontface = "bold"
     ) +
     
-    # Make axis labels only for the coordinates of the points
+    # Make axis ticks only for the coordinates of the points
     scale_x_continuous(
       breaks = c(low, high),
       labels = c(round(low, 0), round(high, 0))) +
@@ -189,7 +198,7 @@ mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_c
       labels = c(round(y_of_low, 2), round(y_of_high, 2))) +
     
     # Axis texts, title and theme
-    labs(x = filt_test_tibble$Item, y = y_axis_label) +
+    labs(x = x_axis_label, y = y_axis_label) +
     # ggtitle(filt_test_tibble$gene) +
     
     
@@ -231,7 +240,8 @@ legend_factory <- function(title, items, colors, position) {
     # strip out axes / grid
     theme_void() +
     theme(
-      legend.position = position
+      legend.position = position,
+      legend.title = element_text(face = "bold")
     )
   
   legend_only <- dummy_plot + 
@@ -246,7 +256,42 @@ legend_factory <- function(title, items, colors, position) {
   return(legend_only)
 }
 
+diagnostics_logistic_model <- function(model, name = "") {
+  simRes <- simulateResiduals(fittedModel = model, n = 1000)
+  resDat <- data.frame(
+    predicted = simRes$fittedPredictedResponse,
+    residual  = simRes$scaledResiduals
+  )
+  
+  p <- ggplot(resDat, aes(x = predicted, y = residual)) +
+    geom_point(alpha = 0.5, color = "blue") +
+    geom_hline(yintercept = 0.5, linetype = "dashed") +
+    labs(
+      x    = "Predicted probability",
+      y    = "DHARMa scaled residuals",
+      title= name
+    ) +
+    theme_minimal()
+  return(p)
+}
 
+diagnostics_linear_model <- function(model, name = "") {
+  resDat <- data.frame(
+    fitted   = fitted(model),
+    residual = resid(model)
+  )
+  
+  p <- ggplot(resDat, aes(x = fitted, y = residual)) +
+    geom_point(alpha = 0.5, color = "blue") +
+    geom_hline(yintercept = 0, linetype = "dashed") +
+    labs(
+      x    = "Fitted values",
+      y    = "Raw residuals",
+      title= name
+    ) +
+    theme_minimal()
+  return(p)
+}
 
 # 
 # layered_p_adjustments <- function(slop = slopes, gene_or_pathogen = "gene") {

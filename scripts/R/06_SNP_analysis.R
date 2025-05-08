@@ -193,6 +193,8 @@ tree_wrap
 #########
 # RDAs
 
+custom_colors <- c("#8B4513", "#1C3A3A", "#FFA07A", "#1C3A3A")
+
 RDAs <- list()
 RDA_plots <- list()
 for (set in names(ska_matrix)) {
@@ -216,17 +218,35 @@ for (set in names(ska_matrix)) {
   
   plot_data <- RLdbRDA::prepare_plot_data(RDAs[[set]])
   
-  RDA_plots[[set]] <- RLdbRDA::plot_dbrda(plot_data) + 
-    scale_fill_manual(values=c("#ef8f01", "#8B4513"),
-                      labels=c(bquote(R^2), bquote('Cumulative' ~ R^2))) +
-    ggtitle(paste0(set, " SNP distance")) +
-    theme(legend.position = "bottom")
+  p <- RLdbRDA::plot_dbrda(plot_data)
+  p$data$bar_color <- custom_colors
+  
+  RDA_plots[[set]] <- p + aes(fill = bar_color) + scale_fill_identity()
+  
+  # RDA_plots[[set]] <- RLdbRDA::plot_dbrda(plot_data) + 
+  #   scale_fill_manual(values=c("#ef8f01", "#8B4513"),
+  #                     labels=c(bquote(R^2), bquote('Cumulative' ~ R^2))) +
+  #   ggtitle(paste0(set, " SNP distance")) +
+  #   theme(legend.position = "bottom")
 }
 
-RDA_patch_horizontal <- RDA_plots$bee + RDA_plots$bacteria + RDA_plots$phages +
-  plot_layout(guides = 'collect', axes = "collect")  & theme(legend.position = "bottom")
-RDA_patch_vertical <- RDA_plots$bee / RDA_plots$bacteria / RDA_plots$phages +
-  plot_layout(guides = 'collect', axes = "collect")  & theme(legend.position = "bottom")
+source("scripts/R/helpers/mixed_helpers.R")
+common_legend <- legend_factory(title = "Thing", 
+                                items = c("R2_A", "R2_B", "Cumulative R2"),
+                                colors = c("#8B4513", "#FFA07A", "#1C3A3A"),
+                                position = "bottom")
+
+# RDA_patch_horizontal <- RDA_plots$bee + RDA_plots$bacteria + RDA_plots$phages +
+#   plot_layout(guides = 'collect', axes = "collect")  & theme(legend.position = "bottom")
+# RDA_patch_vertical <- RDA_plots$bee / RDA_plots$bacteria / RDA_plots$phages +
+#   plot_layout(guides = 'collect', axes = "collect")  & theme(legend.position = "bottom")
+
+RDA_patch_horizontal <- (RDA_plots$bee + RDA_plots$bacteria + RDA_plots$phages + plot_layout(axes = "collect")) /
+  common_legend +
+  plot_layout(heights = c(12,1))
+
+RDA_patch_vertical <- RDA_plots$bee / RDA_plots$bacteria / RDA_plots$phages / common_legend +
+  plot_layout(axes = "collect", heights = c(rep(10,3), 1))
 
 #####
 
@@ -296,7 +316,7 @@ ggsave("output/R/SNP_analysis/SNP_trees_horizontal.pdf", tree_wrap_horizontal,
        width = 15, height = 10)
 
 ggsave("output/R/SNP_analysis/SNP_RDA_horizontal.pdf", RDA_patch_horizontal,
-       width = 9, height = 3)
+       width = 11, height = 3)
 ggsave("output/R/SNP_analysis/SNP_RDA_vertical.pdf", RDA_patch_vertical,
        width = 8, height = 4)
 

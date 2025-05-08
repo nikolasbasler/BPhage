@@ -1,11 +1,9 @@
 library(lme4)
 library(lmerTest)
-library(DHARMa)
 library(ggrepel)
 library(forcats)
 library(tidyverse)
 library(patchwork)
-library(gMCPLite)
 library(readxl)
 
 source("scripts/R/helpers/mixed_helpers.R")
@@ -43,10 +41,7 @@ pathogen_data <- read_excel("data/GlobalBGOOD_WP1_Tier1_Scien.xlsx", skip = 1) %
   #        `Cat EFB` = Cat....36,
   #        `Cat AFB` = Cat....38) %>%
   # mutate(across(starts_with("Cat"), ~ na_if(.x, "-")),
-  #        across(starts_with("Cat"), ~ factor(.x, levels = c("L", "M", "H")))) %>%
-  # mutate(nosema_spores = ifelse(`N. spores` == "ND", "0", `N. spores`),
-  #        nosema_spores = ifelse(`N. spores` == '< 25000', "25000" , nosema_spores),
-  #        nosema_spores = as.numeric(nosema_spores))
+  #        across(starts_with("Cat"), ~ factor(.x, levels = c("L", "M", "H"))))
 
 pathogens_Cts <- c("DWV A", "DWV B", "ABPV", "CBPV", "BQCV", "SBV", "EFB",
                    "AFB", "N. apis", "N. ceranae", "DWV A")
@@ -66,10 +61,8 @@ pathogen_ct <- pathogen_data %>%
 countries_with_presence <- list()
 samples_with_presence <- list()
 
-
-#####
-# PREVALENCE PLOT
-
+###### 
+# TEST TIBBLE
 test_tibble_logit <- list()
 for (poi in pathogens_Cts) {
   # poi = "N. ceranae"
@@ -82,22 +75,11 @@ for (poi in pathogens_Cts) {
     mutate(presence = ifelse(Ct < 40, 1, 0), .before = Ct)
 }
 
+#####
+# PREVALENCE PLOT
 
-countries_with_presence$cropland <- list()
-samples_with_presence$cropland <- list()
-for (logit_test in pathogens_Cts) {
-  countries_with_presence$cropland <- test_tibble_logit[[logit_test]] %>%
-    filter(presence > 0 ) %>%
-    distinct(Country) %>%
-    reframe(test = logit_test, countries_with_presence = n()) %>%
-    rbind(countries_with_presence$cropland, .)
-  samples_with_presence$cropland <- test_tibble_logit[[logit_test]] %>%
-    filter(presence > 0 ) %>%
-    reframe(test = logit_test, samples_with_presence = n()) %>%
-    rbind(samples_with_presence$cropland, .)
-}
-
-prevalence_plot <- bind_rows(test_tibble_logit) %>%
+prevalence_plots <- list()
+prevalence_plots$overall <- bind_rows(test_tibble_logit) %>%
   select(pathogen, Bee_pool, Country, presence) %>%
   ggplot(aes(x = reorder(pathogen, -presence, FUN = mean), y = presence)) +
   geom_bar(stat = "summary", fun = mean) +
@@ -111,9 +93,10 @@ prevalence_plot <- bind_rows(test_tibble_logit) %>%
   labs(x = "Pathogen", y = "Prevalence") +
   scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +  # add 10% space at the top
   theme(axis.text.x = element_text(angle = 90, hjust = 1))
-prevalence_plot_facet_countries <- prevalence_plot + facet_wrap(~Country)
 
-prevalence_plot_facet_pathogens <- bind_rows(test_tibble_logit) %>%
+prevalence_plots$country_facet <- prevalence_plots$overall + facet_wrap(~Country)
+
+prevalence_plots$pathogen_facet <- bind_rows(test_tibble_logit) %>%
   select(pathogen, Bee_pool, Country, presence) %>%
   ggplot(aes(x = Country, y = presence)) +
   geom_bar(stat = "summary", fun = mean) +
@@ -128,11 +111,6 @@ prevalence_plot_facet_pathogens <- bind_rows(test_tibble_logit) %>%
   scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +  # add 10% space at the top
   theme(axis.text.x = element_text(angle = 90, hjust = 1)) +
   facet_wrap(~pathogen)
-
-countries_with_presence 
-samples_with_presence
-prevalence_plot
-prevalence_plot_facet_pathogens
 
 ###### 
 # CROPLAND
@@ -351,21 +329,34 @@ all_slopes <- bind_rows(slopes) %>%
                                           p_adjusted <= 0.01 ~ "**",
                                           p_adjusted <= 0.05 ~ "*",
                                           p_adjusted <= 0.075 ~ ".",
-                                          .default = "n.s.")
-  ) %>%
-  mutate(layer = ifelse(Item %in% spec_pests, "spec_pests", "upper_layer"),
-         layer = factor(layer, levels = c("spec_pests", "upper_layer")))
+                                          .default = "n.s."))
+
+#####
+# MAKE PLOTS
+
+# All results
+all_tests_forest_plot <- all_slopes %>%
+  mutate(axis_labels = fct_rev(fct_inorder(test_name))) %>%
+  mutate(estimate = Estimate,
+         error = `Std. Error`) %>%
+  forest_plot(plot_title = "all tests")
 
 #####
 # SAVE FILES
-system("mkdir -p output/R/gene_content/landuse/pathogen_logit_model")
-write_delim(all_slopes, "output/R/gene_content/landuse/pathogen_logit_model/pathogens_logit_model_tibble.tsv",
+system("mkdir -p output/R/genes_pathogens_and_landuse/pathogen_presence_vs_landuse/")
+
+write_delim(bind_rows(coeffs_logit), "output/R/genes_pathogens_and_landuse/pathogen_presence_vs_landuse/pathogen_presence_vs_landuse.all_coeffs.tsv",
             delim = "\t")
-ggsave("output/R/gene_content/landuse/pathogen_logit_model/pathogens_prevalence_total.pdf",
-       prevalence_plot, width = 5, height = 5)
-ggsave("output/R/gene_content/landuse/pathogen_logit_model/pathogens_prevalence_country_facet.pdf",
-       prevalence_plot_facet_countries, width = 10, height = 10)
-ggsave("output/R/gene_content/landuse/pathogen_logit_model/pathogens_prevalence_gene_facet.pdf",
-       prevalence_plot_facet_pathogens, width = 10, height = 8)
+write_delim(all_slopes, "output/R/genes_pathogens_and_landuse/pathogen_presence_vs_landuse/pathogen_presence_vs_landuse.all_slopes.tsv",
+            delim = "\t")
+ggsave("output/R/genes_pathogens_and_landuse/pathogen_presence_vs_landuse/pathogen_presence_vs_landuse.all_tests.pdf",
+       all_tests_forest_plot, height = 25, width  = 12)
+
+ggsave("output/R/genes_pathogens_and_landuse/pathogen_presence_vs_landuse/pathogen_prevalence_country_facet.pdf",
+       prevalence_plots$country_facet, width = 10, height = 10)
+ggsave("output/R/genes_pathogens_and_landuse/pathogen_presence_vs_landuse/pathogen_prevalence_pathogen_facet.pdf",
+       prevalence_plots$pathogen_facet, width = 10, height = 8)
+ggsave("output/R/genes_pathogens_and_landuse/pathogen_presence_vs_landuse/pathogen_prevalence.overall.pdf",
+       prevalence_plots$overall, width = 5, height = 5)
 
 

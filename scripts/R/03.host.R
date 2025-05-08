@@ -1,16 +1,17 @@
 library(tidyverse)
+library(ggtext)
 
 # color_vector <- c("#FFDAB9", "#FFA07A", "#FFC300","#ef8f01", "#D2691E", "#8B4513", "#1C3A3A", "black", "#555555", "lightgrey")
 
-host_pie_colors <- c("Bifidobacterium" = "#FFDAB9",
-                     "Lactobacillus" = "#FFA07A",
-                     "Snodgrassella" = "#FFC300",
-                     "Bombilactobacillus" = "#ef8f01",
-                     "Gilliamella" = "#8B4513",
-                     "Frischella" = "black",
-                     "Commensalibacter" = "#1C3A3A",
-                     "Bartonella" = "#66AFAF",
-                     "Bombella" = "#336B6B",
+host_pie_colors <- c("***Bifidobacterium***" = "#FFDAB9",
+                     "***Lactobacillus***" = "#FFA07A",
+                     "***Snodgrassella***" = "#FFC300",
+                     "***Bombilactobacillus***" = "#ef8f01",
+                     "***Gilliamella***" = "#8B4513",
+                     "*Frischella*" = "#1C3A3A",
+                     "*Commensalibacter*" = "#2A6666",
+                     "*Bartonella*" = "#4CB3B3",
+                     "*Bombella*" = "#338080",
                      "other" = "#555555",
                      "unknown" = "lightgrey")
 
@@ -109,15 +110,16 @@ for (set in c("all", "core", "noncore")) {
   
   genus_order <- host_tibble[[set]] %>%
     filter(!Genus %in% c("other", "unknown")) %>% 
-    
     mutate(core_bacterium = ifelse(Genus %in% c("Gilliamella", "Lactobacillus", "Bifidobacterium", "Bombilactobacillus", "Snodgrassella"), TRUE, FALSE)) %>%
     arrange(core_bacterium) %>%
-    
-    
+    mutate(Genus = ifelse(core_bacterium, paste0("***", Genus, "***"), paste0("*", Genus, "*"))) %>%
     select(Genus) %>%
     unlist(use.names = FALSE)
 
   host_pie[[set]] <- host_tibble[[set]] %>%
+    mutate(Genus = case_when(Genus %in% c("Gilliamella", "Lactobacillus", "Bifidobacterium", "Bombilactobacillus", "Snodgrassella") ~ paste0("***", Genus, "***"),
+                             Genus %in% c("other", "unknown") ~ Genus,
+                             .default = paste0("*", Genus, "*"))) %>%
     mutate(Genus = factor(Genus, levels = c("unknown", "other", genus_order))) %>%
     ggplot(aes(x = "", y = count, fill = Genus)) +
     geom_bar(stat = "identity", color= "black") +
@@ -126,7 +128,9 @@ for (set in c("all", "core", "noncore")) {
     guides(fill = guide_legend(reverse=TRUE)) +
     labs(fill = "Host genus") +
     theme(legend.margin=margin(0,2,0,-20),
-          plot.title = element_text(hjust = 0.5)) +
+          plot.title = element_text(hjust = 0.5),
+          legend.text = element_markdown(),
+          legend.title = element_text(face = "bold")) +
     scale_fill_manual(values = host_pie_colors) +
     ggtitle(set)
 }
@@ -143,7 +147,12 @@ for (pie in names(host_pie)) {
 
 # Written do data/ for convenience to avoid back tracking. So it can be used in the main analysis R script.
 # host_group$all %>%
-#   rename(contig = Virus) %>%
-#   rename(Host_group = Genus) %>%
+#   left_join(., all_hosts$all, by = "Virus") %>%
+#   rename(contig = Virus,
+#          Host_group = Genus.x,
+#          Host_genus = Genus.y) %>%
 #   write_csv("data/host_groups.csv")
- 
+
+
+
+# 

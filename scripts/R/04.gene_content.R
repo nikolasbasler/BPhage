@@ -1,288 +1,513 @@
 library(tidyverse)
 library(ggpubr)
+library(ggtext)
+library(patchwork)
+library(forcats)
+
+source("scripts/R/helpers/mixed_helpers.R")
 
 metadata <- readRDS("output/R/R_variables/metadata.RDS")
 classification <- readRDS("output/R/R_variables/classification.RDS")
 present_in_all_countries <- read_lines("data/core_contigs.txt")
 
-# phold_all_cds_functions <- read.delim("output/annotation/phold_compare_bphage_and_others/phold_all_cds_functions_long_names.tsv.gz")
-phold_per_cds_predictions <- read.delim("output/annotation/phold_compare_bphage_and_others/phold_per_cds_predictions_long_names.tsv.gz")
-extended_phold_per_cds_predictions <- read.delim("output/core_contig_refinement/extended_contigs_phold/phold_per_cds_predictions_long_names.tsv") %>%
+phold_predictions_with_extensions <- read.csv("output/R/gene_content/phold_predictions_with_extensions.csv") %>%
+  tibble() %>%
+  filter(str_starts(contig_id, "NODE")) %>%
+  # These are protein names. Gene names may be more appropriate, but phold seems to refer to "proucts". 
   mutate(
-    contig_id = str_extract(contig_id, paste(rep("([^_]+)", 11), collapse = "_")),
-    cds = sapply(str_split(cds_id, "_"), function(x) paste(tail(x, 2), collapse = "_"))
-  ) %>%
-  mutate(cds_id = paste(contig_id, cds, sep = "_")) %>%
-  select(-cds)
+    product = str_replace_all(product, "levanase", "Levanase"),
+    product = str_replace_all(product, "glutamine amidotransferase", "GATase"),
+    product = str_replace_all(product, "glucosyltransferase", "Glucosyltransferase"),
+    product = str_replace_all(product, "porphyrin biosynthesis", "Porphyrin synthesis protein"),
+    product = str_replace_all(product, "aerobic cobaltochelatase CobT subunit", "CobT"),
+    product = str_replace_all(product, "chitinase", "Chitinase"),
+    product = str_replace_all(product, "dTDP-4-dehydrorhamnose 3", "RmlC"),
+    product = str_replace_all(product, "nicotinamide-nucleotide adenylyltransferase", "NMNAT"),
+    product = str_replace_all(product, "PnuC-like nicotinamide mononucleotide transport", "PnuC"),
+    product = str_replace_all(product, "phosphoadenosine phosphosulfate reductase", "PAPS reductase"),
+    product = str_replace_all(product, "NrdD-like anaerobic ribonucleotide reductase large subunit", "NrdD"),
+    product = str_replace_all(product, "ribosomal protein S6 glutaminyl transferase", "RimK")
+    )
 
-phold_predictions_with_extensions <-  phold_per_cds_predictions %>% 
-  filter(!contig_id %in% unique(extended_phold_per_cds_predictions$contig_id)) %>%
-  bind_rows(., extended_phold_per_cds_predictions) %>% 
-  filter(!str_starts(contig_id, "NODE") | contig_id %in% classification$contig)
+kegg_mapping <- read.delim("data/kegg_mapping.tsv", colClasses = "character") %>%
+  tibble()
 
-### Boxplots with differences between core and non-core genes ####
+kegg_and_phold <- kegg_mapping %>%
+  left_join(., phold_predictions_with_extensions[c("contig_id", "cds_id", "phrog", "function.", "product")], by = "cds_id")
 
-# SOMEHOW MAKE IT SO THAT ONLY BOXES WITH SIGNIFICANT PWCs ARE DRAWN 
-# I hard-coded this now. Automate it.
+phage_tpm <- read.csv("output/R/relative_abundance/phage_tpm.csv") %>%
+  tibble()
 
-# test_metrics <- c("function.", "product", "transl_table")
-# annotation_core_plots <- list()
-# for (metric in test_metrics) {
-#   annotation_core_plots[[metric]] <- phold_predictions_with_extensions %>%
-#     mutate(transl_table = as.character(transl_table)) %>%
-#     filter(str_starts(contig_id, "NODE")) %>%
-#     group_by(contig_id, .data[[metric]]) %>%
-#     count() %>%
-#     ungroup() %>% 
-#     left_join(., classification, by = join_by(contig_id == contig)) %>%
-#     filter(!is.na(Core)) %>%
-#     group_by(Core) %>%
-#     mutate(genes_per_contig_kb = n / length_kb) %>%
-#     mutate(genes_per_genome_kb = n / predicted_genome_length) %>%
-#     ungroup() %>%
-#     select(all_of(metric), genes_per_contig_kb, genes_per_genome_kb, Core) %>%
-#     pivot_longer(-c(all_of(metric), Core)) %>% 
-#     ggplot(aes(x = all_of(metric), y = value, fill = Core)) +
-#     geom_boxplot(aes(x = .data[[metric]], y = value)) +
-#     facet_wrap(~name) +
-#     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-#     labs(title = metric)
-# }
-# annotation_core_plots
-
-# Pairwise comparisons between products doesn't work, probably because there is 
-# variance of 0 between the groups.
-# test_metrics <- c("function.", "product", "transl_table")
-# annotation_core_plots <- list()
-# for (metric in test_metrics) {
-#   plot_tbl <- phold_predictions_with_extensions %>%
-#     mutate(transl_table = as.character(transl_table),
-#            function. = ifelse(function. == "", "unknown function", function.)) %>%
-#     filter(str_starts(contig_id, "NODE")) %>%
-#     group_by(contig_id, .data[[metric]]) %>%
-#     count() %>%
-#     ungroup() %>%
-#     left_join(., classification, by = join_by(contig_id == contig)) %>%
-#     filter(Class == "Caudoviricetes",
-#            completeness >= 90) %>%
-#     group_by(.data[[metric]], Core) %>%
-#     filter(sum(n) > 1) %>%
-#     group_by(.data[[metric]]) %>%
-#     filter(any(Core == "yes") & any(Core == "no")) %>%
-#     ungroup() # %>%
-#     # filter(.data[[metric]] != "hypothetical protein")
-#   
-#   # plot_tbl %>%
-#   #   group_by(.data[[metric]], Core) %>%
-#   #   summarize(variance = var(n), count = n(), .groups = "drop") %>%
-#   #   filter(count < 2 | variance == 0)
-# 
-#    annotation_core_plots[[metric]] <- plot_tbl %>%
-#      ggplot(aes(x = .data[[metric]], y = n, fill = Core)) +
-#      geom_boxplot(aes(x = .data[[metric]], y = n)) +
-#     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-#     labs(title = metric) +
-#      geom_pwc(method="wilcox.test", label="p.adj.signif", hide.ns = TRUE, group.by = "x.var")
-   
-   # if (metric == "product") {
-   #   significant_products <- c("anti-repressor Ant", "baseplate hub", "baseplate spike",
-   #                             "baseplate wedge subunit", "beta-propeller repeat protein",
-   #                             "DefenseFinder protein", "DNA binding protein", "DNA polymerase",
-   #                             "GTP-binding domain", "head decoration",
-   #                             "head maturation protease", "head morphogenesis",
-   #                             "head scaffolding protein", "head-tail adaptor", "holin",
-   #                             "homing endonuclease", "integrase", "lipoprotein", "major head protein",
-   #                             "Mu Gam-like end protection", "nucleotide kinase",
-   #                             "portal protein", "RecT-like ssDNA annealing protein",
-   #                             "replication initiation protein", "RIIB lysis inhibitor",
-   #                             "Rz-like spanin", "single strand DNA binding protein",
-   #                             "structural protein", "tail assembly chaperone",
-   #                             "tail chaperone protein", "tail completion or Neck1 protein",
-   #                             "tail fiber protein", "tail length tape measure protein",
-   #                             "tail protein", "tail sheath", "tail terminator",
-   #                             "terminase large subunit", "terminase small subunit",
-   #                             "transcriptional repressor", "virion structural protein")
-   #   plot_tbl_filt <- plot_tbl %>%
-   #     filter(product %in% significant_products)
-   #   plot_tbl_filt %>% select(product) %>% distinct() %>% unlist(use.names = FALSE) %>% sort()
-   # 
-   #   annotation_core_plots$significant_products <- plot_tbl_filt %>%
-   #     ggplot(aes(x = .data[[metric]], y = n, fill = Core)) +
-   #     # ggplot(aes(x = all_of(metric), y = n)) +
-   #     geom_boxplot(aes(x = .data[[metric]], y = n)) +
-   #     # facet_wrap(~name) +
-   #     theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
-   #     labs(title = metric) +
-   #     geom_pwc(method="wilcox.test", label="p.adj.signif", hide.ns = TRUE, group.by = "x.var")
-# 
-#    }
-# }
-
-
-### Bar chart for core PHROGs ####
-moron_bar_colors <- rev(c("lightgrey", "#ef8f01", "#555555"))
-
-contigs_per_phrog <- phold_predictions_with_extensions %>%
-  filter(contig_id %in% present_in_all_countries) %>%
-  group_by(function.) %>%
-  summarise(number_of_contigs = n_distinct(contig_id)) %>%
-  arrange(desc(number_of_contigs))
+#####
+# PHROG BARS
+# moron_bar_colors <- rev(c("lightgrey", "#E4B3E4", "#555555"))
+moron_bar_colors <- rev(c("lightgrey", "#F9DDF9", "#555555"))
 
 phrog_tibble <- phold_predictions_with_extensions %>%
-  filter(contig_id %in% present_in_all_countries) %>%
+  rename(contig = contig_id) %>%
+  left_join(., classification[c("contig", "Core")], by = "contig") %>%
+  group_by(function., Core) %>%
+  summarise(count = n(), .groups = "drop") %>%
   group_by(function.) %>%
-  summarise(count = n()) %>%
-  mutate(collapsed_cat = "Other PHROG\ncategories") %>%
-  mutate(collapsed_cat = ifelse(function. == "unknown function", "unknown function", collapsed_cat),
-         collapsed_cat = ifelse(function. == "moron, auxiliary metabolic gene and host takeover", '"moron", AMG\nand host takeover', collapsed_cat)
-  ) %>%
+  mutate(count_all = sum(count)) %>%
+  ungroup() %>%
+  filter(Core == "yes") %>%
+  select(-Core) %>%
+  rename(count_core = count) %>%
+  mutate(collapsed_cat = case_when(function. == "unknown function" ~"unknown function",
+                                   function. == "moron, auxiliary metabolic gene and host takeover" ~ '"moron", AMG\nand host takeover',
+                                   .default = "other PHROG\ncategories"
+                                   )) %>%
   group_by(collapsed_cat) %>%
-  summarise(gene_count = sum(count)) %>%
-  mutate(collapsed_cat = factor(collapsed_cat, levels = c("Other PHROG\ncategories", '"moron", AMG\nand host takeover', "unknown function")))
+  summarise(core = sum(count_core),
+            all = sum(count_all)) %>%
+  mutate(collapsed_cat = factor(collapsed_cat, levels = c("other PHROG\ncategories", '"moron", AMG\nand host takeover', "unknown function")))
 
-phrog_bar <- phrog_tibble %>%
-  ggplot(aes(x = "", y = gene_count, fill = collapsed_cat)) +
-  geom_bar(stat = "identity", color = "black") +
+phrog_bar_vertical <- list()
+phrog_bar_vertical$both <- phrog_tibble %>%
+  pivot_longer(-collapsed_cat) %>%
+  mutate(name = factor(name, levels = c("core", "all"))) %>%
+  ggplot(aes(x = name, y = value, fill = collapsed_cat)) +
+  geom_col() +
   theme_void() +
   theme(
-    legend.text = element_text(hjust = 1),
-    legend.margin=margin(0,20,10,0)) +
+    axis.text.x  = element_text(vjust = 5),
+    legend.margin=margin(0,0,0,10),
+    legend.position = "left",
+    legend.key.spacing.y = unit(3, "pt") 
+    ) +
   scale_fill_manual(values = moron_bar_colors) +
   labs(fill = "PHROG category") +
-  theme(legend.spacing.x = unit(0.25, 'cm')) +
-  guides(fill = guide_legend(byrow = TRUE))
+  guides(fill = guide_legend(label.position = "left"))
 
-phrog_bar_horizontal <- phrog_bar + 
-  coord_flip() +
-  theme(legend.position = "top",
-        legend.text = element_text(hjust = 0)) +
-  guides(fill = guide_legend(reverse=T))
+for (set in c("all", "core")) {
+  # phrog_bar_vertical[[set]] <- phrog_tibble %>%
+  #   pivot_longer(-collapsed_cat) %>%
+  #   filter(name == set) %>%
+  #   ggplot(aes(x = name, y = value, fill = collapsed_cat)) +
+  #   geom_col(position = "fill") +
+  #   theme_void() +
+  #   theme(
+  #     legend.position = "bottom",
+  #     plot.margin = margin(r = 5, l = 5, t = 5, b = 5),
+  #     legend.title = element_text(face = "bold")
+  #   ) +
+  #   scale_fill_manual(values = moron_bar_colors) +
+  #   labs(fill = "PHROG category") +
+  #   guides(fill = guide_legend(byrow = TRUE, reverse = TRUE))
+  
+  phrog_bar_vertical[[set]] <- phrog_tibble %>%
+    pivot_longer(-collapsed_cat) %>%
+    filter(name == set) %>%
+    ggplot(aes(
+      x    = name,
+      y    = value,
+      fill = collapsed_cat
+    )) +
+    geom_col(position = "fill") +
+    scale_fill_manual(values = moron_bar_colors) +
+    theme_void() +
+    theme(
+      legend.position = "none",
+      plot.margin = margin(5, 5, 5, 5, "pt")
+    )
+}
 
-moron_with_groups <- phold_predictions_with_extensions %>%
-  filter(contig_id %in% present_in_all_countries) %>%
-  filter(function. == "moron, auxiliary metabolic gene and host takeover") %>% 
-  # group_by(product) %>%
-  # summarise(count = n()) %>%
-  # arrange(desc(count)) %>%
-  mutate(group = NA) %>%
-  mutate(group = ifelse(product == "membrane protein" |
-                          product == "PAAR motif of membran proteins" |
-                          product == "ABC transporter" |
-                          product == "membrane associated protein",
-                        "Membrane protein", group),
-         group = ifelse(product == "phosphoadenosine phosphosulfate reductase", "Sulfur metabolism", group),
-         group = ifelse(product == "gam-like host nuclease inhibitor" |
-                          product == "anti-restriction protein" |
-                          product == "anti-CRISPR protein" |
-                          product == "host nuclease inhibitor" |
-                          product == "DarB-like antirestriction" |
-                          product == "Lar-like restriction alleviation protein" |
-                          product == "anti-sigma factor",
-                        "Host takeover", group),
-         group = ifelse(product == "Doc-like toxin"|
-                          product == "MazF-like growth inhibitor" |
-                          product == "toxin" |
-                          product == "toxin-antitoxin system HicB-like" |
-                          product == "RelE-like toxin" |
-                          product == "plasmid antitoxin with HTH domain" |
-                          product == "ribonuclease toxin of AT system",
-                        "Toxin-antitoxin system", group),
-         group = ifelse(product == "abortive infection resistance protein" |
-                          product == "superinfection exclusion" |
-                          product == "SieB superinfection exclusion" |
-                          product == "DefenseFinder protein" |
-                          product == "superinfection exclusion Sie-like",
-                        "Superinfection exclusion", group),
-         group = ifelse(product == "beta-lactamase-inhibitor protein BLIP" |
-                          product == "tellurite resistance",
-                        "Antibiotic resistance", group),
-         group = ifelse(product == "queuine tRNA-ribosyltransferase" |
-                          product == "levanase" |
-                          product == "PnuC-like nicotinamide mononucleotide transport" |
-                          product == "VFDB virulence factor protein",
-                        "other", group)
+phrog_bar_horizontal <- list()
+for(set in names(phrog_bar_vertical)) {
+  phrog_bar_horizontal[[set]] <- phrog_bar_vertical[[set]] + 
+    coord_flip() +
+    theme(legend.position = "top",
+          legend.text = element_text(hjust = 0),
+          plot.margin = margin(t = 20, unit = "pt"),
+          axis.text.y  = element_text()
+          ) +
+    guides(fill = guide_legend(reverse=T))
+}
+
+#####
+# KEGG BAR
+
+CDSs_with_metabolism_kegg <- kegg_and_phold %>%
+  filter(Pathway_category == "Metabolism" | 
+           product %in% c("Chitinase", "GATase", "PnuC")) %>%
+  filter(!product %in% c("decoy of host sigma70", "MazF-like growth inhibitor",
+                         "toxin", "VFDB virulence factor protein")) %>%
+  filter(!str_detect(product, "Que")) %>% # This will remove 3 genes. All of them are only present in one sample (the same one for all 3)
+  distinct(cds_id) %>% 
+  unlist(use.names = FALSE)
+
+genes_with_kegg <- phold_predictions_with_extensions %>% 
+  filter(cds_id %in% CDSs_with_metabolism_kegg) %>% 
+  distinct(product) %>%
+  unlist(use.names = FALSE)
+
+kegg_tibble <- phold_predictions_with_extensions %>%
+  filter(product %in% genes_with_kegg) %>%
+  reframe(placeholder = "placeholder",
+          `Mapped metabol. gene` = length(CDSs_with_metabolism_kegg),
+          `other mapped` = n_distinct(kegg_mapping$cds_id) - `Mapped metabol. gene`,
+          `Unmapped metabol. gene` = n_distinct(cds_id) - `Mapped metabol. gene`,
+          `other unmapped` = phold_predictions_with_extensions %>% 
+            filter(function. == "moron, auxiliary metabolic gene and host takeover") %>% 
+            n_distinct("cds_id") - sum(`Mapped metabol. gene`, `other mapped`, `Unmapped metabol. gene`)
+          ) %>%
+  pivot_longer(-placeholder, names_to = "mapping", values_to = "gene_count") %>%
+  select(-placeholder) %>%
+  mutate(mapping_label = paste0(mapping, " (", gene_count, ")")) %>%
+  mutate(mapping = factor(mapping, levels = c("Unmapped metabol. gene", "Mapped metabol. gene", "other mapped", "other unmapped"))) %>%
+  arrange(mapping)
+# 
+# kegg_or_not_kegg <- phold_predictions_with_extensions %>%
+#   mutate(kegg_mapping = ifelse(product %in% genes_with_kegg, TRUE, FALSE),
+#          is_moron = ifelse(function. == "moron, auxiliary metabolic gene and host takeover", TRUE, FALSE)) %>%
+#   reframe(mapped_to_kegg = c("No", "Yes"),
+#             gene_count = c(sum(is_moron) - sum(kegg_mapping), sum(kegg_mapping))) # %>%
+#   # mutate(mapped_to_kegg = paste0(mapped_to_kegg, " (", gene_count, ")"))
+
+kegg_bar <- kegg_tibble %>%
+  mutate(mapping_label = factor(mapping_label, levels = kegg_tibble$mapping_label)) %>%
+  ggplot(aes(x = 1, y = gene_count, fill = mapping_label)) +
+  geom_col(position = "fill") +
+  scale_fill_manual(values = c("#DDA0DD", "#DA70D6", "#555555", "lightgrey")) +
+  theme_void() +
+  theme(
+    legend.position = "none",
+    plot.margin = margin(c(5,5,5,5), unit = "pt"),
+    # legend.position = "bottom",
+    # legend.title = element_text(face = "bold")
+  ) # +
+  # guides(fill = guide_legend(title = "KEGG mapping_label",
+  #                            label.position = "left",
+  #                            reverse = TRUE))
+
+# c("lightgrey", "#555555", "#9B59B6", "#DA70D6")
+# "#DDA0DD"
+# 
+# kegg_bar <- kegg_or_not_kegg %>%
+#   mutate(mapped_to_kegg = factor(mapped_to_kegg, levels = kegg_or_not_kegg$mapped_to_kegg)) %>%
+#   ggplot(aes(x = 1, y = gene_count, fill = mapped_to_kegg)) +
+#   geom_col(position = "fill") +
+#   scale_fill_manual(values = c("#555555", "#DA70D6")) +
+#   theme_void() +
+#   theme(
+#     plot.margin = margin(r = 5, l = 5, b = 5, t = 5, unit = "pt"),
+#     legend.position = "bottom",
+#     legend.title = element_text(face = "bold")
+#   ) +
+#   guides(fill = guide_legend(title = "Mapped to KEGG",
+#                              label.position = "left",
+#                              reverse = TRUE))
+# 
+
+
+#####
+# MORON BAR
+
+genes_of_interest <- c("Chitinase",
+                       "Glucosyltransferase",
+                       "Levanase",
+                       "PAPS reductase", 
+                       "PnuC")
+
+# The 64 sulf genes occur on 60 diffferent genomes. All other genes only appear once on each genome
+metabolism_tibble <- phold_predictions_with_extensions %>%
+  filter(product %in% genes_with_kegg) %>%
+  count(product, name = "gene_count") %>%
+  arrange(desc(gene_count)) %>%
+  mutate(asterisk = ifelse(product %in% genes_of_interest, "*", ""),
+         product_label = paste0(asterisk, asterisk, product, " (", gene_count, ")", asterisk, asterisk)) %>%
+  select(-asterisk)
+
+gene_colors <- rev(c("PAPS reductase" = "#ef8f01", 
+                     "Chitinase" = "#8B4513",
+                     "Glucosyltransferase" = "#FFC300", 
+                     "Levanase" = "#FFA07A", 
+                     "RimK" = "#66CCCC", 
+                     "PnuC" = "#FFDAB9",
+                     "GATase" = "#4CB3B3",
+                     "RmlC" = "#338080",
+                     "NrdD" = "#2A6666",
+                     "CobT" = "#235050",
+                     "NMNAT" = "#1C3A3A",
+                     "Porphyrin synthesis protein" = "#162E2E"))
+
+goi_bar <- metabolism_tibble %>%
+  mutate(product_label = factor(product_label, levels = rev(metabolism_tibble$product_label)),
+         product = factor(product, levels = rev(metabolism_tibble$product))) %>%
+  ggplot(aes(x = 1, y = gene_count, fill = product)) +
+  geom_col(position = "fill") +
+  theme_void() +
+  theme(
+    legend.position = "none",
+    # legend.text = element_markdown(),
+    plot.margin = margin(c(5,5,5,5), unit = "pt"),
+    # legend.title = element_text(face = "bold")
+    ) +
+  # guides(fill = guide_legend(title = "Gene product")) +
+  scale_fill_manual(values = gene_colors,
+                    labels = setNames(as.character(metabolism_tibble$product_label),
+                                      metabolism_tibble$product)
   )
 
-contigs_with_TA <- moron_with_groups %>%
-  filter(group == "Toxin-antitoxin system") %>%
-  group_by(contig_id) %>%
-  summarise(TA_per_contig = n()) %>%
-  left_join(., classification, by = join_by(contig_id == contig)) %>%
-  select(contig_id, TA_per_contig, length_kb, lowest_taxon, completeness, Host_group) %>%
-  arrange(desc(TA_per_contig))
+#####
+# GENE PREVALENCE
 
-moron_grouping <- moron_with_groups %>%
-  select(product, group) %>%
-  group_by(product) %>%
-  mutate(count = n()) %>%
-  arrange(desc(count)) %>%
-  distinct()
+grene_presence_on_contigs <- phold_predictions_with_extensions %>%
+  filter(product %in% metabolism_tibble$product) %>%
+  rename(contig = contig_id) %>%
+  select(contig, product) %>%
+  mutate(present = 1) %>%
+  distinct() %>%
+  pivot_wider(names_from = product, values_from = present, values_fill = 0)
 
-moron_tibble <- moron_grouping %>%
-  group_by(group) %>%
-  summarise(group_count = sum(count)) %>%
-  arrange(group_count) %>%
-  mutate(group = factor(group, levels = c("other", "Antibiotic resistance", "Sulfur metabolism", 
-                                              "Toxin-antitoxin system", "Host takeover", 
-                                              "Membrane protein","Superinfection exclusion")))
+gene_presence_in_samples <- grene_presence_on_contigs %>%
+  pivot_longer(-contig, names_to = "gene", values_to = "present") %>%
+  left_join(., phage_tpm, by = "contig") %>%
+  mutate(across(-c(contig, gene, present), ~ .x * present)) %>%
+  select(-present) %>%
+  pivot_longer(-c(contig, gene), names_to = "Sample_ID", values_to = "tpm") %>%
+  group_by(gene, Sample_ID) %>%
+  mutate(presence = ifelse(sum(tpm) > 0 , 1, 0)) %>%
+  ungroup() %>%
+  select(-c(contig, tpm)) %>%
+  distinct() %>%
+  left_join(., metadata[c("Sample_ID", "Country")], by = "Sample_ID") %>%
+  group_by(gene) %>%
+  ungroup() %>%
+  mutate(gene = fct_reorder(gene, presence, .fun = mean, .desc = TRUE))
 
-genes_in_core <- phold_predictions_with_extensions %>%
-  filter(contig_id %in% present_in_all_countries) %>%
-  group_by(product, function.) %>%
-  summarise(gene_count = n(), .groups = "drop") %>%
-  arrange(desc(gene_count))
-all_bphage_genes <- phold_predictions_with_extensions %>%
-  filter(str_starts(contig_id, "NODE")) %>%
-  group_by(product, function.) %>%
-  summarise(gene_count = n(), .groups = "drop") %>%
-  arrange(desc(gene_count))
-all_bphage_morons <- phold_predictions_with_extensions %>%
-  filter(str_starts(contig_id, "NODE")) %>%
-  filter(function. == "moron, auxiliary metabolic gene and host takeover") %>%
-  group_by(product) %>%
-  summarise(gene_count = n(), .groups = "drop") %>%
-  arrange(desc(gene_count))
-
-### Pie chart for core morons ####
-moron_pie_colors <- c("#555555", "#FFDAB9", "#FFA07A", "#FFC300", "#D2691E", "#8B4513", "#5E280C")
-moron_pie <- 
-  moron_tibble %>%
-  ggplot(aes(x = "", y = group_count, fill = group)) +
-  geom_bar(stat = "identity", color= "black") +
-  coord_polar("y") +
+prevalence_plot <- list()
+prevalence_plot$overall <- gene_presence_in_samples %>%
+  ggplot(aes(x = reorder(gene, -presence, FUN = mean), y = presence, fill = gene)) +
+  geom_bar(stat = "summary", fun = mean) +
+  geom_text(
+    stat = "summary",
+    fun = mean,
+    aes(label = paste0(round(after_stat(y*100)), "%")),
+    vjust = -0.5,
+  ) +  
+  labs(x = "Gene", y = "Prevalence") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
+  scale_fill_manual(values = gene_colors) +
   theme_void() +
-  guides(fill = guide_legend(reverse=TRUE)) +
-  labs(fill = 'Protein group') +
-  theme(legend.margin=margin(0,2,0,-20)) +
-  scale_fill_manual(values = moron_pie_colors)
+  theme(
+    plot.margin = margin(r = 5, l = 5, t = 5, b = 5, unit = "pt"),
+    axis.text.x = element_text(angle = 90, hjust = 1, margin = margin(t = 5)),
+    legend.title = element_text(face = "bold")
+  ) 
 
-### Save files ####
-system("mkdir -p output/R/gene_content")
-# for (plot in names(annotation_core_plots)) {
-#   wid <- 12
-#   hig <- 8
-#   if (plot == "product") {
-#     wid <- 50
-#     hig <- 10
-#   }
-#   ggsave(paste0("output/R/gene_content/gene_content.", plot, ".pdf"),
-#          annotation_core_plots[[plot]], width = wid, height = hig, limitsize = FALSE)
-# }
+prevalence_plot$country_facet <- prevalence_plot$overall + 
+  facet_wrap(~Country) +
+  theme_grey() +
+  theme(
+    axis.text.x = element_text(angle = 90, hjust = 1)
+  ) 
+prevalence_plot$gene_facet <- prevalence_plot$overall + 
+  aes(x = Country, y = presence, fill = gene) + facet_wrap(~gene) +
+  theme_grey()
 
-write_csv(phold_predictions_with_extensions, "output/R/gene_content/phold_predictions_with_extensions.csv")
+#####
+# Hosts
 
-ggsave("output/R/gene_content/core_phrog_bar.pdf",
-       phrog_bar, width = 2.5, height = 6)
-ggsave("output/R/gene_content/core_phrog_bar_horiziontal.pdf",
-       phrog_bar_horizontal, width = 5.5, height = 1)
-write_csv(phrog_tibble, "output/R/gene_content/core_phrog_bar.csv")
-write_csv(contigs_per_phrog, "output/R/gene_content/core_contigs_per_phrog.csv")
+host_pie_colors <- c("***Bifidobacterium***" = "#FFDAB9",
+                     "***Lactobacillus***" = "#FFA07A",
+                     "***Snodgrassella***" = "#FFC300",
+                     "***Bombilactobacillus***" = "#ef8f01",
+                     "***Gilliamella***" = "#8B4513",
+                     "*Frischella*" = "#1C3A3A",
+                     "*Commensalibacter*" = "#2A6666",
+                     "*Bartonella*" = "#4CB3B3",
+                     "*Bombella*" = "#338080",
+                     "other" = "#555555",
+                     "unknown" = "lightgrey")
 
-ggsave("output/R/gene_content/core_moron_pie.pdf",
-       moron_pie,  width = 4.5, height = 4.5)
-write_csv(moron_grouping, "output/R/gene_content/core_moron_pie.csv")
-write_csv(contigs_with_TA, "output/R/gene_content/core_TA_contigs.csv")
-write_csv(genes_in_core, "output/R/gene_content/core_all_products.csv")
-write_csv(all_bphage_genes, "output/R/gene_content/all_products.csv")
-write_csv(all_bphage_morons, "output/R/gene_content/all_moron_products.csv")
+hosts_of_genes_tibble <- grene_presence_on_contigs %>%
+  pivot_longer(-contig, names_to = "gene") %>%
+  filter(value > 0) %>%
+  left_join(., classification[c("contig", "Host_group")], by = "contig") %>%
+  group_by(gene, Host_group) %>%
+  reframe(host_count = n()) %>%
+  arrange(gene) %>%
+  mutate()
 
+hosts_of_genes_plot_all_genes <- hosts_of_genes_tibble %>%
+  mutate(gene = factor(gene, levels = c("PAPS reductase", "Chitinase", "Glucosyltransferase", "Levanase", "PnuC",
+                                        "RimK", "GATase", "RmlC", "NrdD", "CobT", "NMNAT", "Porphyrin synthesis protein")),
+         Host_group = case_when(Host_group %in% c("Gilliamella", "Lactobacillus", "Bifidobacterium", "Bombilactobacillus", "Snodgrassella") ~ paste0("***", Host_group, "***"),
+                                Host_group %in% c("other", "unknown") ~ Host_group,
+                                .default = paste0("*", Host_group, "*")),
+         Host_group = factor(Host_group, levels = rev(c("unknown", "other", "***Gilliamella***", "***Snodgrassella***", "*Bombella*", "*Bartonella*", "*Frischella*")))
+         ) %>%
+  ggplot(aes(x = gene, y = host_count, fill = Host_group)) +
+  geom_col() +
+  scale_fill_manual(values = host_pie_colors) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1),
+        legend.text = element_markdown()) +
+  labs(x = "Metabolic gene", y = "Host genus count")
+
+hosts_of_genes_plot_goi <- hosts_of_genes_tibble %>%
+  filter(gene %in% genes_of_interest) %>%
+  mutate(gene = factor(gene, levels = c("PAPS reductase", "Chitinase", "Glucosyltransferase", "Levanase", "PnuC",
+                                        "RimK", "GATase", "RmlC", "NrdD", "CobT", "NMNAT", "Porphyrin synthesis protein")),
+         Host_group = case_when(Host_group %in% c("Gilliamella", "Lactobacillus", "Bifidobacterium", "Bombilactobacillus", "Snodgrassella") ~ paste0("***", Host_group, "***"),
+                                Host_group %in% c("other", "unknown") ~ Host_group,
+                                .default = paste0("*", Host_group, "*")),
+         Host_group = factor(Host_group, levels = rev(c("unknown", "other", "*Bombella*", "*Bartonella*", "*Frischella*", "***Gilliamella***", "***Snodgrassella***")))) %>%
+  rename(`Host genus` = Host_group) %>%
+  ggplot(aes(x = gene, y = host_count, fill = `Host genus`)) +
+  geom_col() +
+  scale_fill_manual(values = host_pie_colors) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle=35, vjust=1.1, hjust=1, size = 11),
+        plot.margin = margin(c(5,5,5,5), unit = "pt"),
+        legend.title = element_text(face = "bold"),
+        axis.title.x = element_blank(),
+        axis.title.y = element_text(face = "bold"),
+        legend.text = element_markdown()
+  ) +
+  labs(x = "Metabolic gene", y = "Genome count")
+hosts_of_genes_plot_goi
+  
+  
+#####
+# Disassemble for making pretty figure
+
+legend_gg <- list()
+
+# PREVALENCE
+# Remove geom_text
+p <- prevalence_plot$overall
+p$layers <- Filter(function(l) !inherits(l$geom, "GeomText"), p$layers)
+
+prev_plot <- p + 
+  theme(legend.position = "none",
+        axis.text.x = element_blank(),
+        plot.margin = margin(c(5,5,5,5), unit = "pt")
+  ) +
+  coord_flip() +
+  scale_y_reverse(expand = expansion(mult = c(0.1, 0))) +
+  geom_text(
+    stat = "summary",
+    fun = mean,
+    aes(label = paste0(round(after_stat(y*100)), "%")),
+    vjust = 0.5,
+    hjust = 1.2,
+    size = 5
+  )
+
+# PHROG
+phrog_with_legend <- phrog_bar_vertical$all +
+  guides(
+    fill = guide_legend(
+      title            = "PHROG category",
+      title.theme      = element_text(face = "bold"),
+      nrow             = 1,
+      byrow            = TRUE,
+      reverse          = TRUE,
+      direction        = "horizontal"
+    )
+  ) +
+  theme(
+    legend.position = "bottom"
+  )
+legend_gg$phrog <- extract_legend(phrog_with_legend)
+
+# KEGG
+kegg_with_legend <- kegg_bar +
+  guides(
+    fill = guide_legend(
+      title            = "KEGG mapping",
+      title.theme      = element_text(face = "bold"),
+      nrow             = 2,
+      byrow            = TRUE,
+      reverse          = TRUE,
+      direction        = "horizontal"
+    )
+  ) +
+  theme(
+    legend.position = "bottom"
+  )
+legend_gg$kegg <- extract_legend(kegg_with_legend)
+
+# GOI
+goi_with_legend <- goi_bar +
+  guides(
+    fill = guide_legend(
+      title            = "Gene product",
+      title.theme      = element_text(face = "bold"),
+    )
+  ) +
+  theme(
+    legend.position = "right",
+    legend.text = element_markdown(),
+  )
+legend_gg$goi <- extract_legend(goi_with_legend)
+
+
+# 
+# legend_phrog <- extract_legend(phrog_bar_vertical$all)
+# legend_kegg <- extract_legend(kegg_bar)
+# # legend_goi <- extract_legend(goi_bar)
+# 
+# pure_phrog <- phrog_bar_vertical$all + theme(legend.position = "none")
+# pure_kegg <- kegg_bar + theme(legend.position = "none")
+# # pure_goi <- goi_bar + theme(legend.position = "none")
+# 
+# bar_patch <- pure_phrog + plot_spacer() + pure_kegg + plot_spacer() + goi_bar + plot_spacer() + prev_plot + plot_layout(nrow = 1, widths = c(1.2, 0.5, 1, 0.5, 1, 0.1, 3) )
+# legends_plot <- legend_phrog / legend_kegg
+
+# #####
+# SAVE FILES
+
+
+write_delim(phold_predictions_with_extensions, 
+            "output/R/gene_content/phold_predictions_with_extensions_bphage_renamed_genes.tsv",
+            delim = "\t")
+
+system("mkdir -p output/R/genes_pathogens_and_landuse/phrog_and_kegg")
+
+ggsave("output/R/genes_pathogens_and_landuse/gene_prevalence.overall.pdf",
+       prevalence_plot$overall, height = 8, width = 8)
+ggsave("output/R/genes_pathogens_and_landuse/gene_prevalence.country_facet.pdf",
+       prevalence_plot$country_facet, height = 10, width = 16)
+ggsave("output/R/genes_pathogens_and_landuse/gene_prevalence.gene_facet.pdf",
+       prevalence_plot$gene_facet, height = 10, width = 18.5)
+
+for (set in names(phrog_bar_vertical)) {
+  ggsave(paste0("output/R/genes_pathogens_and_landuse/phrog_and_kegg/phrog_bar.vertical.", set, ".pdf"),
+         # phrog_bar_vertical[[set]], height = 5.85, width = 1.75)
+         phrog_bar_vertical[[set]], height = 5.85, width = 0.875)
+  ggsave(paste0("output/R/genes_pathogens_and_landuse/phrog_and_kegg/phrog_bar.horizontal.", set, ".pdf"),
+         phrog_bar_horizontal[[set]], height = 3, width = 6)
+}
+
+ggsave("output/R/genes_pathogens_and_landuse/phrog_and_kegg/kegg_bar.pdf",
+       # kegg_bar, height = 5.85, width = 1.5)
+       kegg_bar, height = 5.85, width = 0.75)
+ggsave("output/R/genes_pathogens_and_landuse/phrog_and_kegg/goi_bar.pdf",
+       # goi_bar, height = 5.85, width = 1.5)
+       goi_bar, height = 5.85, width = 0.75)
+
+ggsave("output/R/genes_pathogens_and_landuse/phrog_and_kegg/gene_prevalence.overall.nolegend.pdf",
+       prev_plot, height = 5.85, width = 4)
+
+
+for (legend in names(legend_gg)) {
+  ggsave(paste0("output/R/genes_pathogens_and_landuse/phrog_and_kegg/legend.", legend, ".pdf"),
+         legend_gg[[legend]], height = 6, width = 6)
+}
+
+write_delim(hosts_of_genes_tibble, "output/R/genes_pathogens_and_landuse/hosts_of_genes.tsv",
+            delim = "\t")
+
+ggsave("output/R/genes_pathogens_and_landuse/hosts_of_genes_all.pdf", hosts_of_genes_plot_all_genes,
+       width = 8, height = 6)
+ggsave("output/R/genes_pathogens_and_landuse/hosts_of_genes_goi.pdf", hosts_of_genes_plot_goi,
+       width = 6, height = 5.2)
+
+# ggsave("output/R/genes_pathogens_and_landuse/phrog_and_kegg_patch.pdf",
+#        bar_patch, height = 6, width = 13.5)
+# ggsave("output/R/genes_pathogens_and_landuse/phrog_and_kegg_legends.pdf",
+#        legends_plot, height = 3, width = 6)

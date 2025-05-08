@@ -1,14 +1,10 @@
 library(lme4)
 library(lmerTest)
-library(DHARMa)
 library(ggrepel)
 library(forcats)
 library(tidyverse)
 library(patchwork)
-library(gMCPLite)
-library(readxl)
 library(tidytext)
-
 
 source("scripts/R/helpers/mixed_helpers.R")
 
@@ -35,9 +31,7 @@ classification <- readRDS("output/R/R_variables/classification.RDS")
 phage_tpm <- read.csv("output/R/relative_abundance/phage_tpm.csv") %>%
   tibble()
 
-phold_predictions_with_extensions <- read.csv("output/R/gene_content/phold_predictions_with_extensions.csv") %>%
-  tibble() %>%
-  filter(str_starts(contig_id, "NODE"))
+phold_predictions_with_extensions <- read.delim("output/R/gene_content/phold_predictions_with_extensions_bphage_renamed_genes.tsv")
 
 kegg_mapping <- read.delim("data/kegg_mapping.tsv", colClasses = "character") %>%
   tibble()
@@ -47,8 +41,7 @@ kegg_and_phold <- kegg_mapping %>%
 
 CDSs_with_metabolism_kegg <- kegg_and_phold %>%
   filter(Pathway_category == "Metabolism" | 
-           product %in% c("chitinase", "glutamine amidotransferase", 
-                          "PnuC-like nicotinamide mononucleotide transport")) %>%
+           product %in% c("Chitinase", "GATase", "PnuC")) %>%
   filter(!product %in% c("decoy of host sigma70", "MazF-like growth inhibitor",
                          "toxin", "VFDB virulence factor protein")) %>%
   filter(!str_detect(product, "Que")) %>% # This will remove 3 genes. All of them are only present in one sample (the same one for all 3)
@@ -80,20 +73,19 @@ gene_tpm <- grene_presence_on_contigs %>%
   select(-contig) %>%
   distinct()
 
-# genes_of_interest <- unique(gene_tpm$gene)
-genes_of_interest <- c("chitinase",
-                       "glucosyltransferase",
-                       "levanase",
-                       "phosphoadenosine phosphosulfate reductase", 
-                       "PnuC-like nicotinamide mononucleotide transport"
-                       )
+genes_of_interest <- c("Chitinase",
+                       "Glucosyltransferase",
+                       "Levanase",
+                       "PAPS reductase", 
+                       "PnuC")
+
 coeffs_tpm_simple <- list()
-countries_left <- list()
+
+model_tpm <- list()
 
 #####
 # CROPLAND
 test_tibble_log_tpm <- list()
-model_tpm_simple_cropland <- list()
 coeffs_tpm_simple$cropland <- tibble()
 for (goi in genes_of_interest) {
     
@@ -106,11 +98,11 @@ for (goi in genes_of_interest) {
     mutate(log_tpm = log10(tpm)) %>%
     filter(!is.infinite(log_tpm))
   
-  model_tpm_simple_cropland[[goi]] <- lmer(log_tpm ~ Cropland_in_2km_radius + Gut_part + Season +
+  model_tpm$Cropland_in_2km_radius[[goi]] <- lmer(log_tpm ~ Cropland_in_2km_radius + Gut_part + Season +
                                                (1 | Hive_ID ), data = test_tibble_log_tpm[[goi]])
     
   has_convergence_issues <- FALSE
-  messages <- model_tpm_simple_cropland[[goi]]@optinfo$conv$lme4$messages
+  messages <- model_tpm$Cropland_in_2km_radius[[goi]]@optinfo$conv$lme4$messages
   if (is.null(messages)) {
     has_convergence_issues <- FALSE
     } else {
@@ -118,68 +110,50 @@ for (goi in genes_of_interest) {
     }
   if (has_convergence_issues) {
     print(paste0(goi, " - Simple model didn't converge. Removed from the list."))
-    model_tpm_simple_cropland[[goi]] <- NULL
+    model_tpm$Cropland_in_2km_radius[[goi]] <- NULL
     
     } else {
-      coeffs_tpm_simple$cropland <- summary(model_tpm_simple_cropland[[goi]])$coefficients %>%
+      coeffs_tpm_simple$cropland <- summary(model_tpm$Cropland_in_2km_radius[[goi]])$coefficients %>%
         as.data.frame() %>%
         rownames_to_column("metric") %>%
         tibble() %>%
         mutate(gene = goi, .before = metric) %>%
         mutate(Item = metric, .before = metric) %>%
-        mutate(singular = ifelse(isSingular(model_tpm_simple_cropland[[goi]]), TRUE, FALSE)) %>%
+        mutate(singular = ifelse(isSingular(model_tpm$Cropland_in_2km_radius[[goi]]), TRUE, FALSE)) %>%
         rbind(coeffs_tpm_simple$cropland)
     }
   }
 
-# genes_of_particular_interest <- names(model_tpm_simple_cropland)
-
-countries_left$tpm_simple_model <- tibble()
-for (tpm_test in genes_of_interest) {
-  countries_left$tpm_simple_model <- test_tibble_log_tpm[[tpm_test]] %>%
-    distinct(Country) %>%
-    reframe(test = tpm_test, countries_left = n()) %>%
-    rbind(countries_left$tpm_simple_model, .)
-}
-
-# summary(model_tpm_simple_cropland$`phosphoadenosine phosphosulfate reductase`)
-# summary(model_tpm_simple_cropland$levanase)
-# summary(model_tpm_simple_cropland$glucosyltransferase)
-# summary(model_tpm_simple_cropland$chitinase)
-# summary(model_tpm_simple_cropland$`PnuC-like nicotinamide mononucleotide transport`)
-
 ##### 
 # PESTICIDES:
 
-model_tpm_simple_total_pest <- list()
 coeffs_tpm_simple$total_pest <- tibble()
-# for (gopi in genes_of_particular_interest) {
-for (gopi in genes_of_interest) {
-  temp_test_tibble <- test_tibble_log_tpm[[gopi]] %>% 
+for (goi in genes_of_interest) {
+  temp_test_tibble <- test_tibble_log_tpm[[goi]] %>% 
     rename(est_use_in_2k_radius = "Pesticides (total)")
-  model_tpm_simple_total_pest[[gopi]][["Pesticides (total)"]] <- lmer(log_tpm ~ est_use_in_2k_radius + Gut_part + Season +
+  model_tpm$`Pesticides (total)`[[goi]] <- lmer(log_tpm ~ est_use_in_2k_radius + Gut_part + Season +
                                                      (1 | Hive_ID ), data = temp_test_tibble)
   
   has_convergence_issues <- FALSE
-  messages <- model_tpm_simple_total_pest[[gopi]][["Pesticides (total)"]]@optinfo$conv$lme4$messages
+  messages <- model_tpm$`Pesticides (total)`[[goi]]@optinfo$conv$lme4$messages
   if (is.null(messages)) {
     has_convergence_issues <- FALSE
   } else {
     has_convergence_issues <- length(messages[!grepl("singular", messages, ignore.case = TRUE)]) != 0
   }
   if (has_convergence_issues) {
-    print(paste0(gopi, " - Simple model didn't converge. Removed from the list."))
-    model_tpm_simple_total_pest[[gopi]] <- NULL
+    print(paste0(goi, " - Simple model didn't converge. Removed from the list."))
+    model_tpm$`Pesticides (total)`[[goi]] <- NULL
     
   } else {
-    coeffs_tpm_simple$total_pest <- summary(model_tpm_simple_total_pest[[gopi]][["Pesticides (total)"]])$coefficients %>%
+    coeffs_tpm_simple$total_pest <- summary(model_tpm$`Pesticides (total)`[[goi]])$coefficients %>%
       as.data.frame() %>%
       rownames_to_column("metric") %>%
       tibble() %>%
-      mutate(gene = gopi, 
+      mutate(gene = goi, 
              Item = "Pesticides (total)",
              .before = metric) %>%
-      mutate(singular = ifelse(isSingular(model_tpm_simple_total_pest[[gopi]][["Pesticides (total)"]]), TRUE, FALSE)) %>%
+      mutate(singular = ifelse(isSingular(model_tpm$`Pesticides (total)`[[goi]]), TRUE, FALSE)) %>%
       rbind(coeffs_tpm_simple$total_pest)
   }
 }
@@ -187,36 +161,34 @@ for (gopi in genes_of_interest) {
 
 #####
 # PEST GROUPS
-model_tpm_simple_pest_groups <- list()
 coeffs_tpm_simple$pest_groups <- tibble()
-# for (gopi in genes_of_particular_interest) {
-for (gopi in genes_of_interest) {
+for (goi in genes_of_interest) {
   for (item in c("Insecticides", "Herbicides", "Fungicides and Bactericides", "Plant Growth Regulators")) {
-    temp_test_tibble <- test_tibble_log_tpm[[gopi]] %>% 
+    temp_test_tibble <- test_tibble_log_tpm[[goi]] %>% 
       rename(est_use_in_2k_radius = all_of(item))
-    model_tpm_simple_pest_groups[[gopi]][[item]] <- lmer(log_tpm ~ est_use_in_2k_radius + Gut_part + Season +
+    model_tpm[[item]][[goi]] <- lmer(log_tpm ~ est_use_in_2k_radius + Gut_part + Season +
                                                        (1 | Hive_ID ), data = temp_test_tibble)
     
     has_convergence_issues <- FALSE
-    messages <- model_tpm_simple_pest_groups[[gopi]][[item]]@optinfo$conv$lme4$messages
+    messages <- model_tpm[[item]][[goi]]@optinfo$conv$lme4$messages
     if (is.null(messages)) {
       has_convergence_issues <- FALSE
     } else {
       has_convergence_issues <- length(messages[!grepl("singular", messages, ignore.case = TRUE)]) != 0
     }
     if (has_convergence_issues) {
-      print(paste0(gopi, " - Simple model didn't converge. Removed from the list."))
-      model_tpm_simple_pest_groups[[gopi]][[item]] <- NULL
+      print(paste0(goi, " - Simple model didn't converge. Removed from the list."))
+      model_tpm[[item]][[goi]] <- NULL
       
     } else {
-      coeffs_tpm_simple$pest_groups <- summary(model_tpm_simple_pest_groups[[gopi]][[item]])$coefficients %>%
+      coeffs_tpm_simple$pest_groups <- summary(model_tpm[[item]][[goi]])$coefficients %>%
         as.data.frame() %>%
         rownames_to_column("metric") %>%
         tibble() %>%
-        mutate(gene = gopi, 
+        mutate(gene = goi, 
                Item = item,
                .before = metric) %>%
-        mutate(singular = ifelse(isSingular(model_tpm_simple_pest_groups[[gopi]][[item]]), TRUE, FALSE)) %>%
+        mutate(singular = ifelse(isSingular(model_tpm[[item]][[goi]]), TRUE, FALSE)) %>%
         rbind(coeffs_tpm_simple$pest_groups)
     }
   }
@@ -231,34 +203,33 @@ spec_pests <- tibble(Item = colnames(cropland_and_FAO)) %>%
 
 model_tpm_simple_specific_pests <-list()
 coeffs_tpm_simple$specific_pests <- tibble()
-# for (gopi in genes_of_particular_interest) {
-for (gopi in genes_of_interest) {
+for (goi in genes_of_interest) {
   for (item in spec_pests) {
-    temp_test_tibble <- test_tibble_log_tpm[[gopi]] %>% 
+    temp_test_tibble <- test_tibble_log_tpm[[goi]] %>% 
       rename(est_use_in_2k_radius = all_of(item))
-    model_tpm_simple_specific_pests[[gopi]][[item]] <- lmer(log_tpm ~ est_use_in_2k_radius + Gut_part + Season +
+    model_tpm[[item]][[goi]] <- lmer(log_tpm ~ est_use_in_2k_radius + Gut_part + Season +
                                                         (1 | Hive_ID ), data = temp_test_tibble)
     
     has_convergence_issues <- FALSE
-    messages <- model_tpm_simple_specific_pests[[gopi]][[item]]@optinfo$conv$lme4$messages
+    messages <- model_tpm[[item]][[goi]]@optinfo$conv$lme4$messages
     if (is.null(messages)) {
       has_convergence_issues <- FALSE
     } else {
       has_convergence_issues <- length(messages[!grepl("singular", messages, ignore.case = TRUE)]) != 0
     }
     if (has_convergence_issues) {
-      print(paste0(gopi, " - Simple model didn't converge. Removed from the list."))
-      model_tpm_simple_specific_pests[[gopi]][[item]] <- NULL
+      print(paste0(goi, " - Simple model didn't converge. Removed from the list."))
+      model_tpm[[item]][[goi]] <- NULL
       
     } else {
-      coeffs_tpm_simple$specific_pests <- summary(model_tpm_simple_specific_pests[[gopi]][[item]])$coefficients %>%
+      coeffs_tpm_simple$specific_pests <- summary(model_tpm[[item]][[goi]])$coefficients %>%
         as.data.frame() %>%
         rownames_to_column("metric") %>%
         tibble() %>%
-        mutate(gene = gopi, 
+        mutate(gene = goi, 
                Item = item,
                .before = metric) %>%
-        mutate(singular = ifelse(isSingular(model_tpm_simple_specific_pests[[gopi]][[item]]), TRUE, FALSE)) %>%
+        mutate(singular = ifelse(isSingular(model_tpm[[item]][[goi]]), TRUE, FALSE)) %>%
         rbind(coeffs_tpm_simple$specific_pests)
     }
     
@@ -295,17 +266,6 @@ for (level in names(coeffs_tpm_simple)) {
 ##### 
 # ADJUST P-VALUES
 
-# layered_correction_list <- layered_p_adjustments(slop = slopes)
-
-# all_slopes <- bind_rows(slopes) %>% 
-#   left_join(., layered_correction_list$adjusted_p_values, by = "test_name") %>%
-#   mutate(p_adjust_significant = case_when(p_adjusted <= 0.001 ~ "***",
-#                                           p_adjusted <= 0.01 ~ "**",
-#                                           p_adjusted <= 0.05 ~ "*",
-#                                           p_adjusted <= 0.075 ~ ".",
-#                                           .default = "n.s."
-#   ))
-
 all_slopes <- bind_rows(slopes) %>%
   mutate(p_adjusted = p.adjust(raw_p_value, method = "BH")) %>%
   mutate(p_adjust_significant = case_when(p_adjusted <= 0.001 ~ "***",
@@ -313,14 +273,12 @@ all_slopes <- bind_rows(slopes) %>%
                                           p_adjusted <= 0.05 ~ "*",
                                           p_adjusted <= 0.075 ~ ".",
                                           .default = "n.s.")
-  )# %>%
-  
-  # mutate(layer = ifelse(Item %in% spec_pests, "spec_pests", "upper_layer"),
-  #        layer = factor(layer, levels = c("spec_pests", "upper_layer")))
+  )
 
 #####
 # MAKE PLOTS
 
+# Significant results
 lowest_highest <- cropland_and_FAO %>%
   pivot_longer(-Country, names_to = "Item") %>%
   group_by(Item) %>%
@@ -332,7 +290,9 @@ sig_tests <- all_slopes %>%
   left_join(., lowest_highest, by = "Item") %>%
   mutate(effect = linear_effect_fun(s = Estimate, h = highest, l = lowest)) %>%
   group_by(gene) %>%
-  mutate(y_stretching_factor = max(effect) / effect) %>%
+  mutate(effect = ifelse(effect < 1 , 1/effect, effect),
+         y_stretching_factor = max(effect) / effect) %>%
+  # mutate(y_stretching_factor = max(effect) / effect) %>%
   mutate(which_y_end_to_stretch = if_else(
     Estimate[y_stretching_factor == 1] > 0,
     "upper_end",
@@ -345,8 +305,8 @@ sig_tests <- all_slopes %>%
   )) %>%
   select(-effect)
 
-color_list <- list(dark = list( `phosphoadenosine phosphosulfate reductase` = "#8B4513", `PnuC-like nicotinamide mononucleotide transport` = "#1C3A3A", levanase = "#D2691E"),
-                   bright = list( `phosphoadenosine phosphosulfate reductase` = "#FFC300", `PnuC-like nicotinamide mononucleotide transport` = "#66AFAF", levanase = "#FFA07A"))
+color_list <- list(dark = list( `PAPS reductase` = "#ef8f01", PnuC = "#FFB89A", Levanase = "#FF8C69"),
+                   bright = list( `PAPS reductase` = "#ef8f01", PnuC = "#FFB89A", Levanase = "#FF8C69"))
 
 genes_log_tpm_plots <- list()
 for (t_name in unique(sig_tests$test_name)) {
@@ -363,7 +323,7 @@ for (t_name in unique(sig_tests$test_name)) {
                      effect_fun = linear_effect_fun,
                      dark_col = color_list$dark[[tested_gene]],
                      bright_col = color_list$bright[[tested_gene]],
-                     y_axis_label = "Log relative abundance")
+                     y_axis_label = "Log rel. gene abund.")
 }
 
 common_legend <- legend_factory(title = "Gene", 
@@ -372,101 +332,122 @@ common_legend <- legend_factory(title = "Gene",
                                 position = "bottom")
 
 wrap_of_wraps <- wrap_plots(
-  wrap_plots(genes_log_tpm_plots$`phosphoadenosine phosphosulfate reductase`[1:4], nrow = 1, axes = "collect"),
-  wrap_plots(genes_log_tpm_plots$`phosphoadenosine phosphosulfate reductase`[5:8], nrow = 1, axes = "collect"),
-  wrap_plots(genes_log_tpm_plots$`phosphoadenosine phosphosulfate reductase`[9:12], nrow = 1, axes = "collect"),
-  wrap_plots(list(genes_log_tpm_plots$`phosphoadenosine phosphosulfate reductase`$`Insecticides – Carbamates`,
-                  genes_log_tpm_plots$`PnuC-like nicotinamide mononucleotide transport`$Insecticides,
-                  genes_log_tpm_plots$levanase$`Herbicides – Urea derivates`,
-                  genes_log_tpm_plots$levanase$`Herbicides – Amides`), nrow = 1, axes = "collect"),
+  wrap_plots(genes_log_tpm_plots$`PAPS reductase`[1:4], nrow = 1, axes = "collect"),
+  wrap_plots(genes_log_tpm_plots$`PAPS reductase`[5:8], nrow = 1, axes = "collect"),
+  wrap_plots(genes_log_tpm_plots$`PAPS reductase`[9:12], nrow = 1, axes = "collect"),
+  wrap_plots(list(genes_log_tpm_plots$`PAPS reductase`$`Insecticides – Carbamates`,
+                  genes_log_tpm_plots$PnuC$Insecticides,
+                  genes_log_tpm_plots$Levanase$`Herbicides – Urea derivates`,
+                  genes_log_tpm_plots$Levanase$`Herbicides – Amides`), nrow = 1, axes = "collect"),
   common_legend,
   nrow = 5, heights = c(rep(4, 4), 1)
   )
 
-simple_model_tibble_all_tests <- all_slopes %>%
-  # inner_join(bind_rows(slopes), ., by = "test_name") %>%
+# All results
+all_tests_forest_plot <- all_slopes %>%
   mutate(axis_labels = fct_rev(fct_inorder(test_name))) %>%
-  mutate(estimate = 10^Estimate-1,
-         error = 10^Estimate - 10^(Estimate - `Std. Error`))
-
-slope_plot_simple_model_all_tests <- simple_model_tibble_all_tests %>%
+  mutate(estimate = Estimate,
+         error = `Std. Error`) %>%
   forest_plot(plot_title = "all tests")
 
-#
-
+# Pest and land use 
 facet_order <- c("Pesticides (total)",
               "Insecticides",
               "Herbicides",
               "Fungicides and Bactericides",
               spec_pests)
-pest_use_plot <- cropland_and_FAO %>%
+pest_use_tibble <- cropland_and_FAO %>%
   select(Country, Cropland_in_2km_radius, all_of(facet_order)) %>%
   rename(`Cropland in 2km radius` = Cropland_in_2km_radius) %>%
   pivot_longer(-Country, names_to = "parameter") %>%
-  mutate(Country = reorder_within(Country, value, parameter),
-         parameter = factor(parameter, levels = c("Cropland in 2km radius", facet_order))) %>%
-  ggplot(aes(x = Country, y = value)) +
+  mutate(within_ordered_Country = reorder_within(Country, value, parameter),
+         parameter = factor(parameter, levels = c("Cropland in 2km radius", facet_order)))
+
+pest_use_plot <- list()
+pest_use_plot$country_facet <- pest_use_tibble %>%
+  ggplot(aes(x = within_ordered_Country, y = value)) +
   geom_col() +
   geom_text(aes(label = round(value)),
             vjust = -0.3,              
             size = 3) +  
   facet_wrap(~parameter, scales = "free") +
   scale_x_reordered() +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.15)))
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  labs(y = "Cropland (ha) or estimated pesticide use (kg) in 2km radius",
+       x = "Country")
+pest_use_plot$pest_facet <- pest_use_tibble %>%
+  ggplot(aes(x = parameter, y = value)) +
+  geom_col() +
+  geom_text(aes(label = round(value)),
+            vjust = -0.3,              
+            size = 3) +  
+  facet_wrap(~Country, scales = "free") +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.15))) +
+  theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1)) +
+  labs(y = "Cropland (ha) or estimated pesticide use (kg) in 2km radius")
 
-
-#
   
 #####
 # DIAGNOSTICS
-# 
-# plot(model_tpm_simple_cropland$`phosphoadenosine phosphosulfate reductase`, which = 1)
-# qqnorm(resid(model_tpm_simple_cropland$`phosphoadenosine phosphosulfate reductase`))
-# 
-# plot(model_tpm_simple_total_pest$`phosphoadenosine phosphosulfate reductase`$`Pesticides (total)`, which = 1)
-# qqnorm(resid(model_tpm_simple_total_pest$`phosphoadenosine phosphosulfate reductase`$`Pesticides (total)`))
-# 
-# plot(model_tpm_simple_pest_groups$`phosphoadenosine phosphosulfate reductase`$`Fungicides and Bactericides`, which = 1)
-# qqnorm(resid(model_tpm_simple_pest_groups$`phosphoadenosine phosphosulfate reductase`$`Fungicides and Bactericides`))
-# 
-# plot(model_tpm_simple_pest_groups$`phosphoadenosine phosphosulfate reductase`$Herbicides, which = 1)
-# qqnorm(resid(model_tpm_simple_pest_groups$`phosphoadenosine phosphosulfate reductase`$Herbicides))
-# 
-# plot(model_tpm_simple_pest_groups$`PnuC-like nicotinamide mononucleotide transport`$Insecticides, which = 1)
-# qqnorm(resid(model_tpm_simple_pest_groups$`PnuC-like nicotinamide mononucleotide transport`$Insecticides))
-# 
-# plot(model_tpm_simple_specific_pests$levanase$`Herbicides – Urea derivates`, which = 1)
-# qqnorm(resid(model_tpm_simple_specific_pests$levanase$`Herbicides – Urea derivates`))
-# 
-# plot(model_tpm_simple_specific_pests$levanase$`Herbicides – Amides`, which = 1)
-# qqnorm(resid(model_tpm_simple_specific_pests$levanase$`Herbicides – Amides`))
+
+model_diagnostics <- list()
+for (item in names(model_tpm)) {
+  for (goi in names(model_tpm[[item]])) {
+    slope_of_interest <- all_slopes %>%
+      filter(Item == item,
+             gene == goi) %>%
+      reframe(test_name = test_name,
+              is_significant = p_adjusted < 0.05)
+    if (slope_of_interest$is_significant) {
+      model_diagnostics[[item]][[goi]] <- diagnostics_linear_model(model_tpm[[item]][[goi]], name = slope_of_interest$test_name)
+    }
+  }
+}
+
 
 #####
 # SAVE FILES
 
-system("mkdir -p output/R/gene_content/landuse/simple_model")
+system("mkdir -p output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/single_panels")
+system("mkdir -p output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/model_diagnostics")
 
-ggsave("output/R/gene_content/landuse/land_and_pest_use.pdf",
-       pest_use_plot, width = 14, height = 10)
+write_delim(bind_rows(coeffs_tpm_simple), "output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/gene_tpm_vs_landuse.all_coeffs.tsv",
+            delim = "\t")
+write_delim(all_slopes, "output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/gene_tpm_vs_landuse.all_slopes.tsv",
+            delim = "\t")
+ggsave("output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/gene_tpm_vs_landuse.all_tests.pdf",
+       all_tests_forest_plot, width = 12, height = 50, limitsize = FALSE)
 
-
-ggsave("output/R/gene_content/landuse/simple_model/log_tpm_mixed_model_wrap.pdf",
+ggsave("output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/gene_tpm_vs_landuse.wrap.pdf",
        wrap_of_wraps, width = 12, height = 12)
 
-write_delim(gene_tpm, "output/R/gene_content/landuse/gene_tpm.tsv",
+write_delim(gene_tpm, "output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/gene_tpm.tsv",
             delim = "\t")
 
-write_delim(all_slopes, "output/R/gene_content/landuse/simple_model/simple_model_all_slopes.tsv",
+ggsave("output/R/genes_pathogens_and_landuse/land_and_pest_use.country_facet.pdf",
+       pest_use_plot$country_facet, width = 14, height = 10)
+ggsave("output/R/genes_pathogens_and_landuse/land_and_pest_use.pest_facet.pdf",
+       pest_use_plot$pest_facet, width = 15, height = 20)
+write_delim(pest_use_tibble, "output/R/genes_pathogens_and_landuse/land_and_pest_use.tsv",
             delim = "\t")
 
-ggsave("output/R/gene_content/landuse/simple_model/simple_model_all_tests.pdf",
-       slope_plot_simple_model_all_tests, width = 12, height = 50, limitsize = FALSE)
+for (goi in names(genes_log_tpm_plots)) {
+  for (item in names(genes_log_tpm_plots[[goi]])) {
+    ggsave(paste0("output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/single_panels/", goi, ".", item, ".pdf"),
+           genes_log_tpm_plots[[goi]][[item]], height = 3.5, width = 3.5)
+    saveRDS(genes_log_tpm_plots[[goi]][[item]],
+            paste0("output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/single_panels/RDS.", goi, ".", item, ".rds"))
+  }
+}
+ggsave("output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/single_panels/common_legend.pdf",
+       common_legend, height = 1, width = 6)
 
-# for (layer in names(layered_correction_list$subgraph_plots)) {
-#   for (gene in names(layered_correction_list$subgraph_plots[[layer]])) {
-#     ggsave(paste0("output/R/gene_content/landuse/simple_model/simple_model_subgraph.", gene, ".", layer,".pdf"),
-#            layered_correction_list$subgraph_plots[[layer]][[gene]],
-#            width = 20, height = 10)
-#   }
-# }
+
+for (item in names(model_diagnostics)) {
+  for (goi in names(model_diagnostics[[item]])) {
+    ggsave(paste0("output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/model_diagnostics/model_diagnostics.", item, ".", goi, ".pdf"),
+           model_diagnostics[[item]][[goi]], width = 6, height = 6)
+  }
+}
+
 

@@ -35,6 +35,8 @@ alpha_rarefied = function(ab_table, sampling_depth, lengths, seed) {
 }
 
 alpha_stats = function(df, meta_vars, min_seq = NA, df_lengths = NA, absolut_values = FALSE) {
+  meta_vars <- factor(meta_vars, levels = c("Gut_part", "Country", "Season", "Health"))
+  
   # plotlist <- list() 
   tax <- colnames(df)[1]
   df_t = df %>% 
@@ -68,13 +70,40 @@ alpha_stats = function(df, meta_vars, min_seq = NA, df_lengths = NA, absolut_val
     alpha_tbl = as_tibble(alpha_average_df, rownames = "Sample_ID")
   }
   
-  plot_tibble <- metadata %>%
+  # For Post-hoc optimisations...
+  # alpha_tbl <- read.csv("output/R/alpha/alpha_all/alpha.Family.diversity.csv")
+  # alpha_tbl <- read.csv("output/R/alpha/alpha_core_or_not/alpha_core.yes.Family.diversity.csv")
+  # alpha_tbl <- read.csv("output/R/alpha/alpha_core_or_not/alpha_core.no.Family.diversity.csv")
+  
+  pre_plot_tibble <- metadata %>%
     select("Sample_ID", all_of(meta_vars)) %>%
     inner_join(., alpha_tbl, by="Sample_ID") %>%
     pivot_longer(all_of(meta_vars), names_to = "meta_variable", values_to = "meta_value") %>%
     pivot_longer(c(Richness, Hill_Shannon, Hill_Simpson), names_to = "metric") %>%
     mutate(metric = factor(metric, levels=c("Richness", "Hill_Shannon", "Hill_Simpson")))
   
+  box_fill_colors <- list(Gut_part = "#ef8f01", 
+                          Country = "#8B4513", 
+                          Season = "#FFA07A", 
+                          Health = "white")
+
+  plot_tibble <- pre_plot_tibble %>%
+    group_by(metric, meta_variable) %>%
+    pairwise_wilcox_test(
+      value ~ meta_value,
+      p.adjust.method = "BH"
+    ) %>%
+    group_by(metric, meta_variable) %>%
+    summarise(
+      cld = list({
+        pvec <- setNames(p.adj, paste(group1, group2, sep = "-"))
+        multcompLetters(pvec, threshold = 0.05)$Letters
+      }), .groups = "drop"
+    ) %>%
+    unnest_longer(cld, values_to = "letter", indices_to = "meta_value") %>%
+    full_join(pre_plot_tibble, ., by = c("meta_variable", "meta_value", "metric")) %>%
+    mutate(meta_value = factor(meta_value, levels = levels(pre_plot_tibble$meta_value)))
+
   kruskal_results <- plot_tibble %>%
     group_by(meta_variable, metric) %>%
     summarize(pvalue = kruskal.test(value~meta_value)$p.value,
@@ -105,28 +134,61 @@ alpha_stats = function(df, meta_vars, min_seq = NA, df_lengths = NA, absolut_val
   panels <- list()
   number_of_metrics <- length(levels(plot_tibble$metric))
   number_of_meta_vars <- length(meta_vars)
-  total_number_of_plots <-number_of_metrics * number_of_meta_vars
+  total_number_of_plots <- number_of_metrics * number_of_meta_vars
   for (metr in levels(plot_tibble$metric)) {
-    for (meta_v in meta_vars) {
+    for (meta_v in levels(meta_vars)) {
       krusk <- kruskal_results %>%
         filter(metric==metr &  meta_variable==meta_v)
       stats_text = paste0("KW test ",
                           # round(krusk$test_stat, digits=2), " .",
                           "p-value: ",
                           round(krusk$pvalue, digits=2))
+      
+      annotation_df <- plot_tibble %>%
+        filter(metric == metr,
+               meta_variable == meta_v) %>%
+        group_by(meta_value) %>%
+        mutate(sample_count = n()) %>%
+        ungroup() %>%
+        mutate(letter_y = max(value)*1.12) %>%
+        select(-c(Sample_ID, value)) %>%
+        distinct()
+      
       p <- plot_tibble %>%
-        filter(metric==metr) %>%
-        filter(meta_variable==meta_v) %>%
-        ggplot(aes(x=meta_value, y=value)) +
+        filter(metric == metr) %>%
+        filter(meta_variable == meta_v) %>%
+        ggplot(aes(x = meta_value, y = value, fill = meta_variable)) +
         geom_boxplot() +
-        labs(x=NULL, y=NULL) +
-        # annotate("text", x = -Inf, y = Inf, label = stats_text, vjust = 1, hjust = 0) +
-        coord_cartesian(clip = "off")
-      if (krusk$pvalue <= 0.05) {
-        p <- p + 
-          geom_pwc(method="wilcox.test", label="p.adj.signif",
-                   p.adjust.method="BH", hide.ns = TRUE)
+        labs(x = NULL, y = NULL) +
+        scale_fill_manual(values = box_fill_colors[[meta_v]]) +
+        guides(fill="none") +
+        
+        # Put sample number at the bottom of the boxes. Makes the plot very busy...
+        # geom_text(data = annotation_df, 
+        #           mapping = aes(x = meta_value, y = 0, label = sample_count),
+        #           inherit.aes = FALSE,
+        #           size = 3,
+        #           vjust = 1
+        # ) +
+        
+        theme_minimal()
+      
+      if (krusk$pvalue > 0.05) {
+        annotation_df <- annotation_df %>%
+          mutate(letter = "")
       }
+      # p <- p +
+      #   geom_pwc(method="wilcox.test", label="p.adj.signif",
+      #            p.adjust.method="BH", hide.ns = TRUE)
+      p <- p + 
+        geom_label(data = annotation_df, 
+                  mapping = aes(x = meta_value, y = letter_y, label = letter),
+                  inherit.aes = FALSE,
+                  fill        = "white",            # white box behind text
+                  label.size  = 0,                  # no border
+                  label.padding = unit(0.35, "lines")
+                  # size = 5
+                  )
       if ((length(panels)+1) %% number_of_meta_vars == 1) {
         p <- p + labs(y=metr)
       }
@@ -137,6 +199,6 @@ alpha_stats = function(df, meta_vars, min_seq = NA, df_lengths = NA, absolut_val
     }
   }
   # plotlist$patch <- wrap_plots(panels, ncol=length(meta_vars))
-  patch <- wrap_plots(panels, ncol=length(meta_vars))
-  return(list(plot=patch, table=alpha_tbl, kruskal = kruskal_results))
+  patch <- wrap_plots(panels, ncol=length(meta_vars), axes = "collect_y")
+  return(list(plot=patch, table=alpha_tbl, kruskal = kruskal_results, single_plots = panels))
 }
