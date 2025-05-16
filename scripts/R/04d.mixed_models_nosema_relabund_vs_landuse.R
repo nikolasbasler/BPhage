@@ -294,9 +294,18 @@ for (item in names(model_tpm)) {
   }
 }
 
+# All results
+all_tests_forest_plot <- all_slopes %>%
+  mutate(axis_labels = fct_rev(fct_inorder(test_name))) %>%
+  mutate(estimate = Estimate,
+         error = `Std. Error`) %>%
+  forest_plot(plot_title = "all tests")
+
+
 
 ###
 # Only one spec pest is significant after BH correction (negative effect), and the diagnostics don't look too healthy:
+all_tests_forest_plot
 all_slopes %>%
   filter(Item == "Herbicides – Dinitroanilines")
 model_diagnostics
