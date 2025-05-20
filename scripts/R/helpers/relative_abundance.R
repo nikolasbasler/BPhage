@@ -1,9 +1,16 @@
 
-host_colors <- c("Bifidobacterium" = "#FFDAB9", "Lactobacillus" = "#FFA07A",
-                 "Snodgrassella" = "#FFC300", "Bombilactobacillus" = "#ef8f01",
-                 "Gilliamella" = "#D2691E", "Frischella" = "#8B4513",
-                 "Bartonella" = "#1C3A3A", "Bombella" = "black",
-                 "other" = "#555555", "unknown" = "lightgrey")
+host_colors <- c("Bifidobacterium" = "#FFDAB9", 
+                 "Lactobacillus" = "#FFA07A",
+                 "Snodgrassella" = "#FFC300", 
+                 "Bombilactobacillus" = "#ef8f01",
+                 "Gilliamella" = "#8B4513", 
+                 "Frischella" = "#1C3A3A", 
+                 "Commensalibacter" = "#2A6666",
+                 "Bartonella" = "#4CB3B3", 
+                 "Bombella" = "#338080",
+                 "other" = "#555555", 
+                 "unknown" = "lightgrey")
+
 # prev_colors <- c("#FFEB99", "#EBD688", "#D9BF77", "#C6A866", "#B39155", "#997A3C", "#806600", "black")
 prev_colors <- c("#FFDAB9", "#FFA07A", "#FFC300", "#ef8f01", "#D2691E", "#8B4513", "#1C3A3A", "black")
 
@@ -240,9 +247,10 @@ average_tpm_bar_plot <- function(tpm_table, tl, hg, meta_vars, title_prefix="", 
     }
     if (tl == "Host_group") {
       tible_list[[m_var]] <- tible_list[[m_var]] %>%
-        mutate(group = factor(group, levels = rev(c("Bifidobacterium", "Lactobacillus", "Snodgrassella",
-                                                   "Bombilactobacillus", "Gilliamella", "Frischella",
-                                                   "Bartonella", "Bombella", "other", "unknown"))))
+        # mutate(group = factor(group, levels = rev(c("Bifidobacterium", "Lactobacillus", "Snodgrassella",
+        #                                            "Bombilactobacillus", "Gilliamella", "Frischella",
+        #                                            "Bartonella", "Bombella", "other", "unknown"))))
+        mutate(group = factor(group, levels = rev(names(host_colors))))
     }
     
     if (tl == "Prevalence") {
