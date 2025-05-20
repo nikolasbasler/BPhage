@@ -68,34 +68,8 @@ stats.read.other_studies.reads <- read.delim("output/other_studies/stats.read.ot
   left_join(., SRA_to_study, by = "SRA") %>%
   group_by(study) %>%
   summarise(trimmed_read_pairs = sum(Trimmed_pairs),
-            trimmed_reads = sum(Trimmed_pairs)*2)
-
-read_counts_and_pools <- read.delim("output/bphage_viper_output/read_stats.tsv") %>%
-  tibble() %>%
-  filter(!str_starts(Sample, "Blank")) %>%
-  mutate(Trimmed_pairs = Trimmed_R1_plus_R2 / 2) %>%
-  mutate(study = "BPhage") %>%
-  select(study, Trimmed_pairs) %>%
-  group_by(study) %>%
-  summarise(trimmed_read_pairs = sum(Trimmed_pairs),
-            trimmed_reads = sum(Trimmed_pairs) * 2) %>%
-  rbind(stats.read.other_studies.reads) %>%
-  mutate(pools = case_when(study == "BPhage" ~ 150,
-                           study == "Bonilla" ~ 2,
-                           study == "Busby" ~ 1,
-                           study == "Deboutte" ~ 102,
-                           study == "Sbardellati" ~ 3),
-         bees_per_pool = case_when(study == "BPhage" ~ 10,
-                                   study == "Bonilla" ~ 100,
-                                   study == "Busby" ~ 75,
-                                   study == "Deboutte" ~ 6,
-                                   study == "Sbardellati" ~ 100),
-         sampling_time = case_when(study == "BPhage" ~ "2020",
-                                   study == "Bonilla" ~ "2015/16",
-                                   study == "Busby" ~ "2020",
-                                   study == "Deboutte" ~ "2012/13",
-                                   study == "Sbardellati" ~ "2023")
-         )
+            trimmed_reads = sum(Trimmed_pairs)*2) %>%
+  mutate(study = ifelse(study == "Bonilla", "Bonilla-Rosso", study))
 
 stats.other_studies.mapped_reads <- read.csv("output/other_studies/stats.other_studies.mapped_reads.csv") %>%
   pivot_longer(-contig, names_to = "SRA", values_to = "reads") 
@@ -117,9 +91,15 @@ presence_absence <- filtered_ab_long %>%
   mutate(present = ifelse(sum(reads >0), TRUE, FALSE)) %>%
   ungroup()
 
+print_names <- c("Deboutte" = "Deboutte",
+                 "Busby" = "Busby",
+                 "Bonilla" = "Bonilla-Rosso",
+                 "Sbardellati" = "Sbardellati",
+                 "Feng" = "Feng")
 present_in_dataset <- list()
 for (dataset in unique(SRA_to_study$study)) {
-  present_in_dataset[[dataset]] <- presence_absence %>%
+  print_name <- print_names[[dataset]]
+  present_in_dataset[[print_name]] <- presence_absence %>%
     filter(study == dataset) %>%
     filter(present) %>%
     select(contig) %>%
@@ -128,10 +108,8 @@ for (dataset in unique(SRA_to_study$study)) {
 }
 
 core_read_presence_overlap <- list()
-set_names <- names(present_in_dataset) %>%
-  str_replace("Bonilla", "Bonilla-Rosso") # %>%
-  # paste0(., " et al.")
-core_read_presence_overlap <- ggVennDiagram(present_in_dataset, 
+set_names <- names(present_in_dataset)
+core_read_presence_overlap$venn <- ggVennDiagram(present_in_dataset, 
                                                      label = "count",
                                                      label_size = 7,
                                                      category.names = set_names,
@@ -139,8 +117,15 @@ core_read_presence_overlap <- ggVennDiagram(present_in_dataset,
   theme(legend.position = "none") +
   scale_x_continuous(expand = expansion(mult = 0.1)) +
   scale_fill_gradient(low = "#8B4513", high = "#FFC300")
-core_read_presence_overlap
-read_counts_and_pools
+
+vennObj <- Venn(present_in_dataset)
+
+core_read_presence_overlap$upset <- plot_upset(vennObj,
+           nintersects = 15,
+           sets.bar.color  = "#1C3A3A",
+           top.bar.color = "#1C3A3A",
+           intersection.matrix.color = "#1C3A3A",
+)
 
 
 dataset_overlap <- tibble(contig = present_in_all_countries) %>%
@@ -148,11 +133,69 @@ dataset_overlap <- tibble(contig = present_in_all_countries) %>%
          Deboutte = ifelse(contig %in% present_in_dataset$Deboutte, TRUE, FALSE),
          Bonilla = ifelse(contig %in% present_in_dataset$Bonilla, TRUE, FALSE),
          Busby = ifelse(contig %in% present_in_dataset$Busby, TRUE, FALSE),
-         Sbardellati = ifelse(contig %in% present_in_dataset$Sbardellati, TRUE, FALSE)
+         Sbardellati = ifelse(contig %in% present_in_dataset$Sbardellati, TRUE, FALSE),
+         Feng = ifelse(contig %in% present_in_dataset$Feng, TRUE, FALSE),
   ) %>%
+  pivot_longer(-contig) %>%
+  group_by(contig) %>%
+  mutate(dataset_prevalence = sum(value)) %>%
+  ungroup() %>%
+  pivot_wider() %>%
+  relocate(dataset_prevalence, .after = last_col()) %>%
   left_join(., prevalence.Hives, by = "contig") %>%
-  left_join(., prevalence.Bee_pools, by = "contig") %>%
-  arrange(desc(hive_prevalence))
+  left_join(., prevalence.Bee_pools, by = "contig")
+  
+read_counts_and_pools <- read.delim("output/bphage_viper_output/read_stats.tsv") %>%
+  tibble() %>%
+  filter(!str_starts(Sample, "Blank")) %>%
+  mutate(Trimmed_pairs = Trimmed_R1_plus_R2 / 2) %>%
+  mutate(study = "BPhage") %>%
+  select(study, Trimmed_pairs) %>%
+  group_by(study) %>%
+  summarise(trimmed_read_pairs = sum(Trimmed_pairs),
+            trimmed_reads = sum(Trimmed_pairs) * 2) %>%
+  rbind(stats.read.other_studies.reads) %>%
+  mutate(pools = case_when(study == "BPhage" ~ 150,
+                           study == "Bonilla-Rosso" ~ 2,
+                           study == "Busby" ~ 1,
+                           study == "Deboutte" ~ 102,
+                           study == "Sbardellati" ~ 3,
+                           study == "Feng" ~ 6),
+         bees_per_pool = case_when(study == "BPhage" ~ 10,
+                                   study == "Bonilla-Rosso" ~ 100,
+                                   study == "Busby" ~ 75,
+                                   study == "Deboutte" ~ 6,
+                                   study == "Sbardellati" ~ 100,
+                                   study == "Feng" ~ 100),
+         sampling_time = case_when(study == "BPhage" ~ "2020",
+                                   study == "Bonilla-Rosso" ~ "2015/16",
+                                   study == "Busby" ~ "2020",
+                                   study == "Deboutte" ~ "2012/13",
+                                   study == "Sbardellati" ~ "2023",
+                                   study == "Feng" ~ "2020"), # Autumn 2020, only mentioned in "Reporting summary"
+         sampling_region = case_when(study == "BPhage" ~ "Europe",
+                                     study == "Bonilla-Rosso" ~ "Switzerland",
+                                     study == "Busby" ~ "Texas, USA",
+                                     study == "Deboutte" ~ "Belgium",
+                                     study == "Sbardellati" ~ "California, USA",
+                                     study == "Feng" ~ "China"),
+         core_phages = case_when(study == "BPhage" ~ sum(dataset_overlap$Bphage),
+                                     study == "Bonilla-Rosso" ~ sum(dataset_overlap$Bonilla),
+                                     study == "Busby" ~ sum(dataset_overlap$Busby),
+                                     study == "Deboutte" ~ sum(dataset_overlap$Deboutte),
+                                     study == "Sbardellati" ~ sum(dataset_overlap$Sbardellati),
+                                     study == "Feng" ~ sum(dataset_overlap$Feng)
+                                 )
+  ) %>%
+  mutate(trimmed_reads = trimmed_read_pairs*2, .after = trimmed_read_pairs) %>%
+  arrange(desc(core_phages))
+read_counts_and_pools
+
+core_read_presence_overlap
+
+
+ratio_bphage_to_all_others <- 3771661288 / (sum(read_counts_and_pools$trimmed_read_pairs)-3771661288)
+
 
 ##### Save files
 
@@ -161,8 +204,10 @@ system("mkdir -p output/R/other_studies")
 #   ggsave(paste0("output/R/other_studies/conitg_overlap.", thing, ".pdf"),
 #          conitg_overlap_venn[[thing]], width = 8, height = 6)
 # }
-ggsave(paste0("output/R/other_studies/core_read_presence_overlap.pdf"),
-       core_read_presence_overlap, width = 8, height = 6)
+ggsave(paste0("output/R/other_studies/core_read_presence_overlap.venn.pdf"),
+       core_read_presence_overlap$venn, width = 8, height = 6)
+ggsave(paste0("output/R/other_studies/core_read_presence_overlap.upset.pdf"),
+       core_read_presence_overlap$upset, width = 6, height = 4)
 write_csv(read_counts_and_pools, "output/R/other_studies/read_counts_and_pools.csv")
 write_csv(dataset_overlap, "output/R/other_studies/dataset_overlap.csv")
 
