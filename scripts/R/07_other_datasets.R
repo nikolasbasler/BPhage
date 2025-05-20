@@ -122,11 +122,58 @@ vennObj <- Venn(present_in_dataset)
 
 core_read_presence_overlap$upset <- plot_upset(vennObj,
            nintersects = 15,
-           sets.bar.color  = "#1C3A3A",
-           top.bar.color = "#1C3A3A",
-           intersection.matrix.color = "#1C3A3A",
+           sets.bar.color  = "#8B4513",
+           top.bar.color = "#8B4513",
+           intersection.matrix.color = "#8B4513",
+           # top.bar.show.numbers = FALSE,
+           top.bar.numbers.size = 7,
+           # relative_height = 5,
+           # sets.bar.show.numbers = TRUE
+           # relative_width = 1.5
 )
+core_read_presence_overlap$upset
 
+only_intersection_bars <- tibble(intersection_set = LETTERS[1:15],
+       set_count = rev(c(1,1,3,3,3,4,4,6,7,8,8,10,11,13,15))) %>%
+  ggplot(aes(x = intersection_set, y = set_count)) +
+  geom_col(fill = "#8B4513") +
+  theme_void() +
+  geom_text(
+    aes(label = set_count),
+    vjust = -0.5,
+    size  = 9
+  ) +
+  scale_y_continuous(expand = expansion(mult = c(0, .175))) +
+  theme(
+    plot.margin = margin(5,5,5,5),
+    )
+
+
+# All this only because they don't let me manipulate the stuff directly... 
+p <- core_read_presence_overlap$upset[[1]]
+for (i in seq_along(p$layers)) {
+  geom_class <- class(p$layers[[i]]$geom)[1]
+  
+  if (geom_class == "GeomPoint") {
+    # override the point size
+    p$layers[[i]]$aes_params$size <- 8
+    
+  } else if (geom_class %in% c("GeomLine", "GeomPath")) {
+    # override the line width
+    p$layers[[i]]$aes_params$linewidth <- 4
+  }
+}
+
+only_points <- p +
+  theme_minimal() +
+  theme(
+    axis.title.x = element_blank(),
+    axis.text.x = element_blank(),
+    axis.text.y = element_text(size = 16, face = "bold"),
+    plot.margin = margin(5,5,5,5)
+    )
+
+upset_patch <- only_intersection_bars / only_points + plot_layout(heights = c(2,1))
 
 dataset_overlap <- tibble(contig = present_in_all_countries) %>%
   mutate(Bphage = TRUE,
@@ -189,10 +236,6 @@ read_counts_and_pools <- read.delim("output/bphage_viper_output/read_stats.tsv")
   ) %>%
   mutate(trimmed_reads = trimmed_read_pairs*2, .after = trimmed_read_pairs) %>%
   arrange(desc(core_phages))
-read_counts_and_pools
-
-core_read_presence_overlap
-
 
 ratio_bphage_to_all_others <- 3771661288 / (sum(read_counts_and_pools$trimmed_read_pairs)-3771661288)
 
@@ -207,7 +250,11 @@ system("mkdir -p output/R/other_studies")
 ggsave(paste0("output/R/other_studies/core_read_presence_overlap.venn.pdf"),
        core_read_presence_overlap$venn, width = 8, height = 6)
 ggsave(paste0("output/R/other_studies/core_read_presence_overlap.upset.pdf"),
-       core_read_presence_overlap$upset, width = 6, height = 4)
+       core_read_presence_overlap$upset, width = 18, height = 6)
+
+ggsave(paste0("output/R/other_studies/core_read_presence_overlap.upset.patch.pdf"),
+       upset_patch, width = 14, height = 5.5)
+
 write_csv(read_counts_and_pools, "output/R/other_studies/read_counts_and_pools.csv")
 write_csv(dataset_overlap, "output/R/other_studies/dataset_overlap.csv")
 
