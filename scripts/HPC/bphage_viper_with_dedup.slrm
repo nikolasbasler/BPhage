@@ -58,7 +58,7 @@ printf "\n"
 # Run viper.sh script with desired options
 viper.sh -1 raw/$line.dedup.R1.fastq.gz -2 raw/$line.dedup.R2.fastq.gz \
     -g $VSC_SCRATCH/BPhage/ref/GCF_003254395.2_Amel_HAv3.1_genomic.fna \
-    -p /staging/leuven/stg_00029/DB/trimmomatic/primer_WTA2_Nextera.fa --triple-assembly -o bphage_viper_output/${line} \
+    -p $repo_location/data/adapters/primer_WTA2_Nextera.fa --triple-assembly -o bphage_viper_output/${line} \
     -t $SLURM_JOB_CPUS_PER_NODE --cluster-cover 85 \
     --cluster-identity 95 --keep-reads --name $line --identify-proviruses --checkv-db /staging/leuven/stg_00029/DB/CheckV/checkv-db-v1.5 \
     --genomad-db /staging/leuven/stg_00029/DB/genomad/genomad_db_1.7

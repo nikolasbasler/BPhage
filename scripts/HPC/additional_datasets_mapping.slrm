@@ -11,7 +11,7 @@
 ###############################################################################
 
 # Submit (from output/slurm_log)
-# sbatch --array=1-108 --export=ALL ../../scripts/HPC/additional_datasets_mapping.slrm
+# sbatch --array=1-114 --export=ALL ../../scripts/HPC/additional_datasets_mapping.slrm
 
 source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 repo_location="$VSC_STAGING/BPhage"
@@ -36,9 +36,11 @@ clumpify.sh reorder dedupe=t overwrite=t in=temp/${line}_1.fastq.gz in2=temp/${l
 # Trim
 echo "Trimming"
 if [ $(grep $line $repo_location/data/other_datasets_SRA_accessions.tsv | cut -f2) = "Sbardellati" ]; then
-	trimmomatic_primer="/staging/leuven/stg_00029/DB/trimmomatic/TruSeq3-PE.fa"
+	trimmomatic_primer="$repo_location/data/adapters/TruSeq3-PE.fa"
+elif [ $(grep $line $repo_location/data/other_datasets_SRA_accessions.tsv | cut -f2) = "Feng" ]; then
+	trimmomatic_primer="$repo_location/data/adapters/NEBNext.fa"
 else
-	trimmomatic_primer="/staging/leuven/stg_00029/DB/trimmomatic/primer_WTA2_Nextera.fa"
+	trimmomatic_primer="$repo_location/data/adapters/primer_WTA2_Nextera.fa"
 fi
 
 trimmomatic PE \
