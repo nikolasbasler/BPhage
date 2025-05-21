@@ -9,6 +9,8 @@ prevalence.Bee_pools <- read.csv("output/R/prevalence/prevalence.Bee_pools.csv")
 prevalence.Hives <- read.csv("output/R/prevalence/prevalence.Hives.csv") %>%
   rename(hive_prevalence = prevalence_abs) %>%
   select(-prevalence_prop)
+classification <- readRDS("output/R/R_variables/classification.RDS") %>%
+  tibble()
 
 
 ##### Contig overlap
@@ -122,9 +124,9 @@ vennObj <- Venn(present_in_dataset)
 
 core_read_presence_overlap$upset <- plot_upset(vennObj,
            nintersects = 15,
-           sets.bar.color  = "#8B4513",
-           top.bar.color = "#8B4513",
-           intersection.matrix.color = "#8B4513",
+           sets.bar.color  = "black",
+           top.bar.color = "black",
+           intersection.matrix.color = "black",
            # top.bar.show.numbers = FALSE,
            top.bar.numbers.size = 7,
            # relative_height = 5,
@@ -136,7 +138,7 @@ core_read_presence_overlap$upset
 only_intersection_bars <- tibble(intersection_set = LETTERS[1:15],
        set_count = rev(c(1,1,3,3,3,4,4,6,7,8,8,10,11,13,15))) %>%
   ggplot(aes(x = intersection_set, y = set_count)) +
-  geom_col(fill = "#8B4513") +
+  geom_col(fill = "black") +
   theme_void() +
   geom_text(
     aes(label = set_count),
@@ -257,5 +259,20 @@ ggsave(paste0("output/R/other_studies/core_read_presence_overlap.upset.patch.pdf
 
 write_csv(read_counts_and_pools, "output/R/other_studies/read_counts_and_pools.csv")
 write_csv(dataset_overlap, "output/R/other_studies/dataset_overlap.csv")
+
+# For convenience, to avoid backtracking
+# new_classification_df <- dataset_overlap %>%
+#   select(-Bphage) %>%
+#   mutate(Prevalence_other_datasets = dataset_prevalence-1, .after = "contig") %>%
+#   select(-c(dataset_prevalence, hive_prevalence, bee_pool_prevalence)) %>%
+#   rename(Present_in_Deboutte = Deboutte,
+#          Present_in_Bonilla = Bonilla,
+#          Present_in_Busby = Busby,
+#          Present_in_Sbardellati = Sbardellati,
+#          Present_in_Feng = Feng) %>%
+#   left_join(classification, ., by = "contig")
+# write_csv(new_classification_df, "output/R/classification.csv")
+# saveRDS(new_classification_df, "output/R/R_variables/classification.RDS")
+
 
 
