@@ -193,6 +193,25 @@ dataset_overlap <- tibble(contig = present_in_all_countries) %>%
   relocate(dataset_prevalence, .after = last_col()) %>%
   left_join(., prevalence.Hives, by = "contig") %>%
   left_join(., prevalence.Bee_pools, by = "contig")
+
+phage_tpm <- read.csv("output/R/relative_abundance/phage_tpm.csv") %>%
+  tibble()
+metadata <- readRDS("output/R/R_variables/metadata.RDS")
+
+positive_pools <- phage_tpm %>%
+  pivot_longer(-contig, names_to = "Sample_ID", values_to = "reads") %>% # it's not really reads but it doesn't matter here
+  left_join(., metadata[c("Sample_ID", "Bee_pool")], by = "Sample_ID") %>%
+  rename(SRA = Bee_pool) %>%
+  select(-Sample_ID) %>%
+  distinct() %>%
+  rbind(filtered_ab_long) %>%
+  filter(contig %in% present_in_all_countries) %>%
+  left_join(., SRA_to_study, by = "SRA") %>%
+  mutate(study = ifelse(is.na(study), "BPhage", study),
+         study = ifelse(study == "Bonilla", "Bonilla-Rosso", study)) %>%
+  filter(reads > 0) %>%
+  group_by(study) %>%
+  summarize(pools_with_core_phages = n_distinct(SRA))
   
 read_counts_and_pools <- read.delim("output/bphage_viper_output/read_stats.tsv") %>%
   tibble() %>%
@@ -215,8 +234,9 @@ read_counts_and_pools <- read.delim("output/bphage_viper_output/read_stats.tsv")
                                    study == "Busby" ~ 75,
                                    study == "Deboutte" ~ 6,
                                    study == "Sbardellati" ~ 100,
-                                   study == "Feng" ~ 100),
-         sampling_time = case_when(study == "BPhage" ~ "2020",
+                                   study == "Feng" ~ 100)) %>%
+  left_join(., positive_pools, by = "study") %>%
+  mutate(sampling_time = case_when(study == "BPhage" ~ "2020",
                                    study == "Bonilla-Rosso" ~ "2015/16",
                                    study == "Busby" ~ "2020",
                                    study == "Deboutte" ~ "2012/13",
@@ -228,7 +248,7 @@ read_counts_and_pools <- read.delim("output/bphage_viper_output/read_stats.tsv")
                                      study == "Deboutte" ~ "Belgium",
                                      study == "Sbardellati" ~ "California, USA",
                                      study == "Feng" ~ "China"),
-         core_phages = case_when(study == "BPhage" ~ sum(dataset_overlap$Bphage),
+         total_core_phages = case_when(study == "BPhage" ~ sum(dataset_overlap$Bphage),
                                      study == "Bonilla-Rosso" ~ sum(dataset_overlap$Bonilla),
                                      study == "Busby" ~ sum(dataset_overlap$Busby),
                                      study == "Deboutte" ~ sum(dataset_overlap$Deboutte),
@@ -237,10 +257,9 @@ read_counts_and_pools <- read.delim("output/bphage_viper_output/read_stats.tsv")
                                  )
   ) %>%
   mutate(trimmed_reads = trimmed_read_pairs*2, .after = trimmed_read_pairs) %>%
-  arrange(desc(core_phages))
+  arrange(desc(total_core_phages))
 
 ratio_bphage_to_all_others <- 3771661288 / (sum(read_counts_and_pools$trimmed_read_pairs)-3771661288)
-
 
 ##### Save files
 
