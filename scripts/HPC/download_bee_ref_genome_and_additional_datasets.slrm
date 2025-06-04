@@ -53,32 +53,32 @@ efetch -db nuccore -id NC_078098,NC_040753,NC_040439,NC_034161,NC_029802,NC_0070
 # Other datasets SRAs
 prefetch -O SRA --max-size 100G --option-file <(cut -f1 $repo_location/data/other_datasets_SRA_accessions.tsv)
 
-# Deboutte et al
-datasets download genome accession PRJNA579886
-unzip ncbi_dataset.zip
-cat ncbi_dataset/data/GCA_*/*.fna | sed 's/ /_Deboutte /' | gzip > Deboutte_et_al.MAGs.fa.gz
-rm -r ncbi_dataset* README.md 
+# # Deboutte et al
+# datasets download genome accession PRJNA579886
+# unzip ncbi_dataset.zip
+# cat ncbi_dataset/data/GCA_*/*.fna | sed 's/ /_Deboutte /' | gzip > Deboutte_et_al.MAGs.fa.gz
+# rm -r ncbi_dataset* README.md 
 
-# Bonilla-Rosso et al
-datasets download genome accession GCA_013332045.1
-unzip ncbi_dataset.zip
-cat ncbi_dataset/data/GCA_013332045.1/GCA_013332045.1_ASM1333204v1_genomic.fna | \
-    sed 's/ /_Bonilla_MAG /' | gzip > BonillaRosso_et_al.MAGs.fa.gz
-rm -r ncbi_dataset* README.md 
-efetch -db nuccore -id MT006233,MT006234,MT006235,MT006236,MT006237,MT006238,MT006239,MT006240 -format fasta | \
-    sed 's/ /_Bonilla_isolate /' | gzip > BonillaRosso_et_al.isolates.fa.gz
+# # Bonilla-Rosso et al
+# datasets download genome accession GCA_013332045.1
+# unzip ncbi_dataset.zip
+# cat ncbi_dataset/data/GCA_013332045.1/GCA_013332045.1_ASM1333204v1_genomic.fna | \
+#     sed 's/ /_Bonilla_MAG /' | gzip > BonillaRosso_et_al.MAGs.fa.gz
+# rm -r ncbi_dataset* README.md 
+# efetch -db nuccore -id MT006233,MT006234,MT006235,MT006236,MT006237,MT006238,MT006239,MT006240 -format fasta | \
+#     sed 's/ /_Bonilla_isolate /' | gzip > BonillaRosso_et_al.isolates.fa.gz
 
-# Busby et al
-wget https://raw.githubusercontent.com/jtvanleuven/bee_phage/master/analysis/all_phage.fasta
-conda activate viper_bphage
-seqkit grep -rp "circular" all_phage.fasta | sed '/^>/s/$/_Busby/' > Busby_at_al_MAGs.fa
-seqkit grep -rp "contig" all_phage.fasta | sed '/^>/s/$/_Busby/' >> Busby_at_al_MAGs.fa
-seqkit grep -rp "scaffold" all_phage.fasta | sed '/^>/s/$/_Busby/' >> Busby_at_al_MAGs.fa
-gzip Busby_at_al_MAGs.fa
-rm all_phage.fasta
+# # Busby et al
+# wget https://raw.githubusercontent.com/jtvanleuven/bee_phage/master/analysis/all_phage.fasta
+# conda activate viper_bphage
+# seqkit grep -rp "circular" all_phage.fasta | sed '/^>/s/$/_Busby/' > Busby_at_al_MAGs.fa
+# seqkit grep -rp "contig" all_phage.fasta | sed '/^>/s/$/_Busby/' >> Busby_at_al_MAGs.fa
+# seqkit grep -rp "scaffold" all_phage.fasta | sed '/^>/s/$/_Busby/' >> Busby_at_al_MAGs.fa
+# gzip Busby_at_al_MAGs.fa
+# rm all_phage.fasta
 
-# Combine data from Deboutte et al, Bonilla-Rosso et al and Busby et al.
-cat BonillaRosso*.fa.gz Busby*.fa.gz Deboutte*.fa.gz > other_studies.fa.gz
+# # Combine data from Deboutte et al, Bonilla-Rosso et al and Busby et al.
+# cat BonillaRosso*.fa.gz Busby*.fa.gz Deboutte*.fa.gz > other_studies.fa.gz
 
 # INPHARED
 wget https://millardlab-inphared.s3.climb.ac.uk/3Apr2024_genomes_excluding_refseq.fa.gz
