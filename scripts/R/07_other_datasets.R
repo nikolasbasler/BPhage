@@ -2,6 +2,10 @@ library(ggVennDiagram)
 library(patchwork)
 library(tidyverse)
 
+######
+###### INCLUDE UNPARIED TRIMMED READS INTO STATS!
+######
+
 present_in_all_countries <- read_lines("data/core_contigs.txt")
 prevalence.Bee_pools <- read.csv("output/R/prevalence/prevalence.Bee_pools.csv") %>%
   rename(bee_pool_prevalence = prevalence_abs) %>%
