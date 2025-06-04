@@ -1,0 +1,123 @@
+#!/bin/bash -l
+#SBATCH --job-name="additional_datasets_mapping_with_unpaired"
+#SBATCH --cluster=genius
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=36
+#SBATCH --mem-per-cpu=4G
+#SBATCH --time=2:00:00
+#SBATCH --account=lp_jm_virome_group
+#SBATCH --output=slurm-%x_%a_%A.out 
+
+###############################################################################
+
+# Submit (from output/slurm_log)
+# Only job 105 needs a whole node for memory reasons. All other ones finish on 12 cores within 30 minutes.
+# sbatch --array=1-114 --export=ALL ../../scripts/HPC/additional_datasets_mapping_with_unpaired.slrm
+
+source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
+repo_location="$VSC_STAGING/BPhage"
+
+line=$(head -n $SLURM_ARRAY_TASK_ID <(cut -f1 $repo_location/data/other_datasets_SRA_accessions.tsv) | tail -n1)
+threads=36
+
+mkdir -p $VSC_SCRATCH/BPhage/additional_datasets/temp
+
+cd $VSC_SCRATCH/BPhage/additional_datasets
+
+conda activate ncbi
+# Extract fastq from .sra
+fasterq-dump -O temp --threads $threads SRA/${line}/${line}.sra
+pigz -p $threads temp/${line}*.fastq
+
+conda activate viper_bphage
+
+if [ -f temp/${line}.fastq.gz ]; then
+    sra_has_three_files=true
+else
+    sra_has_three_files=false
+fi
+
+# Remove duplicates
+clumpify.sh reorder dedupe=t overwrite=t in=temp/${line}_1.fastq.gz in2=temp/${line}_2.fastq.gz out=temp/${line}.dedup.R1.fastq.gz out2=temp/$line.dedup.R2.fastq.gz
+if [ $sra_has_three_files = true ]; then
+    clumpify.sh reorder dedupe=t overwrite=t in=temp/${line}.fastq.gz out=temp/${line}.dedup.unpaired.fastq.gz
+fi
+
+# Trim
+echo "Trimming"
+if [ $(grep $line $repo_location/data/other_datasets_SRA_accessions.tsv | cut -f2) = "Sbardellati" ]; then
+	trimmomatic_primer="$repo_location/data/adapters/TruSeq3-PE.fa"
+elif [ $(grep $line $repo_location/data/other_datasets_SRA_accessions.tsv | cut -f2) = "Feng" ]; then
+	trimmomatic_primer="$repo_location/data/adapters/NEBNext.fa"
+else
+	trimmomatic_primer="$repo_location/data/adapters/primer_WTA2_Nextera.fa"
+fi
+
+trimmomatic PE \
+    -threads "$threads" temp/${line}.dedup.R1.fastq.gz temp/${line}.dedup.R2.fastq.gz \
+    ${line}.TRIM.R1.fastq.gz temp/${line}.T.R1.unpaired.fastq.gz \
+    ${line}.TRIM.R2.fastq.gz temp/${line}.T.R2.unpaired.fastq.gz \
+    ILLUMINACLIP:"$trimmomatic_primer":2:30:7:1:true \
+    LEADING:15 \
+    TRAILING:15 \
+    SLIDINGWINDOW:4:20 \
+    MINLEN:50
+
+if [ $sra_has_three_files = true ]; then
+    trimmomatic SE \
+        -threads "$threads" temp/${line}.dedup.unpaired.fastq.gz \
+        temp/${line}.T.up.unpaired.fastq.gz \
+        ILLUMINACLIP:"$trimmomatic_primer":2:30:7:1:true \
+        LEADING:15 \
+        TRAILING:15 \
+        SLIDINGWINDOW:4:20 \
+        MINLEN:50
+fi
+    
+cat temp/${line}.T*.unpaired.fastq.gz > ${line}.TRIM.unpaired.fastq.gz
+
+if [ $sra_has_three_files = true ]; then
+    raw_unpaired=$(zcat temp/${line}.fastq.gz | awk 'END {print NR/4}')
+    dedup_unpaired=$(zcat temp/${line}.dedup.unpaired.fastq.gz | awk 'END {print NR/4}')
+else
+    raw_unpaired=0
+    dedup_unpaired=0
+fi
+
+raw_pairs=$(zcat temp/${line}_1.fastq.gz | awk 'END {print NR/4}')
+dedup_pairs=$(zcat temp/${line}.dedup.R1.fastq.gz | awk 'END {print NR/4}')
+trimmed_pairs=$(zcat ${line}.TRIM.R1.fastq.gz | awk 'END {print NR/4}')
+trimmed_unpaired=$(zcat ${line}.TRIM.unpaired.fastq.gz | awk 'END {print NR/4}')
+
+echo -e "SRA\tRaw_pairs\tRaw_unpaired\tDedup_pairs\tDedup_unpaired\tTrimmed_pairs\tTrimmed_unpaired" > ${line}_read_stats.tsv
+echo -e "${line}\t${raw_pairs}\t${raw_unpaired}\t${dedup_pairs}\t${dedup_unpaired}\t${trimmed_pairs}\t${trimmed_unpaired}" >> ${line}_read_stats.tsv
+
+# Mapping
+bwa-mem2 mem $VSC_SCRATCH/BPhage/ref/bphage_mapping_ref.fasta \
+    ${line}.TRIM.R1.fastq.gz \
+    ${line}.TRIM.R2.fastq.gz \
+    -t $threads | samtools view -h -F2048 | samtools sort -@ $threads -o temp/${line}.paired.sort.bam
+samtools index -@ $threads temp/${line}.paired.sort.bam
+
+bwa-mem2 mem $VSC_SCRATCH/BPhage/ref/bphage_mapping_ref.fasta \
+    ${line}.TRIM.unpaired.fastq.gz \
+    -t $threads | samtools view -h -F2048 | samtools sort -@ $threads -o temp/${line}.unpaired.sort.bam
+samtools index -@ $threads temp/${line}.unpaired.sort.bam
+
+samtools merge -@ $threads - temp/${line}.paired.sort.bam temp/${line}.unpaired.sort.bam | \
+    samtools sort -@ $threads > temp/${line}.merged.sort.bam
+samtools index -@ $threads temp/${line}.merged.sort.bam
+
+samtools coverage temp/${line}.merged.sort.bam | pigz -c -p $threads > ${line}.coverage.gz
+
+# Clean up
+rm temp/${line}*
+
+# Copy stats to staging
+mkdir -p $repo_location/output/other_studies
+cp ${line}.coverage.gz $repo_location/output/other_studies
+cp ${line}_read_stats.tsv $repo_location/output/other_studies
+
+echo "========================================================================"
+duration=$SECONDS
+printf 'Job finished in: %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))
