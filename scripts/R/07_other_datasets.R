@@ -2,10 +2,6 @@ library(ggVennDiagram)
 library(patchwork)
 library(tidyverse)
 
-######
-###### INCLUDE UNPARIED TRIMMED READS INTO STATS!
-######
-
 present_in_all_countries <- read_lines("data/core_contigs.txt")
 prevalence.Bee_pools <- read.csv("output/R/prevalence/prevalence.Bee_pools.csv") %>%
   rename(bee_pool_prevalence = prevalence_abs) %>%
@@ -70,11 +66,11 @@ SRA_to_study <- read.delim("data/other_datasets_SRA_accessions.tsv", header=FALS
   rename(SRA = V1, study = V2)
 
 stats.read.other_studies.reads <- read.delim("output/other_studies/stats.read.other_studies.reads.tsv") %>%
-  select(SRA, Trimmed_pairs) %>%
+  mutate(Trimmed_total = Trimmed_pairs*2 + Trimmed_unpaired) %>%
+  select(SRA, Trimmed_total) %>%
   left_join(., SRA_to_study, by = "SRA") %>%
   group_by(study) %>%
-  summarise(trimmed_read_pairs = sum(Trimmed_pairs),
-            trimmed_reads = sum(Trimmed_pairs)*2) %>%
+  summarise(trimmed_reads = sum(Trimmed_total)) %>%
   mutate(study = ifelse(study == "Bonilla", "Bonilla-Rosso", study))
 
 stats.other_studies.mapped_reads <- read.csv("output/other_studies/stats.other_studies.mapped_reads.csv") %>%
@@ -140,7 +136,7 @@ core_read_presence_overlap$upset <- plot_upset(vennObj,
 core_read_presence_overlap$upset
 
 only_intersection_bars <- tibble(intersection_set = LETTERS[1:15],
-       set_count = rev(c(1,1,3,3,3,4,4,6,7,8,8,10,11,13,15))) %>%
+       set_count = rev(c(1,1,3,3,4,4,5,6,7,9,9,9,11,12,13))) %>% # HARD-CODED!
   ggplot(aes(x = intersection_set, y = set_count)) +
   geom_col(fill = "black") +
   theme_void() +
@@ -153,7 +149,6 @@ only_intersection_bars <- tibble(intersection_set = LETTERS[1:15],
   theme(
     plot.margin = margin(5,5,5,5),
     )
-
 
 # All this only because they don't let me manipulate the stuff directly... 
 p <- core_read_presence_overlap$upset[[1]]
@@ -216,16 +211,17 @@ positive_pools <- phage_tpm %>%
   filter(reads > 0) %>%
   group_by(study) %>%
   summarize(pools_with_core_phages = n_distinct(SRA))
-  
+
 read_counts_and_pools <- read.delim("output/bphage_viper_output/read_stats.tsv") %>%
   tibble() %>%
   filter(!str_starts(Sample, "Blank")) %>%
   mutate(Trimmed_pairs = Trimmed_R1_plus_R2 / 2) %>%
   mutate(study = "BPhage") %>%
-  select(study, Trimmed_pairs) %>%
+  select(study, Trimmed_total) %>%
   group_by(study) %>%
-  summarise(trimmed_read_pairs = sum(Trimmed_pairs),
-            trimmed_reads = sum(Trimmed_pairs) * 2) %>%
+  summarise(
+    trimmed_reads = sum(Trimmed_total)
+    ) %>%
   rbind(stats.read.other_studies.reads) %>%
   mutate(pools = case_when(study == "BPhage" ~ 150,
                            study == "Bonilla-Rosso" ~ 2,
@@ -253,17 +249,18 @@ read_counts_and_pools <- read.delim("output/bphage_viper_output/read_stats.tsv")
                                      study == "Sbardellati" ~ "California, USA",
                                      study == "Feng" ~ "China"),
          total_core_phages = case_when(study == "BPhage" ~ sum(dataset_overlap$Bphage),
-                                     study == "Bonilla-Rosso" ~ sum(dataset_overlap$Bonilla),
-                                     study == "Busby" ~ sum(dataset_overlap$Busby),
-                                     study == "Deboutte" ~ sum(dataset_overlap$Deboutte),
-                                     study == "Sbardellati" ~ sum(dataset_overlap$Sbardellati),
-                                     study == "Feng" ~ sum(dataset_overlap$Feng)
-                                 )
+                                       study == "Bonilla-Rosso" ~ sum(dataset_overlap$Bonilla),
+                                       study == "Busby" ~ sum(dataset_overlap$Busby),
+                                       study == "Deboutte" ~ sum(dataset_overlap$Deboutte),
+                                       study == "Sbardellati" ~ sum(dataset_overlap$Sbardellati),
+                                       study == "Feng" ~ sum(dataset_overlap$Feng)
+         )
   ) %>%
-  mutate(trimmed_reads = trimmed_read_pairs*2, .after = trimmed_read_pairs) %>%
   arrange(desc(total_core_phages))
 
-ratio_bphage_to_all_others <- 3771661288 / (sum(read_counts_and_pools$trimmed_read_pairs)-3771661288)
+
+ratio_bphage_to_all_others <- 8480737275 / (sum(read_counts_and_pools$trimmed_reads)-8480737275)
+proportion_of_bphage_in_total_effort <- 8480737275 / sum(read_counts_and_pools$trimmed_reads)
 
 ##### Save files
 
@@ -284,6 +281,10 @@ write_csv(read_counts_and_pools, "output/R/other_studies/read_counts_and_pools.c
 write_csv(dataset_overlap, "output/R/other_studies/dataset_overlap.csv")
 
 # For convenience, to avoid backtracking
+# classification_strip <- classification %>%
+#   select(-c(Prevalence_other_datasets, Present_in_Deboutte, Present_in_Bonilla, 
+#             Present_in_Busby, Present_in_Sbardellati, Present_in_Feng))
+# 
 # new_classification_df <- dataset_overlap %>%
 #   select(-Bphage) %>%
 #   mutate(Prevalence_other_datasets = dataset_prevalence-1, .after = "contig") %>%
@@ -293,7 +294,7 @@ write_csv(dataset_overlap, "output/R/other_studies/dataset_overlap.csv")
 #          Present_in_Busby = Busby,
 #          Present_in_Sbardellati = Sbardellati,
 #          Present_in_Feng = Feng) %>%
-#   left_join(classification, ., by = "contig")
+#   left_join(classification_strip, ., by = "contig")
 # write_csv(new_classification_df, "output/R/classification.csv")
 # saveRDS(new_classification_df, "output/R/R_variables/classification.RDS")
 
