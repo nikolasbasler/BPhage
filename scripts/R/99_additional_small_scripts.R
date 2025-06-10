@@ -1,4 +1,5 @@
 library(tidyverse)
+library(patchwork)
 
 
 ##### 
@@ -84,6 +85,58 @@ post_mapping_stats <- full_join(phage.filt.abundance.contig_long, abundance.tabl
 
 pre_mapping_stats
 post_mapping_stats
+
+
+#####
+## BLASTn of phage genomes vs. INPHARED
+
+alignment_plot <- function(blast_result) {
+  blast_result %>%
+    add_row(stitle="Query", sseqid="", qstart=1, qend = blast_result$qlen[1]) %>% # Add dummy row
+    slice(c(n(), 1:(n() - 1))) %>% # Move dummy row to the bottom of the dataframe
+    mutate(text = paste(stitle, sseqid)) %>%
+    mutate(text = ifelse(nchar(text)>150, sub("^(.{0,})(.{145})$", "[...]\\2", text), text)) %>% # Shorten overly-long labels
+    mutate(text = factor(text, levels = rev(unique(text)))) %>%
+    ggplot(aes(x = qstart, xend = qend, y = text, yend = text, fill = pident)) +
+    geom_segment(aes(color = pident), linewidth = 2) +
+    labs(title = unique(blast_result$qseqid), x = "Position", y = NULL, color = "percent\nidentity\n") +
+    scale_colour_gradient(limits = c(0, 100), na.value = "black")
+}
+
+present_in_all_countries <- read_lines("data/core_contigs.txt")
+phages_blastn <- read.delim("output/phages_blastn.tsv") %>%
+  tibble()
+
+blast_of_core <- phages_blastn %>%
+  filter(qseqid %in% present_in_all_countries)
+
+plot_list <- list()
+hits <- c()
+longest_texts <- c()
+tax_plot_wraps <- c()
+for (cont in unique(blast_of_core$qseqid)) {
+  filt_blast <- blast_of_core %>%
+    filter(qseqid == cont)
+  
+  plot_list[[cont]] <-alignment_plot(blast_result = filt_blast)
+  
+  hits <- filt_blast$sseqid %>%
+    unique() %>%
+    length() %>%
+    c(hits, .)
+  longest_texts <- paste(filt_blast$stitle, filt_blast$stitle) %>%
+    nchar() %>%
+    max() %>%
+    c(longest_texts, .)
+}
+
+wrap <- wrap_plots(plot_list) + plot_layout(ncol = 1, guides = "collect", heights=hits)
+
+### Save wrap
+ggsave("output/R/phage_blast.core.pdf", wrap,
+       width = 7.5 + min(150, max(longest_texts))/15, height = length(plot_list) + sum(hits)/5,
+       limitsize = FALSE
+       )
 
 
 
