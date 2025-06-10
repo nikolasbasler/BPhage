@@ -84,6 +84,9 @@ prefetch -O SRA --max-size 100G --option-file <(cut -f1 $repo_location/data/othe
 wget https://millardlab-inphared.s3.climb.ac.uk/3Apr2024_genomes_excluding_refseq.fa.gz
 mv 3Apr2024_genomes_excluding_refseq.fa.gz inphared_3Apr2024_genomes_excluding_refseq.fa.gz
 
+wget https://millardlab-inphared.s3.climb.ac.uk/14Apr2025_genomes_excluding_refseq.fa.gz
+mv 14Apr2025_genomes_excluding_refseq.fa.gz inphared_14Apr2025_genomes_excluding_refseq.fa.gz
+
 # Kirchberger et al 2022 microvirus proteins
 wget https://raw.githubusercontent.com/martinez-zacharya/MOP-UP/refs/heads/master/Micro2022_02_24_input.fasta
 
