@@ -118,21 +118,51 @@ for (completeness_cutoff in cutoffs) {
     venn_by_style[[is_core]] <- wrap_plots(venn, ncol = 1)
   }
 
-  system("mkdir -p output/R/lifestyle/")
-  for (tool in names(lifestyle_bars)) {
-    for (set in names(lifestyle_bars[[tool]])) {
-      # ggsave(paste0("output/R/lifestyle/", set, ".completeness_", completeness_cutoff,".pdf"),
-      ggsave(paste0("output/R/lifestyle/", tool, "_", set, ".completeness_", completeness_cutoff,".pdf"),
-             lifestyle_bars[[tool]][[set]], width = 3.75, height = 7)
-      ggsave(paste0("output/R/lifestyle/", tool, "_", set, ".completeness_", completeness_cutoff,"_horizontal.pdf"),
-             lifestyle_bars_horizontal[[tool]][[set]], width = 7, height = 3.75)
-    }
-    write_csv(lifestyle_tibble[[tool]],
-              # paste0("output/R/lifestyle/lifestyle_stats.completeness_", completeness_cutoff, ".csv"))
-              paste0("output/R/lifestyle/", tool, "_lifestyle_stats.completeness_", completeness_cutoff, ".csv"))
-  }
-  for (is_core in names(venn_by_style)) {
-    ggsave(paste0("output/R/lifestyle/venn.core_", is_core, ".completeness_", completeness_cutoff, ".pdf"),
-           venn_by_style[[is_core]], width = 6, height = 9)
-  }
+  # system("mkdir -p output/R/lifestyle/")
+  # for (tool in names(lifestyle_bars)) {
+  #   for (set in names(lifestyle_bars[[tool]])) {
+  #     # ggsave(paste0("output/R/lifestyle/", set, ".completeness_", completeness_cutoff,".pdf"),
+  #     ggsave(paste0("output/R/lifestyle/", tool, "_", set, ".completeness_", completeness_cutoff,".pdf"),
+  #            lifestyle_bars[[tool]][[set]], width = 3.75, height = 7)
+  #     ggsave(paste0("output/R/lifestyle/", tool, "_", set, ".completeness_", completeness_cutoff,"_horizontal.pdf"),
+  #            lifestyle_bars_horizontal[[tool]][[set]], width = 7, height = 3.75)
+  #   }
+  #   write_csv(lifestyle_tibble[[tool]],
+  #             # paste0("output/R/lifestyle/lifestyle_stats.completeness_", completeness_cutoff, ".csv"))
+  #             paste0("output/R/lifestyle/", tool, "_lifestyle_stats.completeness_", completeness_cutoff, ".csv"))
+  # }
+  # for (is_core in names(venn_by_style)) {
+  #   ggsave(paste0("output/R/lifestyle/venn.core_", is_core, ".completeness_", completeness_cutoff, ".pdf"),
+  #          venn_by_style[[is_core]], width = 6, height = 9)
+  # }
 }
+
+
+
+# For convenience, to avoid backtracking
+# classification_strip <- classification %>%
+#   select(-c(Prevalence_other_datasets, Present_in_Deboutte, Present_in_Bonilla,
+#             Present_in_Busby, Present_in_Sbardellati, Present_in_Feng))
+# 
+# all_contigs <- rbind(unextended, extended) %>%
+#   distinct(contig) %>%
+#   unlist(use.names = FALSE)
+# 
+# bacphlip_pred <- prediction_result$bacphlip %>%
+#   filter(contig %in% all_contigs) %>%
+#   select(original_contig, final_label) %>%
+#   rename(Lifestyle_bacphlip = final_label,
+#          contig = original_contig)
+# 
+# replidec_pred <- prediction_result$replidec %>%
+#   filter(contig %in% all_contigs) %>%
+#   select(original_contig, final_label) %>%
+#   rename(Lifestyle_replidec = final_label,
+#          contig = original_contig)
+# 
+# new_classification_df <- full_join(bacphlip_pred, replidec_pred, by = "contig") %>%
+#   left_join(classification, ., by = "contig") %>%
+#   relocate(c(Lifestyle_replidec, Lifestyle_bacphlip), .after = "Core") 
+# 
+# write_csv(new_classification_df, "output/R/classification.csv")
+# saveRDS(new_classification_df, "output/R/R_variables/classification.RDS")
