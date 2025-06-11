@@ -1,5 +1,7 @@
 library(tidyverse)
 library(patchwork)
+classification <- readRDS("output/R/R_variables/classification.RDS")
+
 
 
 ##### 
@@ -138,5 +140,50 @@ ggsave("output/R/phage_blast.core.pdf", wrap,
        limitsize = FALSE
        )
 
+##### 
+## INPHARED CLUSTERING
+
+bphage_and_inpha_95.85_clusters <- read.delim("output/bphage_and_inpha_95-85_clusters.tsv", header=FALSE) %>%
+  tibble()
+
+relevant_clusters_tibble <- bphage_and_inpha_95.85_clusters %>%
+  filter(str_detect(V2, "NODE"),
+         str_detect(V2, ",")) %>%
+  rename("representative" = V1,
+         "members" = V2)
+
+relevant_clusters_list <- str_split(relevant_clusters_tibble$members, ","); names(relevant_clusters_list) <- relevant_clusters_tibble$representative
+
+clustered_nodes <- relevant_clusters_list %>%
+  lapply(function(x) grep("NODE", x, value = TRUE)) %>%
+  unlist(use.names = FALSE)
+
+relevant_clusters_list %>%
+  lapply(function(x) grep("NODE_A3_length_54145_cov_23.439891_RO_17363_sum_rec_d", x, value = TRUE))
+
+contigs_with_inphas_list <- list()
+for (node in clustered_nodes) {
+  contigs_with_inphas_list <- relevant_clusters_tibble %>%
+    filter(str_detect(members, node)) %>%
+    mutate(members = gsub("NODE_[^,]*", "", members),
+           members = gsub(",{2}", ",", members),
+           members = gsub("^,|,$", "", members)
+           ) %>%
+    select(members) %>%
+    unlist() %>%
+    str_split(",") %>%
+    set_names(node) %>%
+    c(contigs_with_inphas_list, .)
+}
+
+new_classification_df <- tibble(contig = names(contigs_with_inphas_list),
+                                     INPHARED_clustered = lapply(contigs_with_inphas_list, function(x) paste(x, collapse = ",")) %>%
+                                       unlist()) %>%
+  left_join(classification, ., by = "contig")
+
+# For convenience, to avoid backtracking
+# write_csv(new_classification_df, "output/R/classification.csv")
+# saveRDS(new_classification_df, "output/R/R_variables/classification.RDS")
 
 
+#
