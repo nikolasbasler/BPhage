@@ -1,7 +1,7 @@
 
-FAOSTAT_pest_data <- read.csv("data/FAOSTAT_pest_data_en_3-4-2025.csv")
-FAOSTAT_area_data <- read.csv("data/FAOSTAT_area_data_en_3-5-2025.csv")
-FAOSTAT_pop_data <- read.csv("data/FAOSTAT_pop_data_en_3-5-2025.csv")
+FAOSTAT_pest_data <- read.csv("data/FAOSTAT_pest_data_en_3-4-2025.csv") # From https://www.fao.org/faostat/en/#data/RP
+FAOSTAT_area_data <- read.csv("data/FAOSTAT_area_data_en_3-5-2025.csv") # From https://www.fao.org/faostat/en/#data/RL
+FAOSTAT_pop_data <- read.csv("data/FAOSTAT_pop_data_en_3-5-2025.csv") # Ended up not using it
 
 landuse <- FAOSTAT_area_data %>% 
   filter(Element %in% c("Area", "Value of agricultural production (Int. $) per Area"), 
