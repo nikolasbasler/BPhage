@@ -6,7 +6,8 @@ library(patchwork)
 metadata <- readRDS("output/R/R_variables/metadata.RDS")
 
 core_or_not <- c("yes", "no")
-plotting_lable <- list(yes = "core", no = "noncore", all = "all")
+plotting_lable <- list(yes = "core", no = "noncore", all = "all", 
+                       abs_yes = "abs_core", abs_no = "abs_noncore", abs_all = "abs_all")
 
 taxlevels <- c("contig", "Family")
 beta_dists <- list()
@@ -16,9 +17,19 @@ beta_dists$Family$all <- read.csv("output/R/beta/beta_all/beta_dist_Family.csv")
 beta_dists$contig$all <- read.csv("output/R/beta/beta_all/beta_dist_contig.csv") %>%
   column_to_rownames("Sample_ID") %>%
   as.dist()
+beta_dists$Family$abs_all <- read.csv("output/R/beta/beta_all/beta_abs_dist_Family.csv") %>%
+  column_to_rownames("Sample_ID") %>%
+  as.dist()
+beta_dists$contig$abs_all <- read.csv("output/R/beta/beta_all/beta_abs_dist_contig.csv") %>%
+  column_to_rownames("Sample_ID") %>%
+  as.dist()
+
 for (yes_no in core_or_not) {
   for (tax in taxlevels) {
     beta_dists[[tax]][[yes_no]] <- read.csv(paste0("output/R/beta/beta_core_or_not/beta_dist_core_or_not_", yes_no,".", tax,".csv")) %>%
+      column_to_rownames("Sample_ID") %>%
+      as.dist()
+    beta_dists[[tax]][[paste0("abs_", yes_no)]] <- read.csv(paste0("output/R/beta/beta_core_or_not/beta_abs_dist_core_or_not_", yes_no,".", tax,".csv")) %>%
       column_to_rownames("Sample_ID") %>%
       as.dist()
   }
@@ -33,6 +44,13 @@ for (tax in taxlevels) {
     meta_filt <- metadata %>%
       filter(Sample_ID %in% rownames(as.matrix(beta_dists[[tax]][[set]]))) %>% 
       select(Country, Season, Gut_part)
+    
+    if (str_detect(set, "abs_")) {
+      meta_filt <- meta_filt %>%
+        select(-Gut_part)
+      custom_colors <- c("#8B4513", "#1C3A3A", "#FFA07A", "#1C3A3A")
+    }
+    
     r_names_dist <- rownames(as.matrix(beta_dists[[tax]][[set]]))
     if (!identical(r_names_dist, rownames(meta_filt))) {
       print("ROWNAMES OF DIST MATRIX AND METADATA DONT MATCH! ABORTING")

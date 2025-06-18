@@ -586,12 +586,15 @@ pool_richness <- phage_tpm$contig %>%
   summarise(pool_richness = sum(presence))
 
 median_pool <- median(pool_richness$pool_richness)
+mean_pool <- mean(pool_richness$pool_richness)
 raw_bee_pool_richness <- pool_richness %>%
   ggplot(aes(x = pool_richness)) +
   geom_histogram(bins = 50) +
   geom_vline(xintercept = median_pool) +
+  geom_vline(xintercept = mean_pool, linetype = 2) +
   annotate("text", x = median_pool, y = 10, label = paste0("median: ", median_pool), hjust = -0.25) +
-  labs(x = "raw bee pool phage richness")
+  annotate("text", x = mean_pool, y = 10, label = paste0("median: ", median_pool), hjust = -0.25) +
+  labs(x = "raw bee pool phage richness", y = "number of bee pools")
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
