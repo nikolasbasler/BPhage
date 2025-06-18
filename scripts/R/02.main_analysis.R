@@ -592,8 +592,8 @@ raw_bee_pool_richness <- pool_richness %>%
   geom_histogram(bins = 50) +
   geom_vline(xintercept = median_pool) +
   geom_vline(xintercept = mean_pool, linetype = 2) +
-  annotate("text", x = median_pool, y = 10, label = paste0("median: ", median_pool), hjust = -0.25) +
-  annotate("text", x = mean_pool, y = 10, label = paste0("median: ", median_pool), hjust = -0.25) +
+  annotate("text", x = median_pool, y = 10, label = paste0("median: ", median_pool), hjust = 1.1) +
+  annotate("text", x = mean_pool, y = 10, label = paste0("mean: ", mean_pool), hjust = -0.25) +
   labs(x = "raw bee pool phage richness", y = "number of bee pools")
 
 #------------------------------------------------------------------------------#
