@@ -328,7 +328,8 @@ for (core_or_not in unique(classification$Core)) {
 meta_merges <- list(Bee_pools = "Gut_part", 
                     Hives = c("Season", "Gut_part"),
                     Countries = c("Season", "Gut_part", "Hive_ID"),
-                    Seasons = c("Country", "Gut_part", "Hive_ID"))
+                    Seasons = c("Country", "Gut_part", "Hive_ID"),
+                    Gut_parts = c("Country", "Hive_ID", "Season"))
 phage_ab_meta_merges <- list()
 phage_tpm_meta_merges <- list()
 phage_ab_meta_merges$Samples <- phage_ab$contig
@@ -689,6 +690,16 @@ for (merge in names(phage_ab_meta_merges)) {
     mutate(value = ifelse(value == 0, FALSE, TRUE)) %>%
     pivot_wider()
 }
+
+core_gutpart_presence <- list()
+for (gpart in c("mid", "ile", "rec")) {
+  core_gutpart_presence[[gpart]] <- presence_absence$Gut_parts %>% 
+    filter(contig %in% present_in_all_countries,
+           .data[[gpart]]) %>%
+    distinct(contig) %>%
+    unlist(use.names = FALSE)
+}
+core_gut_part_venn <- ggVennDiagram::ggVennDiagram(core_gutpart_presence) + ggtitle("Core phage presence")
 
 # present_in_all_countries <- prevalence_histo$Countries$table %>%
 #   filter(prevalence_prop ==1) %>%
