@@ -3,6 +3,9 @@ library(ggtext)
 
 # color_vector <- c("#FFDAB9", "#FFA07A", "#FFC300","#ef8f01", "#D2691E", "#8B4513", "#1C3A3A", "black", "#555555", "lightgrey")
 
+phage_tpm <- read.csv("output/R/relative_abundance/phage_tpm.csv") %>%
+  tibble()
+
 host_pie_colors <- c("***Bifidobacterium***" = "#FFDAB9",
                      "***Lactobacillus***" = "#FFA07A",
                      "***Snodgrassella***" = "#FFC300",
@@ -66,7 +69,7 @@ for (set in names(iphop_prediction)) {
     mutate(Genus = str_replace_all(Genus, "_.$", "")) %>% 
     select(Virus, Genus)
   
-  confident_host_genus[[set]]
+  # confident_host_genus[[set]]
   
   # confident_host_genome[[set]] <- confident_host[[set]] %>%
   #   group_by(Virus) %>%
@@ -89,7 +92,9 @@ unknown_host$noncore <- classification %>%
   tibble()
 
 host_pie <- list()
+host_pie_tpm <- list()
 host_tibble <- list()
+host_tpm_tibble <- list()
 host_group <- list()
 all_hosts <- list()
 for (set in c("all", "core", "noncore")) {
@@ -107,6 +112,15 @@ for (set in c("all", "core", "noncore")) {
     summarise(count = n()) %>% 
     arrange(count) %>%
     ungroup()
+  
+  host_tpm_tibble[[set]] <- host_group[[set]] %>%
+    left_join(., phage_tpm, by = join_by("Virus" == "contig")) %>%
+    pivot_longer(-c(Virus, Genus), names_to = "Sample_ID", values_to = "tpm") %>%
+    group_by(Genus, Sample_ID) %>%
+    summarise(summed_tpm = sum(tpm), .groups = "drop") %>%
+    group_by(Genus) %>%
+    summarise(mean_tpm = mean(summed_tpm))
+  
   
   genus_order <- host_tibble[[set]] %>%
     filter(!Genus %in% c("other", "unknown")) %>% 
@@ -132,7 +146,26 @@ for (set in c("all", "core", "noncore")) {
           legend.text = element_markdown(),
           legend.title = element_text(face = "bold")) +
     scale_fill_manual(values = host_pie_colors) +
-    ggtitle(set)
+    ggtitle(paste(set, " - count"))
+  
+  host_pie_tpm[[set]] <- host_tpm_tibble[[set]] %>%
+    mutate(Genus = case_when(Genus %in% c("Gilliamella", "Lactobacillus", "Bifidobacterium", "Bombilactobacillus", "Snodgrassella") ~ paste0("***", Genus, "***"),
+                             Genus %in% c("other", "unknown") ~ Genus,
+                             .default = paste0("*", Genus, "*"))) %>%
+    mutate(Genus = factor(Genus, levels = c("unknown", "other", genus_order))) %>%
+    ggplot(aes(x = "", y = mean_tpm, fill = Genus)) +
+    geom_bar(stat = "identity", color= "black") +
+    coord_polar("y") +
+    theme_void() +
+    guides(fill = guide_legend(reverse=TRUE)) +
+    labs(fill = "Host genus") +
+    theme(legend.margin=margin(0,2,0,-20),
+          plot.title = element_text(hjust = 0.5),
+          legend.text = element_markdown(),
+          legend.title = element_text(face = "bold")) +
+    scale_fill_manual(values = host_pie_colors) +
+    ggtitle(paste(set, " - tpm"))
+  
 }
 
 system("mkdir -p output/R/host_pies")
@@ -141,6 +174,10 @@ for (pie in names(host_pie)) {
          host_pie[[pie]], height = 6, width = 6)
   write_csv(host_tibble[[pie]],
             paste0("output/R/host_pies/hosts.", pie, ".csv"))
+  ggsave(paste0("output/R/host_pies/hosts.", pie, ".tpm.pdf"),
+         host_pie_tpm[[pie]], height = 6, width = 6)
+  write_csv(host_tpm_tibble[[pie]],
+            paste0("output/R/host_pies/hosts.", pie, ".tpm.csv"))
   write_csv(all_hosts[[pie]],
             paste0("output/R/host_pies/all_hosts.", pie, ".csv"))
 }
