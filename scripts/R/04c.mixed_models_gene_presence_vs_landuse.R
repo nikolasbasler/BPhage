@@ -402,5 +402,18 @@ for (item in names(model_diagnostics)) {
   }
 }
 
+## To avoid backtracking:
+# new_classification_df <- grene_presence_on_contigs %>%
+#   mutate(GOI_cysH = `PAPS reductase` == 1,
+#          GOI_chitinase = Chitinase == 1,
+#          GOI_levanase = Levanase == 1,
+#          GOI_pnuc = PnuC == 1,
+#          GOI_glucosyltransferase = Glucosyltransferase == 1
+#   ) %>%
+#   select(contig, GOI_cysH, GOI_chitinase, GOI_levanase, GOI_pnuc, GOI_glucosyltransferase) %>%
+#   left_join(classification, ., by = "contig") %>%
+#   mutate(across(c(GOI_cysH, GOI_chitinase, GOI_levanase, GOI_pnuc, GOI_glucosyltransferase), ~ replace_na(., FALSE)))
+# write_csv(new_classification_df, "output/R/classification.csv")
+# saveRDS(new_classification_df, "output/R/R_variables/classification.RDS")
 
 
