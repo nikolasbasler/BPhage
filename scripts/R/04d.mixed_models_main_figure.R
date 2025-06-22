@@ -23,7 +23,7 @@ plots$pathogen_ct$BQCV$Insecticides <- readRDS("output/R/genes_pathogens_and_lan
   scale_y_continuous(limits = c(NA, NA),
                      breaks = c(23.37, 26.53),
                      labels = c(23.37, 26.53))
-plots$gene_tpm$nosema_relabund <- readRDS("output/R/genes_pathogens_and_landuse/gene_tpm_vs_nosema_relabund/single_panel.RDS.Citinase.Varimorpha_relabund.rds")
+plots$gene_tpm$nosema_relabund <- readRDS("output/R/genes_pathogens_and_landuse/gene_tpm_vs_nosema_relabund/single_panel.RDS.Citinase.Vairimorpha_relabund.rds")
 plots$gene_tpm$`PAPS reductase`$Cropland_in_2km_radius <- readRDS("output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/single_panels/RDS.PAPS reductase.Cropland_in_2km_radius.rds")
 plots$gene_tpm$`PAPS reductase`$`Pesticides (total)` <- readRDS("output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/single_panels/RDS.PAPS reductase.Pesticides (total).rds")
 plots$gene_tpm$`PAPS reductase`$`Fungicides and Bactericides` <- readRDS("output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/single_panels/RDS.PAPS reductase.Fungicides and Bactericides.rds")
