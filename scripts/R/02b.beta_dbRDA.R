@@ -35,8 +35,6 @@ for (yes_no in core_or_not) {
   }
 }
 
-custom_colors <- c("#ef8f01", "#1C3A3A", "#8B4513", "#1C3A3A", "#FFA07A", "#1C3A3A")
-
 RDAs <- list()
 RDA_plots <- list()
 for (tax in taxlevels) {
@@ -49,6 +47,8 @@ for (tax in taxlevels) {
       meta_filt <- meta_filt %>%
         select(-Gut_part)
       custom_colors <- c("#8B4513", "#1C3A3A", "#FFA07A", "#1C3A3A")
+    } else {
+      custom_colors <- c("#ef8f01", "#1C3A3A", "#8B4513", "#1C3A3A", "#FFA07A", "#1C3A3A")
     }
     
     r_names_dist <- rownames(as.matrix(beta_dists[[tax]][[set]]))
@@ -89,7 +89,9 @@ ggsave("output/R/beta/beta_dbRDA/dbRDA.Family_patch.horizontal.pdf", family_patc
 ggsave("output/R/beta/beta_dbRDA/dbRDA.Family_patch.vertical.pdf", family_patch_vertical, width = 3.5, height = 9)
 for (tax in taxlevels) {
   for (set in names(beta_dists[[tax]])) {
-    write_delim(RDAs[[tax]][[set]], paste0("output/R/beta/beta_dbRDA/dbRDA.", tax, ".", plotting_lable[[set]], ".tsv"))
+    write_delim(RDAs[[tax]][[set]], 
+                paste0("output/R/beta/beta_dbRDA/dbRDA.", tax, ".", plotting_lable[[set]], ".tsv"),
+                delim = "\t")
     ggsave(paste0("output/R/beta/beta_dbRDA/dbRDA.", tax, ".", plotting_lable[[set]], ".pdf"), RDA_plots[[tax]][[set]],
            width = 5, height = 5)
   }
