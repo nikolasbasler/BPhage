@@ -5,6 +5,8 @@ library(forcats)
 library(tidyverse)
 library(patchwork)
 library(tidytext)
+library(ggtext)
+
 
 source("scripts/R/helpers/mixed_helpers.R")
 
@@ -241,7 +243,8 @@ tpm_plot <- mixed_model_plot(filt_test_tibble = sig_tests,
                    dark_col = color_list$dark[[tested_gene]],
                    bright_col = color_list$bright[[tested_gene]],
                    y_axis_label = "Log rel. gene abund.") +
-  labs(x = "Log rel. Vairimorpha abund.")
+  labs(x = "Log rel. *Vairimorpha* abund.") +
+  theme(axis.title = element_markdown())
 
 common_legend <- legend_factory(title = "Gene", 
                                 items = names(color_list$dark),
