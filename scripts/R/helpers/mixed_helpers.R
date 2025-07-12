@@ -70,7 +70,15 @@ mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_c
   y_of_low <- transform_fun(low, intercept = inter, slope = slo)
   slo_sd <- ifelse(high < 0 , -filt_test_tibble$`Std. Error`, filt_test_tibble$`Std. Error`)
 
-  effect_size <- effect_fun(s = slo, h = high, l = low)
+  # effect_size <- effect_fun(s = slo, h = high, l = low) # for fold change
+  effect_size_fold <- effect_fun(s = slo, h = high, l = low)
+  
+  # for percentage change:
+  if (effect_size_fold < 1) { 
+    effect_size <- -round((1 - effect_size_fold) * 100)
+  } else {
+    effect_size <- round((effect_size_fold) * 100)
+  }
 
   plot_min <- low - (high - low) / 5
   plot_max <- high + (high - low) / 5
@@ -167,11 +175,12 @@ mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_c
       "text",
       x = arrow_x_center,
       y = (arrow_base + arrow_head_base_y) / 2,
-      # label = paste0("OR = ", round(effect_size, 2)),
-      label = sprintf("%.2f", effect_size),
+      # label = sprintf("%.2f", effect_size), # for fold change
+      label = paste0(effect_size, "%"), # for percentage change
       angle = 90,
       # size = ifelse(relative_arror_length < 0.35, 2.75, 4),
-      size = 4,
+      # size = 4, # for fold change
+      size = 3, # for percentage change
       color = "white"
     ) +
     
