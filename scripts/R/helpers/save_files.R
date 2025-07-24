@@ -417,6 +417,9 @@ for (tl in names(prevalence_histo)) {
   # write_csv(prevalence_histo[[tl]]$table, paste0("data/prevalence_tables/prevalence.",tl,".csv")) # This is also written to data to avoid backtracking. So it can be used at the top of the main script already.
 }
 
+ggsave("output/R/prevalence/gut_part_venn.pdf", 
+       core_gut_part_venn, height = 5, width = 5)
+
 ## TPM per country ####
 system("mkdir -p output/R/relative_abundance/relative_abundance_by_country")
 for (core_or_not in names(average_tpm_per_country)) {

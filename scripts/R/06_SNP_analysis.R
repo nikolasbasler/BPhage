@@ -329,6 +329,9 @@ for (dataset in names(ska_plot)) {
          tree_plots[[dataset]], width = 7, height = 10)
   ggsave(paste0("output/R/SNP_analysis/SNP_RDA_", dataset, ".pdf"),
          RDA_plots[[dataset]], width = 5, height = 4)
+  write_delim(RDAs[[dataset]], 
+              paste0("output/R/SNP_analysis/SNP_RDA_", dataset, ".tsv"),
+              delim = "\t")
 }
 
 

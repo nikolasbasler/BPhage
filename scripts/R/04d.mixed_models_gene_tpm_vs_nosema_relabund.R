@@ -84,11 +84,11 @@ for (goi in genes_of_interest) {
     left_join(., nosema_relabund, by = "Sample_ID") %>%
     mutate(Gut_part = factor(Gut_part, levels = c("rec", "ile", "mid"))) %>%
     mutate(log_tpm = log10(tpm),
-           log_Varimorpha_relabund = log10(nosema_relabund)) %>%
+           log_Vairimorpha_relabund = log10(nosema_relabund)) %>%
     filter(!is.infinite(log_tpm),
-           !is.infinite(log_Varimorpha_relabund))
+           !is.infinite(log_Vairimorpha_relabund))
   
-  model_tpm[[goi]] <- lmer(log_tpm ~ log_Varimorpha_relabund + Gut_part + Season +
+  model_tpm[[goi]] <- lmer(log_tpm ~ log_Vairimorpha_relabund + Gut_part + Season +
                                              (1 | Hive_ID ), data = test_tibble_log_tpm[[goi]])
   
   has_convergence_issues <- FALSE
@@ -128,11 +128,11 @@ for (goi in genes_of_interest) {
 #     distinct() %>%
 #     left_join(., nosema_relabund, by = "Sample_ID") %>%
 #     mutate(Gut_part = factor(Gut_part, levels = c("rec", "ile", "mid"))) %>%
-#     mutate(Varimorpha_presence = ifelse(nosema_relabund > 0.01, 1 , 0),
+#     mutate(Vairimorpha_presence = ifelse(nosema_relabund > 0.01, 1 , 0),
 #            log_tpm = log10(tpm)) %>%
 #     filter(!is.infinite(log_tpm))
 #   
-#   model_presence[[goi]] <- glmer(Varimorpha_presence ~ log_tpm + Gut_part + Season +
+#   model_presence[[goi]] <- glmer(Vairimorpha_presence ~ log_tpm + Gut_part + Season +
 #                                    (1 | Hive_ID ), data = test_tibble_presence[[goi]],
 #                                  family = binomial)
 #   
@@ -168,7 +168,7 @@ slopes <- list()
 for (level in names(coeffs)) {
   
   temp_slope_tibble <- coeffs[[level]] %>%
-    filter(metric %in% c("log_Varimorpha_relabund")) %>%
+    filter(metric %in% c("log_Vairimorpha_relabund")) %>%
     rename(raw_p_value = `Pr(>|t|)`) %>%
     mutate(raw_p_significant = case_when(raw_p_value <= 0.001 ~ "***",
                                          raw_p_value <= 0.01 ~ "**",
@@ -206,7 +206,7 @@ all_slopes <- bind_rows(slopes) %>%
 # Significant results
 lowest_highest <- nosema_relabund %>%
   filter(nosema_relabund > 0) %>%
-  reframe(Item = "log_Varimorpha_relabund",
+  reframe(Item = "log_Vairimorpha_relabund",
           lowest = min(log10(nosema_relabund)),
           highest = max(log10(nosema_relabund)))
 
@@ -233,7 +233,7 @@ color_list <- list(dark = list(Chitinase = "#8B4513"),
                    bright = list(Chitinase = "#8B4513"))
 
 tested_gene <- "Chitinase"
-tested_item <- "log_Varimorpha_relabund"
+tested_item <- "log_Vairimorpha_relabund"
 
 tpm_plot <- mixed_model_plot(filt_test_tibble = sig_tests,
                    transform_fun = linear_fun,
@@ -241,7 +241,7 @@ tpm_plot <- mixed_model_plot(filt_test_tibble = sig_tests,
                    dark_col = color_list$dark[[tested_gene]],
                    bright_col = color_list$bright[[tested_gene]],
                    y_axis_label = "Log rel. gene abund.") +
-  labs(x = "Log rel. Varimorpha abund.")
+  labs(x = "Log rel. Vairimorpha abund.")
 
 common_legend <- legend_factory(title = "Gene", 
                                 items = names(color_list$dark),
@@ -261,7 +261,7 @@ all_tests_forest_plot <- all_slopes %>%
 # DIAGNOSTICS
 
 model_diagnostics <- list()
-for (item in "log_Varimorpha_relabund") {
+for (item in "log_Vairimorpha_relabund") {
   for (goi in names(model_tpm)) {
     slope_of_interest <- all_slopes %>%
       filter(Item == item,
@@ -289,7 +289,7 @@ ggsave("output/R/genes_pathogens_and_landuse/gene_tpm_vs_nosema_relabund/gene_tp
 ggsave("output/R/genes_pathogens_and_landuse/gene_tpm_vs_nosema_relabund/gene_tpm_vs_nosema_relabund.wrap.pdf",
        wrap_of_one, width = 3.5, height = 3.5)
 
-ggsave("output/R/genes_pathogens_and_landuse/gene_tpm_vs_nosema_relabund/single_panel.Citinase.Varimorpha_relabund.pdf",
+ggsave("output/R/genes_pathogens_and_landuse/gene_tpm_vs_nosema_relabund/single_panel.Citinase.Vairimorpha_relabund.pdf",
        tpm_plot, width = 3.5, height = 3.5)
 ggsave("output/R/genes_pathogens_and_landuse/gene_tpm_vs_nosema_relabund/single_panel.common_legend.pdf",
        common_legend, width = 6, height = 1)
@@ -297,8 +297,8 @@ ggsave("output/R/genes_pathogens_and_landuse/gene_tpm_vs_nosema_relabund/single_
 write_delim(nosema_relabund, "output/R/genes_pathogens_and_landuse/gene_tpm_vs_nosema_relabund/nosema_relabund.tsv",
             delim = "\t")
 
-ggsave(paste0("output/R/genes_pathogens_and_landuse/gene_tpm_vs_nosema_relabund/model_diagnostics.log_Varimorpha_relabund.Chitinase.pdf"),
-       model_diagnostics$log_Varimorpha_relabund$Chitinase, width = 6, height = 6)
+ggsave(paste0("output/R/genes_pathogens_and_landuse/gene_tpm_vs_nosema_relabund/model_diagnostics.log_Vairimorpha_relabund.Chitinase.pdf"),
+       model_diagnostics$log_Vairimorpha_relabund$Chitinase, width = 6, height = 6)
 
-saveRDS(tpm_plot, "output/R/genes_pathogens_and_landuse/gene_tpm_vs_nosema_relabund/single_panel.RDS.Citinase.Varimorpha_relabund.rds")
+saveRDS(tpm_plot, "output/R/genes_pathogens_and_landuse/gene_tpm_vs_nosema_relabund/single_panel.RDS.Citinase.Vairimorpha_relabund.rds")
 

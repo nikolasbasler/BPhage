@@ -328,7 +328,8 @@ for (core_or_not in unique(classification$Core)) {
 meta_merges <- list(Bee_pools = "Gut_part", 
                     Hives = c("Season", "Gut_part"),
                     Countries = c("Season", "Gut_part", "Hive_ID"),
-                    Seasons = c("Country", "Gut_part", "Hive_ID"))
+                    Seasons = c("Country", "Gut_part", "Hive_ID"),
+                    Gut_parts = c("Country", "Hive_ID", "Season"))
 phage_ab_meta_merges <- list()
 phage_tpm_meta_merges <- list()
 phage_ab_meta_merges$Samples <- phage_ab$contig
@@ -586,12 +587,15 @@ pool_richness <- phage_tpm$contig %>%
   summarise(pool_richness = sum(presence))
 
 median_pool <- median(pool_richness$pool_richness)
+mean_pool <- mean(pool_richness$pool_richness)
 raw_bee_pool_richness <- pool_richness %>%
   ggplot(aes(x = pool_richness)) +
   geom_histogram(bins = 50) +
   geom_vline(xintercept = median_pool) +
-  annotate("text", x = median_pool, y = 10, label = paste0("median: ", median_pool), hjust = -0.25) +
-  labs(x = "raw bee pool phage richness")
+  geom_vline(xintercept = mean_pool, linetype = 2) +
+  annotate("text", x = median_pool, y = 10, label = paste0("median: ", median_pool), hjust = 1.1) +
+  annotate("text", x = mean_pool, y = 10, label = paste0("mean: ", mean_pool), hjust = -0.25) +
+  labs(x = "raw bee pool phage richness", y = "number of bee pools")
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
@@ -686,6 +690,16 @@ for (merge in names(phage_ab_meta_merges)) {
     mutate(value = ifelse(value == 0, FALSE, TRUE)) %>%
     pivot_wider()
 }
+
+core_gutpart_presence <- list()
+for (gpart in c("mid", "ile", "rec")) {
+  core_gutpart_presence[[gpart]] <- presence_absence$Gut_parts %>% 
+    filter(contig %in% present_in_all_countries,
+           .data[[gpart]]) %>%
+    distinct(contig) %>%
+    unlist(use.names = FALSE)
+}
+core_gut_part_venn <- ggVennDiagram::ggVennDiagram(core_gutpart_presence) + ggtitle("Core phage presence")
 
 # present_in_all_countries <- prevalence_histo$Countries$table %>%
 #   filter(prevalence_prop ==1) %>%
