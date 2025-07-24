@@ -1,0 +1,9 @@
+name: pharokka
+channels:
+  - bioconda
+  - defaults
+  - conda-forge
+  - nodefaults
+dependencies:
+  - pharokka=1.7.1
+prefix: /data/leuven/341/vsc34111/mambaforge/envs/pharokka

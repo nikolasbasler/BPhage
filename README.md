@@ -188,6 +188,8 @@
 - (SKA subspecies)
 - SKA distances -->
 
+### Nosema mapping
+
 ### Additional datasets mapping
 
 ### Novelty check: Clustering with INPHARED
