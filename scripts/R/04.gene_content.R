@@ -500,6 +500,9 @@ for (legend in names(legend_gg)) {
 write_delim(hosts_of_genes_tibble, "output/R/genes_pathogens_and_landuse/hosts_of_genes.tsv",
             delim = "\t")
 
+write_delim(kegg_and_phold, "output/R/genes_pathogens_and_landuse/kegg_and_phold.tsv",
+            delim = "\t")
+
 ggsave("output/R/genes_pathogens_and_landuse/hosts_of_genes_all.pdf", hosts_of_genes_plot_all_genes,
        width = 8, height = 6)
 ggsave("output/R/genes_pathogens_and_landuse/hosts_of_genes_goi.pdf", hosts_of_genes_plot_goi,

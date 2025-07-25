@@ -26,6 +26,49 @@ bee_product_value <- FAOSTAT_bee_product_value_en_5.30.2025 %>%
 
 pollination_value_dollar / bee_product_value
 
+##### 
+## Venn diagram of corephages shared in different gut parts
+
+library(ggVennDiagram)
+phage_tpm <- read.csv("output/R/relative_abundance/phage_tpm.csv") %>%
+  tibble()
+present_in_all_countries <- read_lines("data/core_contigs.txt")
+
+
+presence <- phage_tpm %>% 
+  pivot_longer(-contig, names_to = "Sample_ID", values_to = "tpm") %>%
+  filter(contig %in% present_in_all_countries) %>%
+  mutate(present = tpm > 0) %>%
+  left_join(., metadata[c("Sample_ID", "Gut_part")], by = "Sample_ID")
+
+for_venn <- list()
+for (gpart in unique(presence$Gut_part)) {
+  for_venn[[gpart]] <- presence %>% 
+    filter(Gut_part == gpart,
+           present) %>%
+    distinct(contig) %>%
+    unlist(use.names = FALSE)
+}
+
+core_shared_between_guts <- ggVennDiagram(for_venn)
+
+ggsave("output/R/core_shared_between_guts.pdf", core_shared_between_guts,
+       width = 5, height = 5)
+
+##### 
+## total observed contigs per bee pool
+
+phage_tpm <- read.csv("output/R/relative_abundance/phage_tpm.csv") %>%
+  tibble()
+
+contigs_per_bee_pool <- phage_tpm %>%
+  pivot_longer(-contig, names_to = "Sample_ID", values_to = "tpm") %>%
+  left_join(., metadata[c("Sample_ID", "Bee_pool")], by = "Sample_ID") %>%
+  group_by(Bee_pool) %>%
+  summarise(contig_count = sum(tpm > 0))
+
+write_csv(contigs_per_bee_pool, "output/R/alpha/total_contigs_per_bee_pool.csv")
+
 ###### 
 ## Bees in decline? WiP
 FAOSTAT_data_en_5.30.2025 <- read.csv("~/Downloads/FAOSTAT_data_en_5-30-2025.csv") %>%

@@ -374,6 +374,9 @@ for (item in names(model_logit)) {
 system("mkdir -p output/R/genes_pathogens_and_landuse/gene_presence_vs_landuse/single_panels")
 system("mkdir -p output/R/genes_pathogens_and_landuse/gene_presence_vs_landuse/model_diagnostics")
 
+write_delim(cropland_and_FAO, "output/R/genes_pathogens_and_landuse/cropland_and_FAO.tsv",
+            delim = "\t")
+
 write_delim(bind_rows(coeffs_logit), "output/R/genes_pathogens_and_landuse/gene_presence_vs_landuse/gene_presence_vs_landuse.all_coeffs.tsv",
             delim = "\t")
 write_delim(all_slopes, "output/R/genes_pathogens_and_landuse/gene_presence_vs_landuse/gene_presence_vs_landuse.all_slopes.tsv",
