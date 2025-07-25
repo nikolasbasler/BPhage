@@ -69,7 +69,7 @@ for (core_or_not in unique(classification$Core)) {
     beta_abs_dist_core_or_not[[core_or_not]][[tlvl]] <- ordination(df = phage_load_core_or_not[[core_or_not]][[tlvl]],
                                                                    meta_vars = met_v,
                                                                    absolute_values = TRUE)
-    beta_abs_plot_list_core_or_not[[core_or_not]][[tlvl]] <- beta_plot(beta_abs_dist[[tlvl]]$ord_list,
+    beta_abs_plot_list_core_or_not[[core_or_not]][[tlvl]] <- beta_plot(beta_abs_dist_core_or_not[[core_or_not]][[tlvl]]$ord_list,
                                                                        meta_vars = met_v,
                                                                        mapped_reads = count_stats_core_or_not[[core_or_not]]$ratios)
     
