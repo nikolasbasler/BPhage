@@ -4,7 +4,7 @@ library(tidyverse)
 # according their instructions on https://github.com/martinez-zacharya/MOP-UP
 # and export the table by clicking on "Export Table to file..." above the 
 # tabular display. Save it into output/bphage_micros_mopup/ with the suggested
-# default name. This csv table is the inputs for this script.
+# default name. That csv table is the inputs for this script.
 # This script will then add another column to the table which can then be 
 # imported into Cytoscape again by clickin on "Import Table from file...". Now
 # the nodes in the network can be colored according to the microvirus family by 
