@@ -1,13 +1,27 @@
-# BPhage data analysis
-## Versions
+# The honey bee triad: Phages are mutualistic partners in the gut microbiome of *Apis mellifera*
+
+This repository contains all scripts to reproduce the analysis for the paper by Basler et al (XXX ref). The entire 2,343 assembled phage genomes are also stored here as well as a subset with the 97 core phages. The 1,066 >90% complete genomes are on Genbank (See Supplementary file, sheet i - Genbank accessions).
+
+To clone the repository, please run
+```
+git clone https://github.com/nikolasbasler/BPhage
+```
+
+If you only want to re-run the statistical analyses, it is possible to omit the part that was done on a high-performance computer (assembly, mapping etc.). In that case, please extract the mid-save archive, and then skip ahead to the "R scripts" section in this readme file:
+```
+tar -xvzf mid_save.tar.gz
+```
+
+## Software versions
 - Viper version 2.1 (commit 8244c2eeeebeb2c1fbe4082034ca329e6f0a4a10 13 March 2024, https://github.com/Matthijnssenslab/ViPER)
 - For tool versions see the conda environment `.yml` files: `data/env_*.yml`
 - R 4.3.1
 - RStudio 2023.12.1+402
 - To reproduce R package versions run `renv::restore()`
-- Cytoscape 3.10.2
 
-## Script order
+## 
+
+## HPC scripts
 ### Assembly
 - Prepare: Copy raw files from K-drive. Sample 4295 (BE_16561_aut_rec_d) failed in sequencing run R4317 and was re-run in R4341.
 - `scripts/HPC/rename.BPhage.nucleomics.sh` (contained in R4317 folder on K-drive)
@@ -79,14 +93,6 @@
         - Mapping ref to get the complete contig list: `$VSC_SCRATCH/BPhage/ref/bphage_mapping_ref.fasta`
     - Output:
         - Separate tables for mapped reads, horizontal coverage and mean depth (samples in columns, contigs in rows) and a table with all contig lengths in `output/mapping_stats`
-
-### ANI calculation
-- ANI calculation of genomes: `scripts/HPC/calculate_ANI.slrm`
-    - Requires:
-        - vclust script at `scripts/HPC/vclust-1.0.3_x64-linux/`
-        - Phage, picobirna and unclassified bphage contigs: `output/bphage_ALL_1kb_phages.fasta.gz`, `bphage_ALL_1kb_picobirna.fasta.gz`, `bphage_ALL_1kb_unclassified_viruses.fasta.gz`
-        - Phage and unclassified contigs from other studies: `output/other_studies_phages.fasta.gz`, `output/other_studies_unclassified_viruses.fasta.gz`
-    - Output: Pairwise ANI of all contigs: `output/ani/`
 
 ### Taxonomic clustering
 - vConTACT3: `scripts/HPC/vcontact3_clustering_with_inphared.slrm`
@@ -194,7 +200,7 @@
 
 ### Novelty check: Clustering with INPHARED
 
-### R analyses
+## R scripts
 - Filtering script `xxx`
     - Requires: 
         - `xxx`
