@@ -58,6 +58,8 @@ ggsave("output/R/core_shared_between_guts.pdf", core_shared_between_guts,
 ##### 
 ## total observed contigs per bee pool
 
+metadata <- readRDS("output/R/R_variables/metadata.RDS")
+
 phage_tpm <- read.csv("output/R/relative_abundance/phage_tpm.csv") %>%
   tibble()
 
@@ -67,7 +69,14 @@ contigs_per_bee_pool <- phage_tpm %>%
   group_by(Bee_pool) %>%
   summarise(contig_count = sum(tpm > 0))
 
+contigs_per_bee_pool_hist <- ggplot(contigs_per_bee_pool, aes(x = contig_count)) +
+  geom_histogram(bins = 50) +
+  geom_vline(xintercept = mean(contigs_per_bee_pool$contig_count)) +
+  labs(x = "Phage contigs per bee pool")
+
 write_csv(contigs_per_bee_pool, "output/R/alpha/total_contigs_per_bee_pool.csv")
+ggsave("output/R/alpha/total_contigs_per_bee_pool.pdf", contigs_per_bee_pool_hist,
+       width = 5, height = 5)
 
 ###### 
 ## Bees in decline? WiP
