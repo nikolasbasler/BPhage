@@ -7,6 +7,7 @@ write_csv(classification, "output/R/classification.csv")
 metadata_clean <- metadata %>% 
   filter(Sample_ID %in% colnames(phage_tpm$contig))
 write_csv(metadata_clean, "output/R/metadata_clean.csv")
+# write_csv(metadata, "data/metadata.csv")
 
 ## Metadata and classification variables
 system("mkdir -p output/R/R_variables")
