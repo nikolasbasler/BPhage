@@ -701,13 +701,6 @@ for (gpart in c("mid", "ile", "rec")) {
 }
 core_gut_part_venn <- ggVennDiagram::ggVennDiagram(core_gutpart_presence) + ggtitle("Core phage presence")
 
-# present_in_all_countries <- prevalence_histo$Countries$table %>%
-#   filter(prevalence_prop ==1) %>%
-#   select(group) %>%
-#   unlist(use.names = FALSE) # %>%
-#   # write_lines("output/temp.txt")
-
-
 # 
 # met_v <- c("Country", "Season", "Gut_part", "Health")
 # tax_levels <- c("contig", "Species", "Genus", "Family", "Order", "Class", "Phylum", "Kingdom", "Realm")
