@@ -13,7 +13,6 @@
 # Submit (from output/slurm_log)
 # sbatch --export=ALL ../../scripts/HPC/Nosema_mapping_stats_all.slrm
 
-source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate viper_bphage
 repo_location="$VSC_STAGING/BPhage"
 

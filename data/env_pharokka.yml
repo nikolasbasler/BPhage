@@ -6,4 +6,3 @@ channels:
   - nodefaults
 dependencies:
   - pharokka=1.7.1
-prefix: /data/leuven/341/vsc34111/mambaforge/envs/pharokka

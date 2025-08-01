@@ -13,7 +13,6 @@
 # Submit (from output/slurm_log)
 # sbatch --array=1-114 --export=ALL ../../scripts/HPC/additional_datasets_mapping.slrm
 
-source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 repo_location="$VSC_STAGING/BPhage"
 
 line=$(head -n $SLURM_ARRAY_TASK_ID <(cut -f1 $repo_location/data/other_datasets_SRA_accessions.tsv) | tail -n1)

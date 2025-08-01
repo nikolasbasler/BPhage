@@ -12,7 +12,6 @@
 # Submit (from output/slurm_log)
 # sbatch --export=ALL ../../scripts/HPC/annotation_phold_unfoldables_language_run.slrm
 
-source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate phold
 repo_location="$VSC_STAGING/BPhage"
 threads=36

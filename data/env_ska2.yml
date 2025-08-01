@@ -1,9 +1,0 @@
-name: ska2
-channels:
-  - bioconda
-  - defaults
-  - conda-forge
-  - nodefaults
-dependencies:
-  - ska2=0.3.11
-prefix: /data/leuven/341/vsc34111/mambaforge/envs/ska2
