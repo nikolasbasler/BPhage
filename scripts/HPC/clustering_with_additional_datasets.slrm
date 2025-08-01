@@ -13,7 +13,6 @@
 # Submit (from output/slurm_log)
 # sbatch ../../scripts/HPC/clustering_with_additional_datasets.slrm
 
-source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate viper_bphage
 repo_location="$VSC_STAGING/BPhage"
 threads=12

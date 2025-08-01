@@ -7,4 +7,3 @@ channels:
 dependencies:
   - python=3.8
   - iphop=1.3.3
-prefix: /data/leuven/341/vsc34111/mambaforge/envs/iphop

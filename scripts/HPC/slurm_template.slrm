@@ -16,7 +16,6 @@
 # sbatch --array=1-471 --export=ALL ../../scripts/HPC/slurm_template.slrm
 
 
-source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate viper_bphage
 repo_location="$VSC_STAGING/BPhage"
 

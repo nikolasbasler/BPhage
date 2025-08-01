@@ -14,7 +14,6 @@
 # Submit (from output/slurm_log)
 # sbatch --export=ALL ../../scripts/HPC/iphop_core.slrm
 
-source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 repo_location="$VSC_STAGING/BPhage"
 conda activate viper_bphage
 

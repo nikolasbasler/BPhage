@@ -13,7 +13,6 @@
 # Submit (from output/slurm_log)
 # sbatch --export=ALL ../../scripts/HPC/annotation_pharokka_bphage_and_others.slrm
 
-source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate pharokka
 repo_location="$VSC_STAGING/BPhage"
 threads=36

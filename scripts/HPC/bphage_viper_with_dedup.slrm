@@ -19,7 +19,6 @@ mkdir -p $VSC_SCRATCH/BPhage/bphage_viper_output
 cd $VSC_SCRATCH/BPhage/
 
 # Activate conda environment
-source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate viper_bphage
 
 # Make sure programs in conda viper environment are found first in PATH 
