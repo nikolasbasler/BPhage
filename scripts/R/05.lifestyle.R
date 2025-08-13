@@ -21,15 +21,15 @@ for (completeness_cutoff in cutoffs) {
     select(contig, original_contig, final_label, Class, Core)
   
   # prediction_result$bacphlip <- read.delim("output/lifestyle/bacphlip/bphage.fasta.bacphlip") %>%
-  prediction_result$bacphlip <- read.delim("output/lifestyle/bacphlip/bphage_and_extended.fasta.bacphlip") %>%
-    tibble() %>%
-    rename("contig" = "X") %>%
-    filter(!str_detect(contig, "Blank")) %>%
-    mutate(original_contig = str_extract(contig, "^([^_]+_){10}[^_]+")) %>% #,
-           # extension = str_remove(contig, "^([^_]+_){10}[^_]+"))
-    left_join(., classification, by = join_by(original_contig == contig)) %>%
-    select(contig, original_contig, Virulent, Temperate, Class, Core) %>%
-    mutate(final_label = ifelse(Virulent > Temperate, "Virulent", "Temperate"))
+  # prediction_result$bacphlip <- read.delim("output/lifestyle/bacphlip/bphage_and_extended.fasta.bacphlip") %>%
+  #   tibble() %>%
+  #   rename("contig" = "X") %>%
+  #   filter(!str_detect(contig, "Blank")) %>%
+  #   mutate(original_contig = str_extract(contig, "^([^_]+_){10}[^_]+")) %>% #,
+  #          # extension = str_remove(contig, "^([^_]+_){10}[^_]+"))
+  #   left_join(., classification, by = join_by(original_contig == contig)) %>%
+  #   select(contig, original_contig, Virulent, Temperate, Class, Core) %>%
+  #   mutate(final_label = ifelse(Virulent > Temperate, "Virulent", "Temperate"))
   
   lifestyle_tibble <- list()
   joined_tibble_all <- list()

@@ -151,7 +151,7 @@ phage_abundance <- read.csv("output/R/phage.filt.abundance.contig.csv") %>%
   select(!contains("Blank"))
 
 # ANI
-bphage_and_others_ani.tsv <- read.delim("output/ani/bphage_and_others_ani.tsv.gz")
+# bphage_and_others_ani.tsv <- read.delim("output/ani/bphage_and_others_ani.tsv.gz")
 
 classification %>% 
   mutate(classified_on_family_level = ifelse(Family == "Unclassified", "no", "yes")) %>%
@@ -433,49 +433,49 @@ source("scripts/R/helpers/pretty_pies.R")
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 # ANI comparison ####
-
-ANI_bphage <- bphage_and_others_ani.tsv %>%
-  # select(id1, id2, tani) %>%
-  # filter(id1 > id2) %>%
-  filter(str_detect(id1, "NODE") & str_detect(id2, "NODE"))
-
-aANI_bphage <- ANI_bphage %>%
-  select(tani) %>%
-  mutate(subset = "all")
-aANI_core <- ANI_bphage %>%
-  filter(id1 %in% present_in_all_countries & id2 %in% present_in_all_countries) %>%
-  select(tani) %>%
-  mutate(subset = "core")
-aANI_non_core <- ANI_bphage %>%
-  filter((!id1 %in% present_in_all_countries) & (!id2 %in% present_in_all_countries)) %>%
-  select(tani) %>%
-  mutate(subset = "non-core")
-
-aANI_df <- rbind(aANI_bphage, aANI_core, aANI_non_core)
-kruskal_results <- aANI_df %>%
-  summarize(pvalue = kruskal.test(tani~subset)$p.value,
-            test_stat = kruskal.test(tani~subset)$statistic,
-            deg_freedom = kruskal.test(tani~subset)$parameter)
-aANI_stats <- aANI_df %>%
-  group_by(subset) %>%
-  summarise(mean_ani = mean(tani),
-            median_ani = median(tani),
-            IQR_ani = IQR(tani),
-            sd_ani = sd(tani),
-            min_ani = min(tani),
-            max_ani = max(tani))
-
-aANI_boxplot <- aANI_df %>%
-  # sample_frac(0.001) %>% # For fast testing.
-  ggplot(aes(x = subset, y = tani)) +
-  geom_boxplot() +
-  # geom_boxplot(outlier.shape = NA) +
-  geom_pwc(method="wilcox.test", label="p.adj.signif",
-           p.adjust.method="BH", hide.ns = TRUE) + #, bracket.nudge.y = -0.8) + #,
-           # y.position = c(0.1, 0.13, 0.16)) +
-  # scale_y_continuous(limits = c(0, 0.25)) +
-  # scale_y_continuous(limits = c(0, quantile(aANI_df$tani, 0.99))) +
-  labs(title = paste0("Krusil-Wallis H = ", round(kruskal_results$test_stat), ", p = ",kruskal_results$pvalue))
+# 
+# ANI_bphage <- bphage_and_others_ani.tsv %>%
+#   # select(id1, id2, tani) %>%
+#   # filter(id1 > id2) %>%
+#   filter(str_detect(id1, "NODE") & str_detect(id2, "NODE"))
+# 
+# aANI_bphage <- ANI_bphage %>%
+#   select(tani) %>%
+#   mutate(subset = "all")
+# aANI_core <- ANI_bphage %>%
+#   filter(id1 %in% present_in_all_countries & id2 %in% present_in_all_countries) %>%
+#   select(tani) %>%
+#   mutate(subset = "core")
+# aANI_non_core <- ANI_bphage %>%
+#   filter((!id1 %in% present_in_all_countries) & (!id2 %in% present_in_all_countries)) %>%
+#   select(tani) %>%
+#   mutate(subset = "non-core")
+# 
+# aANI_df <- rbind(aANI_bphage, aANI_core, aANI_non_core)
+# kruskal_results <- aANI_df %>%
+#   summarize(pvalue = kruskal.test(tani~subset)$p.value,
+#             test_stat = kruskal.test(tani~subset)$statistic,
+#             deg_freedom = kruskal.test(tani~subset)$parameter)
+# aANI_stats <- aANI_df %>%
+#   group_by(subset) %>%
+#   summarise(mean_ani = mean(tani),
+#             median_ani = median(tani),
+#             IQR_ani = IQR(tani),
+#             sd_ani = sd(tani),
+#             min_ani = min(tani),
+#             max_ani = max(tani))
+# 
+# aANI_boxplot <- aANI_df %>%
+#   # sample_frac(0.001) %>% # For fast testing.
+#   ggplot(aes(x = subset, y = tani)) +
+#   geom_boxplot() +
+#   # geom_boxplot(outlier.shape = NA) +
+#   geom_pwc(method="wilcox.test", label="p.adj.signif",
+#            p.adjust.method="BH", hide.ns = TRUE) + #, bracket.nudge.y = -0.8) + #,
+#            # y.position = c(0.1, 0.13, 0.16)) +
+#   # scale_y_continuous(limits = c(0, 0.25)) +
+#   # scale_y_continuous(limits = c(0, quantile(aANI_df$tani, 0.99))) +
+#   labs(title = paste0("Krusil-Wallis H = ", round(kruskal_results$test_stat), ", p = ",kruskal_results$pvalue))
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#

@@ -4,9 +4,9 @@ library(tidyverse)
 # according their instructions on https://github.com/martinez-zacharya/MOP-UP
 # and export the table by clicking on "Export Table to file..." above the 
 # tabular display. Save it into output/bphage_micros_mopup/ with the suggested
-# default name. That csv table is the inputs for this script.
+# default name. That csv table is the input for this script.
 # This script will then add another column to the table which can then be 
-# imported into Cytoscape again by clickin on "Import Table from file...". Now
+# imported into Cytoscape again by clicking on "Import Table from file...". Now
 # the nodes in the network can be colored according to the microvirus family by 
 # clicking on the "Style" tab at the left hand side then on "Fill Color". As 
 # Column select subgroup, Mapping Type "Discrete Mapping" and choose colors for 
@@ -41,15 +41,15 @@ library(tidyverse)
 
 
 micros_id30_cytoscape_table <- read.csv("output/bphage_micros_mopup/bphage_micros_id30ForCytoscape.csv default node.csv")
-micros_id50_cytoscape_table <- read.csv("output/bphage_micros_mopup/bphage_micros_id50ForCytoscape.csv default node.csv")
+# micros_id50_cytoscape_table <- read.csv("output/bphage_micros_mopup/bphage_micros_id50ForCytoscape.csv default node.csv")
 
 added_micros_id30_cytoscape_table <- micros_id30_cytoscape_table %>%
   mutate(subgroup = str_split_i(name, "_", 1)) %>% 
   mutate(subgroup = ifelse(subgroup == "NODE", "Bphage", subgroup))
 
-added_micros_id50_cytoscape_table <- micros_id50_cytoscape_table %>%
-  mutate(subgroup = str_split_i(name, "_", 1)) %>% 
-  mutate(subgroup = ifelse(subgroup == "NODE", "Bphage", subgroup))
+# added_micros_id50_cytoscape_table <- micros_id50_cytoscape_table %>%
+#   mutate(subgroup = str_split_i(name, "_", 1)) %>% 
+#   mutate(subgroup = ifelse(subgroup == "NODE", "Bphage", subgroup))
 
 write_csv(added_micros_id30_cytoscape_table, "output/bphage_micros_mopup/bphage_micros_id30_cytoscape_table.csv")
-write_csv(added_micros_id50_cytoscape_table, "output/bphage_micros_mopup/bphage_micros_id50_cytoscape_table.csv")
+# write_csv(added_micros_id50_cytoscape_table, "output/bphage_micros_mopup/bphage_micros_id50_cytoscape_table.csv")

@@ -86,8 +86,8 @@ for (family_group in names(pretty_special_families)) {
 }
 
 ## aANI boxplot
-ggsave("output/R/aANI_boxplot.pdf", aANI_boxplot, width = 6, height = 6)
-write_csv(aANI_stats, "output/R/aANI_stats.csv")
+# ggsave("output/R/aANI_boxplot.pdf", aANI_boxplot, width = 6, height = 6)
+# write_csv(aANI_stats, "output/R/aANI_stats.csv")
 
 ## Completeness and genome length boxplots
 system("mkdir -p output/R/completeness_and_genome_length")
