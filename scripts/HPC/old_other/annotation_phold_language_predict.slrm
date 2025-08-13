@@ -1,0 +1,32 @@
+#!/bin/bash -l
+#SBATCH --job-name="annotation_phold_language_predict"
+#SBATCH --cluster=wice
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=72
+#SBATCH --time=72:00:00
+#SBATCH --account=lp_jm_virome_group
+#SBATCH --output=slurm-%x_%j.out
+
+###############################################################################
+
+# Submit (from output/slurm_log)
+# sbatch --export=ALL ../../scripts/HPC/annotation_phold_language_predict.slrm
+
+# If gpu conda env would work (on Genius), add these options to SBATCH and remove the --cpu flag from the phold predict call:
+# --gpus-per-node=4
+# --partition gpu_p100
+# --mem-per-cpu=4G
+
+conda activate phold
+repo_location="$VSC_STAGING/BPhage"
+threads=72
+
+mkdir -p $VSC_SCRATCH/BPhage/annotation/phold
+cd $VSC_SCRATCH/BPhage/annotation/phold
+
+phold predict --input $repo_location/output/annotation/pharokka_bpgage_and_others/bpgage_and_others.gbk \
+    -o phold_language_predict_bphage_and_others -t $threads -d /staging/leuven/stg_00029/DB/phold/phold_20240723
+
+echo "========================================================================"
+duration=$SECONDS
+printf 'Job finished in: %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))

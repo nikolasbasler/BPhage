@@ -26,6 +26,7 @@ zcat $repo_location/output/bphage_ALL_1kb_phages.fasta.gz \
     $repo_location/output/bphage_ALL_1kb_unclassified_viruses.fasta.gz \
     > iphop_input_bphage.fasta    
 
+# --min_score 75 was set out of curiosity. Later everything with score <90 will be filtered out.
 iphop predict --fa_file iphop_input_bphage.fasta --db_dir /staging/leuven/stg_00029/DB/iphop_db/Aug_2023_pub_rw \
     --min_score 75 --num_threads 36 --out_dir iphop_output_bphage/
 
@@ -33,7 +34,6 @@ rm iphop_input_bphage.fasta
 
 mkdir -p $repo_location/output/host_prediction/
 cp -r iphop_output_bphage $repo_location/output/host_prediction/
-
 
 echo "========================================================================"
 duration=$SECONDS

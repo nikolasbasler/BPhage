@@ -1,0 +1,29 @@
+#!/bin/bash -l
+#SBATCH --job-name="annotation_phold_unfoldables_language_run"
+#SBATCH --cluster=genius
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=36
+#SBATCH --time=30:00
+#SBATCH --account=lp_jm_virome_group
+#SBATCH --output=slurm-%x_%j.out
+
+###############################################################################
+
+# Submit (from output/slurm_log)
+# sbatch --export=ALL ../../scripts/HPC/annotation_phold_unfoldables_language_run.slrm
+
+conda activate phold
+repo_location="$VSC_STAGING/BPhage"
+threads=36
+
+mkdir -p $VSC_SCRATCH/BPhage/annotation/phold
+cd $VSC_SCRATCH/BPhage/annotation/phold
+
+phold run --input $repo_location/data/unfoldable_proteins.gbk --cpu --separate \
+    -o phold_unfoldables_language_run -t $threads -d /staging/leuven/stg_00029/DB/phold/phold_20240723
+
+cp -r phold_unfoldables_language_run $repo_location/output/annotation
+
+echo "========================================================================"
+duration=$SECONDS
+printf 'Job finished in: %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))
