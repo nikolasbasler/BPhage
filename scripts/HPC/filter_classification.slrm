@@ -13,7 +13,6 @@
 # Submit (from output/slurm_log)
 # sbatch ../../scripts/HPC/filter_classification.slrm
 
-source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate viper_bphage
 repo_location="$VSC_STAGING/BPhage"
 
@@ -29,29 +28,18 @@ python3 $repo_location/scripts/HPC/filter_classification.py \
     $repo_location/output/bphage_ALL_1kb_checkv/quality_summary.tsv.gz \
     $repo_location/data/VMR_19-250422_MSL37.xlsx \
     bphage_ALL_1kb
-python3 $repo_location/scripts/HPC/filter_classification.py \
-    $repo_location/output/other_studies_genomad/other_studies_summary/other_studies_virus_summary.tsv.gz \
-    $repo_location/output/other_studies_checkv/quality_summary.tsv.gz \
-    $repo_location/data/VMR_19-250422_MSL37.xlsx \
-    other_studies
 
 # Make fasta file for phages
 cut -d',' -f1 bphage_ALL_1kb_phages.csv | sed 1d > temp.phage.contigs
 zcat $repo_location/output/bphage_ALL_1kb_cross_95-85.fasta.gz | seqkit grep -f temp.phage.contigs > bphage_ALL_1kb_phages.fasta
-cut -d',' -f1 other_studies_phages.csv | sed 1d > temp.phage.contigs
-zcat $VSC_SCRATCH/BPhage/additional_datasets/other_studies.fa.gz | seqkit grep -f temp.phage.contigs > other_studies_phages.fasta
 
 # Make fasta file for unclassified viruses
 cut -d',' -f1 bphage_ALL_1kb_unclassified_viruses.csv | sed 1d > temp.unclassified.contigs
 zcat $repo_location/output/bphage_ALL_1kb_cross_95-85.fasta.gz | seqkit grep -f temp.unclassified.contigs > bphage_ALL_1kb_unclassified_viruses.fasta
-cut -d',' -f1 other_studies_unclassified_viruses.csv | sed 1d > temp.unclassified.contigs
-zcat $VSC_SCRATCH/BPhage/additional_datasets/other_studies.fa.gz | seqkit grep -f temp.unclassified.contigs > other_studies_unclassified_viruses.fasta
 
 # Make fasta file for picobirnas 
 cut -d',' -f1 bphage_ALL_1kb_picobirna.csv | sed 1d > temp.picobirna.contigs
 zcat $repo_location/output/bphage_ALL_1kb_cross_95-85.fasta.gz | seqkit grep -f temp.picobirna.contigs > bphage_ALL_1kb_picobirna.fasta
-cut -d',' -f1 other_studies_picobirna.csv | sed 1d > temp.picobirna.contigs
-zcat $VSC_SCRATCH/BPhage/additional_datasets/other_studies.fa.gz | seqkit grep -f temp.picobirna.contigs > other_studies_picobirna.fasta
 
 # Copy output
 gzip *fasta

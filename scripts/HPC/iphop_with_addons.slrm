@@ -14,7 +14,6 @@
 # Submit (from output/slurm_log)
 # sbatch --export=ALL ../../scripts/HPC/iphop_with_addons.slrm
 
-source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate iphop
 repo_location="$VSC_STAGING/BPhage"
 

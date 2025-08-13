@@ -17,7 +17,6 @@
 # --partition gpu_p100
 # --mem-per-cpu=4G
 
-source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate phold
 repo_location="$VSC_STAGING/BPhage"
 threads=72

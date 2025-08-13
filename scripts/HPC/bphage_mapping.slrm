@@ -13,7 +13,6 @@
 # Submit (from output/slurm_log)
 # sbatch --array=1-471 --export=ALL ../../scripts/HPC/bphage_mapping.slrm
 
-source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate viper_bphage
 repo_location="$VSC_STAGING/BPhage"
 line=$(head -n $SLURM_ARRAY_TASK_ID $repo_location/data/BPhage.sample.list | tail -n1)

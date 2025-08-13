@@ -1,0 +1,49 @@
+#!/bin/bash -l
+#SBATCH --job-name="annotation_pharokka_bphage_and_others"
+#SBATCH --cluster=genius
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=36
+#SBATCH --mem-per-cpu=4G
+#SBATCH --time=1:00:00
+#SBATCH --account=lp_jm_virome_group
+#SBATCH --output=slurm-%x_%j.out 
+
+###############################################################################
+
+# Submit (from output/slurm_log)
+# sbatch --export=ALL ../../scripts/HPC/annotation_pharokka_bphage_and_others.slrm
+
+conda activate pharokka
+repo_location="$VSC_STAGING/BPhage"
+threads=36
+
+mkdir -p $VSC_SCRATCH/BPhage/annotation/pharokka
+cd $VSC_SCRATCH/BPhage/annotation/pharokka
+
+# Gather input fasta from own assembly and additional datasets
+zcat $repo_location/output/bphage_ALL_1kb_phages.fasta.gz \
+    $repo_location/output/bphage_ALL_1kb_unclassified_viruses.fasta.gz \
+    $repo_location/output/bphage_ALL_1kb_picobirna.fasta.gz \
+    $repo_location/output/other_studies_phages.fasta.gz \
+    $repo_location/output/other_studies_unclassified_viruses.fasta.gz \
+    > temp.bphage_and_others.fasta
+
+# The IDs are too long for phold to handle. I rename them here already so the output is compatible with phold.
+awk '/NODE/ {split($0, a, "_"); print a[1] "_" a[2] "_" a[7] "_" a[8] "_" a[9] "_" a[10] "_" a[11]; next} {print $1}' temp.bphage_and_others.fasta | \
+    sed 's/__//' > bphage_and_others.fasta
+# grep ">" temp.bphage_and_others.fasta > temp.contig.names.original
+# grep ">" bphage_and_others.fasta > temp.contig.names.shortened
+# paste temp.contig.names.original temp.contig.names.shortened > contig.names.shortening.scheme
+
+pharokka.py -i bphage_and_others.fasta -o pharokka_bphage_and_others -d /staging/leuven/stg_00029/DB/pharokka/pharokka_1.4.0 \
+    -t $threads -m -g prodigal-gv --meta_hmm -p bphage_and_others
+
+# Copy files
+cp -r pharokka_bphage_and_others $repo_location/output/annotation
+
+# Clean up
+rm temp.*
+
+echo "========================================================================"
+duration=$SECONDS
+printf 'Job finished in: %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))

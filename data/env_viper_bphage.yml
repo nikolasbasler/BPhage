@@ -27,4 +27,3 @@ dependencies:
   - trimmomatic=0.39
   - openpyxl=3.1.2
   - sqlite=3.41.2
-prefix: /data/leuven/341/vsc34111/mambaforge/envs/viper_bphage

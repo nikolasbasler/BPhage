@@ -14,7 +14,6 @@
 # Only job 105 needs a whole node for memory reasons. All other ones finish on 12 cores within 30 minutes.
 # sbatch --array=1-114 --export=ALL ../../scripts/HPC/additional_datasets_mapping_with_unpaired.slrm
 
-source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 repo_location="$VSC_STAGING/BPhage"
 
 line=$(head -n $SLURM_ARRAY_TASK_ID <(cut -f1 $repo_location/data/other_datasets_SRA_accessions.tsv) | tail -n1)

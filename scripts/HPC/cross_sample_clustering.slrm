@@ -14,7 +14,6 @@
 # Submit (from output/slurm_log)
 # sbatch ../../scripts/HPC/cross_sample_clustering.slrm
 
-source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate viper_bphage
 repo_location="$VSC_STAGING/BPhage"
 

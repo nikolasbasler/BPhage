@@ -6,4 +6,3 @@ channels:
   - nodefaults
 dependencies:
   - vcontact3=3.0.0.b38
-prefix: /data/leuven/341/vsc34111/mambaforge/envs/vcontact3_b38
