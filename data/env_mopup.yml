@@ -13,4 +13,3 @@ dependencies:
   - boost=1.82.0
   - ca-certificates
   - openssl
-prefix: /data/leuven/341/vsc34111/mambaforge/envs/mop-up

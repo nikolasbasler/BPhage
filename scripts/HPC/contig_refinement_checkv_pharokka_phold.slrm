@@ -16,7 +16,6 @@
 repo_location="$VSC_STAGING/BPhage"
 threads=36
 
-source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate viper_bphage
 cd $VSC_SCRATCH/BPhage/contig_refinement/
 

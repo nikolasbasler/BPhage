@@ -14,7 +14,6 @@
 # sbatch --array=1-199 --export=ALL ../../scripts/HPC/SNP_analysis_mapping.slrm # 2 hours
 # sbatch --array=1-150 --export=ALL ../../scripts/HPC/SNP_analysis_mapping.slrm
 
-source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate viper_bphage
 repo_location="$VSC_STAGING/BPhage"
 # line=$(cat $repo_location/data/SKA_subspecies_SRAs.tsv $repo_location/data/BPhage.bee.pool.list | sed 1d | cut -f1 | head -n $SLURM_ARRAY_TASK_ID | tail -n 1)

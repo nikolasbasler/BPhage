@@ -15,7 +15,6 @@
 # sbatch --array=1-5 --export=ALL ../../scripts/HPC/SNP_analysis_distances_SKA1.slrm
 # sbatch --array=1-3 --export=ALL ../../scripts/HPC/SNP_analysis_distances_SKA1.slrm
 
-source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate ska
 repo_location="$VSC_STAGING/BPhage"
 

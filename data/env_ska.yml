@@ -6,4 +6,3 @@ channels:
   - nodefaults
 dependencies:
   - ska=1.0
-prefix: /data/leuven/341/vsc34111/mambaforge/envs/ska

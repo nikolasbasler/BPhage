@@ -13,7 +13,6 @@
 # Submit (from output/slurm_log)
 # sbatch --array=1-97 --export=ALL ../../scripts/HPC/contig_refinement.slrm
 
-source /data/leuven/341/vsc34111/mambaforge/etc/profile.d/conda.sh
 conda activate viper_bphage
 repo_location="$VSC_STAGING/BPhage"
 threads=12
@@ -28,7 +27,7 @@ cd $VSC_SCRATCH/BPhage/contig_refinement/${line}
 sample=$(echo $line | cut -d"_" -f7-)
 assembly=$(echo $line | cut -d"_" -f1,2 |  grep -o "NODE_[ABC]")
 
-seqkit grep -r -p $assembly $VSC_STAGING/BPhage/output/bphage_viper_output/CONTIGS/${sample}_all.contigs.fasta.gz \
+seqkit grep -r -p $assembly $repo_location/output/bphage_viper_output/CONTIGS/${sample}_all.contigs.fasta.gz \
     > assembly.fasta
 bwa-mem2 index assembly.fasta
 
