@@ -12,7 +12,6 @@
 ###############################################################################
 
 # Submit (from output/slurm_log)
-# sbatch --array=1-5 --export=ALL ../../scripts/HPC/SNP_analysis_distances_SKA1.slrm
 # sbatch --array=1-3 --export=ALL ../../scripts/HPC/SNP_analysis_distances_SKA1.slrm
 
 conda activate ska
@@ -20,14 +19,6 @@ repo_location="$VSC_STAGING/BPhage"
 
 mkdir $VSC_SCRATCH/BPhage/SNP/ska/distances
 cd $VSC_SCRATCH/BPhage/SNP/
-
-# datasets=$(echo -e "\
-# phages
-# bee
-# subspecies
-# bee_and_subspecies
-# bacteria\
-# ")
 
 datasets=$(echo -e "\
 phages
@@ -37,11 +28,7 @@ bacteria\
 
 dataset=$(head -n $SLURM_ARRAY_TASK_ID <(echo "$datasets") | tail -n1)
 
-# if [ $dataset == "bee_and_subspecies" ]; then
-    # ska distance -c -o ska/${dataset} ska/skf_files/*bee.skf ska/skf_files/*subspecies.skf
-# else
-    ska distance -c -o ska/distances/${dataset} ska/skf_files/*${dataset}.skf
-# fi
+ska distance -c -o ska/distances/${dataset} ska/skf_files/*${dataset}.skf
 
 mkdir -p $repo_location/output/SNP_analysis/SKA_SNP_distances
 cp ska/distances/${dataset}*.distances.tsv $repo_location/output/SNP_analysis/SKA_SNP_distances

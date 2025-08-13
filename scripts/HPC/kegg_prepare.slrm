@@ -28,7 +28,6 @@ awk -F '\t' '$7=="moron, auxiliary metabolic gene and host takeover" {print $2}'
 seqkit grep -rf temp.extended.moron.CDSs ${extended_dir}/phold_aa_long_names.fasta | \
     sed 's/^[^:]*:/>/' > moron.CDSs.fasta
 
-
 cut -d"_" -f1-11 temp.extended.moron.CDSs | sort -u > temp.extended.moron.contigs
 awk -F '\t' '$7=="moron, auxiliary metabolic gene and host takeover" {print $2}' \
     ${non_extended_dir}/phold_per_cds_predictions_long_names.tsv | \
@@ -37,8 +36,6 @@ awk -F '\t' '$7=="moron, auxiliary metabolic gene and host takeover" {print $2}'
 
 seqkit grep -rf temp.other.moron.CDSs ${non_extended_dir}/phold_aa_long_names.fasta | \
     sed 's/^[^:]*:/>/' >> moron.CDSs.fasta
-
-
 
 echo "========================================================================"
 duration=$SECONDS

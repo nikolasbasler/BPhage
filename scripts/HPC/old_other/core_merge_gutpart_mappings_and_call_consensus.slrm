@@ -1,0 +1,61 @@
+#!/bin/bash
+#SBATCH --job-name="core_merge_gutpart_mappings_and_call_consensus"
+#SBATCH --cluster=genius
+#SBATCH --time=10:00
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=9
+#SBATCH --mem-per-cpu=4G
+#SBATCH --account=lp_jm_virome_group
+#SBATCH --output=slurm-%x_%a_%A.out
+
+######################################################################
+
+# Submit this as a job array (relative path from output/slurm_out):
+# sbatch --export=ALL --array=1-150 ../../scripts/HPC/core_merge_gutpart_mappings_and_call_consensus.slrm
+
+conda activate viper_bphage
+repo_location="$VSC_STAGING/BPhage"
+
+threads=9
+
+mkdir -p $VSC_SCRATCH/BPhage/merged_mappings
+cd $VSC_SCRATCH/BPhage/merged_mappings
+
+row=$(head -n ${SLURM_ARRAY_TASK_ID} $repo_location/data/merged.list | tail -n1)
+
+# Limit the alignments to the selected contigs, remove unmapped reads and duplicates:
+echo "Filtering $row"
+samtools view -h -@ $threads -F 4 -u --region-file $repo_location/data/core_contigs.bed $repo_location/output/mapped_phages/${row}_mid_*.bphage.bam | \
+    samtools collate -@ $threads -Ou - | samtools fixmate -@ $threads -u -m - - | samtools sort -@ $threads -u - | \
+    samtools markdup -r -s - ${row}_mid.filt.dedup.bam
+samtools view -h -@ $threads -F 4 -u --region-file $repo_location/data/core_contigs.bed $repo_location/output/mapped_phages/${row}_ile_*.bphage.bam | \
+    samtools collate -@ $threads -Ou - | samtools fixmate -@ $threads -u -m - - | samtools sort -@ $threads -u - | \
+    samtools markdup -r -s - ${row}_ile.filt.dedup.bam
+samtools view -h -@ $threads -F 4 -u --region-file $repo_location/data/core_contigs.bed $repo_location/output/mapped_phages/${row}_rec_*.bphage.bam | \
+    samtools collate -@ $threads -Ou - | samtools fixmate -@ $threads -u -m - - | samtools sort -@ $threads -u - | \
+    samtools markdup -r -s - ${row}_rec.filt.dedup.bam
+
+# Merge alignments from different gut parts
+echo "Merging $row"
+samtools merge -@ $threads -o - ${row}*filt.dedup.bam | samtools sort -@ $threads > ${row}.all.guts.dedup.bam
+samtools index -@ $threads ${row}.all.guts.dedup.bam
+
+# Generating consensus
+echo "Generating consensus sequences for $row"
+samtools consensus -@ $threads --mode "simple" -a --min-depth 2 --call-fract 0.66 \
+    ${row}.all.guts.dedup.bam | sed "s/NODE/${row}_NODE/g" | cut -d"_" -f1-7 | gzip > ${row}_consensus.fasta.gz # Biopython in pharokka is complaining about too long IDs, hence the cutting
+
+# No N filter because if I can get a TerL, then it doesn't matter how many Ns there were in the consensus.
+# python3 $repo_location/scripts/HPC/remove_seqs_with_Ns_from_fasta.py temp.unfilt.${row}_consensus.fasta 0.1 | \
+#     gzip > ${row}_consensus.fasta.gz
+
+# Copy output
+mkdir -p $repo_location/output/core_consensuses
+cp ${row}_consensus.fasta.gz $repo_location/output/core_consensuses
+
+# Clean up
+rm ${row}*filt.dedup.bam
+
+echo "========================================================================"
+duration=$SECONDS
+printf 'Job finished in %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))

@@ -19,7 +19,6 @@ repo_location="$VSC_STAGING/BPhage"
 cd $VSC_SCRATCH/BPhage/ref
 
 # Index for mapping
-# bwa-mem2 index GCF_000002195.4_Amel_4.5_genomic.fna # old bee genome
 bwa-mem2 index core.bacteria.ref.genomes.fasta
 
 echo "========================================================================"

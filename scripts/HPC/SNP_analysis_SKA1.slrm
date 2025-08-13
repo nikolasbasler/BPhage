@@ -43,6 +43,7 @@ samtools merge -@ $threads - $repo_location/output/mapped_phages/${line}*.bam | 
     samtools collate -@ $threads -O - | \
     samtools fastq -1 merged_reads/${line}.phages.R1.fastq.gz -2 merged_reads/${line}.phages.R2.fastq.gz \
     -0 temp.${line}.phages.unpaired.reads.fastq.gz -s temp.${line}.phages.singleton.reads.fastq.gz
+
 # Merge Hostout reads per bee pool
 cat $repo_location/output/bphage_viper_output/READ/${line}*Hostout.R1.fastq.gz > temp.${line}.Hostout.R1.fastq.gz
 cat $repo_location/output/bphage_viper_output/READ/${line}*Hostout.R2.fastq.gz > temp.${line}.Hostout.R2.fastq.gz
@@ -63,7 +64,7 @@ for dataset in $(echo "$datasets"); do
     
     # For diagnosis. Should not yield too many variant sites per sample because we are running under a haploid assumption.
     # Meaning that only one allele per site will be recorded. If there are too many sites with variants surviving the filters
-    # (e.g. frequency >0.2) then a random one will be picked (the last one that the code sees, in fact). 
+    # (e.g. frequency >0.2) then a random one will be picked (the last one that the code sees, in fact, so not necessarily the major allele). 
     ska humanise -i ska/skf_files/${line}_${dataset}.skf -o ska/skf_files/${line}_${dataset}.kmers
     sed 1d ska/skf_files/${line}_${dataset}.kmers.tsv | cut -f1 | sort | uniq -c | sort -r -n -k1 > ska/skf_files/${line}_${dataset}.kmercounts
 

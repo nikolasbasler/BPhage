@@ -27,9 +27,10 @@ done
 # than structures, because I decided to filter down the contigs from the other datasets with
 # geNomad as well, after I sent the CDSs to George...
 mkdir -p ../filtered_out_renamed_pdbs
+ls -1 | grep -v "NODE_" > to_filter_out
 while read filtered_out; do
     mv ${filtered_out}* ../filtered_out_renamed_pdbs
-done < $repo_location/data/phold/sent_to_george_but_removed_from_original_dataset
+done < to_filter_out
 
 echo "========================================================================"
 duration=$SECONDS

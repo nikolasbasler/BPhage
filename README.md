@@ -1,8 +1,8 @@
 # The honey bee triad: Phages are mutualistic partners in the gut microbiome of *Apis mellifera*
 
-This repository contains all scripts to reproduce the analysis for the paper by Basler et al (XXX ref) and usage instructions. The entire 2,343 assembled phage genomes are also stored here as well as a subset with the 97 core phages. The 1,066 >90% complete genomes are on Genbank (See Supplementary file, sheet i - Genbank accessions).
+This repository contains all scripts and usage instructions to reproduce the analysis for the paper by Basler et al (XXX ref). All 97 core phage genomes as well as all >90% complete non-core genomes (1047 additional sequences) are on Genbank (See Supplementary file, sheet i - Genbank accessions). The remaining 1199 non-core, <90% complete genomes can be found in this Github repository. 
 
-This pipeline is split into two parts. The first part is meant for a high-performance computer (HPC) and can be skipped, if so wanted. The second part is for the statistical analysis and visualisation using RStudio. The idea of the workflow is to set up on the HPC, run the respective scripts, clone this repo to a local computer, copy the relevant output files from the HPC to the local computer and continue with the statistical analysis using the R project. 
+This pipeline is split into two parts. The first part is meant for a high-performance computer (HPC) and can be skipped, if so wanted. The second part is for the statistical analysis and visualisation using RStudio. The scripts pretend to be on the same computer but it is possible to clone this repo to an HPC and a local computer, run the HPC scripts, copy the relevant output files from the HPC to the local computer and continue with the statistical analysis using the R project.
 
 To clone the repository, please run
 ```
@@ -123,50 +123,6 @@ mkdir -p $intermediate
         - Mapping ref to get the complete contig list: `$intermediate/ref/bphage_mapping_ref.fasta`
     - Output: Separate tables for mapped reads, horizontal coverage and mean depth and a table with all contig lengths in `output/mapping_stats`
 
-### Annotation
-- Pharokka: `scripts/HPC/annotation_pharokka_bphage.slrm`
-    - Requires:
-        - Phage, picobirna and unclassified bphage contigs: `output/bphage_ALL_1kb_phages.fasta.gz`, `bphage_ALL_1kb_picobirna.fasta.gz`, `bphage_ALL_1kb_unclassified_viruses.fasta.gz`
-    - Output: `output/output/annotation/pharokka/bpgage_and_others`
-
-#### CONTINUE HERE. WAIT FOR PHAROKKA TO FINISH ON THE SET WITHOUT THE OTHER DATASET'S CONTIGS
-
-- Collabfold: Done by collaborator George Bouras.
-    - Requires: Pharokka's prodigal-gv output: `output/annotation/pharokka/bpgage_and_others/prodigal-gv.faa` (in communication with George the file was named `bpgage_and_others_prodigal-gv.faa`)
-    - Output: Protein structures (Alpha fold 2) of all identified proteins from bphage and other studies. Provided by George, placed into `output/annotation/phold_colabfold_structures`
-- `annotation_phold_prepare.slrm`: Prepare phold compare
-    - Requires: 
-        - pdb files of George's collabfold structures in `output/annotation/phold_colabfold_structures/basler_output_renamed/renamed_pdbs/`
-        - List of contigs that were sent to George but are not in the bphage_and_others dataset anymore because they were either filtered out by geNomad/CheckV (from additional studies) or collapsed by clustering: `$repo_location/data/phold/sent_to_george_but_removed_from_original_dataset`
-    - Output: 
-        - Renamed pdb files with shortened names, otherwise phold will crash.
-        - pdb files without corresponding entry in pharokka's output will be moved to `output/annotation/phold_colabfold_structures/basler_output_renamed/filtered_out_renamed_pdbs`
-- Phold: `scripts/HPC/annotation_phold_compare.slrm`
-    - Requires: 
-        - Pharokka's gbk output: `output/annotation/pharokka_bphage_and_others/bphage_and_others.gbk`
-        - Predicted structures at `output/annotation/phold_colabfold_structures/basler_output_renamed/renamed_pdbs/`
-        - sed script to re-lengthen contig names: `data/phold/relengthen.contig.names.sed`
-    - Output:
-        - Predicted functions at: `output/annotation/phold_compare_bphage_and_others`
-        - Additional files in this output folder with the original, long contig names: `output/annotation/phold_compare_bphage_and_others/*_long_names.*`
-        - Ciros plots of all contigs, except a few very short ones that crashed `phold plot`: `output/annotation/plots_phold_compare_bphage_and_others` (using original, long contig names).
-
-### Taxonomic clustering
-- `vcontact3_clustering_with_inphared.slrm`: vConTACT3
-    - Requires: 
-        - Phage, picobirna and unclassified bphage contigs: `output/bphage_ALL_1kb_phages.fasta.gz`, `bphage_ALL_1kb_picobirna.fasta.gz`, `bphage_ALL_1kb_unclassified_viruses.fasta.gz`
-        - INPHARED dataset: `$intermediate/additional_datasets/inphared_3Apr2024_genomes_excluding_refseq.fa.gz`
-    - Output: 
-        - `output/vcontact3/bphage_vcontact3_b38_with_inphared/final_assignments.csv`
-        - For visualisation: `output/vcontact3/bphage_vcontact3_b38_with_inphared/graph.bin_*.cyjs` (4 files). Run `scripts/R/cytoscape.R` on these files (see comments at the top of that script for instructions).
-- `taxonomy_microviruses.slrm`: MOP-UP pipeline (for microviruses)
-    - Requires: 
-        - geNomad output: `output/bphage_ALL_1kb_genomad/bphage_ALL_1kb_cross_95-85_summary/bphage_ALL_1kb_cross_95-85_virus_summary.tsv.gz`
-        - vConTACT3 output: `output/vcontact3/bphage_vcontact3_b38_with_inphared/final_assignments.csv`
-        - Alternatively to the geNomad and vConTACT3 output: `/data/bphage.microviridae.contigs`
-        - phold protein sequences: `output/annotation/phold_compare_bphage_and_others/phold_aa_long_names.fasta`
-    - Output: `output/bphage_micros_mopup/bphage_micros_id30ForCytoscape.csv`. Run `scripts/R/microviruses_mopup_cytoscape.R` for visualisation (see comments at the top of this script for instructions).
-
 ### Core contig refinement
 - `contig_refinement.slrm` (array of 97): Prepare and run cobra 
     - Requires: 
@@ -191,33 +147,115 @@ mkdir -p $intermediate
         - Phold: `output/core_contig_refinement/extended_contigs_phold`
         - Phold plots: `output/core_contig_refinement/extended_contigs_plots_phold`
 
+### Annotation
+- Pharokka: `scripts/HPC/annotation_pharokka_bphage.slrm`
+    - Requires:
+        - Phage, picobirna and unclassified bphage contigs: `output/bphage_ALL_1kb_phages.fasta.gz`, `bphage_ALL_1kb_picobirna.fasta.gz`, `bphage_ALL_1kb_unclassified_viruses.fasta.gz`
+    - Output: `output/output/annotation/pharokka/bpgage_and_others`
+- ColabFold: Done by collaborator George Bouras. Please refer to `scripts/HPC/protein_structures/README.md` for instructions.
+    - Requires: Pharokka's prodigal-gv output: `output/annotation/pharokka/bpgage_and_others/bpgage_and_others_prodigal-gv.faa`
+    - Output: Protein structures (AlphaFold2) of all identified proteins. Has to be placed into `output/annotation/phold_colabfold_structures`
+- `annotation_phold_prepare.slrm`: Prepare phold compare
+    - Requires: pdb files of ColabFold structures in `output/annotation/phold_colabfold_structures/basler_output_renamed/renamed_pdbs/`
+    - Output: 
+        - Shortened pdb file names, otherwise phold will crash.
+        - pdb files without corresponding entry in pharokka's output will be moved to `output/annotation/phold_colabfold_structures/basler_output_renamed/filtered_out_renamed_pdbs`
+- `scripts/HPC/annotation_phold_compare.slrm`: Phold compare
+    - Requires: 
+        - Pharokka's gbk output: `output/annotation/pharokka_bphage_and_others/bphage_and_others.gbk`
+        - Predicted structures at `output/annotation/phold_colabfold_structures/basler_output_renamed/renamed_pdbs/`
+        - sed script to re-lengthen contig names: `data/phold/relengthen.contig.names.sed`
+        - Python script to filter gbk files (called from within the slrum script): `scripts/HPC/filter_gbk.py`
+    - Output:
+        - Predicted functions at: `output/annotation/phold_compare_bphage_and_others`
+        - Additional files in this output folder with the original, long contig names: `output/annotation/phold_compare_bphage_and_others/*_long_names.*`
+        - Ciros plots of all contigs, except a few very short ones that crashed `phold plot`: `output/annotation/plots_phold_compare_bphage_and_others` (using original, long contig names).
+- `kegg_prepare.slrm`: Extract all "moron" gene sequences
+    - Requires: Phold output: `output/core_contig_refinement/phold_compare_bphage_and_others/phold_aa_long_names.fasta`. Also from refined contigs: `output/core_contig_refinement/extended_contigs_phold/phold_aa_long_names.fasta`
+    - Output: Gene sequences of "moron" genes: `output/kegg/moron.CDSs.fasta`. Use this to do a GhostKOALA search at the KEGG website (https://www.kegg.jp/ghostkoala/). The output has to be downloaded and turned into a useable format. As this is quite a manual work, the result of this process is at `data/kegg_mapping.tsv`
+
+### Taxonomic classification
+- `vcontact3_clustering_with_inphared.slrm`: vConTACT3
+    - Requires: 
+        - Phage, picobirna and unclassified bphage contigs: `output/bphage_ALL_1kb_phages.fasta.gz`, `bphage_ALL_1kb_picobirna.fasta.gz`, `bphage_ALL_1kb_unclassified_viruses.fasta.gz`
+        - INPHARED dataset: `$intermediate/additional_datasets/inphared_3Apr2024_genomes_excluding_refseq.fa.gz`
+    - Output: 
+        - `output/vcontact3/bphage_vcontact3_b38_with_inphared/final_assignments.csv`
+        - For visualisation: `output/vcontact3/bphage_vcontact3_b38_with_inphared/graph.bin_*.cyjs` (4 files). Run `scripts/R/cytoscape.R` on these files (see comments at the top of that script for instructions).
+- `taxonomy_microviruses.slrm`: MOP-UP pipeline (for microviruses)
+    - Requires: 
+        - geNomad output: `output/bphage_ALL_1kb_genomad/bphage_ALL_1kb_cross_95-85_summary/bphage_ALL_1kb_cross_95-85_virus_summary.tsv.gz`
+        - vConTACT3 output: `output/vcontact3/bphage_vcontact3_b38_with_inphared/final_assignments.csv`
+        - Alternatively to the geNomad and vConTACT3 output: `/data/bphage.microviridae.contigs`
+        - phold protein sequences: `output/annotation/phold_compare_bphage_and_others/phold_aa_long_names.fasta`
+    - Output: `output/bphage_micros_mopup/bphage_micros_id30ForCytoscape.csv`. Run `scripts/R/microviruses_mopup_cytoscape.R` for visualisation (see comments at the top of this script for instructions).
+
 ### Lifestyle prediction
 - `scripts/HPC/lifestyle_replidec.slrm`: Replidec 
-    - Requirements: BPhage phage, picobirna and unclassified contigs at `output/bphage_ALL_1kb_*.fasta.gz`
-    - Extended core contigs: `output/core_contig_refinement/extended_contigs.fasta`
+    - Requires: 
+        - Phage, picobirna and unclassified contigs at `output/bphage_ALL_1kb_*.fasta.gz`
+        - Extended core contigs: `output/core_contig_refinement/extended_contigs.fasta`
 - Output: Replidec's lifestyle prediction: `output/lifestyle/replidec/BC_predict.summary`
 
 ### Host prediction
-
+- `iphop_bphage.slrm`: iPHoP
+    - Requires: Phage, picobirna and unclassified contigs at `output/bphage_ALL_1kb_*.fasta.gz`
+    - Output: Predicted hosts at: `output/host_prediction/`
 
 ### SNP analysis
-- mapping prep (bact)
-- mapping vs bact
-- SKA `SNP_analysis_SKA1`
-- SKA distances
-<!-- - mapping prep
-- mapping (array of 150)
-- (subspecies trimming)
-- SKA ()
-- (SKA bacteria)
-- (SKA subspecies)
-- SKA distances -->
+- `SNP_analysis_mapping_prep.slrm`: Index bacterial genomes for mapping
+    - Requires: Core bacteria genomes: `$intermediate/ref/core.bacteria.ref.genomes.fasta`
+    - Output: Indexed core bacteria genomes: `$intermediate/ref/core.bacteria.ref.genomes.fasta.*`
+- `SNP_analysis_mapping.slrm` (array of 150): Merge bam files per bee pool, retreive reads that didn't map against the phages and map those against the core bacteria genomes.
+    - Requires: 
+        - Bee pool list: `data/BPhage.bee.pool.list`
+        - Indexed core bacteria genomes: `$intermediate/ref/core.bacteria.ref.genomes.fasta.*`
+        - Mapping output: `output/mapped_phages/`
+    - Output: Reads mapping only to core bacteria genomes, not to phages or bee in (merged per bee pool) `$intermediate/merged_reads/`
+- `SNP_analysis_SKA1.slrm` (array of 150): SKA fastq
+    - Requires:
+        - Bee pool list: `data/BPhage.bee.pool.list`
+        - Trimmed reads (before host filtering): `output/bphage_viper_output/READ/*.trimmed.*.fastq.gz`
+        - Hostout reads: `output/bphage_viper_output/READ/*.Hostout.*.fastq.gz`
+    - Output: SKA kmer files for reads only mapping to bee, to phages or to core bacteria: `ska/skf_files/` (the the reads for the former two are deleted during cleanup)
+- `SNP_analysis_distances_SKA1.slrm` (array of 3): SKA distance
+    - Requires: SKA kmer files: `ska/skf_files/*.skf`
+    - Output: Pairwise SNP distances in bee, phage and core bacteria read sets: `output/SNP_analysis/SKA_SNP_distances/*distances.tsv` 
 
-### Nosema mapping
+### Nosema (Vairimorpha) mapping
+- `Nosema_mapping_prep.slrm`: Index Nosema genomes for mapping
+    - Requires: Nosema genome: `$intermediate/ref/Varimorpha_genomes.fasta`
+    - Outoput: Indexed genome: `$intermediate/ref/Varimorpha_genomes.*`
+- `Nosema_mapping_all.slrm` (array of 450): Mapping to Nosema genome
+    - Requires: 
+        - Sample list: `data/BPhage.sample.list`
+        - Hostout reads: `output/bphage_viper_output/READ/*.Hostout.*.fastq.gz`
+    - Output: 
+        - Nosema-mapping alignments in `$intermediate/nosema_mapping_all`
+        - Per-sample mapped read counts `$intermediate/nosema_mapping_all/*_read_counts.tsv`
+- `Nosema_mapping_stats_all.slrm`: Gathering mapped read counts
+    - Requires: Per-sample mapped read counts `$intermediate/nosema_mapping_all/*_read_counts.tsv`
+    - Outout: Table of mapped reads: `output/nosema_mapped_counts_all.tsv`
 
 ### Additional datasets mapping
+- `additional_datasets_mapping_with_unpaired.slrm` (array of 114): Mapping of reads from other studies
+    - Requires: 
+        - List of SRA sccessions: `data/other_datasets_SRA_accessions.tsv`
+        - Indexed phage genomes: `$intermediate/ref/bphage_mapping_ref.fasta`
+    - Output: Per-SRA coverage and mapped reads: `output/other_studies/*.coverage.gz`, `output/other_studies/*_read_stats.tsv`
+- `additional_datasets_gather_mapping_stats_with_unpaired.slrm`: Gathering mapping stats
+    - Requires:
+        - Phage genomes: `$intermediate/ref/bphage_mapping_ref.fasta`
+        - List of SRA sccessions: `data/other_datasets_SRA_accessions.tsv`
+        - Per-SRA coverage and mapped reads: `output/other_studies/*.coverage.gz`, `output/other_studies/*_read_stats.tsv`
+    - Outout: Stats for horizontal coverage, maped reads, mean depth and filtering stats: `output/other_studies/stats.other_studies.*`
 
 ### Novelty check: Clustering with INPHARED
+- `inphared_clustering.slrm`: Clustering phage genomes with the INPHARED dataset on 70% identity over 85% of the genome length
+    - Requires:
+        - Phage, picobirna and unclassified contigs at `output/bphage_ALL_1kb_*.fasta.gz`
+        - Inphared dataset: `$intermediate/additional_datasets/inphared_14Apr2025_genomes_excluding_refseq.fa.gz`
+    - Output: Table with clusters: `output/inphared_clustering/bphage_and_inpha_70-85_clusters.tsv`
 
 ## R scripts
 ### Package versions
