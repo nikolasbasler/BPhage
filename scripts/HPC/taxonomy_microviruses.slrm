@@ -20,7 +20,18 @@ threads=36
 mkdir -p $VSC_SCRATCH/BPhage/tax_micros
 cd $VSC_SCRATCH/BPhage/tax_micros
 
-seqkit grep -r -f $repo_location/data/bphage.microviridae.contigs \
+zcat $repo_location/output/bphage_ALL_1kb_genomad/bphage_ALL_1kb_cross_95-85_summary/bphage_ALL_1kb_cross_95-85_virus_summary.tsv.gz | \
+    grep "Microviridae" | grep "NODE" | cut -f1 | sort > temp.genomad.microviruses
+
+grep "Malgrandaviricetes" $repo_location/output/vcontact3/bphage_vcontact3_b38_with_inphared/final_assignments.csv | \
+    grep "NODE" | cut -d"," -f2 | sort > temp.vcontact.malgrndas
+
+comm -12 temp.genomad.microviruses temp.vcontact.malgrndas > bphage.microviridae.contigs
+
+# To avoid backtracking later:
+# cp bphage.microviridae.contigs $repo_location/data/
+
+seqkit grep -r -f bphage.microviridae.contigs \
     $repo_location/output/annotation/phold_compare_bphage_and_others/phold_aa_long_names.fasta | \
     sed 's/:/@/g' \
     > bphage.microviridae.proteins.fasta
@@ -32,13 +43,16 @@ cd $repo_location/MOP-UP/
 python3 mop-up.py bphage_micros_id30 $VSC_SCRATCH/BPhage/tax_micros/bphage.microviridae.proteins.fasta @ \
     $VSC_SCRATCH/BPhage/tax_micros/bphage_micros_id30 --cpu $threads --miniden 0.30
 
-python3 mop-up.py bphage_micros_id50 $VSC_SCRATCH/BPhage/tax_micros/bphage.microviridae.proteins.fasta @ \
-    $VSC_SCRATCH/BPhage/tax_micros/bphage_micros_id50 --cpu $threads --miniden 0.50
+# python3 mop-up.py bphage_micros_id50 $VSC_SCRATCH/BPhage/tax_micros/bphage.microviridae.proteins.fasta @ \
+#     $VSC_SCRATCH/BPhage/tax_micros/bphage_micros_id50 --cpu $threads --miniden 0.50
 
 mkdir -p $repo_location/output/bphage_micros_mopup
 echo "Copying output (this takes a while because there are 100k files...)"
 cp -r $VSC_SCRATCH/BPhage/tax_micros/bphage_micros_id30/mop-up_output/* $repo_location/output/bphage_micros_mopup
-cp -r $VSC_SCRATCH/BPhage/tax_micros/bphage_micros_id50/mop-up_output/* $repo_location/output/bphage_micros_mopup
+# cp -r $VSC_SCRATCH/BPhage/tax_micros/bphage_micros_id50/mop-up_output/* $repo_location/output/bphage_micros_mopup
+
+# Clean up
+rm temp.*
 
 echo "========================================================================"
 duration=$SECONDS
