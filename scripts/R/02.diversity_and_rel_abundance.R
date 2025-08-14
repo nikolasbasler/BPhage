@@ -4,7 +4,6 @@ start_time <- Sys.time()
 options("lifecycle_verbosity"="warning")
 
 library(RLdbRDA)
-source("scripts/R/custom_rldbrda.R")
 library(phyloseq)
 library(furrr)
 library(patchwork)
@@ -30,8 +29,7 @@ source("scripts/R/helpers/venn.R")
 source("scripts/R/helpers/vcontact.R")
 
 set.seed(1)
-# color_vector <- c(brewer.pal(n = 8, name = "Dark2"), brewer.pal(n = 12, name = "Set3"), brewer.pal(n = 8, name = "Set1")[c(1,2,8)])
-# color_vector <- colorRampPalette(color_vector)(43)
+
 color_vector <- colorRampPalette(brewer.pal(n = 8, name = "Set3"))(43) %>%
   sample()
 
@@ -39,7 +37,7 @@ color_vector <- colorRampPalette(brewer.pal(n = 8, name = "Set3"))(43) %>%
 #------------------------------------------------------------------------------#
 # Read in data and generate abundance and TPM tables ####
 
-metadata <- read.csv("data/metadata.csv") %>%
+metadata <- readRDS("data/metadata.RDS") %>%
   mutate(Country = factor(Country, levels = c("PT", "FR", "UK", "BE", "NL", "CH", "DE", "RO"))) %>%
   mutate(Season = factor(Season, levels = c("spr", "sum", "aut"))) %>%
   mutate(Gut_part = factor(Gut_part, levels = c("mid", "ile", "rec"))) %>%
@@ -52,15 +50,15 @@ metadata <- metadata %>%
   mutate(Sample_ID = factor(Sample_ID, levels=sample_order))
 row.names(metadata) <- metadata$Sample_ID
 
-bphage_microvirus_contigs <- read_lines("data/bphage.microviridae.contigs") # Where is this generated?
+bphage_microvirus_contigs <- read_lines("data/bphage.microviridae.contigs")
 
-bphage_microvirus_taxonomy <- read.csv("data/bphage.microvirus.taxonomy.csv", sep=";") # Where is this generated?
+bphage_microvirus_taxonomy <- read.csv("data/bphage.microvirus.taxonomy.csv", sep=";")
 
 classification_gnmd <- read.csv("output/R/phage.filt.gnmd.classification.csv") %>%
   mutate(contig_length = contig_length/1000) %>%
   rename(length_kb = contig_length)
 
-present_in_all_countries <- read_lines("data/core_contigs.txt") # Where is this generated?
+present_in_all_countries <- read_lines("data/core_contigs.txt") # Defined later but put into data/ for convenience, so it can be used here already.
 
 prevalences_tables <- list()
 for (thing in c("Bee_pools", "Hives", "Countries")) {
@@ -73,7 +71,6 @@ for (thing in c("Bee_pools", "Hives", "Countries")) {
 host_group_df <- read.csv("data/host_groups.csv") # This df is generated in host.R and saved into data/ for convenience, so it can be used here already.
 
 classification <- read.csv("output/vcontact3/bphage_vcontact3_b38_with_inphared/final_assignments.csv")  %>%
-  # filter(str_detect(GenomeName, "NODE") | str_detect(GenomeName, "Busby") | str_detect(GenomeName, "Bonilla") | str_detect(GenomeName, "Deboutte"))
   filter(str_detect(GenomeName, "NODE"))
 classification <- pick_ambiguous_taxa(vcontact_output = classification,
                                       taxlevel_to_pick = "Subfamily")
@@ -81,7 +78,7 @@ classification <- pick_ambiguous_taxa(vcontact_output = classification,
                                       taxlevel_to_pick = "Genus")
 
 classification <- classification %>%
-  mutate(Kingdom = "",  # No Kingdom column in vcontact's output??
+  mutate(Kingdom = "",  # No Kingdom column in vcontact3's output
          Species = "" ) %>%
   rename(contig = GenomeName,
          length_kb = Size..Kb.,
@@ -122,23 +119,6 @@ classification <- classification %>%
   left_join(., prevalences_tables$Hives, by = "contig") %>%
   left_join(., prevalences_tables$Countries, by = "contig") 
 
-# This would change each "Unclassified" entry to unclassified_<taxlevel>_of_<higher_taxlevel>
-# Disabled because it would break things downstream.
-# taxlevels <- c("Kingdom", "Phylum", "Class", "Order", "Family", "Subfamily", "Genus", "Species")
-# higher_tax <- list("Kingdom" = "Realm", 
-#                    "Phylum" = "Kingdom", 
-#                    "Class" = "Phylum",
-#                    "Order"= "Class",
-#                    "Family" = "Order",
-#                    "Subfamily" = "Family",
-#                    "Genus" = "Subfamily",
-#                    "Species" = "Genus")
-# for (tl in taxlevels) {
-#   classification <- classification %>%
-#     mutate(!!tl := ifelse(.data[[tl]] == "Unclassified", paste0("unclassified_", tl, "_of_", .data[[higher_tax[[tl]]]]), .data[[tl]]))
-#   
-# }
-
 contig_order <- classification %>%
   arrange(Realm, Kingdom, Phylum, Class, Order, Family, Genus, Species) %>% 
   select(contig) %>%
@@ -149,9 +129,6 @@ classification <- classification %>%
 
 phage_abundance <- read.csv("output/R/phage.filt.abundance.contig.csv") %>%
   select(!contains("Blank"))
-
-# ANI
-# bphage_and_others_ani.tsv <- read.delim("output/ani/bphage_and_others_ani.tsv.gz")
 
 classification %>% 
   mutate(classified_on_family_level = ifelse(Family == "Unclassified", "no", "yes")) %>%
@@ -168,13 +145,11 @@ vlp_stats <- metadata %>%
             median = round(median(VLPs_per_ul)),
             q75 = round(quantile(VLPs_per_ul)[4]),
             sd = round(sd(VLPs_per_ul)),
-            # norm_sd = round(sd(VLPs_per_ul) / mean(VLPs_per_ul), digits = 3)
             ) %>%
   mutate(q25 = paste0("q25: ", as.character(q25)),
          median = paste0("median: ", as.character(median)),
          q75 = paste0("q75: ", as.character(q75)),
          sd = paste0("sd: ", as.character(sd)),
-         # norm_sd = paste0("norm_sd: ", as.character(norm_sd))
          ) %>%
   unlist()
 
@@ -214,7 +189,6 @@ for (tl in taxlevels) {
     select(all_of(tl)) %>%
     table() %>%
     as.data.frame() %>%
-    # rename(Lowest_taxon = Var1, Genomes = Freq) %>%
     arrange(desc(Freq)) %>%
     mutate(Tax = factor(.data[[tl]], levels = .data[[tl]]))
   
@@ -341,16 +315,6 @@ for (merge in names(meta_merges)) {
                                  lengths_df = phage_lengths$contig)
 }
 
-## Generate TPM tables for different taxonomic levels. ####
-# 
-# calc_tpm <- function(abtable, level, lengths_df) {
-#   abtable %>%
-#     inner_join(., lengths_df, by=level) %>%
-#     mutate(across(-all_of(level), ~./length_kb)) %>% 
-#     select(-length_kb) %>% 
-#     mutate(across(-all_of(level), ~./sum(.)))
-# }
-
 phage_tpm <- list()
 for (lvl in names(phage_ab)) {
   phage_tpm[[lvl]] <- calc_tpm(abtable = phage_ab[[lvl]], 
@@ -432,53 +396,6 @@ source("scripts/R/helpers/pretty_pies.R")
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
-# ANI comparison ####
-# 
-# ANI_bphage <- bphage_and_others_ani.tsv %>%
-#   # select(id1, id2, tani) %>%
-#   # filter(id1 > id2) %>%
-#   filter(str_detect(id1, "NODE") & str_detect(id2, "NODE"))
-# 
-# aANI_bphage <- ANI_bphage %>%
-#   select(tani) %>%
-#   mutate(subset = "all")
-# aANI_core <- ANI_bphage %>%
-#   filter(id1 %in% present_in_all_countries & id2 %in% present_in_all_countries) %>%
-#   select(tani) %>%
-#   mutate(subset = "core")
-# aANI_non_core <- ANI_bphage %>%
-#   filter((!id1 %in% present_in_all_countries) & (!id2 %in% present_in_all_countries)) %>%
-#   select(tani) %>%
-#   mutate(subset = "non-core")
-# 
-# aANI_df <- rbind(aANI_bphage, aANI_core, aANI_non_core)
-# kruskal_results <- aANI_df %>%
-#   summarize(pvalue = kruskal.test(tani~subset)$p.value,
-#             test_stat = kruskal.test(tani~subset)$statistic,
-#             deg_freedom = kruskal.test(tani~subset)$parameter)
-# aANI_stats <- aANI_df %>%
-#   group_by(subset) %>%
-#   summarise(mean_ani = mean(tani),
-#             median_ani = median(tani),
-#             IQR_ani = IQR(tani),
-#             sd_ani = sd(tani),
-#             min_ani = min(tani),
-#             max_ani = max(tani))
-# 
-# aANI_boxplot <- aANI_df %>%
-#   # sample_frac(0.001) %>% # For fast testing.
-#   ggplot(aes(x = subset, y = tani)) +
-#   geom_boxplot() +
-#   # geom_boxplot(outlier.shape = NA) +
-#   geom_pwc(method="wilcox.test", label="p.adj.signif",
-#            p.adjust.method="BH", hide.ns = TRUE) + #, bracket.nudge.y = -0.8) + #,
-#            # y.position = c(0.1, 0.13, 0.16)) +
-#   # scale_y_continuous(limits = c(0, 0.25)) +
-#   # scale_y_continuous(limits = c(0, quantile(aANI_df$tani, 0.99))) +
-#   labs(title = paste0("Krusil-Wallis H = ", round(kruskal_results$test_stat), ", p = ",kruskal_results$pvalue))
-
-#------------------------------------------------------------------------------#
-#------------------------------------------------------------------------------#
 # Completeness and genome length comparison core/non-core####
 
 completeness_and_genome_length <- list()
@@ -500,12 +417,10 @@ completeness_and_genome_length$contig_length <- classification %>%
   labs(title = "Assembled contig length")
 
 completeness <- list()
-# median_completeness <- unique(median(classification$completeness, na.rm = TRUE))
 completeness$plot  <- classification %>%
   filter(completeness >= 50) %>%
   ggplot(aes(x = completeness)) +
   geom_histogram(binwidth = 2) +
-  # geom_vline(xintercept = median_completeness, linetype = "dashed") +
   labs(x = "Completeness (%)", y = "Genome count") +
   theme_pubr()
 
@@ -530,9 +445,13 @@ completeness$tibble <- classification %>%
 # min_seq_count <- 2713 # For quantile_90_ratio < 1000. 11 discarded samples (10 mid, 1 ile).
 
 # 70% horizontal coverage cutoff
+threshold_plot <- list()
 count_stats <- report_stats(df = phage_abundance,
                             thresholds=c(2437, 1548, 775)) # First number: quantile_90_ratio < 1000, second number: quantile_95_ratio < 2500
 count_stats
+threshold_plot$all <- report_stats(df = phage_abundance, thresholds=c(1548))$plot_thresholds + 
+  annotate("text", x = 100, y = 1548, label = "Threshold (inclusive):\n1548", vjust = -0.5, size = 5)
+
 # min_seq_count <- 2442 # For quantile_90_ratio < 1000. 12 discarded samples (9 mid, 3 ile).
 min_seq_count <- 1548 # Looks like a natural breaking point. 4 discarded samples (all mid).
 discarded <- discards(count_stats$ratios, min_seq_count)$discarded
@@ -543,6 +462,10 @@ count_stats_core_or_not <- list()
 count_stats_core_or_not$no <- report_stats(df = phage_ab_core_or_not$no$contig,
                             thresholds=c(961, 1694, 7356))
 count_stats_core_or_not$no
+threshold_plot$noncore <- report_stats(df = phage_ab_core_or_not$no$contig, thresholds=c(1694))$plot_thresholds +
+  annotate("text", x = 100, y = 1694, label = "Threshold (inclusive):\n1694", vjust = -0.5, size = 5)
+
+
 min_seq_count_core_or_not$no <- 1694 # Looks like a natural breaking point. 7 discarded samples (5 mid, 2 ile).
 discarded <- discards(count_stats_core_or_not$no$ratios, min_seq_count_core_or_not$no)$discarded
 lost_bees <- discards(count_stats_core_or_not$no$ratios, min_seq_count_core_or_not$no)$lost_bees # No bee pool lost completely. Only gut parts from different locations/time points.
@@ -550,6 +473,10 @@ lost_bees <- discards(count_stats_core_or_not$no$ratios, min_seq_count_core_or_n
 count_stats_core_or_not$yes <- report_stats(df = phage_ab_core_or_not$yes$contig,
                                      thresholds=c(462, 1073, 2375))
 count_stats_core_or_not$yes
+threshold_plot$core <- report_stats(df = phage_ab_core_or_not$yes$contig, thresholds=c(1073))$plot_thresholds + 
+  annotate("text", x = 100, y = 1073, label = "Threshold (inclusive):\n1073", vjust = -0.5, size = 5)
+
+
 min_seq_count_core_or_not$yes <- 1073 # Looks like a natural breaking point. 2 discarded samples (1 ile 1 mid).
 discarded <- discards(count_stats_core_or_not$yes$ratios, min_seq_count_core_or_not$yes)$discarded
 lost_bees <- discards(count_stats_core_or_not$yes$ratios, min_seq_count_core_or_not$yes)$lost_bees # No bee pool lost completely. Only gut parts from different locations/time points.
@@ -560,23 +487,21 @@ lost_bees <- discards(count_stats_core_or_not$yes$ratios, min_seq_count_core_or_
 # because this part takes by far the longest.
 
 iterations <- 1000
-# source("scripts/R/helpers/rarefaction_alpha.R")
-# source("scripts/R/helpers/rarefaction_beta.R")
+source("scripts/R/helpers/rarefaction_alpha.R")
+source("scripts/R/helpers/rarefaction_beta.R")
 
 # For manuscript figure:
+all <- alpha$Family$single_plots
+non_core_singles <- alpha_core_or_not$no$Family$single_plots
+core_singles <- alpha_core_or_not$yes$Family$single_plots
+for (n in 5:7) {
+  all[[n]] <- all[[n]] + theme(axis.text.x=element_blank())
+  non_core_singles[[n]] <- non_core_singles[[n]] + theme(axis.text.x=element_blank())
 
-# all <- alpha$Family$single_plots
-# non_core_singles <- alpha_core_or_not$no$Family$single_plots
-# core_singles <- alpha_core_or_not$yes$Family$single_plots
-# for (n in 5:7) {
-#   all[[n]] <- all[[n]] + theme(axis.text.x=element_blank())
-#   non_core_singles[[n]] <- non_core_singles[[n]] + theme(axis.text.x=element_blank())
-#   
-# }
-# pretty_alpha_selection <- wrap_plots( wrap_plots(all[5:7], axes = "collect_y", widths = c(3,4,3)) / 
-#               wrap_plots(non_core_singles[5:7], axes = "collect_y", widths = c(3,4,3)) /
-#               wrap_plots(core_singles[5:7], axes = "collect_y", widths = c(3,4,3)))
-
+}
+pretty_alpha_selection <- wrap_plots( wrap_plots(all[5:7], axes = "collect_y", widths = c(3,4,3)) /
+              wrap_plots(non_core_singles[5:7], axes = "collect_y", widths = c(3,4,3)) /
+              wrap_plots(core_singles[5:7], axes = "collect_y", widths = c(3,4,3)))
 
 # Simple un-rarified richness:
 pool_richness <- phage_tpm$contig %>%
@@ -701,29 +626,6 @@ for (gpart in c("mid", "ile", "rec")) {
 }
 core_gut_part_venn <- ggVennDiagram::ggVennDiagram(core_gutpart_presence) + ggtitle("Core phage presence")
 
-# 
-# met_v <- c("Country", "Season", "Gut_part", "Health")
-# tax_levels <- c("contig", "Species", "Genus", "Family", "Order", "Class", "Phylum", "Kingdom", "Realm")
-# prevalence_plots <- list()
-# for (hgr in names(phage_tpm_hostgroup)) {
-#   for (tlvl in tax_levels) {
-#     # trsh <- 3
-#     if (tlvl=="contig") {
-#       trsh <- 20
-#     } else {
-#       trsh <- 1
-#     }
-#     prevalence_plots[[hgr]][[tlvl]] <- prevalence_bar_plot(
-#       abtable = phage_tpm_hostgroup[[hgr]][[tlvl]],
-#       tl = tlvl, 
-#       hg = hgr,
-#       meta_vars = met_v,
-#       threshold_for_other = trsh)
-#   }
-# }
-
-
-
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 # Average TPM ####
@@ -768,13 +670,6 @@ for (core_or_not in names(phage_tpm_core_or_not)) {
       hg_or_core = "Core?")
   }
 }
-# average_tpm_host_group <- list()
-# average_tpm_host_group <- average_tpm_bar_plot(tpm_table = phage_tpm$Host_group,
-#                                                tl = "Host_group", 
-#                                                hg = "Host_group",
-#                                                meta_vars = met_v,
-#                                                threshold_for_other = 0,
-#                                                hg_or_core = "Host_group")
 
 average_tpm_host_group <- list()
 for (hostg in names(phage_tpm_hostg_core)) {
@@ -890,7 +785,6 @@ genera_per_family_tbl <- classification %>%
 genera_per_family_plot <- genera_per_family_tbl %>%
   ggplot(aes(x = Core, y = genera_per_famliy)) +
   geom_boxplot() +
-  # geom_pwc(method="wilcox.test", label="p.adj.signif", hide.ns = TRUE)
   geom_pwc(method="wilcox.test", hide.ns = TRUE)
 
 genera_per_family_stats <- genera_per_family_tbl %>%
@@ -907,7 +801,7 @@ genera_per_family_stats <- genera_per_family_tbl %>%
 # Prevalenve Venn diagrams # Out-sourced for easy deactivation, because output 
 # files are automatically written by the tool.
 
-# source("scripts/R/helpers/venn_run.R") 
+source("scripts/R/helpers/venn_run.R")
 
 here_time <- Sys.time()
 here_time - start_time
@@ -916,8 +810,7 @@ here_time - start_time
 #------------------------------------------------------------------------------#
 # Save files # Out-sourced for easy deactivation.
 
-# source("scripts/R/helpers/save_files.R")
-
+source("scripts/R/helpers/save_files.R")
 
 end_time <- Sys.time()
 end_time - start_time

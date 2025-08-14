@@ -23,28 +23,14 @@ cropland_and_FAO <- FAOSTAT_added_data %>%
   distinct() %>%
   select_if(~ !any(is.na(.)))
 
-metadata <- readRDS("output/R/R_variables/metadata.RDS") %>%
+metadata <- readRDS("data/metadata.RDS") %>%
   mutate(Hive_ID = as.character(Hive_ID))
 classification <- readRDS("output/R/R_variables/classification.RDS")
 
 pathogen_data <- read_excel("data/GlobalBGOOD_WP1_Tier1_Scien.xlsx", skip = 1) %>%
   rename(BGOOD_sample_code = Sample_ID) %>%
   mutate(CBPV = ifelse(str_detect(CBPV, ">40,00"), "41", CBPV),
-         BQCV = as.character(BQCV)) # %>%
-# rename(`Cat DWV A` = Cat....24,
-#        `Cat DWV B` = Cat....26,
-#        `Cat ABPV` = Cat....28,
-#        `Cat CBPV` = Cat....30,
-#        `Cat BQCV` = Cat....32,
-#        `Cat SBV` = Cat....34,
-#        `Cat EFB` = Cat....36,
-#        `Cat AFB` = Cat....38) %>%
-# mutate(across(starts_with("Cat"), ~ na_if(.x, "-")),
-#        across(starts_with("Cat"), ~ factor(.x, levels = c("L", "M", "H")))) %>%
-# mutate(nosema_spores = ifelse(`N. spores` == "ND", "0", `N. spores`),
-#        nosema_spores = ifelse(`N. spores` == '< 25000', "25000" , nosema_spores),
-#        nosema_spores = as.numeric(nosema_spores))
-
+         BQCV = as.character(BQCV)) 
 pathogens_Cts <- c("DWV A", "DWV B", "ABPV", "CBPV", "BQCV", "SBV", "EFB",
                    "AFB", "N. apis", "N. ceranae")
 

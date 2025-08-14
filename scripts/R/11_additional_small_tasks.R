@@ -58,7 +58,7 @@ ggsave("output/R/core_shared_between_guts.pdf", core_shared_between_guts,
 ##### 
 ## total observed contigs per bee pool
 
-metadata <- readRDS("output/R/R_variables/metadata.RDS")
+metadata <- readRDS("data/metadata.RDS")
 
 phage_tpm <- read.csv("output/R/relative_abundance/phage_tpm.csv") %>%
   tibble()
