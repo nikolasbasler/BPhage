@@ -10,7 +10,7 @@ git clone https://github.com/nikolasbasler/BPhage
 ```
 **Note**: The output of the tools and scripts will end up in the `output` folder inside the repo (which is why it's not tracked by git). The HPC scripts will create around 1.5 TB in total (plus intermediate storage, see below), the R scripts around 1 GB. Make sure to have enough free space or manage the output as it comes.
 
-**If you want to skip the HPC part and only want to re-run the statistical analysis:** Clone the repo as mentioned above, extract the mid-save archive, and then skip ahead to the "R scripts" section of this readme file.
+**If you want to skip the HPC part and only want to re-run the statistical analysis:** Clone the repo as mentioned above, extract the mid-save archive, and then skip ahead to the "R scripts" section of this README file.
 ```
 tar -kxvzf mid_save.tar.gz
 ```
@@ -24,16 +24,27 @@ tar -kxvzf mid_save.tar.gz
 - You can also run all scripts without a scheduler, directly with `bash` but note that some of them run for a long time, especially if the computational resources are limited.
 - Array scripts are iterations of the same slurm job, meant to run simultaneously. If you have to run them in sequence, you can embed the entire script into a loop, with `$SLURM_ARRAY_TASK_ID` as iterator, but this will take a **very** long time for most of them.
 
-### Installations (manual, no scripts)
+### Installations
 For tool versions see the conda environment `.yml` files: `data/env_*.yml`
 - Mamba/conda: Please follow the official documentation (e.g.: https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html). For this analysis, `mamba` v.1.4.2 and `conda` v.23.1.0 were used.
 - ViPER pipeline: Please follow the instructions on Github **BUT** use `data/env_viper_bphage.yml` from this repository instead of ViPER's `viper.yml`: https://github.com/Matthijnssenslab/ViPER. For this analysis, ViPER version 2.1 was used.
-- Additional conda environments: To install additional conda environments with all necessary tools, use the `env_*.yml` files in `data/`: `env_cobra.yml`, `env_iphop.yml`, `env_mopup.yml`, `env_ncbi.yml`, `env_pharokka.yml`, `env_phold.yml`, `env_replidec.yml`, `env_ska.yml`, `env_vcontact3.yml`. E.g. like this:
+- Additional conda environments: To install additional conda environments with all necessary tools, use the `env_*.yml` files in `data/`: 
+- `env_cobra.yml`
+- `env_iphop.yml`
+- `env_mopup.yml`
+- `env_ncbi.yml`
+- `env_pharokka.yml`
+- `env_phold.yml`
+- `env_replidec.yml`
+- `env_ska.yml`
+- `env_vcontact3.yml`
+
+E.g. like this:
 ```
 mamba env create -f env_cobra.yml
 ```
 
-- **Note**: The tool MOP-UP (used for taxonomic clustering of the microviruses) relies on a library called `Boost`, which I didn't manage to install properly via conda but instead relied on a pre-installed module. If it gives you trouble, see version information in `env_mop-up_boost_module.txt`.
+- **Note**: The tool MOP-UP (used for taxonomic clustering of the microviruses) relies on a library called `Boost`, which I didn't manage to install properly via conda but instead relied on a pre-installed module. If it gives you trouble, see version information in `env_mop-up_boost_module.txt` and ask your ID department to install it. Good luck.
 - Set output directories: The HPC scripts assume two locations for output storage:
     - One location for intermediate storage that can blow up quite a lot while scripts are running and also contains the raw sequencing reads – the main input for this pipeline. 
     - The `output/` directory of this repository for the permanent output, which will accumulate about 1.5 TB as you progress through the scripts.
@@ -50,7 +61,7 @@ mkdir -p $repo_location/output/slurm_log
 sed -i "s|\$VSC_SCRATCH\/BPhage|${intermediate}|g" scripts/HPC/*.slrm
 mkdir -p $intermediate
 ```
-- All set! I will refer to `$intermediate` in this readme as the path to the intermediate storage but the variable does not have to remain set beyond this point.
+- All set! I will refer to `$intermediate` in this README as the path to the intermediate storage but the variable does not have to remain set beyond this point.
 
 ### Download
 - `download_raw_reads.slrm` (XXX): Download the raw data of this study from the SRA and rename the files. 
@@ -238,7 +249,7 @@ mkdir -p $intermediate
     - Outout: Table of mapped reads: `output/nosema_mapped_counts_all.tsv`
 
 ### Additional datasets mapping
-- `additional_datasets_mapping_with_unpaired.slrm` (array of 114): Mapping of reads from other studies
+- `additional_datasets_mapping_with_unpaired.slrm` (array of 114): Mapping of reads from other studies to the phage genomes
     - Requires: 
         - List of SRA sccessions: `data/other_datasets_SRA_accessions.tsv`
         - Indexed phage genomes: `$intermediate/ref/bphage_mapping_ref.fasta`
@@ -258,11 +269,25 @@ mkdir -p $intermediate
     - Output: Table with clusters: `output/inphared_clustering/bphage_and_inpha_70-85_clusters.tsv`
 
 ## R scripts
-### Package versions
+If you skipped the HPC part and jumped right here, I assume that you have cloned this repository and extracted the `mid_save.tar.gz` as descibed at the top of this README file.
+
+If you worked through the HPC scripts, you will probably want another clone of this repository on a local computer and only carry over the output that is further needed. In that case, have a look at the contents of `mid_save.tar.gz` to see which files you will need:
+
+```
+tar -tf mid_save.tar.gz | grep -v "/$"
+```
+
+All the R scripts are meant to be run in RStudio in order of their numbering (for the scripts 4a, 4b etc. the order doesn't matter). While they will run start to finish without user interaction, I recommend you execute the commands one by one to trace potential issues. 
+
+It would not be feasible to describe the in- and output of all scripts in detail here. Instead, I will provide general descriptions.
+
+### R and package versions
 - R 4.3.1
 - RStudio 2023.12.1+402
 - renv 1.1.4
 - To reproduce R package versions run `renv::restore()`
+
+### Filtering
 
 - Filtering script `xxx`
     - Requires: 
