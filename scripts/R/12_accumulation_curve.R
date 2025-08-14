@@ -1,7 +1,7 @@
 library(vegan)
 library(tidyverse)
 
-metadata <- readRDS("output/R/R_variables/metadata.RDS") %>%
+metadata <- readRDS("data/metadata.RDS") %>%
   mutate(Hive_ID = as.character(Hive_ID))
 # classification <- readRDS("output/R/R_variables/classification.RDS")
 

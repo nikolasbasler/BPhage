@@ -14,44 +14,6 @@ host_colors <- c("Bifidobacterium" = "#FFDAB9",
 # prev_colors <- c("#FFEB99", "#EBD688", "#D9BF77", "#C6A866", "#B39155", "#997A3C", "#806600", "black")
 prev_colors <- c("#FFDAB9", "#FFA07A", "#FFC300", "#ef8f01", "#D2691E", "#8B4513", "#1C3A3A", "black")
 
-
-# rel_abund_taxlvl = function(df, tl, meta_vars) {
-#   threshold_for_other = 0.005
-#   # Todo: Set threshold dynamically by meta_var and tl
-#   
-#   plotlist <- list()
-#   for (m_var in meta_vars) {
-#     metadata_filt <- metadata %>%
-#       select(Sample_ID, all_of(m_var))
-#     
-#     plotlist[[m_var]] <- df %>% 
-#       column_to_rownames("name") %>% 
-#       t() %>%
-#       as.data.frame() %>%
-#       rownames_to_column("Sample_ID") %>%
-#       inner_join(., metadata_filt, by="Sample_ID") %>% 
-#       select(-Sample_ID) %>%
-#       pivot_longer(-all_of(m_var)) %>%
-#       group_by(.data[[m_var]]) %>%
-#       mutate(value = value/sum(value)) %>% # Here I'm adding normalized counts (TPM) from different samples. Feels strange, but if I would go back to the read counts instead, then samples with more seq depth could swamp more shallow samples.
-#       mutate(name = 
-#                ifelse(value < threshold_for_other, 
-#                       paste0("other (<", round(threshold_for_other*100, digits = 1),"%)"), 
-#                       name)) %>%
-#       ungroup() %>%
-#       group_by(.data[[m_var]], name) %>%
-#       mutate(added_value = sum(value)) %>%  # This part is
-#       ungroup() %>%                         # only to merge
-#       select(-value) %>%                    # identically-
-#       distinct() %>%                        # colored shapes.
-#       ggplot(aes(x=.data[[m_var]], y=added_value, fill=name)) +
-#       geom_col() +
-#       ylab("Cumulated TPM") +
-#       labs(fill = tl)
-#   }
-#   return(plotlist)
-# }
-
 ###### HEATMAP
 contig_heatmap <- function(df, classif) {
   df %>% 
@@ -77,8 +39,6 @@ make_heatmap = function(df, tl, meta_vars) {
   plotlist <- list()
   for (m_var in meta_vars) {
     # Use bray on rows and columns
-    # cite: https://bmcbioinformatics.biomedcentral.com/articles/10.1186/1471-2105-11-45#MOESM3
-    # https://rdrr.io/cran/NeatMap/man/heatmap1.html
 
     metadata_filt <- metadata %>%
       select(Sample_ID, all_of(m_var))
@@ -92,39 +52,18 @@ make_heatmap = function(df, tl, meta_vars) {
         pivot_longer(-Sample_ID) %>% 
         rename(variable = Sample_ID) 
     } else {
-      # condensed <- df %>%
-      #   column_to_rownames("name") %>% 
-      #   t() %>%
-      #   as.data.frame() %>%
-      #   rownames_to_column("Sample_ID") %>%
-      #   inner_join(., metadata_filt, by="Sample_ID") %>%
-      #   select(-Sample_ID) %>%
-      #   pivot_longer(-all_of(m_var)) %>%
-      #   rename(variable = all_of(m_var)) %>%
-      #   group_by(variable) %>%
-      #   mutate(value = sum(value)) %>% # Here I'm adding normalized counts (TPM) from different samples. Feels strange, but if I would go back to the read counts instead, then samples with more seq depth could swamp more shallow samples.
-      #   group_by(name) %>%
-      #   filter(any(value > threshold_for_removal)) %>%
-      #   ungroup() %>%
-      #   group_by(variable, name) %>%
-      #   mutate(value = sum(value)) %>%        # This part is only
-      #   ungroup() %>%                         # to merge identically-
-      #   distinct() #%>%                        # colored shapes.
-      #   # group_by(variable) %>%
-      #   # mutate(value = value/sum(value))
-      
+
       condensed <- df %>%
         column_to_rownames("name") %>% 
         t() %>%
         as.data.frame() %>%
         rownames_to_column("Sample_ID") %>%
-        # inner_join(., metadata_filt, by="Sample_ID") %>% select(Sample_ID, `Deformed wing virus`, Health) %>% group_by(Health) %>% mutate(DWV=sum(`Deformed wing virus`)) %>% View() 
         inner_join(., metadata_filt, by="Sample_ID") %>%
         select(-Sample_ID) %>%
         pivot_longer(-all_of(m_var)) %>%
         rename(variable = all_of(m_var)) %>%
         group_by(name, variable) %>% 
-        mutate(value = sum(value)/n()) %>% # Here I'm adding normalized counts (TPM) from different samples. Feels strange, but if I would go back to the read counts instead, then samples with more seq depth could swamp more shallow samples.
+        mutate(value = sum(value)/n()) %>%
         ungroup() %>%
         distinct() %>% 
         group_by(name) %>%
@@ -136,29 +75,15 @@ make_heatmap = function(df, tl, meta_vars) {
       column_to_rownames("variable") %>%
       vegdist() %>%
       pcoa()
-    # samples_angles = apply(condensed_ord$vectors[,1:2],1,function(x){atan2(x[1],x[2])})
-    # samples_order = names(samples_angles)[order(samples_angles)] # Circular order
     samples_order = names(condensed_ord$vectors[,1])[order(condensed_ord$vectors[,1])] # Order based on 1st component
-    # condensed_ord_t <- condensed %>%
-    #   pivot_wider(names_from = name, values_from = value, values_fill = 0) %>%
-    #   column_to_rownames("variable") %>%
-    #   t() %>%
-    #   vegdist() %>%
-    #   pcoa()
-    # taxa_angles = apply(condensed_ord_t$vectors[,1:2],1,function(x){atan2(x[1],x[2])})
-    # taxa_order = names(taxa_angles)[order(taxa_angles)] # Circular order
-    # taxa_order = names(condensed_ord_t$vectors[,1])[order(condensed_ord_t$vectors[,1])] # Order based on 1st component
     taxa_order = df$name[order(df$name, decreasing = TRUE)] # Alphabetic taxon order
     plotlist[[m_var]] <- condensed %>%
-      # mutate(value= ifelse(value==0, 0, sqrt(value))) %>% # Square root transformation.
-      # mutate(value= ifelse(value==0, 0, log(value))) %>% # Log transformation.
       mutate(name = factor(name, levels=taxa_order),
              variable = factor(variable, levels=samples_order)) %>%
       ggplot(aes(x=variable, y=name, fill=value)) +
       geom_tile() +
       labs(x=NULL, y=NULL, fill="avg. TPM") +
       ggtitle(paste0(tl, "/",m_var," (>", round(threshold_for_removal*100, digits = 1),"%)"))
-    
     
     # Base R heatmap with hierarchical clustering for comparison
     # df_log = df %>%
@@ -173,9 +98,6 @@ make_heatmap = function(df, tl, meta_vars) {
 }
 
 #### PHYLOSEQ HEAT MAP
-
-# data("GlobalPatterns")
-# sample_data(GlobalPatterns)
 
 phylo_heat_map <- function(ab_table, id_table) {
   otu_mat <- ab_table %>% 
@@ -195,8 +117,6 @@ phylo_heat_map <- function(ab_table, id_table) {
   
   plot_heatmap(sub_ps, sample.label=Country, taxa.label="Phylum")
   
-  
-  # plot_bar(ps, fill = "Family")
 }
 
 average_tpm_bar_plot <- function(tpm_table, tl, hg, meta_vars, title_prefix="", threshold_for_other=0.01, hg_or_core = "") {
@@ -247,9 +167,6 @@ average_tpm_bar_plot <- function(tpm_table, tl, hg, meta_vars, title_prefix="", 
     }
     if (tl == "Host_group") {
       tible_list[[m_var]] <- tible_list[[m_var]] %>%
-        # mutate(group = factor(group, levels = rev(c("Bifidobacterium", "Lactobacillus", "Snodgrassella",
-        #                                            "Bombilactobacillus", "Gilliamella", "Frischella",
-        #                                            "Bartonella", "Bombella", "other", "unknown"))))
         mutate(group = factor(group, levels = rev(names(host_colors))))
     }
     
@@ -258,15 +175,7 @@ average_tpm_bar_plot <- function(tpm_table, tl, hg, meta_vars, title_prefix="", 
       ticks <- 1:max_val %>% 
         quantile(probs = c(0.33, 0.66)) %>% 
         round()
-      
-      # # BURN AFTER READING!
-      # order_by_phages_in_group <- tible_list[[m_var]] %>%
-      #   arrange(in_group) %>%
-      #   select(Sample_ID) %>%
-      #   distinct()
-      # tible_list[[m_var]] <- tible_list[[m_var]] %>%
-      #   mutate(Sample_ID = factor(Sample_ID, levels = order_by_phages_in_group$Sample_ID))
-      
+
       if (m_var == "Sample_ID") {
         country_plots <- list()
         for (country in unique(tible_list[[m_var]]$Country)) {
@@ -283,9 +192,6 @@ average_tpm_bar_plot <- function(tpm_table, tl, hg, meta_vars, title_prefix="", 
             guides(fill = guide_colourbar(reverse = TRUE)) +
             labs(fill=tl) +
             theme_minimal() +
-            # theme(panel.grid.major = element_blank(),
-            #       panel.grid.minor = element_blank(),
-            #       panel.background = element_blank()) +
             theme(axis.text.x = element_text(angle = 45, hjust=1)) +
             scale_x_discrete(expand = c(0.025, 0)) +
             geom_text(aes(label=in_group, y = 1.01, vjust = 0, angle = 45)) +
@@ -316,9 +222,7 @@ average_tpm_bar_plot <- function(tpm_table, tl, hg, meta_vars, title_prefix="", 
           geom_col() +
           ggtitle(paste0(title_prefix, hg_or_core, ": \"", hg,"\"")) +
           labs(fill=tl) +
-          theme_minimal() # +
-          # theme(panel.grid.major = element_blank(),
-          #   panel.grid.minor = element_blank())
+          theme_minimal()
       }
       if (tax == c("Prevalence_Countries")) {
           plot_list[[m_var]] <- plot_list[[m_var]] +
@@ -367,12 +271,6 @@ average_tpm_bar_plot <- function(tpm_table, tl, hg, meta_vars, title_prefix="", 
       plot_list[[m_var]] <- plot_list[[m_var]] +
         scale_fill_manual(values = host_colors)
     }
-    # if (m_var=="Sample_ID") {
-    #   plot_list[[m_var]] <- plot_list[[m_var]] +
-    #     theme(axis.text.x = element_text(angle = 45, hjust=1)) +
-    #     scale_x_discrete(expand = c(0.025, 0)) +
-    #     geom_text(aes(label=in_group, y = 1.01, vjust = 0, angle = 45))
-    # }
   }
   return(list(plots = plot_list, tibbles = tible_list))
 }

@@ -19,12 +19,11 @@ source("scripts/R/helpers/FAOstat_table.R")
 cropland_and_FAO <- FAOSTAT_added_data %>%
   select(Country, Item, est_use_in_2k_radius) %>%
   pivot_wider(id_cols = Country, values_from = est_use_in_2k_radius, names_from = Item) %>%
-  # left_join(cropland_fraction[c("Country", "cropland_fraction_2k_radius")], ., by = "Country") %>%
   left_join(FAOSTAT_added_data[c("Country", "cropland_fraction_2k_radius", "Cropland_in_2km_radius")],. , by = "Country") %>%
   distinct() %>%
   select_if(~ !any(is.na(.)))
 
-metadata <- readRDS("output/R/R_variables/metadata.RDS") %>%
+metadata <- readRDS("data/metadata.RDS") %>%
   mutate(Hive_ID = as.character(Hive_ID))
 classification <- readRDS("output/R/R_variables/classification.RDS")
 

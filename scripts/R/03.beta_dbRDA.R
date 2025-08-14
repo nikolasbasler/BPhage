@@ -3,7 +3,7 @@ source("scripts/R/custom_rldbrda.R")
 library(tidyverse)
 library(patchwork)
 
-metadata <- readRDS("output/R/R_variables/metadata.RDS")
+metadata <- readRDS("data/metadata.RDS")
 
 core_or_not <- c("yes", "no")
 plotting_lable <- list(yes = "core", no = "noncore", all = "all", 
@@ -63,8 +63,7 @@ for (tax in taxlevels) {
     p <- RLdbRDA::plot_dbrda(plot_data)
     p$data$bar_color <- custom_colors
     
-    RDA_plots[[tax]][[set]] <- p + aes(fill = bar_color) + scale_fill_identity() # +
-      # ggtitle(paste0(tax, "_", plotting_lable[[set]])) 
+    RDA_plots[[tax]][[set]] <- p + aes(fill = bar_color) + scale_fill_identity()
   }
 }
 

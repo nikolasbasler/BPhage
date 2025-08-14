@@ -8,7 +8,7 @@ library(tidyverse)
 
 set.seed(1)
 
-metadata <- readRDS("output/R/R_variables/metadata.RDS")
+metadata <- readRDS("data/metadata.RDS")
 SKA_subspecies_SRAs <- read.delim("data/SKA_subspecies_SRAs.tsv") %>%
   select(-Pool_name) %>%
   mutate(Country = NA) %>%
