@@ -24,12 +24,11 @@ nosema_relabund <- read.delim("output/nosema_mapped_counts_all.tsv") %>%
 cropland_and_FAO <- FAOSTAT_added_data %>%
   select(Country, Item, est_use_in_2k_radius) %>%
   pivot_wider(id_cols = Country, values_from = est_use_in_2k_radius, names_from = Item) %>%
-  # left_join(cropland_fraction[c("Country", "cropland_fraction_2k_radius")], ., by = "Country") %>%
   left_join(FAOSTAT_added_data[c("Country", "cropland_fraction_2k_radius", "Cropland_in_2km_radius")],. , by = "Country") %>%
   distinct() %>%
   select_if(~ !any(is.na(.)))
 
-metadata <- readRDS("output/R/R_variables/metadata.RDS") %>%
+metadata <- readRDS("data/metadata.RDS") %>%
   mutate(Hive_ID = as.character(Hive_ID))
 classification <- readRDS("output/R/R_variables/classification.RDS")
 
@@ -304,8 +303,10 @@ all_tests_forest_plot <- all_slopes %>%
 
 
 ###
-# Only one spec pest is significant after BH correction (negative effect), and the diagnostics don't look too healthy:
+# Only one spec pest is significant after BH correction (p = 0.04, negative effect).
 all_tests_forest_plot
 all_slopes %>%
   filter(Item == "Herbicides – Dinitroanilines")
 model_diagnostics
+
+# The diagnostics don't look healthy. Therefore not reported.

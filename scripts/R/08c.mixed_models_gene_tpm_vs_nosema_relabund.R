@@ -10,7 +10,7 @@ library(ggtext)
 
 source("scripts/R/helpers/mixed_helpers.R")
 
-metadata <- readRDS("output/R/R_variables/metadata.RDS") %>%
+metadata <- readRDS("data/metadata.RDS") %>%
   mutate(Hive_ID = as.character(Hive_ID))
 classification <- readRDS("output/R/R_variables/classification.RDS")
 
@@ -115,53 +115,6 @@ for (goi in genes_of_interest) {
       rbind(coeffs$tpm)
   }
 }
-
-
-# 
-# test_tibble_presence <- list()
-# model_presence <- list()
-# coeffs$presence <- tibble()
-# genes_of_interest <- c("Chitinase", "Glucosyltransferase", "PAPS reductase", "PnuC")
-# for (goi in genes_of_interest) {
-#   
-#   test_tibble_presence[[goi]] <- gene_tpm %>%
-#     filter(gene == goi) %>%
-#     left_join(., metadata[c("Sample_ID", "Country", "Hive_ID", "Season", "Gut_part")], by = "Sample_ID") %>%
-#     distinct() %>%
-#     left_join(., nosema_relabund, by = "Sample_ID") %>%
-#     mutate(Gut_part = factor(Gut_part, levels = c("rec", "ile", "mid"))) %>%
-#     mutate(Vairimorpha_presence = ifelse(nosema_relabund > 0.01, 1 , 0),
-#            log_tpm = log10(tpm)) %>%
-#     filter(!is.infinite(log_tpm))
-#   
-#   model_presence[[goi]] <- glmer(Vairimorpha_presence ~ log_tpm + Gut_part + Season +
-#                                    (1 | Hive_ID ), data = test_tibble_presence[[goi]],
-#                                  family = binomial)
-#   
-#   has_convergence_issues <- FALSE
-#   messages <- model_presence[[goi]]@optinfo$conv$lme4$messages
-#   if (is.null(messages)) {
-#     has_convergence_issues <- FALSE
-#   } else {
-#     has_convergence_issues <- length(messages[!grepl("singular", messages, ignore.case = TRUE)]) != 0
-#   }
-#   if (has_convergence_issues) {
-#     print(paste0(goi, " - Simple model didn't converge. Removed from the list."))
-#     model_presence[[goi]] <- NULL
-#     
-#   } else {
-#     coeffs$presence <- summary(model_presence[[goi]])$coefficients %>%
-#       as.data.frame() %>%
-#       rownames_to_column("metric") %>%
-#       tibble() %>%
-#       mutate(gene = goi, .before = metric) %>%
-#       mutate(Item = metric, .before = metric) %>%
-#       mutate(singular = ifelse(isSingular(model_presence[[goi]]), TRUE, FALSE)) %>%
-#       rbind(coeffs$presence)
-#   }
-# }
-#
-# No significant results, so dropped at this point
 
 
 #####

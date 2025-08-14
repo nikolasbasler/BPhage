@@ -7,7 +7,6 @@ write_csv(classification, "output/R/classification.csv")
 metadata_clean <- metadata %>% 
   filter(Sample_ID %in% colnames(phage_tpm$contig))
 write_csv(metadata_clean, "output/R/metadata_clean.csv")
-# write_csv(metadata, "data/metadata.csv")
 
 ## Metadata and classification variables
 system("mkdir -p output/R/R_variables")
@@ -36,16 +35,10 @@ for (tl in names(classified_taxa)) {
   write_csv(core_taxonomy[[tl]], paste0("output/R/taxon_pies/classified_core_taxa.", tl, ".csv"))
 }
 
-source("scripts/R/helpers/mixed_helpers.R")
+source("scripts/R/helpers/mixed_helpers.R") # for extract_legend()
 
 for (thing in names(pretty_pie$tibbles)) {
   for (tl in names(pretty_pie$tibbles[[thing]])) {
-    # wid <- 5
-    # hei <- 5
-    # if (tl == "Class") {
-    #   wid <- 7.5
-    #   hei <- 7.5
-    # }
     
     pie <- pretty_pie$plots[[thing]][[tl]] +
       theme(legend.position = "none")
@@ -58,8 +51,6 @@ for (thing in names(pretty_pie$tibbles)) {
     
     write_csv(pretty_pie$tibbles[[thing]][[tl]],
               paste0("output/R/taxon_pies/pretty_pie.", thing, ".", tl,".csv"))
-    # ggsave(paste0("output/R/taxon_pies/pretty_pie.", thing, ".", tl,".pdf"),
-    #        pretty_pie$plots[[thing]][[tl]], width = wid, height = hei)
     ggsave(paste0("output/R/taxon_pies/pretty_pie.", thing, ".", tl,".pie.pdf"),
            pie, width = 4.5, height = 4.5)
     ggsave(paste0("output/R/taxon_pies/pretty_pie.", thing, ".", tl,".bar.pdf"),
@@ -85,10 +76,6 @@ for (family_group in names(pretty_special_families)) {
   }
 }
 
-## aANI boxplot
-# ggsave("output/R/aANI_boxplot.pdf", aANI_boxplot, width = 6, height = 6)
-# write_csv(aANI_stats, "output/R/aANI_stats.csv")
-
 ## Completeness and genome length boxplots
 system("mkdir -p output/R/completeness_and_genome_length")
 for (metric in names(completeness_and_genome_length)) {
@@ -99,13 +86,19 @@ ggsave("output/R/completeness_and_genome_length/completeness_all_samples.pdf",
        completeness$plot, width = 5, height = 5)
 write_csv(completeness$tibble, "output/R/completeness_and_genome_length/completeness_all_samples.csv")
 
+## Rarefaction thresholds
+system("mkdir -p output/R/rarefaction_thresholds")
+for (set in names(threshold_plot)) {
+  ggsave(paste0("output/R/rarefaction_thresholds/rarefaction_threshold.", set, ".pdf"),
+         threshold_plot[[set]], width = 6, height = 5)
+}
+
 ## Alpha diversity plots and tables ####
 system("mkdir -p output/R/alpha")
 system("mkdir -p output/R/alpha/alpha_all")
 system("mkdir -p output/R/alpha/alpha_core_or_not")
 
 # Raw bee pool richness:
-
 ggsave("output/R/alpha/raw_bee_pool_richness.pdf",
        raw_bee_pool_richness, width = 6, height = 4)
 
@@ -149,7 +142,6 @@ for (country in names(alpha_by_country)) {
 }
 
 # Absolute counts
-
 ggsave("output/R/absolute_counts_all_samples.pdf", vlp_overview$plot,
        width = 8, height =4)
 write_csv(vlp_overview$stats, "output/R/absolute_counts_all_samples.csv")
@@ -401,7 +393,7 @@ system("mkdir -p data/prevalence_tables/")
 for (tl in names(prevalence_histo)) {
   if (tl=="Bee_pools") {
     wid=25
-    plot <- prevalence_histo[[tl]]$plot # + scale_x_continuous(breaks = seq(3,150,3))
+    plot <- prevalence_histo[[tl]]$plot
   } else if (tl=="Hives") {
     wid=12
     plot <- prevalence_histo[[tl]]$plot 
@@ -415,7 +407,6 @@ for (tl in names(prevalence_histo)) {
   write_csv(prevalence_histo[[tl]]$table, paste0("output/R/prevalence/prevalence.",tl,".csv"))
   write_csv(presence_absence[[tl]], paste0("output/R/prevalence/presence_absence.",tl,".csv"))
 
-  # write_csv(prevalence_histo[[tl]]$table, paste0("data/prevalence_tables/prevalence.",tl,".csv")) # This is also written to data to avoid backtracking. So it can be used at the top of the main script already.
 }
 
 ggsave("output/R/prevalence/gut_part_venn.pdf", 
