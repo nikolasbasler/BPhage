@@ -1,5 +1,5 @@
 pick_ambiguous_taxa <- function(vcontact_output, taxlevel_to_pick) {
-  # Pick the subfamily/genus that corresponds to the family/subfamily 
+  # This script picks the subfamily/genus that corresponds to the family/subfamily 
   # prediction. This is necessary because with the vcontact3 beta version used
   # here, sometimes several equally valid taxa are listed on one taxonomic 
   # level (here only for subfamily and genus). These are then mentioned in a 
@@ -14,11 +14,10 @@ pick_ambiguous_taxa <- function(vcontact_output, taxlevel_to_pick) {
   
   # So run this function twice, once with taxlevel_to_pick="Subfamily", once 
   # with taxlevel_to_pick="Genus"
-  # This function works for the bphage dataset and the contigs for the
-  # additional datasets, but there is no guarantee that it would universally
+  # This function works for the bphage dataset but there is no guarantee that it would universally
   # work. In fact, I know it won't work if the subfamily isn't 
   # "novel_subfamily_xx" but one with an actual name (of which there isn't any
-  # case in this dataset).
+  # case in this dataset that also has this ambiguous taxon problem).
   # Hopefully the vcontact3 devs will one day make it so that in case there are
   # several possible taxa on one level, the taxon that corresponds to the higher
   # level is mentioned first in this double pipe-separated list.

@@ -1,21 +1,3 @@
-
-# calc_tpm <- function(abtable, length_df) {
-#   abtable %>%
-#     rownames_to_column("contig") %>%
-#     inner_join(., length_df, by="contig") %>% 
-#     mutate(across(-contig, ~./length_kb)) %>% 
-#     select(-length_kb) %>% 
-#     mutate(across(-contig, ~./sum(.)))
-# }
-# calc_reads_per_kb <- function(abtable, length_df) {
-#   abtable %>%
-#     rownames_to_column("contig") %>%
-#     inner_join(., length_df, by="contig") %>%
-#     mutate(across(-contig, ~./length_kb)) %>% 
-#     select(-length_kb) %>%
-#     mutate(across(-contig, ~round(.)))
-# }
-
 calc_tpm <- function(abtable, level, lengths_df) {
   abtable %>%
     inner_join(., lengths_df, by=level) %>%
@@ -24,14 +6,11 @@ calc_tpm <- function(abtable, level, lengths_df) {
     mutate(across(-all_of(level), ~./sum(.)))
 }
 
-
 calc_reads_per_kb <- function(abtable_with_lengths, level) {
   abtable_with_lengths %>%
     mutate(across(-all_of(level), ~./length_kb)) %>% 
-    select(-length_kb) # %>%
-    # mutate(across(-all_of(level), ~round(.)))
+    select(-length_kb)
 }
-
 
 tax_lvl_per_kb = function(tax_level, contig_lengths, ab_table, classif ) {
   sample_names=colnames(ab_table)
@@ -55,9 +34,8 @@ tax_lvl_per_kb = function(tax_level, contig_lengths, ab_table, classif ) {
 tax_sum = function(tax_level, ab_table, classif) {
   sample_names <- colnames(ab_table)[2:length(ab_table)]
   classif <- classif  %>%
-    mutate(contig = as.character(contig)) # %>%
-    # mutate_all(~ ifelse(. == "", "unclassified", .))
-  
+    mutate(contig = as.character(contig))
+
   inner_join(ab_table, classif, by="contig") %>%
     group_by(.data[[tax_level]]) %>%
     summarize_at(vars(all_of(sample_names)), sum)
@@ -66,9 +44,8 @@ tax_sum = function(tax_level, ab_table, classif) {
 hostg_core_sum = function(tax_level, ab_table, classif) {
   sample_names <- colnames(ab_table)[2:length(ab_table)]
   classif <- classif  %>%
-    mutate(contig = as.character(contig)) # %>%
-  # mutate_all(~ ifelse(. == "", "unclassified", .))
-  
+    mutate(contig = as.character(contig))
+
   bla <- list()
   for (core_or_not in c("yes", "no")) {
     bla[[core_or_not]] <- inner_join(ab_table, classif, by="contig") %>%
@@ -101,7 +78,6 @@ tax_lengths <- function(tax_level, classif) {
   classif %>%
     mutate(contig = as.character(contig)) %>%
     group_by(.data[[tax_level]]) %>%
-    # summarise(length_kb = sum(length_kb)) %>%
     summarise(length_kb = mean(length_kb)) %>%
     mutate_all(~ ifelse(. == "", "unclassified", .))
 }

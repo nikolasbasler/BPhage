@@ -5,17 +5,11 @@ classification %>%
 
 classified_taxa <- list()
 core_taxonomy <- list()
-# for (core_or_all in c("core", "all")) {
   for (tl in c("Order", "Family")) {
     tax_group <- paste0(tl, "_group")
     
     classif_filt <- classification
-    # if (core_or_all == "core") {
-    #   classif_filt <- classification %>%
-    #     filter(Core == "yes") # %>%
-    #     # mutate(Family_group = ifelse(Family_group == "ICTV-named_Caudoviricetes_family", Family, Family_group)) # This is breaking the logic a bit but it makes more sense here to list the actual family names
-    # }
-    
+
     core_taxonomy[[tl]] <- classification %>%
       filter(Core == "yes") %>%
       count(.data[[tl]], name = "contigs")
@@ -28,7 +22,6 @@ core_taxonomy <- list()
       summarise(taxa = n()) %>%
       rename("tax_group" = all_of(tax_group))
   }
-# }
 
 pretty_pie <- list()
 
@@ -203,10 +196,6 @@ for (thing in names(pretty_pie$tibbles)) {
     pretty_pie$plots[[thing]][[tl]] <- pretty_pie$tibbles[[thing]][[tl]] %>%
       ggplot(aes(x = "", y = .data[[thing]], fill = .data[[tl]])) +
       geom_bar(stat = "identity", color= "black") +
-      # coord_polar(theta = "y", start = pi/2) +
-      # coord_polar(theta = "y", start = 3/4 * pi) +
-      # coord_polar(theta = "y", start = pi) +
-      # coord_polar(theta = "y", start = 7/4 * pi) +
       coord_polar(theta = "y") +
       theme_void() +
       labs(fill = tl) +

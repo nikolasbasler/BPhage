@@ -27,7 +27,7 @@ cropland_and_FAO <- FAOSTAT_added_data %>%
   distinct() %>%
   select_if(~ !any(is.na(.)))
 
-metadata <- readRDS("output/R/R_variables/metadata.RDS") %>%
+metadata <- readRDS("data/metadata.RDS") %>%
   mutate(Hive_ID = as.character(Hive_ID))
 classification <- readRDS("output/R/R_variables/classification.RDS")
 

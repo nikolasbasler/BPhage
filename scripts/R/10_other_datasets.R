@@ -195,7 +195,7 @@ dataset_overlap <- tibble(contig = present_in_all_countries) %>%
 
 phage_tpm <- read.csv("output/R/relative_abundance/phage_tpm.csv") %>%
   tibble()
-metadata <- readRDS("output/R/R_variables/metadata.RDS")
+metadata <- readRDS("data/metadata.RDS")
 
 positive_pools <- phage_tpm %>%
   pivot_longer(-contig, names_to = "Sample_ID", values_to = "reads") %>% # it's not really reads but it doesn't matter here

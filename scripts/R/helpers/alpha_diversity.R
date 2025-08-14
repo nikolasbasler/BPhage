@@ -37,7 +37,6 @@ alpha_rarefied = function(ab_table, sampling_depth, lengths, seed) {
 alpha_stats = function(df, meta_vars, min_seq = NA, df_lengths = NA, absolut_values = FALSE) {
   meta_vars <- factor(meta_vars, levels = c("Gut_part", "Country", "Season", "Health"))
   
-  # plotlist <- list() 
   tax <- colnames(df)[1]
   df_t = df %>% 
     filter(.data[[tax]]!="Unclassified") %>%
@@ -66,7 +65,6 @@ alpha_stats = function(df, meta_vars, min_seq = NA, df_lengths = NA, absolut_val
                                                lengths = df_lengths,
                                                seed = .x)) 
     alpha_average_df = Reduce(`+`, alpha_df_list) / length(alpha_df_list)
-    # alpha_average_df["Richness"] = round(alpha_average_df["Richness"])
     alpha_tbl = as_tibble(alpha_average_df, rownames = "Sample_ID")
   }
   
@@ -111,25 +109,6 @@ alpha_stats = function(df, meta_vars, min_seq = NA, df_lengths = NA, absolut_val
               deg_freedom = kruskal.test(value~meta_value)$parameter,
               .groups="drop")
 
-  # plotlist$wrap <- plot_tibble %>%
-  #   ggplot(aes(x=meta_value, y=value, fill=metric)) +
-  #   geom_boxplot() +
-  #   facet_wrap(~meta_variable, scales="free") +
-  #   ggtitle("Alpha diversities") +
-  #   theme(plot.title = element_text(hjust = 0.5, face = "bold")) +
-  #   labs(x=NULL, y=NULL) 
-  
-  
-  # If I could make this work, I wouldn't have to use this ugly worm below...
-  # plot_tibble %>%
-  #   ggplot(aes(x=meta_value, y=value)) +
-  #   geom_boxplot() +
-  #   facet_grid(metric~meta_variable, scales="free_x") +
-  #   ggtitle("Alpha diversities") +
-  #   theme(plot.title = element_text(hjust = 0.5, face = "bold")) +
-  #   labs(x=NULL, y=NULL) +
-  #   geom_pwc(method="wilcox.test", label="p.signif")
-  
   # This is necessary, because geom_pwc() doesn't work well with faceted plots...
   panels <- list()
   number_of_metrics <- length(levels(plot_tibble$metric))
@@ -163,7 +142,7 @@ alpha_stats = function(df, meta_vars, min_seq = NA, df_lengths = NA, absolut_val
         scale_fill_manual(values = box_fill_colors[[meta_v]]) +
         guides(fill="none") +
         
-        # Put sample number at the bottom of the boxes. Makes the plot very busy...
+        # Puts sample number at the bottom of the boxes. Makes the plot very busy...
         # geom_text(data = annotation_df, 
         #           mapping = aes(x = meta_value, y = 0, label = sample_count),
         #           inherit.aes = FALSE,
@@ -177,15 +156,13 @@ alpha_stats = function(df, meta_vars, min_seq = NA, df_lengths = NA, absolut_val
         annotation_df <- annotation_df %>%
           mutate(letter = "")
       }
-      # p <- p +
-      #   geom_pwc(method="wilcox.test", label="p.adj.signif",
-      #            p.adjust.method="BH", hide.ns = TRUE)
+
       p <- p + 
         geom_label(data = annotation_df, 
                   mapping = aes(x = meta_value, y = letter_y, label = letter),
                   inherit.aes = FALSE,
-                  fill        = "white",            # white box behind text
-                  label.size  = 0,                  # no border
+                  fill        = "white",
+                  label.size  = 0,
                   label.padding = unit(0.35, "lines")
                   # size = 5
                   )
@@ -198,7 +175,6 @@ alpha_stats = function(df, meta_vars, min_seq = NA, df_lengths = NA, absolut_val
       panels[[length(panels)+1]] <- p
     }
   }
-  # plotlist$patch <- wrap_plots(panels, ncol=length(meta_vars))
   patch <- wrap_plots(panels, ncol=length(meta_vars), axes = "collect_y")
   return(list(plot=patch, table=alpha_tbl, kruskal = kruskal_results, single_plots = panels))
 }

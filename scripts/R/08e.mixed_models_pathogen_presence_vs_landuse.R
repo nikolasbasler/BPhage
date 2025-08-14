@@ -19,29 +19,18 @@ source("scripts/R/helpers/FAOstat_table.R")
 cropland_and_FAO <- FAOSTAT_added_data %>%
   select(Country, Item, est_use_in_2k_radius) %>%
   pivot_wider(id_cols = Country, values_from = est_use_in_2k_radius, names_from = Item) %>%
-  # left_join(cropland_fraction[c("Country", "cropland_fraction_2k_radius")], ., by = "Country") %>%
   left_join(FAOSTAT_added_data[c("Country", "cropland_fraction_2k_radius", "Cropland_in_2km_radius")],. , by = "Country") %>%
   distinct() %>%
   select_if(~ !any(is.na(.)))
 
-metadata <- readRDS("output/R/R_variables/metadata.RDS") %>%
+metadata <- readRDS("data/metadata.RDS") %>%
   mutate(Hive_ID = as.character(Hive_ID))
 classification <- readRDS("output/R/R_variables/classification.RDS")
 
 pathogen_data <- read_excel("data/GlobalBGOOD_WP1_Tier1_Scien.xlsx", skip = 1) %>%
   rename(BGOOD_sample_code = Sample_ID) %>%
   mutate(CBPV = ifelse(str_detect(CBPV, ">40,00"), "41", CBPV),
-         BQCV = as.character(BQCV)) # %>%
-  # rename(`Cat DWV A` = Cat....24,
-  #        `Cat DWV B` = Cat....26,
-  #        `Cat ABPV` = Cat....28,
-  #        `Cat CBPV` = Cat....30,
-  #        `Cat BQCV` = Cat....32,
-  #        `Cat SBV` = Cat....34,
-  #        `Cat EFB` = Cat....36,
-  #        `Cat AFB` = Cat....38) %>%
-  # mutate(across(starts_with("Cat"), ~ na_if(.x, "-")),
-  #        across(starts_with("Cat"), ~ factor(.x, levels = c("L", "M", "H"))))
+         BQCV = as.character(BQCV)) 
 
 pathogens_Cts <- c("DWV A", "DWV B", "ABPV", "CBPV", "BQCV", "SBV", "EFB",
                    "AFB", "N. apis", "N. ceranae", "DWV A")
@@ -65,8 +54,6 @@ samples_with_presence <- list()
 # TEST TIBBLE
 test_tibble_logit <- list()
 for (poi in pathogens_Cts) {
-  # poi = "N. ceranae"
-  
   test_tibble_logit[[poi]] <- pathogen_ct %>%
     filter(pathogen == poi) %>%
     left_join(., metadata[c("Bee_pool", "Country", "Hive_ID", "Season")], by = "Bee_pool") %>%
@@ -115,7 +102,6 @@ prevalence_plots$pathogen_facet <- bind_rows(test_tibble_logit) %>%
 ###### 
 # CROPLAND
 
-# pathogens_of_interest <- c("DWV A", "ABPV", "CBPV", "N. ceranae")
 pathogens_of_interest <- c("ABPV", "N. ceranae", "CBPV")
 
 coeffs_logit <- list()
@@ -152,43 +138,6 @@ for (poi in pathogens_of_interest) {
       rbind(coeffs_logit$cropland)
   }
 }
-# 
-# test_tibble_joint_logit <- pathogen_ct %>%
-#   mutate(presence = ifelse(Ct < 41, 1, 0)) %>%
-#   filter(pathogen %in% pathogens_of_interest) %>%
-#   select(-Ct) %>%
-#   pivot_wider(names_from = pathogen, values_from = presence) %>%
-#   filter(if_all(everything(), ~ !is.na(.))) %>%
-#   left_join(., metadata[c("Bee_pool", "Country", "Hive_ID", "Season")], by = "Bee_pool") %>%
-#   distinct() %>%
-#   left_join(., cropland_and_FAO, by = "Country") %>%
-#   rename(n_cera = `N. ceranae`)
-# 
-# test_tibble_joint_logit %>% count(Season) %>% arrange(desc(n))
-# 
-# model_combinded_logit_cropland <- glmer(
-#   ABPV ~ Cropland_in_2km_radius + Season + ( 1 | Hive_ID ),
-#   data = test_tibble_joint_logit,
-#   family = binomial)
-# 
-# test_tibble_combinded_logit <- bind_rows(test_tibble_logit) %>%
-#   filter(pathogen %in% pathogens_of_interest) %>%
-#   group_by(Bee_pool) %>%
-#   mutate(num_pathogens = sum(presence), .before = presence) %>%
-#   ungroup() %>%
-#   select(-c(Ct, presence, pathogen)) %>%
-#   distinct()
-# 
-# test_tibble_combinded_logit %>% count(Country)
-# test_tibble_combinded_logit %>% count(Season) %>% arrange(n)
-
-# model_combinded_logit_cropland <- glmer(
-#   cbind(num_pathogens, 3 - num_pathogens) ~ Cropland_in_2km_radius + Season + ( 1 | Hive_ID ),
-#   data = test_tibble_combinded_logit,
-#   family = binomial)
-# 
-# summary(model_combinded_logit_cropland)
-
 
 ##### 
 # PESTICIDES:

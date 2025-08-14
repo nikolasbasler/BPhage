@@ -16,11 +16,6 @@ report_stats <- function(df, thresholds) {
       select(-gut_part) %>%
       arrange(n_seq)
   
-  # ratios_of_thresholds <- outlist$ratios %>%
-  #   filter(n_seq %in% thresholds) %>%
-  #   select(ratio_to_highest) %>%
-  #   unlist(use.names = FALSE)
-  
   outlist$plot_hist <- ggplot(num_of_seqs, aes(x=n_seq)) +
     geom_histogram(binwidth = 100000)
   
@@ -60,7 +55,6 @@ report_stats <- function(df, thresholds) {
                 samples_left = length(n_seq),
                 with_ratio_above_1000 = sum(ratio_to_highest>1000),
                 with_ratio_above_2500 = sum(ratio_to_highest>2500),
-                # original_samples = nrow(num_of_seqs),
                 discarded_samples = nrow(num_of_seqs)-samples_left
       ) %>%
       mutate(mid = discarded$mid) %>%

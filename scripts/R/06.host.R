@@ -1,8 +1,6 @@
 library(tidyverse)
 library(ggtext)
 
-# color_vector <- c("#FFDAB9", "#FFA07A", "#FFC300","#ef8f01", "#D2691E", "#8B4513", "#1C3A3A", "black", "#555555", "lightgrey")
-
 phage_tpm <- read.csv("output/R/relative_abundance/phage_tpm.csv") %>%
   tibble()
 
@@ -23,14 +21,6 @@ all_contigs <- classification$contig %>% as.character()
 present_in_all_countries <- read_lines("data/core_contigs.txt")
 
 iphop_prediction <- list()
-# iphop_prediction$all <- read.csv("output/host_prediction/iphop_bphage_and_others_custom_database/iphop_v1.3.3_db_Aug_2023_Host_prediction_to_genome_m90.csv") %>%
-#   filter(str_starts(Virus, "NODE")) %>%
-#   filter(!str_detect(Virus, "Blank_pool")) # This one should have been filtered out earlier
-# iphop_prediction$all <- read.csv("output/host_prediction/iphop_bphage_and_others_custom_database/iphop_v1.3.3_db_Aug_2023_Host_prediction_to_genus_m90.csv") %>%
-#   filter(str_starts(Virus, "NODE")) %>%
-#   filter(!str_detect(Virus, "Blank_pool"))
-# iphop_prediction$all <- read.csv("output/host_prediction/iphop_output_bphage/Host_prediction_to_genome_m75.csv") %>%
-#   filter(!str_detect(Virus, "Blank_pool"))
 iphop_prediction$all <- read.csv("output/host_prediction/iphop_output_bphage/Host_prediction_to_genus_m75.csv") %>% 
   filter(!str_detect(Virus, "Blank_pool"))
 
@@ -59,23 +49,10 @@ for (set in names(iphop_prediction)) {
       genus_field <- x[grepl("^g__", x)]
       if(length(genus_field) > 0) return(genus_field) else return("g__")
     })) %>%
-    # select(Virus, Host.taxonomy) %>%
-    # mutate(Genus = sapply(str_split(Host.taxonomy, ";"), function(x) {
-    #   genus_field <- x[grepl("^g__", x)]
-    #   if(length(genus_field) > 0) return(genus_field) else return("g__")
-    # })) %>% 
     filter(Genus != "g__") %>%
     mutate(Genus = str_replace_all(Genus, "g__", "")) %>%
     mutate(Genus = str_replace_all(Genus, "_.$", "")) %>% 
     select(Virus, Genus)
-  
-  # confident_host_genus[[set]]
-  
-  # confident_host_genome[[set]] <- confident_host[[set]] %>%
-  #   group_by(Virus) %>%
-  #   filter(if(any(grepl("_bin.", Host.genome))) grepl("_bin.", Host.genome) else TRUE) %>% # If one of bacterial BPhage MAGs is among the hosts, keep that instead of the standard database hit
-  #   slice(1) %>%
-  #   ungroup()
 }
 
 unknown_host <- list()
@@ -182,7 +159,7 @@ for (pie in names(host_pie)) {
             paste0("output/R/host_pies/all_hosts.", pie, ".csv"))
 }
 
-# Written do data/ for convenience to avoid back tracking. So it can be used in the main analysis R script.
+# Written do data/ for convenience to avoid back tracking. So it can be used in the previous R script.
 # host_group$all %>%
 #   left_join(., all_hosts$all, by = "Virus") %>%
 #   rename(contig = Virus,
