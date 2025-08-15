@@ -25,7 +25,7 @@ cropland_and_FAO <- FAOSTAT_added_data %>%
 
 metadata <- readRDS("data/metadata.RDS") %>%
   mutate(Hive_ID = as.character(Hive_ID))
-classification <- readRDS("output/R/R_variables/classification.RDS")
+classification <- readRDS("data/classification.RDS")
 
 phage_tpm <- read.csv("output/R/relative_abundance/phage_tpm.csv") %>%
   tibble()

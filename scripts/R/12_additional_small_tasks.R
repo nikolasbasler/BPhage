@@ -1,8 +1,24 @@
 library(tidyverse)
 library(patchwork)
-classification <- readRDS("output/R/R_variables/classification.RDS")
+library(ggVennDiagram)
 
+metadata <- readRDS("data/metadata.RDS") %>% tibble()
+classification <- readRDS("data/classification.RDS")
 
+phage_tpm <- read.csv("output/R/relative_abundance/phage_tpm.csv") %>%
+  tibble()
+present_in_all_countries <- read_lines("data/core_contigs.txt")
+
+map_stats <- read.delim("output/bphage_viper_output/read_stats.tsv") %>%
+  tibble()
+
+filt_abundance_table <- read.csv("output/R/phage.filt.abundance.contig.csv") %>%
+  tibble()
+abundance_table <- read.csv("output/mapping_stats_phages/stats.phages.mapped_reads.csv") %>% 
+  tibble()
+
+bphage_and_inpha_95.85_clusters <- read.delim("output/inphared_clustering/bphage_and_inpha_70-85_clusters.tsv", header=FALSE) %>%
+  tibble()
 
 ##### 
 ## Calculating this factor of 25, regarding the value bee pollination services vs. the value of honey and beeswax:
@@ -27,14 +43,7 @@ bee_product_value <- FAOSTAT_bee_product_value_en_5.30.2025 %>%
 pollination_value_dollar / bee_product_value
 
 ##### 
-## Venn diagram of corephages shared in different gut parts
-
-library(ggVennDiagram)
-phage_tpm <- read.csv("output/R/relative_abundance/phage_tpm.csv") %>%
-  tibble()
-present_in_all_countries <- read_lines("data/core_contigs.txt")
-
-
+## Venn diagram of core phages shared in different gut parts
 presence <- phage_tpm %>% 
   pivot_longer(-contig, names_to = "Sample_ID", values_to = "tpm") %>%
   filter(contig %in% present_in_all_countries) %>%
@@ -52,17 +61,8 @@ for (gpart in unique(presence$Gut_part)) {
 
 core_shared_between_guts <- ggVennDiagram(for_venn)
 
-ggsave("output/R/core_shared_between_guts.pdf", core_shared_between_guts,
-       width = 5, height = 5)
-
 ##### 
 ## total observed contigs per bee pool
-
-metadata <- readRDS("data/metadata.RDS")
-
-phage_tpm <- read.csv("output/R/relative_abundance/phage_tpm.csv") %>%
-  tibble()
-
 contigs_per_bee_pool <- phage_tpm %>%
   pivot_longer(-contig, names_to = "Sample_ID", values_to = "tpm") %>%
   left_join(., metadata[c("Sample_ID", "Bee_pool")], by = "Sample_ID") %>%
@@ -74,37 +74,9 @@ contigs_per_bee_pool_hist <- ggplot(contigs_per_bee_pool, aes(x = contig_count))
   geom_vline(xintercept = mean(contigs_per_bee_pool$contig_count)) +
   labs(x = "Phage contigs per bee pool")
 
-write_csv(contigs_per_bee_pool, "output/R/alpha/total_contigs_per_bee_pool.csv")
-ggsave("output/R/alpha/total_contigs_per_bee_pool.pdf", contigs_per_bee_pool_hist,
-       width = 5, height = 5)
-
-###### 
-## Bees in decline? WiP
-FAOSTAT_data_en_5.30.2025 <- read.csv("~/Downloads/FAOSTAT_data_en_5-30-2025.csv") %>%
-  tibble()
-
-FAOSTAT_data_en_5.30.2025 %>%
-  select(Area, Year, Value) %>%
-  filter(!is.na(Value)) %>%
-  group_by(Area) %>%
-  mutate(total_per_area = sum(Value)) %>% 
-  ungroup() %>%
-  mutate(rank = dense_rank(total_per_area),
-         reverted_rank = 1+abs(rank - max(rank))) %>%
-  filter(Year >= 1990) %>%
-  # filter(reverted_rank <= 10) %>%
-  # ggplot(aes(x = Year, y = Value, color = Area)) +
-  ggplot(aes(x = Year, y = Value)) +
-  geom_line() +
-  facet_wrap(~Area, scales = "free_y")
-
-
-
 ##### 
 ## MAPPING STATS SUMMARY:
-
-pre_mapping_stats <- read.delim("output/bphage_viper_output/read_stats.tsv") %>%
-  tibble() %>%
+pre_mapping_stats <- map_stats %>%
   rename("Sample_ID" = Sample) %>%
   filter(!str_detect(Sample_ID, "Blank")) %>%
   pivot_longer(-Sample_ID, names_to = "metric", values_to = "raw_reads") %>%
@@ -117,11 +89,9 @@ pre_mapping_stats <- read.delim("output/bphage_viper_output/read_stats.tsv") %>%
             total_in_millions = total / 1000000,
             average_in_millions = average / 1000000) 
 
-phage.filt.abundance.contig_long <- read.csv("output/R/phage.filt.abundance.contig.csv") %>%
-  tibble() %>%
+phage.filt.abundance.contig_long <- filt_abundance_table %>%
   pivot_longer(-contig, names_to = "Sample_ID", values_to = "filtered_mapped")
-abundance.table_long <- read.csv("output/mapping_stats_phages/stats.phages.mapped_reads.csv") %>% 
-  tibble() %>%
+abundance.table_long <- abundance_table %>% 
   filter(contig != "NODE_A1975_length_2506_cov_68.193907_PT_19410_aut_rec_d") %>% # Filter out the one Picobirna contig that isn't the RdRp segment
   pivot_longer(-contig, names_to = "Sample_ID", values_to = "unfilterd_mapped") %>%
   filter(!str_detect(Sample_ID, "Blank"))
@@ -140,63 +110,8 @@ post_mapping_stats <- full_join(phage.filt.abundance.contig_long, abundance.tabl
 pre_mapping_stats
 post_mapping_stats
 
-
-#####
-## BLASTn of phage genomes vs. INPHARED
-# 
-# alignment_plot <- function(blast_result) {
-#   blast_result %>%
-#     add_row(stitle="Query", sseqid="", qstart=1, qend = blast_result$qlen[1]) %>% # Add dummy row
-#     slice(c(n(), 1:(n() - 1))) %>% # Move dummy row to the bottom of the dataframe
-#     mutate(text = paste(stitle, sseqid)) %>%
-#     mutate(text = ifelse(nchar(text)>150, sub("^(.{0,})(.{145})$", "[...]\\2", text), text)) %>% # Shorten overly-long labels
-#     mutate(text = factor(text, levels = rev(unique(text)))) %>%
-#     ggplot(aes(x = qstart, xend = qend, y = text, yend = text, fill = pident)) +
-#     geom_segment(aes(color = pident), linewidth = 2) +
-#     labs(title = unique(blast_result$qseqid), x = "Position", y = NULL, color = "percent\nidentity\n") +
-#     scale_colour_gradient(limits = c(0, 100), na.value = "black")
-# }
-# 
-# present_in_all_countries <- read_lines("data/core_contigs.txt")
-# phages_blastn <- read.delim("output/phages_blastn.tsv") %>%
-#   tibble()
-# 
-# blast_of_core <- phages_blastn %>%
-#   filter(qseqid %in% present_in_all_countries)
-# 
-# plot_list <- list()
-# hits <- c()
-# longest_texts <- c()
-# tax_plot_wraps <- c()
-# for (cont in unique(blast_of_core$qseqid)) {
-#   filt_blast <- blast_of_core %>%
-#     filter(qseqid == cont)
-#   
-#   plot_list[[cont]] <-alignment_plot(blast_result = filt_blast)
-#   
-#   hits <- filt_blast$sseqid %>%
-#     unique() %>%
-#     length() %>%
-#     c(hits, .)
-#   longest_texts <- paste(filt_blast$stitle, filt_blast$stitle) %>%
-#     nchar() %>%
-#     max() %>%
-#     c(longest_texts, .)
-# }
-# 
-# wrap <- wrap_plots(plot_list) + plot_layout(ncol = 1, guides = "collect", heights=hits)
-
-### Save wrap
-ggsave("output/R/phage_blast.core.pdf", wrap,
-       width = 7.5 + min(150, max(longest_texts))/15, height = length(plot_list) + sum(hits)/5,
-       limitsize = FALSE
-       )
-
 ##### 
 ## INPHARED CLUSTERING
-
-bphage_and_inpha_95.85_clusters <- read.delim("output/inphared_clustering/bphage_and_inpha_70-85_clusters.tsv", header=FALSE) %>%
-  tibble()
 
 relevant_clusters_tibble <- bphage_and_inpha_95.85_clusters %>%
   filter(str_detect(V2, "NODE"),
@@ -228,13 +143,26 @@ for (node in clustered_nodes) {
     }
 }
 
-new_classification_df <- tibble(contig = names(contigs_with_inphas_list),
+inpha_clustering <- tibble(contig = names(contigs_with_inphas_list),
                                      INPHARED_clustered = lapply(contigs_with_inphas_list, function(x) paste(x, collapse = ",")) %>%
-                                       unlist()) %>%
-  left_join(classification, ., by = "contig")
+                                       unlist())
+
+new_classification_df <- classification %>%
+  select(-INPHARED_clustered) %>% # comment out if needed
+  left_join(., inpha_clustering, by = "contig")
+
+#####
+#### Save files
+
+# Venn diagram
+ggsave("output/R/core_shared_between_guts.pdf", core_shared_between_guts,
+       width = 5, height = 5)
+
+# Histogram contigs per bee pool
+write_csv(contigs_per_bee_pool, "output/R/alpha/total_contigs_per_bee_pool.csv")
+ggsave("output/R/alpha/total_contigs_per_bee_pool.pdf", contigs_per_bee_pool_hist,
+       width = 5, height = 5)
+
 # For convenience, to avoid backtracking
 # write_csv(new_classification_df, "output/R/classification.csv")
 # saveRDS(new_classification_df, "output/R/R_variables/classification.RDS")
-
-
-#

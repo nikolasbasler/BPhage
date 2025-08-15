@@ -9,53 +9,8 @@ prevalence.Bee_pools <- read.csv("output/R/prevalence/prevalence.Bee_pools.csv")
 prevalence.Hives <- read.csv("output/R/prevalence/prevalence.Hives.csv") %>%
   rename(hive_prevalence = prevalence_abs) %>%
   select(-prevalence_prop)
-classification <- readRDS("output/R/R_variables/classification.RDS") %>%
+classification <- readRDS("data/classification.RDS") %>%
   tibble()
-
-
-##### Contig overlap
-# 
-# clusters <- list()
-# 
-# clusters$all_BPhage <- read.delim("output/bphage_and_others_clusters.tsv", header=FALSE) %>%
-#   rename(representative = V1, member = V2) %>%
-#   separate_wider_delim(member, ",", names_sep = "_", too_few = "align_start")
-# 
-# clusters$core_BPhage <- read.delim("output/bphage_core_and_others_clusters.tsv", header=FALSE) %>%
-#   rename(representative = V1, member = V2) %>%
-#   separate_wider_delim(member, ",", names_sep = "_", too_few = "align_start")
-# 
-# conitg_overlap_venn <- list()
-# for (core_or_not in names(clusters)) {
-#   presence_in_datasets <- clusters[[core_or_not]] %>%
-#     mutate(across(
-#       starts_with("member_"),
-#       ~ case_when(
-#         str_detect(., "NODE") ~ "BPhage",
-#         str_detect(., "Deboutte") ~ "Deboutte",
-#         str_detect(., "Busby") ~ "Busby",
-#         str_detect(., "Bonilla") ~ "Bonilla",
-#         TRUE ~ .
-#       ))) %>%
-#     pivot_longer(-representative, values_drop_na = TRUE, names_to = "member", values_to = "dataset") %>%
-#     select(-member) %>%
-#     distinct()
-#   
-#   genomes_in_dataset <- list()
-#   for (set in c("BPhage", "Deboutte", "Busby", "Bonilla")) {
-#     genomes_in_dataset[[set]] <- presence_in_datasets %>%
-#       filter(dataset == set) %>%
-#       select(representative) %>%
-#       unlist(use.names = FALSE)
-#   }
-#   
-#   conitg_overlap_venn[[core_or_not]] <- ggVennDiagram(genomes_in_dataset, 
-#                                                       label = "count",
-#                                                       label_size = 7) +
-#     theme(legend.position = "none")
-# }
-# 
-# conitg_overlap_venn
 
 ##### Mapping
 
@@ -265,10 +220,6 @@ proportion_of_bphage_in_total_effort <- 8480737275 / sum(read_counts_and_pools$t
 ##### Save files
 
 system("mkdir -p output/R/other_studies")
-# for (thing in names(conitg_overlap_venn)) {
-#   ggsave(paste0("output/R/other_studies/conitg_overlap.", thing, ".pdf"),
-#          conitg_overlap_venn[[thing]], width = 8, height = 6)
-# }
 ggsave(paste0("output/R/other_studies/core_read_presence_overlap.venn.pdf"),
        core_read_presence_overlap$venn, width = 8, height = 6)
 ggsave(paste0("output/R/other_studies/core_read_presence_overlap.upset.pdf"),

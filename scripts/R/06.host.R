@@ -16,7 +16,7 @@ host_pie_colors <- c("***Bifidobacterium***" = "#FFDAB9",
                      "other" = "#555555",
                      "unknown" = "lightgrey")
 
-classification <- readRDS("output/R/R_variables/classification.RDS")
+classification <- readRDS("data/classification.RDS")
 all_contigs <- classification$contig %>% as.character()
 present_in_all_countries <- read_lines("data/core_contigs.txt")
 

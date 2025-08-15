@@ -12,7 +12,7 @@ source("scripts/R/helpers/mixed_helpers.R")
 
 metadata <- readRDS("data/metadata.RDS") %>%
   mutate(Hive_ID = as.character(Hive_ID))
-classification <- readRDS("output/R/R_variables/classification.RDS")
+classification <- readRDS("data/classification.RDS")
 
 nosema_relabund <- read.delim("output/nosema_mapped_counts_all.tsv") %>% 
   tibble() %>%

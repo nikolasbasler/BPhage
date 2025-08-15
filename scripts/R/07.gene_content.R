@@ -7,7 +7,7 @@ library(forcats)
 source("scripts/R/helpers/mixed_helpers.R")
 
 metadata <- readRDS("data/metadata.RDS")
-classification <- readRDS("output/R/R_variables/classification.RDS")
+classification <- readRDS("data/classification.RDS")
 present_in_all_countries <- read_lines("data/core_contigs.txt")
 
 phold_predictions_with_extensions <- read.csv("output/R/gene_content/phold_predictions_with_extensions.csv") %>%
