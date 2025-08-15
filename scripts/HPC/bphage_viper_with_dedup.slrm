@@ -3,16 +3,39 @@
 #SBATCH --cluster=genius
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=36
-#SBATCH --time=8:00:00
+#SBATCH --time=10:00:00
 #SBATCH --account=lp_jm_virome_group
 #SBATCH --output=slurm-%x_%a_%A.out
 
 # Submit this as a job array (from output/slurm_log)
 # sbatch --array=1-471 --export=ALL ../../scripts/HPC/bphage_viper_with_dedup.slrm
 
+
+threads=36
+
 repo_location="$VSC_STAGING/BPhage"
 
 line=$(head -n $SLURM_ARRAY_TASK_ID $repo_location/data/BPhage.sample.list | tail -n1)
+
+#####
+
+echo "Extracting SRA raw data"
+conda activate ncbi
+
+cd $VSC_SCRATCH/BPhage/raw/
+
+raw_sra_dataset=$(grep $line $repo_location/data/BPhage_SRAs.tsv | cut -f2)
+
+fasterq-dump -O temp --threads $threads SRA/${raw_sra_dataset}/${raw_sra_dataset}.sra
+rm -r SRA/${raw_sra_dataset}
+
+pigz -p $threads temp/${raw_sra_dataset}*.fastq
+mv temp/${raw_sra_dataset}_1.fastq.gz ${line}.R1.fastq.gz
+mv temp/${raw_sra_dataset}_2.fastq.gz ${line}.R2.fastq.gz
+
+echo "SRA raw data extracted"
+
+#####
 
 # Move to wherever your files are
 mkdir -p $VSC_SCRATCH/BPhage/bphage_viper_output
@@ -24,7 +47,7 @@ conda activate viper_bphage
 # Make sure programs in conda viper environment are found first in PATH 
 PATH="$CONDA_PREFIX/bin:$PATH"
 
-# Add SPAdes module
+# Add SPAdes module (because of some strange bug on our HPC)
 module load SPAdes/3.15.5-GCC-10.3.0-mi-override-off
 
 # Make sure you use the right metaspades, just shows which metaspades is present
@@ -58,7 +81,7 @@ printf "\n"
 viper.sh -1 raw/$line.dedup.R1.fastq.gz -2 raw/$line.dedup.R2.fastq.gz \
     -g $VSC_SCRATCH/BPhage/ref/GCF_003254395.2_Amel_HAv3.1_genomic.fna \
     -p $repo_location/data/adapters/primer_WTA2_Nextera.fa --triple-assembly -o bphage_viper_output/${line} \
-    -t $SLURM_JOB_CPUS_PER_NODE --cluster-cover 85 \
+    -t $threads --cluster-cover 85 \
     --cluster-identity 95 --keep-reads --name $line --identify-proviruses --checkv-db /staging/leuven/stg_00029/DB/CheckV/checkv-db-v1.5 \
     --genomad-db /staging/leuven/stg_00029/DB/genomad/genomad_db_1.7
 
