@@ -64,11 +64,9 @@ mkdir -p $intermediate
 - All set! I will refer to `$intermediate` in this README as the path to the intermediate storage but the variable does not have to remain set beyond this point.
 
 ### Download
-- `download_raw_reads.slrm` (XXX): Download the raw data of this study from the SRA and rename the files. 
+- `download_raw_reads.slrm`: Downloads the raw data of this study from the SRA and rename the files. There are 471 SRA datasets with 2 files each (forward and reverse reads). The total volume is >700 GB. I didn't parallelise this, because I don't think NCBI would allow hundreds of download requests from the same source. So expect this to take a while.
     - Requires: 
-        - SRA accesstion list (XXX)
-        - `data/rename.BPhage.nucleomics.sh` (XXX adapt for SRA numbers and move to `scripts/HPC`)
-        - `data/rename.BPhage.nucleomics.scheme` (XXX adapt for SRA numbers)
+        - SRA accession list: `$repo_location/data/BPhage_SRAs.tsv`
     - Output: Nicely named fastq files with raw sequencing reads of all samples in `$intermediate/raw`.
 - `download_additional_data.slrm`: Download the bee genome (also indexed here) and a bunch of additional data: 
     - Requires:
@@ -87,7 +85,8 @@ mkdir -p $intermediate
 ### Assembly
 - `bphage_viper_with_dedup.slrm` (array of 471): ViPER pipeline
     - Requires: 
-        - `data/BPhage.sample.list`
+        - Sample list: `data/BPhage.sample.list`
+        - SRA accession list: `$repo_location/data/BPhage_SRAs.tsv`
         - Raw read data in `$intermediate/raw`
     - Output: Trimmed reads, trimmed host-removed reads, assembly. For each sample there will be a separate folder in `$intermediate/bphage_viper_output`
 - `reorganise_viper_output.slrm`: Re-organise ViPER output 
@@ -277,7 +276,7 @@ If you worked through the HPC scripts, you will probably want another clone of t
 tar -tf mid_save.tar.gz | grep -v "/$"
 ```
 
-All the R scripts are meant to be run in RStudio in order of their numbering (for the scripts 8a, 8b etc. the order doesn't matter). While they will run start to finish without user interaction, I recommend you execute the commands one by one to trace potential issues. 
+All the R scripts are meant to be run in RStudio in order of their numbering (for the scripts 8a, 8b etc. the order doesn't matter). While they will run start to finish without user interaction, I recommend you execute the commands one by one to trace potential issues. I also recommend to restart the RStudio session before every script.
 
 It would not be feasible to describe the in- and output of all scripts in detail here. Instead, I will provide general descriptions.
 
@@ -300,79 +299,28 @@ This is a very long script that takes about 2 hours to run. This is mainly due t
 
 Alpha and beta diversities and relative abundances (called TPM in the scripts) are calculated and then many plots showing different aspects of the data are generated. The classification table is updated with vConTACT3 taxonomy and the CheckV output but the final version of this table is also stored as an R object in `data/classification.RDS`. The same is true for the metadata table (`data/metadata.RDS`). These R objects are loaded by downstream scripts whenever needed, so if you have different input, make sure to adapt those objects accordingly.
 
-The following plots from this script appear as figures in the paper:
-- **Figure 2**
-    - `output/R/taxon_pies/pretty_pie.n.Class.*.pdf`
-    - `output/R/taxon_pies/pretty_pie.n.Order.*.pdf`
-    - `output/R/taxon_pies/pretty_pie.n.Family.*.pdf`
-- **Figure 3a**
-    - `output/R/prevalence/prevalence.Countries.pdf`
-- **Figure 3b**
-    - `output/R/relative_abundance/relative_abundance_by_metavar_core_or_not/By_prevalence_Prevalence_Countries_relative_abundance.Country.pdf`
-- **Supplementary Figure 1**
-    - `output/R/beta/beta_all/Family_pcoa/beta.Family.all.all.pcoa.pdf`
-    - `output/R/beta/beta_core_or_not/Family_pcoa/beta_core.no.Family.all.all.pcoa.pdf`
-    - `output/R/beta/beta_core_or_not/Family_pcoa/beta_core.yes.Family.all.all.pcoa.pdf`
-- **Supplementary Figure 4**
-    - `output/R/absolute_counts_all_samples.pdf`
-- **Supplementary Figure 5a**
-    - `output/R/alpha/alpha_all/alpha_abs.Family.pdf`
-    - `output/R/alpha/alpha_core_or_not/alpha_abs_core.no.Family.pdf`
-    - `output/R/alpha/alpha_core_or_not/alpha_abs_core.yes.Family.pdf`
-- **Supplementary Figure 5b**
-    - `output/R/beta/beta_all/Family_pcoa/beta_abs.Family.all.all.pcoa.pdf`
-    - `output/R/beta/beta_core_or_not/Family_pcoa/beta_abs_core.no.Family.all.all.pcoa.pdf`
-    - `output/R/beta/beta_core_or_not/Family_pcoa/beta_abs_core.yes.Family.all.all.pcoa.pdf`
-- **Supplementary Figure 8**
-    - `output/R/rarefaction_thresholds/rarefaction_threshold.all.pdf`
-    - `output/R/rarefaction_thresholds/rarefaction_threshold.noncore.pdf`
-    - `output/R/rarefaction_thresholds/rarefaction_threshold.core.pdf`
-
 ---
-`03.beta_dbRDA.R`
+`04_SNP_analysis.R`
 
-This script will pick up the the Bray-Curtis distance matrices and perform a distance-based redundancy analysis on them. This is done with the `RLdbRDA` package and cusomising their scripts to accept distance matrices instead of abundance tables.
-
-The following plot from this script appear as figures in the paper:
-- **Figure 3b**
-    - `output/R/beta/beta_dbRDA/dbRDA.Family_patch.vertical.pdf`
----
-`04_SNP_analysis.R` XXXX
+PCoA and distance-based redundancy analysis is performed on SKA's pairwise SNP distances, followed by Mantel tests.
 
 ---
 ### Lifestyle predictions
-`05.lifestyle.R` XXXX
+`05.lifestyle.R`
+
+Replidec's lifestyle predictions are summed up in this script. The `classification` table is updated accordingly.
 
 ---
 ### Host predictions
 `06.host.R`
 
-This script takes the iPHoP output and makes plots out of it. Note that even though iPHoP was run with a confidence score threshold of 75, this script filters for confidence >90.
+This script takes the iPHoP output and makes plots out of it. Note that even though iPHoP was run with a confidence score threshold of 75, this script filters for confidence >90. The `classification` table is updated accordingly.
 
-The following plots from this script appear as figures in the paper:
-- **Figure 3d**
-    - `output/R/host_pies/hosts.noncore.pdf`
-    - `output/R/host_pies/hosts.core.pdf`
 ---
 ### Functional annotation
 `07.gene_content.R`
 
 This script combines the gene annotations from Phold, the KEGG assignments and the host predictions. Plots and values for PHROGs and KEGG assignments as well as metabolic gene prevalence are generated.
-
-The following plots from this script appear as figures in the paper:
-- **Figure 6a**
-    - `output/R/genes_pathogens_and_landuse/phrog_and_kegg/phrog_bar.vertical.all.pdf`
-    - `output/R/genes_pathogens_and_landuse/phrog_and_kegg/legend.phrog.pdf`
-    - `output/R/genes_pathogens_and_landuse/phrog_and_kegg/kegg_bar.pdf`
-    - `output/R/genes_pathogens_and_landuse/phrog_and_kegg/legend.kegg.pdf`
-    - `output/R/genes_pathogens_and_landuse/phrog_and_kegg/goi_bar.pdf`
-    - `output/R/genes_pathogens_and_landuse/phrog_and_kegg/legend.goi.pdf`
-- **Figure 6b**
-    - `output/R/genes_pathogens_and_landuse/hosts_of_genes_goi.pdf`
-- **Supplementary Figure 2a**
-    - `output/R/genes_pathogens_and_landuse/gene_prevalence.gene_facet.pdf`
-- **Supplementary Figure 2b**
-    - `output/R/genes_pathogens_and_landuse/gene_prevalence.overall.pdf`
 
 ---
 ### Mixed-effects models
@@ -383,59 +331,94 @@ These scripts are technically very similar. `a`, `c` and `d` perform linear mixe
 The helper script `scripts/R/helpers/FAOstat_table.R` takes the country-wide pesticde usage (`data/FAOSTAT_pest_data_en_3-4-2025.csv`) and landuse (`data/FAOSTAT_area_data_en_3-5-2025.csv`) information from the FAO and combines it with the cropland area around the sampling sites (`data/land_cover_results.csv`) measured by COPERNICUS. Estimates of specific pesticide use at the sampling cites are then calculated. All numbers are from 2019, the year preceeding our sampling.
 
 The landuse parameters all refer to a 2 km radius around the sampling sites. The cropland area was measured, pesticie uses are calculated estimates.
-- Cropland area (ha)
-    - Total pesticides
-        - Insecticides
-            - Insecticides – Organo-phosphates
-            - Insecticides – Carbamates
-            - Insecticides – Pyrethroids
-            - Insecticides - nes
-        - Herbicides
-            - Herbicides – Phenoxy hormone products
-            - Herbicides – Triazines
-            - Herbicides – Amides
-            - Herbicides – Carbamates
-            - Herbicides – Dinitroanilines
-            - Herbicides – Urea derivates
-            - Herbicides - nes
-        - Fungicides and Bactericides
-            - Fung & Bact – Inorganics
-            - Fung & Bact – Dithiocarbamates
-            - Fung & Bact – Benzimidazoles
-            - Fung & Bact – Triazoles, diazoles
-            - Fung & Bact – Diazines, morpholines
-            - Fung & Bact - nes
-        - Plant Growth Regulators
+1. Cropland area
+1. Total pesticides (subsumes all pesticide use)
+1. Insecticides (use of all insecticide sub-groups)
+1. Insecticides – Organo-phosphates
+1. Insecticides – Carbamates
+1. Insecticides – Pyrethroids
+1. Insecticides - nes
+1. Herbicides (use of all herbicide sub-groups)
+1. Herbicides – Phenoxy hormone products
+1. Herbicides – Triazines
+1. Herbicides – Amides
+1. Herbicides – Carbamates
+1. Herbicides – Dinitroanilines
+1. Herbicides – Urea derivates
+1. Herbicides - nes
+1. Fungicides and Bactericides (use of all fungicide & bactericide sub-groups)
+1. Fung & Bact – Inorganics
+1. Fung & Bact – Dithiocarbamates
+1. Fung & Bact – Benzimidazoles
+1. Fung & Bact – Triazoles, diazoles
+1. Fung & Bact – Diazines, morpholines
+1. Fung & Bact - nes
+1. Plant Growth Regulators
 
 In total there are 23 landuse parameters, 5 genes of interet (encoding PAPS reductasse, chitinase, glucosyltransferase, levanase and PnuC), 3 pathogens (BQCV, SBV and DWV-B) for the Ct value test in `d` and 3 pathogens (ABPV, V. ceranae and CBPV) for the pathogen presence/absence test in `e`. Benjamini-Hochberg correction of p-values was done in each script for all tests that successfully converged. Tests that failed to converge were excluded from further analyses. 
 
-Script | Test | Number of tests | Successfully converge | Significant after BH correction
+Script | Test | Number of tests | Successfully converged | Significant after BH correction
 :---: | :---: | :---: | :---: | :---:
-`a` | LMM (gene rel. abund vs. landuse) | 115 | 115 | 16
+`a` | LMM (gene rel. abund. vs. landuse) | 115 | 115 | 16
 `b` | GLMM (gene presence vs. landuse)| 115 | 99 | 15
-`c` | LMM (gene rel. abund vs. nosema rel. abund.)| 5 | 5 | 1
+`c` | LMM (gene rel. abund. vs. nosema rel. abund.)| 5 | 5 | 1
 `d` | LMM (pathogen Ct vs. landuse) | 69 | 69 | 4
 `e` | GLMM (paghogen presence vs. landuse) | 69 | 62 | 0
 
-Several tables and plots are produced and placed into `output/R/genes_pathogens_and_landuse`, including plots of raw residuals vs. fitted values for model diagnostics. The figures in the paper were stiched together in the next script.
+Several tables and plots are produced and placed into `output/R/genes_pathogens_and_landuse` (and subfolders), including plots of raw residuals vs. fitted values for model diagnostics. The figures in the paper were stiched together in the next script.
 
 ---
-`09.mixed_models_main_figure.R` XXX
+`09.mixed_models_figures.R`
+This script takes the figures from the mixed model scripts and puts them together in different variations.
 
 ---
 ### Mapping to other datasets
-`10_other_datasets.R` XXX
+`10_other_datasets.R`
+
+From the mapping of the other studies' SRA datasets, the same filters are applied as for the mapping of this study. The mapping stats are then taken to make several tables and an upset plot showing presence of core phages in those studies. 
+
+---
+### Accumulation curves
+`11_accumulation_curves.R`
+
+Several accumulation curves of phage genomes over all samples, bee pools or specific gut parts are generated.
 
 ---
 ### Some additional calculations
-`11_additional_small_tasks.R` XXX
+`12_additional_small_tasks.R`
 
+Some smaller tasks that don't deserve their own scripts are done here. For example, the `classification` table is updated with the INPHARED clustering information.
 
-The following plots from this script appear as figures in the paper:
-- **Supplementary Figure 6**
-    - `output/R/alpha/total_contigs_per_bee_pool.pdf`
-- **Supplementary Figure 7**
-    - `output/R/core_shared_between_guts.pdf`
-
+Figure | Created in script | Files (inside `output/R/`) 
+--- | --- |--- 
+Figure 1 | NA | NA
+Figure 2 | `02.diversity_and_rel_abundance.R` | `taxon_pies/pretty_pie.n.Class.pie.pdf` <br> `taxon_pies/pretty_pie.n.Class.legend.pdf` <br> `taxon_pies/pretty_pie.n.Order.pie.pdf` <br> `taxon_pies/pretty_pie.n.Order.legend.pdf` <br> `taxon_pies/pretty_pie.n.Family.pie.pdf` <br> `taxon_pies/pretty_pie.n.Family.legend.pdf`
+Figure 3a | `02.diversity_and_rel_abundance.R` | `prevalence/prevalence.Countries.pdf`
+Figure 3b | `02.diversity_and_rel_abundance.R` | `relative_abundance/relative_abundance_by_metavar_core_or_not/By_prevalence_Prevalence_Countries_relative_abundance.Country.pdf`
+Figure 3c | `05.lifestyle.R` | `lifestyle/replidec.Caudoviricetes.all.horizontal.pdf`
+Figure 3d | `06.host.R` | `host_pies/hosts.noncore.pdf` <br> `alpha/host_pies/hosts.core.pdf`
+Figure 4a | NA | NA
+Figure 4b | `10_other_datasets.R` | `other_studies/core_read_presence_overlap.upset.patch.pdf`
+Figure 5a | `02.diversity_and_rel_abundance.R` | `pretty_alpha_selection.pdf`
+Figure 5b | `03.beta_dbRDA.R` | `beta/beta_dbRDA/dbRDA.Family_patch.vertical.pdf`
+Figure 5c | `04_SNP_analysis.R` | `SNP_analysis/SNP_RDA_horizontal.pdf`
+Figure 6a | `07.gene_content.R` | `genes_pathogens_and_landuse/phrog_and_kegg/phrog_bar.vertical.all.pdf` <br> `genes_pathogens_and_landuse/phrog_and_kegg/legend.phrog.pdf` <br> `genes_pathogens_and_landuse/phrog_and_kegg/kegg_bar.pdf` <br> `genes_pathogens_and_landuse/phrog_and_kegg/legend.kegg.pdf` <br> `genes_pathogens_and_landuse/phrog_and_kegg/goi_bar.pdf` <br> `genes_pathogens_and_landuse/phrog_and_kegg/legend.goi.pdf`
+Figure 6b | `07.gene_content.R` | `genes_pathogens_and_landuse/hosts_of_genes_goi.pdf`
+Figure 6c | `09.mixed_models_figures.R` | `genes_pathogens_and_landuse/selected_graphs/paps_tpm.pdf`
+Figure 6d | `09.mixed_models_figures.R` | `genes_pathogens_and_landuse/selected_graphs/goi_presence.pdf`
+Figure 6e | `09.mixed_models_figures.R` | `genes_pathogens_and_landuse/selected_graphs/nosema_relabund_and_ct.pdf`
+Supplementary Figure 1 | `02.diversity_and_rel_abundance.R` | `beta/beta_all/Family_pcoa/beta.Family.all.all.pcoa.pdf` <br> `beta/beta_core_or_not/Family_pcoa/beta_core.no.Family.all.all.pcoa.pdf` <br> `beta/beta_core_or_not/Family_pcoa/beta_core.yes.Family.all.all.pcoa.pdf`
+Supplementary Figure 2a | `07.gene_content.R` | `genes_pathogens_and_landuse/gene_prevalence.gene_facet.pdf`
+Supplementary Figure 2b | `07.gene_content.R` | `genes_pathogens_and_landuse/gene_prevalence.overall.pdf`
+Supplementary Figure 3a | `09.mixed_models_figures.R` | `genes_pathogens_and_landuse/selected_graphs/sup_fig_presence.pdf` <br> `genes_pathogens_and_landuse/selected_graphs/sup_fig_presence_legend.pdf`
+Supplementary Figure 3b | `09.mixed_models_figures.R` | `genes_pathogens_and_landuse/selected_graphs/sup_fig_tpm.pdf` <br> `genes_pathogens_and_landuse/selected_graphs/sup_fig_tpm_legend.pdf`
+Supplementary Figure 3c | `09.mixed_models_figures.R` | `genes_pathogens_and_landuse/selected_graphs/sup_fig_ct.pdf` <br> `genes_pathogens_and_landuse/selected_graphs/sup_fig_ct_legend.pdf`
+Supplementary Figure 4 | `02.diversity_and_rel_abundance.R` | `absolute_counts_all_samples.pdf`
+Supplementary Figure 5a | `02.diversity_and_rel_abundance.R` | `alpha/alpha_all/alpha_abs.Family.pdf` <br> `alpha/alpha_core_or_not/alpha_abs_core.no.Family.pdf` <br> `alpha/alpha_core_or_not/alpha_abs_core.yes.Family.pdf`
+Supplementary Figure 5b | `02.diversity_and_rel_abundance.R` | `beta/beta_all/Family_pcoa/beta_abs.Family.all.all.pcoa.pdf` <br> `beta/beta_core_or_not/Family_pcoa/beta_abs_core.no.Family.all.all.pcoa.pdf` <br> `beta/beta_core_or_not/Family_pcoa/beta_abs_core.yes.Family.all.all.pcoa.pdf`
+Supplementary Figure 6a | `12_additional_small_tasks.R` | `alpha/total_contigs_per_bee_pool.pdf`
+Supplementary Figure 6b | `11_accumulation_curves.R` | `accumulation_curves/accumulation_curve.all.all.pdf`
+Supplementary Figure 7 | `12_additional_small_tasks.R` | `core_shared_between_guts.pdf`
+Supplementary Figure 8 | `02.diversity_and_rel_abundance.R` | `rarefaction_thresholds/rarefaction_threshold.all.pdf` <br> `rarefaction_thresholds/rarefaction_threshold.noncore.pdf` <br> `rarefaction_thresholds/rarefaction_threshold.core.pdf`
 
 
