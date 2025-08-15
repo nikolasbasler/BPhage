@@ -14,7 +14,6 @@ plots$gene_presence$`PAPS reductase`$Insecticides <- readRDS("output/R/genes_pat
   scale_y_continuous(limits = c(NA, NA),
                      breaks = c(0.76, 0.92),
                      labels = c(0.76, 0.92))
-# plots$gene_presence$`PAPS reductase`$`Herbicides – Dinitroanilines` <- readRDS("output/R/genes_pathogens_and_landuse/gene_presence_vs_landuse/single_panels/RDS.PAPS reductase.Herbicides – Dinitroanilines.rds")
 plots$pathogen_ct$`DWV B`$Cropland_in_2km_radius <- readRDS("output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/single_panels/RDS.DWV B.Cropland_in_2km_radius.rds") +
   scale_y_continuous(limits = c(NA, NA),
                      breaks = c(24.84, 33.22),
@@ -47,7 +46,6 @@ color_list <- list(dark = list(Chitinase = "#8B4513",
 
 #####
 # PATCH 1
-
 common_legend_genes <- legend_factory(title = "Gene", 
                                 items = names(color_list$dark)[c(3,1)],
                                 colors = unlist(color_list$dark[c(3,1)]),
@@ -95,11 +93,9 @@ second_row <-
   plots$gene_presence$`PAPS reductase`$Insecticides +
   plots$gene_presence$Chitinase$`Fungicides and Bactericides` +
   plots$gene_presence$Chitinase$Herbicides +
-  # common_legend_row1 +
   common_legend_row2 +
   plot_spacer() +
   plot_layout(nrow = 1, axes = "collect", widths = c(2,2,2,1,1))
-
 
 third_row <-   
   plots$gene_tpm$nosema_relabund +
@@ -110,18 +106,11 @@ third_row <-
   plot_spacer() +
   plot_layout(nrow = 1, axes = "collect", widths = c(3,3,3,1,1,1))
 
-
-# main_figure <- common_legend_row1 / first_row /
-#   common_legend_row2 / second_row /
-#   third_row + plot_layout(heights = c(2,20,2,20,20))
-
 main_figure <- first_row / second_row / third_row
 
 
 #####
 # PATCH 2
-
-
 common_legend_1 <- legend_factory(title = "Gene", 
                                      items = names(color_list$dark)[3],
                                      colors = unlist(color_list$dark)[3],
@@ -139,8 +128,6 @@ common_legend_3b <- legend_factory(title = "Gene",
                                       colors = unlist(color_list$dark)[1],
                                       position = "top")
 
-
-# common_legend_row3 <- wrap_plots(common_legend_3b, common_legend_3a, nrow = 1)
 common_legend_row3 <- wrap_plots(common_legend_3b, common_legend_3a, ncol = 1)
 
 first <- 
@@ -173,7 +160,6 @@ ggsave("output/R/genes_pathogens_and_landuse/selected_graphs/wide.pdf",
        main_figure, height = 8, width = 12)
 ggsave("output/R/genes_pathogens_and_landuse/selected_graphs/selected_graphs_3rd_row_legend.pdf",
        common_legend_row3, height = 3, width = 5)
-
 
 ggsave("output/R/genes_pathogens_and_landuse/selected_graphs/high1.pdf",
        first, height = 6, width = 6.5)

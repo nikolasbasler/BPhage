@@ -25,7 +25,7 @@ cropland_and_FAO <- FAOSTAT_added_data %>%
 
 metadata <- readRDS("data/metadata.RDS") %>%
   mutate(Hive_ID = as.character(Hive_ID))
-classification <- readRDS("output/R/R_variables/classification.RDS")
+classification <- readRDS("data/classification.RDS")
 
 pathogen_data <- read_excel("data/GlobalBGOOD_WP1_Tier1_Scien.xlsx", skip = 1) %>%
   rename(BGOOD_sample_code = Sample_ID) %>%
