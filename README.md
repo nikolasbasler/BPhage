@@ -277,7 +277,7 @@ If you worked through the HPC scripts, you will probably want another clone of t
 tar -tf mid_save.tar.gz | grep -v "/$"
 ```
 
-All the R scripts are meant to be run in RStudio in order of their numbering (for the scripts 4a, 4b etc. the order doesn't matter). While they will run start to finish without user interaction, I recommend you execute the commands one by one to trace potential issues. 
+All the R scripts are meant to be run in RStudio in order of their numbering (for the scripts 8a, 8b etc. the order doesn't matter). While they will run start to finish without user interaction, I recommend you execute the commands one by one to trace potential issues. 
 
 It would not be feasible to describe the in- and output of all scripts in detail here. Instead, I will provide general descriptions.
 
@@ -288,13 +288,154 @@ It would not be feasible to describe the in- and output of all scripts in detail
 - To reproduce R package versions run `renv::restore()`
 
 ### Filtering
+`01.filtering.R`
 
-- Filtering script `xxx`
-    - Requires: 
-        - `xxx`
-    - Output:
-        - `xxx`
-        - Filtered classifiaction table: `output/R/phage.filt.gnmd.classification.csv`
-- Visualise predictions and define host groups
+Takes in the mapping stats in `output/mapping_stats_phages/` (mapped reads, horizontal coverage, mean depth) and sets mappped read counts of contigs to 0 if they have <70% horizontal coverage, <1 mean depth or are flagged as contaminants by `decontam`. It then writes updated read count tables and an updated geNomad classification table, filtering out samples and contigs that ended up with 0 reads after applying these filters.
+
+---
+### Alpha and beta diversity, relative abundances
+`02.diversity_and_rel_abundance.R`
+
+This is a very long script that takes about 2 hours to run. This is mainly due to the rarefaction (1.5 hours) and saving all the output plots (30 minutes). For a better overview, these parts are outsourced into separate scripts, which are called from within this script.
+
+Alpha and beta diversities and relative abundances (called TPM in the scripts) are calculated and then many plots showing different aspects of the data are generated. The classification table is updated with vConTACT3 taxonomy and the CheckV output but the final version of this table is also stored as an R object in `data/classification.RDS`. The same is true for the metadata table (`data/metadata.RDS`). These R objects are loaded by downstream scripts whenever needed, so if you have different input, make sure to adapt those objects accordingly.
+
+The following plots from this script appear as figures in the paper:
+- **Figure 2**
+    - `output/R/taxon_pies/pretty_pie.n.Class.*.pdf`
+    - `output/R/taxon_pies/pretty_pie.n.Order.*.pdf`
+    - `output/R/taxon_pies/pretty_pie.n.Family.*.pdf`
+- **Figure 3a**
+    - `output/R/prevalence/prevalence.Countries.pdf`
+- **Figure 3b**
+    - `output/R/relative_abundance/relative_abundance_by_metavar_core_or_not/By_prevalence_Prevalence_Countries_relative_abundance.Country.pdf`
+- **Supplementary Figure 1**
+    - `output/R/beta/beta_all/Family_pcoa/beta.Family.all.all.pcoa.pdf`
+    - `output/R/beta/beta_core_or_not/Family_pcoa/beta_core.no.Family.all.all.pcoa.pdf`
+    - `output/R/beta/beta_core_or_not/Family_pcoa/beta_core.yes.Family.all.all.pcoa.pdf`
+- **Supplementary Figure 4**
+    - `output/R/absolute_counts_all_samples.pdf`
+- **Supplementary Figure 5a**
+    - `output/R/alpha/alpha_all/alpha_abs.Family.pdf`
+    - `output/R/alpha/alpha_core_or_not/alpha_abs_core.no.Family.pdf`
+    - `output/R/alpha/alpha_core_or_not/alpha_abs_core.yes.Family.pdf`
+- **Supplementary Figure 5b**
+    - `output/R/beta/beta_all/Family_pcoa/beta_abs.Family.all.all.pcoa.pdf`
+    - `output/R/beta/beta_core_or_not/Family_pcoa/beta_abs_core.no.Family.all.all.pcoa.pdf`
+    - `output/R/beta/beta_core_or_not/Family_pcoa/beta_abs_core.yes.Family.all.all.pcoa.pdf`
+- **Supplementary Figure 8**
+    - `output/R/rarefaction_thresholds/rarefaction_threshold.all.pdf`
+    - `output/R/rarefaction_thresholds/rarefaction_threshold.noncore.pdf`
+    - `output/R/rarefaction_thresholds/rarefaction_threshold.core.pdf`
+
+---
+`03.beta_dbRDA.R`
+
+This script will pick up the the Bray-Curtis distance matrices and perform a distance-based redundancy analysis on them. This is done with the `RLdbRDA` package and cusomising their scripts to accept distance matrices instead of abundance tables.
+
+The following plot from this script appear as figures in the paper:
+- **Figure 3b**
+    - `output/R/beta/beta_dbRDA/dbRDA.Family_patch.vertical.pdf`
+---
+`04_SNP_analysis.R` XXXX
+
+---
+### Lifestyle predictions
+`05.lifestyle.R` XXXX
+
+---
+### Host predictions
+`06.host.R`
+
+This script takes the iPHoP output and makes plots out of it. Note that even though iPHoP was run with a confidence score threshold of 75, this script filters for confidence >90.
+
+The following plots from this script appear as figures in the paper:
+- **Figure 3d**
+    - `output/R/host_pies/hosts.noncore.pdf`
+    - `output/R/host_pies/hosts.core.pdf`
+---
+### Functional annotation
+`07.gene_content.R`
+
+This script combines the gene annotations from Phold, the KEGG assignments and the host predictions. Plots and values for PHROGs and KEGG assignments as well as metabolic gene prevalence are generated.
+
+The following plots from this script appear as figures in the paper:
+- **Figure 6a**
+    - `output/R/genes_pathogens_and_landuse/phrog_and_kegg/phrog_bar.vertical.all.pdf`
+    - `output/R/genes_pathogens_and_landuse/phrog_and_kegg/legend.phrog.pdf`
+    - `output/R/genes_pathogens_and_landuse/phrog_and_kegg/kegg_bar.pdf`
+    - `output/R/genes_pathogens_and_landuse/phrog_and_kegg/legend.kegg.pdf`
+    - `output/R/genes_pathogens_and_landuse/phrog_and_kegg/goi_bar.pdf`
+    - `output/R/genes_pathogens_and_landuse/phrog_and_kegg/legend.goi.pdf`
+- **Figure 6b**
+    - `output/R/genes_pathogens_and_landuse/hosts_of_genes_goi.pdf`
+- **Supplementary Figure 2a**
+    - `output/R/genes_pathogens_and_landuse/gene_prevalence.gene_facet.pdf`
+- **Supplementary Figure 2b**
+    - `output/R/genes_pathogens_and_landuse/gene_prevalence.overall.pdf`
+
+---
+### Mixed-effects models
+`08a.mixed_models_gene_tpm_vs_landuse.R`, `08b.mixed_models_gene_presence_vs_landuse.R`, `08c.mixed_models_gene_tpm_vs_nosema_relabund.R`, `08d.mixed_models_pathogen_ct_vs_landuse.R`, `08e.mixed_models_pathogen_presence_vs_landuse.R`
+
+These scripts are technically very similar. `a`, `c` and `d` perform linear mixed-effects models (LMMs) on relative gene abundances vs. land use parameters (`a`), on relative gene abundances vs. *Vairimorpha* relative abundance (`c`) and on pathogen Ct values vs. land use parameters (`d`). `b` and `e` perform generalized linear (logistic) mixed-effects models (GLMMs) on gene presence vs. land use parameters (`b`) and pathogen presence vs. land use parameters (`e`). 
+
+The helper script `scripts/R/helpers/FAOstat_table.R` takes the country-wide pesticde usage (`data/FAOSTAT_pest_data_en_3-4-2025.csv`) and landuse (`data/FAOSTAT_area_data_en_3-5-2025.csv`) information from the FAO and combines it with the cropland area around the sampling sites (`data/land_cover_results.csv`) measured by COPERNICUS. Estimates of specific pesticide use at the sampling cites are then calculated. All numbers are from 2019, the year preceeding our sampling.
+
+The landuse parameters all refer to a 2 km radius around the sampling sites. The cropland area was measured, pesticie uses are calculated estimates.
+- Cropland area (ha)
+    - Total pesticides
+        - Insecticides
+            - Insecticides – Organo-phosphates
+            - Insecticides – Carbamates
+            - Insecticides – Pyrethroids
+            - Insecticides - nes
+        - Herbicides
+            - Herbicides – Phenoxy hormone products
+            - Herbicides – Triazines
+            - Herbicides – Amides
+            - Herbicides – Carbamates
+            - Herbicides – Dinitroanilines
+            - Herbicides – Urea derivates
+            - Herbicides - nes
+        - Fungicides and Bactericides
+            - Fung & Bact – Inorganics
+            - Fung & Bact – Dithiocarbamates
+            - Fung & Bact – Benzimidazoles
+            - Fung & Bact – Triazoles, diazoles
+            - Fung & Bact – Diazines, morpholines
+            - Fung & Bact - nes
+        - Plant Growth Regulators
+
+In total there are 23 landuse parameters, 5 genes of interet (encoding PAPS reductasse, chitinase, glucosyltransferase, levanase and PnuC), 3 pathogens (BQCV, SBV and DWV-B) for the Ct value test in `d` and 3 pathogens (ABPV, V. ceranae and CBPV) for the pathogen presence/absence test in `e`. Benjamini-Hochberg correction of p-values was done in each script for all tests that successfully converged. Tests that failed to converge were excluded from further analyses. 
+
+Script | Test | Number of tests | Successfully converge | Significant after BH correction
+:---: | :---: | :---: | :---: | :---:
+`a` | LMM (gene rel. abund vs. landuse) | 115 | 115 | 16
+`b` | GLMM (gene presence vs. landuse)| 115 | 99 | 15
+`c` | LMM (gene rel. abund vs. nosema rel. abund.)| 5 | 5 | 1
+`d` | LMM (pathogen Ct vs. landuse) | 69 | 69 | 4
+`e` | GLMM (paghogen presence vs. landuse) | 69 | 62 | 0
+
+Several tables and plots are produced and placed into `output/R/genes_pathogens_and_landuse`, including plots of raw residuals vs. fitted values for model diagnostics. The figures in the paper were stiched together in the next script.
+
+---
+`09.mixed_models_main_figure.R` XXX
+
+---
+### Mapping to other datasets
+`10_other_datasets.R` XXX
+
+---
+### Some additional calculations
+`11_additional_small_tasks.R` XXX
+
+
+The following plots from this script appear as figures in the paper:
+- **Supplementary Figure 6**
+    - `output/R/alpha/total_contigs_per_bee_pool.pdf`
+- **Supplementary Figure 7**
+    - `output/R/core_shared_between_guts.pdf`
+
 
 
