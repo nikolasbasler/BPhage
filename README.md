@@ -1,6 +1,6 @@
 # The honey bee triad: Phages are mutualistic partners in the gut microbiome of *Apis mellifera*
 
-This repository contains all scripts and usage instructions to reproduce the analysis for the paper by Basler et al (XXX ref). All 97 core phage genomes as well as all >90% complete non-core genomes (1047 additional sequences) are on Genbank (See Supplementary file, sheet i - Genbank accessions). The remaining 1199 non-core, <90% complete genomes can be found in this Github repository. 
+This repository contains all scripts and usage instructions to reproduce the analysis for the paper by Basler et al (XXX ref). All 97 core phage genomes as well as all >90% complete non-core genomes (1047 additional sequences) are on Genbank (See Supplementary file, sheet i - Genbank accessions).
 
 This pipeline is split into two parts. The first part is meant for a high-performance computer (HPC) and can be skipped, if so wanted. The second part is for the statistical analysis and visualisation using RStudio. The scripts pretend to be on the same computer but it is possible to clone this repo to an HPC and a local computer, run the HPC scripts, copy the relevant output files from the HPC to the local computer and continue with the statistical analysis using the R project.
 
@@ -12,6 +12,7 @@ git clone https://github.com/nikolasbasler/BPhage
 
 **If you want to skip the HPC part and only want to re-run the statistical analysis:** Clone the repo as mentioned above, extract the mid-save archive, and then skip ahead to the "R scripts" section of this README file.
 ```
+cd BPhage
 tar -kxvzf mid_save.tar.gz
 ```
 
@@ -93,7 +94,7 @@ mkdir -p $intermediate
     - Requires: 
         - `data/BPhage.sample.list`
         - ViPER output in `$intermediate/bphage_viper_output`
-    - Output: Oririnal files from each sample's viper output are moved into a common `CONTIGS`, `QC/FASTQC` (also with multiqc) `QC/QUAST` and `READ` (containing deduped trimmed and hostout reads) folder inside `output/bphage_viper_output`
+    - Output: Original files from each sample's viper output are moved into a common `CONTIGS`, `QC/FASTQC` (also with multiqc) `QC/QUAST` and `READ` (containing deduped trimmed and hostout reads) folder inside `output/bphage_viper_output`
 - `scripts/HPC/cross_sample_clustering.slrm`: Cross-sample clustering 
     - Requires: Re-organised ViPER assemblies in `output/bphage_viper_output/CONTIGS/`
     - Output: Cross-sample clustered fasta and cluster member files: `output/bphage_ALL_1kb_cross_95-85.fasta.gz`, `output/bphage_ALL_1kb_cross_95-85_clusters.tsv.gz`
@@ -268,7 +269,13 @@ mkdir -p $intermediate
     - Output: Table with clusters: `output/inphared_clustering/bphage_and_inpha_70-85_clusters.tsv`
 
 ## R scripts
-If you skipped the HPC part and jumped right here, I assume that you have cloned this repository and extracted the `mid_save.tar.gz` as descibed at the top of this README file.
+If you skipped the HPC part and jumped right here, I assume that you have cloned this repository and extracted the `mid_save.tar.gz` (as descibed at the top of this README file), like so:
+
+```
+git clone https://github.com/nikolasbasler/BPhage
+cd BPhage
+tar -kxvzf mid_save.tar.gz # Will not overwrite existing files, so it's safe to use if you generated some HPC output
+```
 
 If you worked through the HPC scripts, you will probably want another clone of this repository on a local computer and only carry over the output that is further needed. In that case, have a look at the contents of `mid_save.tar.gz` to see which files you will need:
 
@@ -276,15 +283,23 @@ If you worked through the HPC scripts, you will probably want another clone of t
 tar -tf mid_save.tar.gz | grep -v "/$"
 ```
 
-All the R scripts are meant to be run in RStudio in order of their numbering (for the scripts 8a, 8b etc. the order doesn't matter). While they will run start to finish without user interaction, I recommend you execute the commands one by one to trace potential issues. I also recommend to restart the RStudio session before every script.
+All the R scripts are meant to be run in RStudio in order of their numbering (scripts 8a, 8b etc. can be run in any order). Each script can run start to finish without user interaction in a few seconds, except `02.diversity_and_rel_abundance.R`, which takes about 1h and `03.beta_dbRDA.R`, which takes about 15 minuts. I recommend to restart the RStudio session before every script.
 
-It would not be feasible to describe the in- and output of all scripts in detail here. Instead, I will provide general descriptions.
+It would not be feasible to describe the in- and output of all scripts in detail here. Instead, I will provide general descriptions. At the end of this README, there is a table with all figures that appear in the paper, the script that creates them and their file names.
 
 ### R and package versions
 - R 4.3.1
 - RStudio 2023.12.1+402
 - renv 1.1.4
-- To reproduce R package versions run `renv::restore()`
+
+### Package installations
+- For best reproducibility and to avoid scripts to crash, you will want to install R 4.3.1. On Windows RStudio supports switching between different R versions. On Mac or Linux, you may have to rely on `rig` (https://github.com/r-lib/rig) to do that.
+- Once you open the R project (`BPhage.Rproj`), `renv` should install itself. If not, please install it yourself.
+- To reproduce R package versions run `renv::restore()` in the RStudio terminal.
+    - Don't worry about the `ERROR [error code 22]` messages during download. `renv` will keep trying and is usually able to download a package after a few attempts.
+    - The message `GitHub authentication credentials are not available` can also be ignored.
+- Restart the RStudio session after successful installation
+- If the installation fails, you may have to install a missing compiler, so `renv` can install the packages. Unfortunately, I can't provide instructions for all possible issues here, so you will have to resolve these yourself. Your trusted AI chatbot might be of service here. Alternatively, you can of course install the packages manually, but there are many and if the versions don't line up with the ones used here, the scripts might crash.
 
 ### Filtering
 `01.filtering.R`
@@ -295,9 +310,14 @@ Takes in the mapping stats in `output/mapping_stats_phages/` (mapped reads, hori
 ### Alpha and beta diversity, relative abundances
 `02.diversity_and_rel_abundance.R`
 
-This is a very long script that takes about 2 hours to run. This is mainly due to the rarefaction (1.5 hours) and saving all the output plots (30 minutes). For a better overview, these parts are outsourced into separate scripts, which are called from within this script.
+This is a very long script that takes about 1 hour to run. This is mainly due to the rarefaction (45 minutes) and saving all the output plots (10 minutes). For a better overview, these parts are outsourced into separate scripts, which are called from within this script. For the rarefaction (1000 iterations), I make use of the `future` package to run on 4 CPU cores in parallel. If you want to change this, adapt the `plan(multisession, workers=4)` calls in the helper scripts `scripts/R/helpers/alpha_diversity.R` and `scripts/R/helpers/beta_diversity.R`.
 
-Alpha and beta diversities and relative abundances (called TPM in the scripts) are calculated and then many plots showing different aspects of the data are generated. The classification table is updated with vConTACT3 taxonomy and the CheckV output but the final version of this table is also stored as an R object in `data/classification.RDS`. The same is true for the metadata table (`data/metadata.RDS`). These R objects are loaded by downstream scripts whenever needed, so if you have different input, make sure to adapt those objects accordingly.
+Alpha and beta diversities and relative abundances (called TPM in the scripts) are calculated and then many plots showing different aspects of the data are generated. This mainly served the purpose of data exploration. The `classification` table is updated with `vConTACT3` taxonomy and the `CheckV` output but the final version of the `classification` table is also stored as an R object in `data/classification.RDS`. The same is true for the metadata table (`data/metadata.RDS`). These R objects are loaded by all scripts whenever needed, so if you have different input, make sure to adapt those objects accordingly.
+
+---
+`03.beta_dbRDA.R`
+
+Picks up the Bray-Curtis dissimilarity matrices and performs distance-based redundancy analyses on them. Runs for about 15 minutes.
 
 ---
 `04_SNP_analysis.R`
@@ -389,6 +409,8 @@ Several accumulation curves of phage genomes over all samples, bee pools or spec
 
 Some smaller tasks that don't deserve their own scripts are done here. For example, the `classification` table is updated with the INPHARED clustering information.
 
+### Manuscript figures
+
 Figure | Created in script | Files (inside `output/R/`) 
 --- | --- |--- 
 Figure 1 | NA | NA
@@ -396,10 +418,10 @@ Figure 2 | `02.diversity_and_rel_abundance.R` | `taxon_pies/pretty_pie.n.Class.p
 Figure 3a | `02.diversity_and_rel_abundance.R` | `prevalence/prevalence.Countries.pdf`
 Figure 3b | `02.diversity_and_rel_abundance.R` | `relative_abundance/relative_abundance_by_metavar_core_or_not/By_prevalence_Prevalence_Countries_relative_abundance.Country.pdf`
 Figure 3c | `05.lifestyle.R` | `lifestyle/replidec.Caudoviricetes.all.horizontal.pdf`
-Figure 3d | `06.host.R` | `host_pies/hosts.noncore.pdf` <br> `alpha/host_pies/hosts.core.pdf`
+Figure 3d | `06.host.R` | `host_pies/hosts.noncore.pdf` <br> `host_pies/hosts.core.pdf`
 Figure 4a | NA | NA
 Figure 4b | `10_other_datasets.R` | `other_studies/core_read_presence_overlap.upset.patch.pdf`
-Figure 5a | `02.diversity_and_rel_abundance.R` | `pretty_alpha_selection.pdf`
+Figure 5a | `02.diversity_and_rel_abundance.R` | `alpha/pretty_alpha_selection.pdf`
 Figure 5b | `03.beta_dbRDA.R` | `beta/beta_dbRDA/dbRDA.Family_patch.vertical.pdf`
 Figure 5c | `04_SNP_analysis.R` | `SNP_analysis/SNP_RDA_horizontal.pdf`
 Figure 6a | `07.gene_content.R` | `genes_pathogens_and_landuse/phrog_and_kegg/phrog_bar.vertical.all.pdf` <br> `genes_pathogens_and_landuse/phrog_and_kegg/legend.phrog.pdf` <br> `genes_pathogens_and_landuse/phrog_and_kegg/kegg_bar.pdf` <br> `genes_pathogens_and_landuse/phrog_and_kegg/legend.kegg.pdf` <br> `genes_pathogens_and_landuse/phrog_and_kegg/goi_bar.pdf` <br> `genes_pathogens_and_landuse/phrog_and_kegg/legend.goi.pdf`
