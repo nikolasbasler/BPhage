@@ -1,9 +1,12 @@
 library(RLdbRDA)
-source("scripts/R/custom_rldbrda.R")
 library(tidyverse)
 library(patchwork)
 
-metadata <- readRDS("data/metadata.RDS")
+source("scripts/R/custom_rldbrda.R")
+
+metadata <- readRDS("data/metadata.RDS") %>%
+  as.data.frame()
+row.names(metadata) <- metadata$Sample_ID
 
 core_or_not <- c("yes", "no")
 plotting_lable <- list(yes = "core", no = "noncore", all = "all", 
@@ -35,10 +38,12 @@ for (yes_no in core_or_not) {
   }
 }
 
+n <- 1
 RDAs <- list()
 RDA_plots <- list()
 for (tax in taxlevels) {
   for (set in names(beta_dists[[tax]])) {
+    print(paste0("Loop ", n, " of 12. Running RDA for tax: ", tax, ", and set: ", set, "."))
     meta_filt <- metadata %>%
       filter(Sample_ID %in% rownames(as.matrix(beta_dists[[tax]][[set]]))) %>% 
       select(Country, Season, Gut_part)
@@ -64,6 +69,7 @@ for (tax in taxlevels) {
     p$data$bar_color <- custom_colors
     
     RDA_plots[[tax]][[set]] <- p + aes(fill = bar_color) + scale_fill_identity()
+    n <- n + 1
   }
 }
 
@@ -95,4 +101,3 @@ for (tax in taxlevels) {
            width = 5, height = 5)
   }
 }
-

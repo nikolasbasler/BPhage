@@ -108,7 +108,6 @@ for (dataset in names(ska_distance)) {
 
 pcoa_wrap <- wrap_plots(ska_plot) +
   plot_layout(guides = "collect")
-pcoa_wrap
 
 #### Trees
 clustered <- list()
@@ -133,7 +132,6 @@ for (dataset in names(clustered)) {
 
 tree_wrap <- wrap_plots(tree_plots) +
   plot_layout(guides = "collect")
-tree_wrap
 
 #########
 # RDAs
