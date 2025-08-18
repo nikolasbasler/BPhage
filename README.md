@@ -293,7 +293,8 @@ It would not be feasible to describe the in- and output of all scripts in detail
 - renv 1.1.4
 
 ### Package installations
-- For best reproducibility and to avoid scripts to crash, you will want to install R 4.3.1. On Windows RStudio supports switching between different R versions. On Mac or Linux, you may have to rely on `rig` (https://github.com/r-lib/rig) to do that.
+- 
+- For best reproducibility , you will want to install R 4.3.1. On Windows RStudio supports switching between different R versions. On Mac or Linux, you may have to rely on `rig` (https://github.com/r-lib/rig) to do that.
 - Once you open the R project (`BPhage.Rproj`), `renv` should install itself. If not, please install it yourself.
 - To reproduce R package versions run `renv::restore()` in the RStudio terminal.
     - Don't worry about the `ERROR [error code 22]` messages during download. `renv` will keep trying and is usually able to download a package after a few attempts.
@@ -315,6 +316,14 @@ This is a very long script that takes about 1 hour to run. This is mainly due to
 Alpha and beta diversities and relative abundances (called TPM in the scripts) are calculated and then many plots showing different aspects of the data are generated. This mainly served the purpose of data exploration. The `classification` table is updated with `vConTACT3` taxonomy and the `CheckV` output but the final version of the `classification` table is also stored as an R object in `data/classification.RDS`. The same is true for the metadata table (`data/metadata.RDS`). These R objects are loaded by all scripts whenever needed, so if you have different input, make sure to adapt those objects accordingly.
 
 ---
+
+`02b.abs_rel_diversity_correlations.R`
+
+XXX
+
+---
+
+
 `03.beta_dbRDA.R`
 
 Picks up the Bray-Curtis dissimilarity matrices and performs distance-based redundancy analyses on them. Runs for about 15 minutes.
@@ -436,10 +445,11 @@ Supplementary Figure 3a | `09.mixed_models_figures.R` | `genes_pathogens_and_lan
 Supplementary Figure 3b | `09.mixed_models_figures.R` | `genes_pathogens_and_landuse/selected_graphs/sup_fig_tpm.pdf` <br> `genes_pathogens_and_landuse/selected_graphs/sup_fig_tpm_legend.pdf`
 Supplementary Figure 3c | `09.mixed_models_figures.R` | `genes_pathogens_and_landuse/selected_graphs/sup_fig_ct.pdf` <br> `genes_pathogens_and_landuse/selected_graphs/sup_fig_ct_legend.pdf`
 Supplementary Figure 4 | `02.diversity_and_rel_abundance.R` | `absolute_counts_all_samples.pdf`
-Supplementary Figure 5a | `02.diversity_and_rel_abundance.R` | `alpha/alpha_all/alpha_abs.Family.pdf` <br> `alpha/alpha_core_or_not/alpha_abs_core.no.Family.pdf` <br> `alpha/alpha_core_or_not/alpha_abs_core.yes.Family.pdf`
-Supplementary Figure 5b | `02.diversity_and_rel_abundance.R` | `beta/beta_all/Family_pcoa/beta_abs.Family.all.all.pcoa.pdf` <br> `beta/beta_core_or_not/Family_pcoa/beta_abs_core.no.Family.all.all.pcoa.pdf` <br> `beta/beta_core_or_not/Family_pcoa/beta_abs_core.yes.Family.all.all.pcoa.pdf`
-Supplementary Figure 6a | `12_additional_small_tasks.R` | `alpha/total_contigs_per_bee_pool.pdf`
-Supplementary Figure 6b | `11_accumulation_curves.R` | `accumulation_curves/accumulation_curve.all.all.pdf`
+Supplementary Figure 5a | `02.diversity_and_rel_abundance.R` | `alpha/pretty_alpha_selection_abs.pdf` 
+Supplementary Figure 5b | `02b.abs_rel_diversity_correlations.R` | `alpha/rel_abs_shannon_correlation/alpha_rel_abs_shannon_correlation.wrap.pdf`
+Supplementary Figure 5c | `02.diversity_and_rel_abundance.R` | `beta/beta_all/Family_pcoa/beta_abs.Family.all.all.pcoa.pdf` <br> `beta/beta_core_or_not/Family_pcoa/beta_abs_core.no.Family.all.all.pcoa.pdf` <br> `beta/beta_core_or_not/Family_pcoa/beta_abs_core.yes.Family.all.all.pcoa.pdf`
+Supplementary Figure 5d | `02b.abs_rel_diversity_correlations.R` | `beta/rel_abs_bray_correlation/beta_rel_abs_bray_correlation.wrap.pdf`
+Supplementary Figure 6 | `11_accumulation_curves.R` | `accumulation_curves/accumulation_curve.all.all.pdf`
 Supplementary Figure 7 | `12_additional_small_tasks.R` | `core_shared_between_guts.pdf`
 Supplementary Figure 8 | `02.diversity_and_rel_abundance.R` | `rarefaction_thresholds/rarefaction_threshold.all.pdf` <br> `rarefaction_thresholds/rarefaction_threshold.noncore.pdf` <br> `rarefaction_thresholds/rarefaction_threshold.core.pdf`
 
