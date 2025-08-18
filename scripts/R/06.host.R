@@ -166,7 +166,3 @@ for (pie in names(host_pie)) {
 #          Host_group = Genus.x,
 #          Host_genus = Genus.y) %>%
 #   write_csv("data/host_groups.csv")
-
-
-
-# 
