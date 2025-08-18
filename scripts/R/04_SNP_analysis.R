@@ -12,10 +12,6 @@ source("scripts/R/helpers/mixed_helpers.R")
 
 
 metadata <- readRDS("data/metadata.RDS")
-SKA_subspecies_SRAs <- read.delim("data/SKA_subspecies_SRAs.tsv") %>%
-  select(-Pool_name) %>%
-  mutate(Country = NA) %>%
-  rename(Bee_pool = Accession)
 
 relevant_meta <- metadata %>%
   select(Bee_pool, Country) %>%
