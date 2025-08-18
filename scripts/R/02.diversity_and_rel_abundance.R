@@ -499,9 +499,17 @@ for (n in 5:7) {
   non_core_singles[[n]] <- non_core_singles[[n]] + theme(axis.text.x=element_blank())
 
 }
-pretty_alpha_selection <- wrap_plots( wrap_plots(all[5:7], axes = "collect_y", widths = c(3,4,3)) /
-              wrap_plots(non_core_singles[5:7], axes = "collect_y", widths = c(3,4,3)) /
-              wrap_plots(core_singles[5:7], axes = "collect_y", widths = c(3,4,3)))
+
+pretty_alpha_selection <- wrap_plots(
+  wrap_plots(all[5:7], axes = "collect_y", widths = c(3,4,3)) /
+    wrap_plots(non_core_singles[5:7], axes = "collect_y", widths = c(3,4,3)) /
+    wrap_plots(core_singles[5:7], axes = "collect_y", widths = c(3,4,3)))
+
+pretty_alpha_selection_abs <- wrap_plots( 
+  wrap_plots(alpha_abs[["Family"]][["plot"]][[4]], alpha_abs[["Family"]][["plot"]][[5]], widths = c(4,3)) /
+  wrap_plots(alpha_abs_core_or_not[["no"]][["Family"]][["plot"]][[4]], alpha_abs_core_or_not[["no"]][["Family"]][["plot"]][[5]], widths = c(4,3)) /
+  wrap_plots(alpha_abs_core_or_not[["yes"]][["Family"]][["plot"]][[4]], alpha_abs_core_or_not[["yes"]][["Family"]][["plot"]][[5]], widths = c(4,3))
+)
 
 # Simple un-rarified richness:
 pool_richness <- phage_tpm$contig %>%
@@ -802,7 +810,7 @@ genera_per_family_stats <- genera_per_family_tbl %>%
 # files are automatically written by the tool.
 # Commented-out by default.
 
-source("scripts/R/helpers/venn_run.R")
+# source("scripts/R/helpers/venn_run.R")
 
 here_time <- Sys.time()
 here_time - start_time
@@ -811,7 +819,7 @@ here_time - start_time
 #------------------------------------------------------------------------------#
 # Save files # Out-sourced for easy deactivation.
 
-source("scripts/R/helpers/save_files.R")
+# source("scripts/R/helpers/save_files.R")
 
 end_time <- Sys.time()
 end_time - start_time
