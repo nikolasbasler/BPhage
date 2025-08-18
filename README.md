@@ -29,7 +29,7 @@ tar -kxvzf mid_save.tar.gz
 For tool versions see the conda environment `.yml` files: `data/env_*.yml`
 - Mamba/conda: Please follow the official documentation (e.g.: https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html). For this analysis, `mamba` v.1.4.2 and `conda` v.23.1.0 were used.
 - ViPER pipeline: Please follow the instructions on Github **BUT** use `data/env_viper_bphage.yml` from this repository instead of ViPER's `viper.yml`: https://github.com/Matthijnssenslab/ViPER. For this analysis, ViPER version 2.1 was used.
-- Additional conda environments: To install additional conda environments with all necessary tools, use the `env_*.yml` files in `data/`: 
+- Additional conda environments: To install additional conda environments with all necessary tools, use the `yml` files in `data/`: 
 - `env_cobra.yml`
 - `env_iphop.yml`
 - `env_mopup.yml`
@@ -45,7 +45,7 @@ E.g. like this:
 mamba env create -f env_cobra.yml
 ```
 
-- **Note**: The tool MOP-UP (used for taxonomic clustering of the microviruses) relies on a library called `Boost`, which I didn't manage to install properly via conda but instead relied on a pre-installed module. If it gives you trouble, see version information in `env_mop-up_boost_module.txt` and ask your ID department to install it. Good luck.
+- **Note**: The tool MOP-UP (used for taxonomic clustering of the microviruses) relies on a library called `Boost`, which I didn't manage to install properly via conda but instead relied on a pre-installed module. If it gives you trouble, see version information in `data/env_mop-up_boost_module.txt` and ask your ID department to install it. Good luck.
 - Set output directories: The HPC scripts assume two locations for output storage:
     - One location for intermediate storage that can blow up quite a lot while scripts are running and also contains the raw sequencing reads – the main input for this pipeline. 
     - The `output/` directory of this repository for the permanent output, which will accumulate about 1.5 TB as you progress through the scripts.
