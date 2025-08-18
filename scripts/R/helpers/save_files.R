@@ -120,6 +120,8 @@ for (tax in names(alpha)) {
 }
 ggsave("output/R/alpha/pretty_alpha_selection.pdf",
        pretty_alpha_selection, height = 8, width = 8)
+ggsave("output/R/alpha/pretty_alpha_selection_abs.pdf",
+       pretty_alpha_selection_abs, height = 8, width = 5.6)
 
 # By country
 system("mkdir -p output/R/alpha/alpha_by_country")
@@ -150,7 +152,9 @@ for (tax in names(alpha_abs)) {
   ggsave(paste0("output/R/alpha/alpha_all/alpha_abs.",tax,".pdf"),
          alpha_abs[[tax]]$plot, width = 12, height=10)
   write_csv(alpha_abs[[tax]]$table,
-            paste0("output/R/alpha/alpha_all/alpha_abs.",tax,".csv"))
+            paste0("output/R/alpha/alpha_all/alpha_abs.",tax,".diversity.csv"))
+  write_csv(alpha_abs[[tax]]$kruskal,
+            paste0("output/R/alpha/alpha_all/alpha_abs.",tax,".kruskal.csv"))
   for (core_or_not in names(alpha_abs_core_or_not)) {
     ggsave(paste0("output/R/alpha/alpha_core_or_not/alpha_abs_core.",core_or_not,".",tax,".pdf"),
            alpha_abs_core_or_not[[core_or_not]][[tax]]$plot, width = 12, height=10)
