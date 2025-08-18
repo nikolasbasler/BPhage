@@ -269,12 +269,12 @@ mkdir -p $intermediate
     - Output: Table with clusters: `output/inphared_clustering/bphage_and_inpha_70-85_clusters.tsv`
 
 ## R scripts
-If you skipped the HPC part and jumped right here, I assume that you have cloned this repository and extracted the `mid_save.tar.gz` (as descibed at the top of this README file), like so:
+If you skipped the HPC part and jumped right here, I assume that you have cloned this repository and extracted the `mid_save.tar.gz` (as descibed at the top of this README file), like so (extracting the midsave like this will not overwrite existing files, so it's safe to use if you generated some HPC output):
 
 ```
 git clone --depth 1 https://github.com/nikolasbasler/BPhage
 cd BPhage
-tar -kxvzf mid_save.tar.gz # Will not overwrite existing files, so it's safe to use if you generated some HPC output
+tar -kxvzf mid_save.tar.gz 
 ```
 
 If you worked through the HPC scripts, you will probably want another clone of this repository on a local computer and only carry over the output that is further needed. In that case, have a look at the contents of `mid_save.tar.gz` to see which files you will need:
