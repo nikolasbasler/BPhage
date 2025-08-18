@@ -67,12 +67,7 @@ alpha_stats = function(df, meta_vars, min_seq = NA, df_lengths = NA, absolut_val
     alpha_average_df = Reduce(`+`, alpha_df_list) / length(alpha_df_list)
     alpha_tbl = as_tibble(alpha_average_df, rownames = "Sample_ID")
   }
-  
-  # For Post-hoc optimisations...
-  # alpha_tbl <- read.csv("output/R/alpha/alpha_all/alpha.Family.diversity.csv")
-  # alpha_tbl <- read.csv("output/R/alpha/alpha_core_or_not/alpha_core.yes.Family.diversity.csv")
-  # alpha_tbl <- read.csv("output/R/alpha/alpha_core_or_not/alpha_core.no.Family.diversity.csv")
-  
+
   pre_plot_tibble <- metadata %>%
     select("Sample_ID", all_of(meta_vars)) %>%
     inner_join(., alpha_tbl, by="Sample_ID") %>%
@@ -115,7 +110,8 @@ alpha_stats = function(df, meta_vars, min_seq = NA, df_lengths = NA, absolut_val
   number_of_meta_vars <- length(meta_vars)
   total_number_of_plots <- number_of_metrics * number_of_meta_vars
   for (metr in levels(plot_tibble$metric)) {
-    for (meta_v in levels(meta_vars)) {
+    # for (meta_v in levels(meta_vars)) {
+    for (meta_v in meta_vars) {
       krusk <- kruskal_results %>%
         filter(metric==metr &  meta_variable==meta_v)
       stats_text = paste0("KW test ",

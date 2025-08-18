@@ -451,7 +451,7 @@ dev.off()
 
 
 ## Genera per family
-system("mkdir -p output/R/gener_per_family/")
+system("mkdir -p output/R/genera_per_family/")
 ggsave("output/R/genera_per_family/genera_per_family.pdf", genera_per_family_plot,
        width = 6, height = 6)
 write_csv(genera_per_family_stats, "output/R/genera_per_family/genera_per_family.csv")

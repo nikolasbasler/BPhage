@@ -10,8 +10,18 @@ metadata <- readRDS("data/metadata.RDS")
 classification <- readRDS("data/classification.RDS")
 present_in_all_countries <- read_lines("data/core_contigs.txt")
 
-phold_predictions_with_extensions <- read.csv("output/R/gene_content/phold_predictions_with_extensions.csv") %>%
+phold_annotations_extended <- read.delim("output/core_contig_refinement/extended_contigs_phold/phold_per_cds_predictions_long_names.tsv") %>%
   tibble() %>%
+  mutate(contig_id = str_extract(contig_id, "^([^_]+_){10}[^_]+")) %>%
+  mutate(cds_id = paste0(contig_id, "_", str_extract(cds_id, "[^_]+_[^_]+$")))
+
+phold_annotations_unextended <- read.delim("output/annotation/phold_compare_bphage_and_others/phold_per_cds_predictions_long_names.tsv") %>%
+  tibble()
+
+phold_predictions_with_extensions <- phold_annotations_unextended %>%
+  filter(str_starts(contig_id, "NODE"),
+         !contig_id %in% phold_annotations_extended$contig_id) %>%
+  rbind(., phold_annotations_extended) %>%
   filter(str_starts(contig_id, "NODE")) %>%
   mutate(
     product = str_replace_all(product, "levanase", "Levanase"),
@@ -396,6 +406,9 @@ legend_gg$goi <- extract_legend(goi_with_legend)
 # #####
 # SAVE FILES
 
+system("mkdir -p output/R/gene_content")
+system("mkdir -p output/R/genes_pathogens_and_landuse")
+
 write_delim(phold_predictions_with_extensions, 
             "output/R/gene_content/phold_predictions_with_extensions_bphage_renamed_genes.tsv",
             delim = "\t")
@@ -440,4 +453,3 @@ ggsave("output/R/genes_pathogens_and_landuse/hosts_of_genes_all.pdf", hosts_of_g
        width = 8, height = 6)
 ggsave("output/R/genes_pathogens_and_landuse/hosts_of_genes_goi.pdf", hosts_of_genes_plot_goi,
        width = 6, height = 5.2)
-

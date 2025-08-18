@@ -1,5 +1,4 @@
-# The script needs about 2h to run. 1.5 of them for the alpha/beta rarefaction and 30 min for saving the files. 
-# If these two things are commented out, the script runs for about 3 minutes.
+# The script needs about 1h to run. 45 min for the alpha/beta rarefaction and 10 min for saving the files. 
 start_time <- Sys.time()
 options("lifecycle_verbosity"="warning")
 
@@ -47,7 +46,8 @@ sample_order <- metadata %>%
   select(Sample_ID) %>%
   unlist(use.names = FALSE)
 metadata <- metadata %>%
-  mutate(Sample_ID = factor(Sample_ID, levels=sample_order))
+  mutate(Sample_ID = factor(Sample_ID, levels=sample_order)) %>%
+  as.data.frame()
 row.names(metadata) <- metadata$Sample_ID
 
 bphage_microvirus_contigs <- read_lines("data/bphage.microviridae.contigs")
@@ -800,6 +800,7 @@ genera_per_family_stats <- genera_per_family_tbl %>%
 #------------------------------------------------------------------------------#
 # Prevalenve Venn diagrams # Out-sourced for easy deactivation, because output 
 # files are automatically written by the tool.
+# Commented-out by default.
 
 source("scripts/R/helpers/venn_run.R")
 
@@ -814,4 +815,3 @@ source("scripts/R/helpers/save_files.R")
 
 end_time <- Sys.time()
 end_time - start_time
-

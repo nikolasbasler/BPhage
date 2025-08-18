@@ -35,18 +35,13 @@ gnmd_classification <- read.csv("output/bphage_ALL_1kb_phages.csv") %>%
   rename(contig=contig_id) %>%
   filter(contig != "NODE_A1975_length_2506_cov_68.193907_PT_19410_aut_rec_d") # %>% # Filter out the one Picobirna contig that isn't the RdRp segment
 
-metadata <- readRDS("data/metadata.RDS")
-
-row.names(metadata) <- metadata$Sample_ID
+metadata <- readRDS("data/metadata.RDS") %>% as.data.frame()
+row.names(metadata) <- metadata$Sample_ID # decontam needs this...
 
 contig_length_df <- read.csv("output/mapping_stats_phages/phages.contig_lentghs.csv") %>%
   mutate(length = length/1000) %>%
   rename(length_kb = length) %>%
   filter(contig != "NODE_A1975_length_2506_cov_68.193907_PT_19410_aut_rec_d") # Filter out the one Picobirna contig that isn't the RdRp segment
-
-
-metadata <- readRDS("data/metadata.RDS") %>% tibble()
-
 
 ################################################################################
 ################################################################################
@@ -126,6 +121,7 @@ cat("Lowest number of mapped reads (>0) to any contig:", min(abundance_table_fil
 ################################################################################
 
 # Write output files
+system("mkdir -p output/R/")
 
 # Decontam graph
 ggsave("output/R/decontam.library.size.by.control.or.sample.pdf", decontam$plot, width=30, height=10)
