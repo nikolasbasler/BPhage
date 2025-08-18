@@ -6,7 +6,7 @@ This pipeline is split into two parts. The first part is meant for a high-perfor
 
 To clone the repository, please run
 ```
-git clone https://github.com/nikolasbasler/BPhage
+git clone --depth 1 https://github.com/nikolasbasler/BPhage ## depth 1 because the full history would be quite large
 ```
 **Note**: The output of the tools and scripts will end up in the `output` folder inside the repo (which is why it's not tracked by git). The HPC scripts will create around 1.5 TB in total (plus intermediate storage, see below), the R scripts around 1 GB. Make sure to have enough free space or manage the output as it comes.
 
@@ -272,7 +272,7 @@ mkdir -p $intermediate
 If you skipped the HPC part and jumped right here, I assume that you have cloned this repository and extracted the `mid_save.tar.gz` (as descibed at the top of this README file), like so:
 
 ```
-git clone https://github.com/nikolasbasler/BPhage
+git clone --depth 1 https://github.com/nikolasbasler/BPhage ## depth 1 because the full history would be quite large
 cd BPhage
 tar -kxvzf mid_save.tar.gz # Will not overwrite existing files, so it's safe to use if you generated some HPC output
 ```
@@ -319,7 +319,7 @@ Alpha and beta diversities and relative abundances (called TPM in the scripts) a
 
 `02b.abs_rel_diversity_correlations.R`
 
-XXX
+Making correlations and repective plots between Shannon and Bray-Curtis diversities from read data vs. from abolute count data. 
 
 ---
 
