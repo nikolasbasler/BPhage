@@ -4,9 +4,9 @@ This repository contains all scripts and usage instructions to reproduce the ana
 
 This pipeline is split into two parts. The first part is meant for a high-performance computer (HPC) and can be skipped, if so wanted. The second part is for the statistical analysis and visualisation using RStudio. The scripts pretend to be on the same computer but it is possible to clone this repo to an HPC and a local computer, run the HPC scripts, copy the relevant output files from the HPC to the local computer and continue with the statistical analysis using the R project.
 
-To clone the repository, please run
+To clone the repository, please run (depth set to 1 because the full history would be quite large):
 ```
-git clone --depth 1 https://github.com/nikolasbasler/BPhage ## depth 1 because the full history would be quite large
+git clone --depth 1 https://github.com/nikolasbasler/BPhage
 ```
 **Note**: The output of the tools and scripts will end up in the `output` folder inside the repo (which is why it's not tracked by git). The HPC scripts will create around 1.5 TB in total (plus intermediate storage, see below), the R scripts around 1 GB. Make sure to have enough free space or manage the output as it comes.
 
@@ -272,7 +272,7 @@ mkdir -p $intermediate
 If you skipped the HPC part and jumped right here, I assume that you have cloned this repository and extracted the `mid_save.tar.gz` (as descibed at the top of this README file), like so:
 
 ```
-git clone --depth 1 https://github.com/nikolasbasler/BPhage ## depth 1 because the full history would be quite large
+git clone --depth 1 https://github.com/nikolasbasler/BPhage
 cd BPhage
 tar -kxvzf mid_save.tar.gz # Will not overwrite existing files, so it's safe to use if you generated some HPC output
 ```
