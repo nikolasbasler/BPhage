@@ -2,7 +2,7 @@
 /MOP-UP
 /VNom
 .Rproj.user
-.DS_Store
+**/.DS_Store
 .Rhistory
 .vscode/
 scripts/R/testing.R
