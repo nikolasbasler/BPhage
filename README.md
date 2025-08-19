@@ -10,11 +10,8 @@ git clone --depth 1 https://github.com/nikolasbasler/BPhage
 ```
 **Note**: The output of the tools and scripts will end up in the `output` folder inside the repo (which is why it's not tracked by git). The HPC scripts will create around 1.5 TB in total (plus intermediate storage, see below), the R scripts around 1 GB. Make sure to have enough free space or manage the output as it comes.
 
-**If you want to skip the HPC part and only want to re-run the statistical analysis:** Clone the repo as mentioned above, extract the mid-save archive, and then skip ahead to the "R scripts" section of this README file.
-```
-cd BPhage
-tar -kxvzf mid_save.tar.gz
-```
+**If you want to skip the HPC part and only want to re-run the statistical analysis:** Go straight to the ["R scripts"](#r-scripts) section of this README.
+
 
 ## HPC scripts
 ### General info
@@ -67,26 +64,9 @@ mkdir -p $intermediate
 
 ### Download
 
-asdf
-
-<details>
-  <summary> ### Test heading </summary>
-
-    asdf
-</details>
-
-asdf
-
-<details>
-  <summary> `download_raw_reads.slrm` </summary>
-
-    asdf
-</details>
-
-
 - `download_raw_reads.slrm`: Downloads the raw data of this study from the SRA and rename the files. There are 471 SRA datasets with 2 files each (forward and reverse reads). The total volume is >700 GB. I didn't parallelise this, because I don't think NCBI would allow hundreds of download requests from the same source. So expect this to take a while.
     - Requires: 
-        - SRA accession list: `$repo_location/data/BPhage_SRAs.tsv`
+        - SRA accession list: `data/BPhage_SRAs.tsv`
     - Output: Nicely named fastq files with raw sequencing reads of all samples in `$intermediate/raw`.
 - `download_additional_data.slrm`: Download the bee genome (also indexed here) and a bunch of additional data: 
     - Requires:
@@ -106,7 +86,7 @@ asdf
 - `bphage_viper_with_dedup.slrm` (array of 471): ViPER pipeline
     - Requires: 
         - Sample list: `data/BPhage.sample.list`
-        - SRA accession list: `$repo_location/data/BPhage_SRAs.tsv`
+        - SRA accession list: `data/BPhage_SRAs.tsv`
         - Raw read data in `$intermediate/raw`
     - Output: Trimmed reads, trimmed host-removed reads, assembly. For each sample there will be a separate folder in `$intermediate/bphage_viper_output`
 - `reorganise_viper_output.slrm`: Re-organise ViPER output 
@@ -287,8 +267,12 @@ asdf
         - Inphared dataset: `$intermediate/additional_datasets/inphared_14Apr2025_genomes_excluding_refseq.fa.gz`
     - Output: Table with clusters: `output/inphared_clustering/bphage_and_inpha_70-85_clusters.tsv`
 
+
+---
+---
+
 ## R scripts
-If you skipped the HPC part and jumped right here, I assume that you have cloned this repository and extracted the `mid_save.tar.gz` (as descibed at the top of this README file), like so (extracting the midsave like this will not overwrite existing files, so it's safe to use if you generated some HPC output):
+If you skipped the HPC part and jumped right here, you will want to clone this repository to a computer that runs RStudio and then extracted the `mid_save.tar.gz` (extracting this file with `-k` will not overwrite existing files, so it's safe to use if you generated some HPC output):
 
 ```
 git clone --depth 1 https://github.com/nikolasbasler/BPhage
@@ -304,7 +288,7 @@ tar -tf mid_save.tar.gz | grep -v "/$"
 
 All the R scripts are meant to be run in RStudio in order of their numbering (scripts 8a, 8b etc. can be run in any order). Each script can run start to finish without user interaction in a few seconds, except `02.diversity_and_rel_abundance.R`, which takes about 1h and `03.beta_dbRDA.R`, which takes about 15 minuts. I recommend to restart the RStudio session before every script.
 
-It would not be feasible to describe the in- and output of all scripts in detail here. Instead, I will provide general descriptions. At the end of this README, there is a table with all figures that appear in the paper, the script that creates them and their file names.
+It would not be feasible to describe the in- and output of all scripts in detail here. Instead, I will provide general descriptions. [At the end of this README](manuscript-figures), there is a table with all figures that appear in the paper, the script that creates them and their file names.
 
 ### R and package versions
 - R 4.3.1
@@ -312,14 +296,13 @@ It would not be feasible to describe the in- and output of all scripts in detail
 - renv 1.1.4
 
 ### Package installations
-- 
-- For best reproducibility , you will want to install R 4.3.1. On Windows RStudio supports switching between different R versions. On Mac or Linux, you may have to rely on `rig` (https://github.com/r-lib/rig) to do that.
+- For reproducibility, it would be best to install R 4.3.1. On Windows, RStudio supports switching between different R versions. On Mac or Linux, you may have to rely on `rig` (https://github.com/r-lib/rig) to do that.
 - Once you open the R project (`BPhage.Rproj`), `renv` should install itself. If not, please install it yourself.
 - To reproduce R package versions run `renv::restore()` in the RStudio terminal.
     - Don't worry about the `ERROR [error code 22]` messages during download. `renv` will keep trying and is usually able to download a package after a few attempts.
     - The message `GitHub authentication credentials are not available` can also be ignored.
 - Restart the RStudio session after successful installation
-- If the installation fails, you may have to install a missing compiler, so `renv` can install the packages. Unfortunately, I can't provide instructions for all possible issues here, so you will have to resolve these yourself. Your trusted AI chatbot might be of service here. Alternatively, you can of course install the packages manually, but there are many and if the versions don't line up with the ones used here, the scripts might crash.
+- If the pacakge installation fails, you may have to install a missing compiler. Unfortunately, I can't provide instructions for all possible issues here, so you will have to resolve these yourself. Your trusted AI chatbot might be of service here. Alternatively, you can of course install the packages manually, but there are many and if the versions don't line up with the ones used here, the scripts might crash.
 
 ### Filtering
 `01.filtering.R`
