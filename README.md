@@ -18,6 +18,7 @@ tar -kxvzf mid_save.tar.gz
 
 ## HPC scripts
 ### General info
+
 - All scripts for this section are located in `scripts/HPC`.
 - These scripts mostly represent jobs for a slurm scheduler. 
 - If you also use slurm, you will have to adapt the instructions at the beginning of each script according to your setup. Particularly the `account` name and probably also the resource allocation will be different on your system.
@@ -65,6 +66,24 @@ mkdir -p $intermediate
 - All set! I will refer to `$intermediate` in this README as the path to the intermediate storage but the variable does not have to remain set beyond this point.
 
 ### Download
+
+asdf
+
+<details>
+  <summary> ### Test heading </summary>
+
+    asdf
+</details>
+
+asdf
+
+<details>
+  <summary> `download_raw_reads.slrm` </summary>
+
+    asdf
+</details>
+
+
 - `download_raw_reads.slrm`: Downloads the raw data of this study from the SRA and rename the files. There are 471 SRA datasets with 2 files each (forward and reverse reads). The total volume is >700 GB. I didn't parallelise this, because I don't think NCBI would allow hundreds of download requests from the same source. So expect this to take a while.
     - Requires: 
         - SRA accession list: `$repo_location/data/BPhage_SRAs.tsv`
