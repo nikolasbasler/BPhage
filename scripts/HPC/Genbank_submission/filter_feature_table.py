@@ -16,5 +16,6 @@ with open(in_tbl, "r") as tbl, open(out_tbl, "w") as outfile:
             continue
         if is_in_wanted:
             outfile.write(line)
+            continue
         if line.startswith(">Feature") and line.strip().split()[1] not in wanted:
             is_in_wanted = False

@@ -91,3 +91,10 @@ suvtk table2asn -i genbank_to_table/genbank_to_table.fsa -o BPhage_genbank_submi
     -t template.sbt -c structured_comment.cmt 
 
 
+# Second round...
+conda activate viper_bphage
+mkdir -p submission_2/genbank_to_table
+
+seqkit grep -f submission_2/correct_these genbank_to_table/genbank_to_table.fsa  > submission_2/genbank_to_table/genbank_to_table2.fsa
+head -n 1 s_sourcefile.tsv > submission_2/s_sourcefile2.tsv
+grep -f submission_2/correct_these s_sourcefile.tsv >> submission_2/s_sourcefile2.tsv
