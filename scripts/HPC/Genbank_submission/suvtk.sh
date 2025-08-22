@@ -98,3 +98,8 @@ mkdir -p submission_2/genbank_to_table
 seqkit grep -f submission_2/correct_these genbank_to_table/genbank_to_table.fsa  > submission_2/genbank_to_table/genbank_to_table2.fsa
 head -n 1 s_sourcefile.tsv > submission_2/s_sourcefile2.tsv
 grep -f submission_2/correct_these s_sourcefile.tsv >> submission_2/s_sourcefile2.tsv
+python $repo_location/scripts/HPC/Genbank_submission/filter_feature_table.py genbank_to_table/genbank_to_table_fixed_thrice.tbl submission_2/correct_these submission_2/genbank_to_table/genbank_to_table_fixed_thrice2.tbl
+head -n1 structured_comment.cmt > submission_2/structured_comment2.cmt
+grep -f submission_2/correct_these structured_comment.cmt >> submission_2/structured_comment2.cmt
+
+### MANUALLY CORRECT THE FEATURE TABLE submission_2/genbank_to_table/genbank_to_table_fixed_thrice2.tbl
