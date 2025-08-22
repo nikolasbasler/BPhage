@@ -2,7 +2,8 @@
 import sys
 
 in_tbl  = sys.argv[1]
-out_tbl = sys.argv[2]
+id_file = sys.argv[2]
+out_tbl = sys.argv[3]
 
 wanted = {line.strip() for line in open(id_file) if line.strip()}
 
