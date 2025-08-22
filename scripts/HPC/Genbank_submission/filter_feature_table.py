@@ -12,7 +12,7 @@ with open(in_tbl, "r") as tbl, open(out_tbl, "w") as outfile:
     for line in tbl:
         if line.startswith(">Feature") and line.strip().split()[1] in wanted:
             is_in_wanted = True
-            outfile.write("contig_" + line.split()[1] + "\n")
+            outfile.write(line)
             continue
         if is_in_wanted:
             outfile.write(line)
