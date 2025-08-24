@@ -30,8 +30,6 @@ viper_cluster_study.py -c temp.bphage_ALL_1kb.fasta -r temp.bphage_ALL_1kb.re-in
 
 rm temp.*
 
-mv bphage_ALL_1kb_cross_clusters.tsv bphage_ALL_1kb_cross_95-85_clusters.tsv # Not necessary with newest ViPER version
-
 pigz -c -p 36 bphage_ALL_1kb_cross_95-85.fasta > $repo_location/output/bphage_ALL_1kb_cross_95-85.fasta.gz
 pigz -c -p 36 bphage_ALL_1kb_cross_95-85_clusters.tsv > $repo_location/output/bphage_ALL_1kb_cross_95-85_clusters.tsv.gz
 

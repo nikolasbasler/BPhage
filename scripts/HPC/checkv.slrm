@@ -15,12 +15,13 @@
 
 conda activate viper_bphage
 repo_location="$VSC_STAGING/BPhage"
+checkv_db="/staging/leuven/stg_00029/DB/CheckV/checkv-db-v1.5"
 
 mkdir -p $VSC_SCRATCH/BPhage/
 cd $VSC_SCRATCH/BPhage/
 
 checkv end_to_end $repo_location/output/bphage_ALL_1kb_cross_95-85.fasta.gz \
-    bphage_ALL_1kb_checkv -d /staging/leuven/stg_00029/DB/CheckV/checkv-db-v1.5 \
+    bphage_ALL_1kb_checkv -d $checkv_db \
     --remove_tmp -t 36 
 
 pigz --best -p 36 bphage_ALL_1kb_checkv/*
