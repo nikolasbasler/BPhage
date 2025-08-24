@@ -2,11 +2,11 @@
 
 This repository contains all scripts and usage instructions to reproduce the analysis for the paper by Basler et al (XXX ref). 
 
-This pipeline is split into two parts. The first part is meant for a high-performance computer (HPC) and can be skipped, if so wanted. There is also a test dataset [available on Zenodo](https://zenodo.org/records/16937256) for the HPC part).
+This pipeline is split into two parts. The first part is meant for a high-performance computer (HPC) and can be skipped, if so wanted. There is also a test dataset [available on Zenodo](https://zenodo.org/records/16937256) for the HPC part.
 
 The second part is for the statistical analysis and visualisation using RStudio. If you want to skip the HPC part and only want to re-run the statistical analysis, please go straight to the ["R scripts"](#r-scripts) section of this README. The scripts from both parts pretend to be on the same computer but it is possible to clone this repo to an HPC and to a local computer, run the HPC scripts, copy the relevant output files from the HPC to the local computer and continue with the statistical analysis using the R project.
 
-**Note**: The output of the tools and scripts will end up in the `output` folder inside the repo (which is why it's not tracked by git). The HPC scripts will create around 1.5 TB in total (XXX for the test data), plus intermediate storage (see below). The R scripts create around 1 GB. Make sure to have enough free space or manage the output as it comes.
+**Note**: The output of the tools and scripts will end up in the `output` folder inside the repo (which is why it's not tracked by git). The HPC scripts will create around 1.5 TB in total (or 1.5 GB if the test dataset is used), plus intermediate storage (see below). The R scripts create around 1 GB. Make sure to have enough free space or manage the output as it comes.
 
 ## Contents
 - [HPC scripts](#hpc-scripts)
@@ -76,7 +76,7 @@ genomad_database="/absolute/path/to/database"
 - **Note**: The tool MOP-UP (used for taxonomic clustering of the microviruses) relies on a library called `Boost`, which I didn't manage to install properly via conda but instead relied on a pre-installed module (installation happens in the `download_additional_data.slrm` script). If it gives you trouble, see version information in `data/env_mop-up_boost_module.txt` and ask your IT department to install it. If there is no way for you to install it, the rest of the pipeline still works. You will just not have Kirchberger et al's classification of microviruses.
 - Set output directories: The HPC scripts assume two locations for output storage:
     - One location for intermediate storage that can blow up quite a lot while scripts are running and also contains the raw sequencing reads – the main input for this pipeline. 
-    - The `output/` directory of this repository for the permanent output, which will accumulate about 1.5 TB (XXX for the test dataset) as you progress through the scripts.
+    - The `output/` directory of this repository for the permanent output, which will accumulate about 1.5 TB (or 1.5 GB if the test dataset is used) as you progress through the scripts.
 - To set up the scripts accordingly, please adapt and run the following line (**without slash at the end!**):
 ```
 intermediate="/absolute/path/to/folder"
@@ -117,7 +117,7 @@ cut -d "_" -f1-3 data/in_test_data > data/BPhage.bee.pool.list
     - Requires: 
         - SRA accession list: `data/BPhage_SRAs.tsv`
     - Output: Nicely named fastq files with raw sequencing reads of all samples in `$intermediate/raw`.
-- `download_test_dataset.slrm`: Only run if you want to use the test dataset.
+- `download_test_dataset.slrm`: **Only** run if you want to use the test dataset!
     - Requries: Nothing
     - Output: Test dataset in `$intermediate/raw`. Note: If files from the full dataset are present, they will be overwritten!
 - `download_additional_data.slrm`: Download the bee genome (also indexed here) and a bunch of additional data: 
