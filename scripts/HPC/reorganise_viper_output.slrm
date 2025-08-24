@@ -62,7 +62,9 @@ multiqc --outdir QC/FASTQC/ QC/FASTQC
 cp -r CONTIGS $repo_location/output/bphage_viper_output
 cp -r QC $repo_location/output/bphage_viper_output
 cp -r READ $repo_location/output/bphage_viper_output
-cp ../raw/*_reads.tsv $repo_location/output/bphage_viper_output/READ
+cp ../raw/*_pre_viper_read_stats.tsv $repo_location/output/bphage_viper_output/READ
+cp *_post_viper_read_stats.tsv $repo_location/output/bphage_viper_output/READ
+gzip $repo_location/output/bphage_viper_output/READ/*_stats.tsv
 cp read_stats.tsv $repo_location/output/bphage_viper_output
 
 echo "========================================================================"
