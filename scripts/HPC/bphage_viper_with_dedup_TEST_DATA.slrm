@@ -8,7 +8,7 @@
 #SBATCH --output=slurm-%x_%a_%A.out
 
 # Submit this as a job array (from output/slurm_log)
-# sbatch --array=1-471 --export=ALL ../../scripts/HPC/bphage_viper_with_dedup.slrm
+# sbatch --array=1-8 --export=ALL ../../scripts/HPC/bphage_viper_with_dedup_TEST_DATA.slrm
 
 
 threads=36
@@ -16,6 +16,10 @@ threads=36
 repo_location="$VSC_STAGING/BPhage"
 
 line=$(head -n $SLURM_ARRAY_TASK_ID $repo_location/data/BPhage.sample.list | tail -n1)
+
+checkv_db="/staging/leuven/stg_00029/DB/CheckV/checkv-db-v1.5"
+genomad_db="/staging/leuven/stg_00029/DB/genomad/genomad_db_1.7"
+
 
 # Move to wherever your files are
 mkdir -p $VSC_SCRATCH/BPhage/bphage_viper_output
@@ -62,8 +66,8 @@ viper.sh -1 raw/$line.dedup.R1.fastq.gz -2 raw/$line.dedup.R2.fastq.gz \
     -g $VSC_SCRATCH/BPhage/ref/GCF_003254395.2_Amel_HAv3.1_genomic.fna \
     -p $repo_location/data/adapters/primer_WTA2_Nextera.fa --triple-assembly -o bphage_viper_output/${line} \
     -t $threads --cluster-cover 85 \
-    --cluster-identity 95 --keep-reads --name $line --identify-proviruses --checkv-db /staging/leuven/stg_00029/DB/CheckV/checkv-db-v1.5 \
-    --genomad-db /staging/leuven/stg_00029/DB/genomad/genomad_db_1.7
+    --cluster-identity 95 --keep-reads --name $line --identify-proviruses --checkv-db $checkv_db \
+    --genomad-db $genomad_db
 
 # Record post-viper read stats
 trimmed_paired=$(zcat bphage_viper_output/$line/READ/TRIMMED/${line}.trimmed.R1.fastq.gz | wc -l | awk '{print $1/2}')

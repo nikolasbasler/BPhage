@@ -16,6 +16,7 @@
 conda activate pharokka
 repo_location="$VSC_STAGING/BPhage"
 threads=36
+pharokka_db="/staging/leuven/stg_00029/DB/pharokka/pharokka_1.4.0"
 
 mkdir -p $VSC_SCRATCH/BPhage/annotation/pharokka
 cd $VSC_SCRATCH/BPhage/annotation/pharokka
@@ -32,12 +33,13 @@ awk '/NODE/ {split($0, a, "_"); print a[1] "_" a[2] "_" a[7] "_" a[8] "_" a[9] "
 
 # "_and_others" is not correct because it only contains bphage sequences (this is a left-over of previous testing). 
 # But I didn't want to change the output file prefixes (-p) because that would cause a lot of trouble downstream.
-pharokka.py -i bphage_and_others.fasta -o pharokka_bphage_and_others -d /staging/leuven/stg_00029/DB/pharokka/pharokka_1.4.0 \
+pharokka.py -i bphage_and_others.fasta -o pharokka_bphage_and_others -d $pharokka_db \
     -t $threads -m -g prodigal-gv --meta_hmm -p bphage_and_others
 
 # Copy files
 mv pharokka_bphage_and_others/prodigal-gv.faa pharokka_bphage_and_others/bpgage_and_others_prodigal-gv.faa
 mv pharokka_bphage_and_others/prodigal-gv.ffn pharokka_bphage_and_others/bpgage_and_others_prodigal-gv.ffn
+mkdir -p $repo_location/output/annotation
 cp -r pharokka_bphage_and_others $repo_location/output/annotation
 
 # Clean up

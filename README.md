@@ -2,77 +2,124 @@
 
 This repository contains all scripts and usage instructions to reproduce the analysis for the paper by Basler et al (XXX ref). 
 
-This pipeline is split into two parts. The first part is meant for a high-performance computer (HPC) and can be skipped, if so wanted. There is also a test dataset available at (XXX) to run this HPC part.
+This pipeline is split into two parts. The first part is meant for a high-performance computer (HPC) and can be skipped, if so wanted. There is also a test dataset [available on Zenodo](https://zenodo.org/records/16937256) for the HPC part).
 
-The second part is for the statistical analysis and visualisation using RStudio. If you want to skip the HPC part and only want to re-run the statistical analysis, please go straight to the ["R scripts"](#r-scripts) section of this README. The scripts pretend to be on the same computer but it is possible to clone this repo to an HPC and to a local computer, run the HPC scripts, copy the relevant output files from the HPC to the local computer and continue with the statistical analysis using the R project.
+The second part is for the statistical analysis and visualisation using RStudio. If you want to skip the HPC part and only want to re-run the statistical analysis, please go straight to the ["R scripts"](#r-scripts) section of this README. The scripts from both parts pretend to be on the same computer but it is possible to clone this repo to an HPC and to a local computer, run the HPC scripts, copy the relevant output files from the HPC to the local computer and continue with the statistical analysis using the R project.
 
-To clone the repository, please run:
-```
-git clone --depth 1 https://github.com/nikolasbasler/BPhage
-```
 **Note**: The output of the tools and scripts will end up in the `output` folder inside the repo (which is why it's not tracked by git). The HPC scripts will create around 1.5 TB in total (XXX for the test data), plus intermediate storage (see below). The R scripts create around 1 GB. Make sure to have enough free space or manage the output as it comes.
+
+## Contents
+- [HPC scripts](#hpc-scripts)
+    - [General info](#general-info)
+    - [Installations](#installations)
+    - [Download](#download)
+    - [Assembly](#assembly)
+    - [Phage identification](#phage-identification)
+    - [Mapping](#mapping)
+    - [Core contig refinement](#core-contig-refinement)
+    - [Annotation](#annotation)
+    - [Taxonomic classification](#taxonomic-classification)
+    - [Lifestyle prediction](#lifestyle-prediction)
+    - [Host prediction](#host-prediction)
+    - [SNP analysis](#snp-analysis)
+    - [*Vairimorpha* (*Nosema*) mapping](#vairimorpha-nosema-mapping)
+    - [Additional datasets mapping](#additional-datasets-mapping)
+    - [Novelty check: Clustering with INPHARED](#novelty-check-clustering-with-inphared)
+- [R scripts](#r-scripts)
+    - [R and package versions](#r-and-package-versions)
+    - [Package installations](#package-installations)
+    - [Filtering](#filtering)
+    - [Alpha and beta diversity, relative abundances](#alpha-and-beta-diversity-relative-abundances)
+    - [Lifestyle predictions](#lifestyle-predictions)
+    - [Host predictions](#host-predictions)
+    - [Functional annotation](#functional-annotation)
+    - [Associations with land use and pathogens (LMMs, GLMMs)](#associations-with-land-use-and-pathogens-lmms-glmms)
+    - [Mapping to other datasets](#mapping-to-other-datasets)
+    - [Accumulation curves](#accumulation-curves)
+    - [Some additional calculations](#some-additional-calculations)
+    - [Manuscript figures](#manuscript-figures)
 
 ## HPC scripts
 ### General info
 
 - All scripts for this section are located in `scripts/HPC`.
 - These scripts mostly represent jobs for a slurm scheduler. 
-- If you only run the test dataset, you can do this without using slrum. After following the installation instructions below, simply run the scripts with `bash <script>` instead of `sbatch <script>`. Please make sure you have the computing resources available that the scripts require (up to 36 cores and 144 GB RAM) or adjust the scripts accordingly.
-- If you use slurm (for the full dataset), you will have to adapt the instructions at the beginning of each script according to your setup. Particularly the `account` name and probably also the resource allocation will be different on your system.
+- You can run these scripts without using slrum. After following the installation instructions below, simply run the scripts with `bash -l <script.slrm>` instead of `sbatch <script.slrm>`. Please make sure you have the computing resources available that the scripts require (up to 36 cores and 144 GB RAM) or adjust the scripts accordingly. **Note:** If you want to avoid slrum, you will have to transform the array job scripts (meant to run in parallel) to successive loops. There is a script that can do that for you (see below), but this is only recommended for the test dataset.
+- If you use slurm, you will have to adapt the instructions at the beginning of each script according to your setup. Particularly the `account` name and probably also the resource allocation will be different on your system.
 - If you want to port these instructions to a different scheduler, your favourite generative AI tool will be very helpful.
-- Array scripts are iterations of the same slurm job, meant to run simultaneously. If you have to run them in sequence, you can embed the entire script into a loop, with `$SLURM_ARRAY_TASK_ID` as iterator, but this will take a **very** long time for most of them.
 
 ### Installations
-For tool versions see the conda environment `.yml` files: `data/env_*.yml`
-- Mamba/conda: Please follow the official documentation (e.g.: https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html). For this analysis, `mamba` v.1.4.2 and `conda` v.23.1.0 were used.
-- ViPER pipeline: Please follow the instructions on Github **BUT** use `data/env_viper_bphage.yml` from this repository instead of ViPER's `viper.yml`: https://github.com/Matthijnssenslab/ViPER. For this analysis, ViPER version 2.1 was used.
-- Additional conda environments: To install additional conda environments with all necessary tools, use the `yml` files in `data/`: 
-- `env_cobra.yml`
-- `env_iphop.yml`
-- `env_mopup.yml`
-- `env_ncbi.yml`
-- `env_pharokka.yml`
-- `env_phold.yml`
-- `env_replidec.yml`
-- `env_ska.yml`
-- `env_vcontact3.yml`
-
-E.g. like this:
+- To clone the repository, please run:
 ```
-mamba env create -f env_cobra.yml
+git clone --depth 1 https://github.com/nikolasbasler/BPhage
+cd BPhage
+```
+- For used tools and their versions see the conda environment `.yml` files: `data/env_*.yml`
+- Mamba/conda: Please follow the official documentation (I recommend mamba: https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html). For this analysis, `mamba` v.1.4.2 was used.
+- Conda environments: To install necessary conda environments, use the `.yml` files in `data/`. E.g. like this:
+```
+for env in data/env_*.yml; do 
+    mamba env create -f $env
+done
+```
+- ViPER pipeline: Please follow the instructions on Github **BUT** use the `viper_bphage` conda environment that you have just installed, instead of the environment from ViPER's Github page: https://github.com/Matthijnssenslab/ViPER. For this analysis, ViPER version 2.1 was used.
+- During or after installing some of the tools, you will need to install their databases. Please adapt the following code to provide the databases' locations:
+```
+vcontact_database="/absolute/path/to/database"
+pharokka_database="/absolute/path/to/database"
+checkv_database="/absolute/path/to/database"
+phold_database="/absolute/path/to/database"
+iphop_database="/absolute/path/to/database"
+genomad_database="/absolute/path/to/database"
 ```
 
-- **Note**: The tool MOP-UP (used for taxonomic clustering of the microviruses) relies on a library called `Boost`, which I didn't manage to install properly via conda but instead relied on a pre-installed module. If it gives you trouble, see version information in `data/env_mop-up_boost_module.txt` and ask your IT department to install it. Good luck.
+- **Note**: The tool MOP-UP (used for taxonomic clustering of the microviruses) relies on a library called `Boost`, which I didn't manage to install properly via conda but instead relied on a pre-installed module (installation happens in the `download_additional_data.slrm` script). If it gives you trouble, see version information in `data/env_mop-up_boost_module.txt` and ask your IT department to install it. If there is no way for you to install it, the rest of the pipeline still works. You will just not have Kirchberger et al's classification of microviruses.
 - Set output directories: The HPC scripts assume two locations for output storage:
     - One location for intermediate storage that can blow up quite a lot while scripts are running and also contains the raw sequencing reads – the main input for this pipeline. 
-    - The `output/` directory of this repository for the permanent output, which will accumulate about 1.5 TB as you progress through the scripts.
-- To set up the scripts accordingly, please adapt and run the following line (**WITHOUT SLASH AT THE END!**):
+    - The `output/` directory of this repository for the permanent output, which will accumulate about 1.5 TB (XXX for the test dataset) as you progress through the scripts.
+- To set up the scripts accordingly, please adapt and run the following line (**without slash at the end!**):
 ```
 intermediate="/absolute/path/to/folder"
 ``` 
-- Then run the following commands in order to change the scripts:
+- Then run the following commands to adapt the scripts to your folder paths. This will also incorporate the database paths given above.
 ```
-cd BPhage/ # The root location of this repository
 repo_location=$(pwd)
-sed -i "s|\$VSC_STAGING\/BPhage|${repo_location}|g" scripts/HPC/*.slrm
+sed -i "s|\$VSC_STAGING\/BPhage|${repo_location}|g" scripts/HPC/*.s*
 mkdir -p $repo_location/output/slurm_log
 
-sed -i "s|\$VSC_SCRATCH\/BPhage|${intermediate}|g" scripts/HPC/*.slrm
+sed -i "s|\$VSC_SCRATCH\/BPhage|${intermediate}|g" scripts/HPC/*.s*
 mkdir -p $intermediate
-```
-- If you run the test dataset and want to run the scripts directly with `bash` instead of using slrum, please also run this:
-```
 
+sed -i "s|vcontact_db=.*|vcontact_db=\"${vcontact_database}\"|g" scripts/HPC/*.s*
+sed -i "s|pharokka_db=.*|pharokka_db=\"${pharokka_database}\"|g" scripts/HPC/*.s*
+sed -i "s|checkv_db=.*|checkv_db=\"${checkv_database}\"|g" scripts/HPC/*.s*
+sed -i "s|phold_db=.*|phold_db=\"${phold_database}\"|g" scripts/HPC/*.s*
+sed -i "s|iphop_db=.*|iphop_db=\"${iphop_database}\"|g" scripts/HPC/*.s*
+sed -i "s|genomad_db=.*|genomad_db=\"${genomad_database}\"|g" scripts/HPC/*.s*
+
+```
+- If you turn the slrum array scripts into successive loops (only feasible with the test dataset) please also run the following:
+```
+bash scripts/HPC/array_jobs_to_loop.sh
+```
+- If you did this, call these array scripts (or all scripts) with `bash -l <script.slrm>`, so the conda environments can get loaded from within those scripts.
+- If running the test dataset, you also need to replace the sample and bee pool lists:
+```
+cat data/in_test_data > data/BPhage.sample.list 
+cut -d "_" -f1-3 data/in_test_data > data/BPhage.bee.pool.list 
 ```
 
 - All set! I will refer to `$intermediate` in this README as the path to the intermediate storage but the variable does not have to remain set beyond this point.
 
 ### Download
 
-- `download_raw_reads.slrm`: Downloads the raw data of this study from the SRA and rename the files. There are 471 SRA datasets with 2 files each (forward and reverse reads). The total volume is >700 GB. I didn't parallelise this, because I don't think NCBI would allow hundreds of download requests from the same source. So expect this to take a while.
+- `download_raw_reads.slrm`: If you run the test dataset, skip this script and run `download_test_dataset.slrm` instead. Downloads the raw data of this study from the SRA and rename the files. There are 471 SRA datasets with 2 files each (forward and reverse reads). The total volume is >700 GB. I didn't parallelise this, because I don't think NCBI would allow hundreds of download requests from the same source. So expect this to take a while.
     - Requires: 
         - SRA accession list: `data/BPhage_SRAs.tsv`
     - Output: Nicely named fastq files with raw sequencing reads of all samples in `$intermediate/raw`.
+- `download_test_dataset.slrm`: Only run if you want to use the test dataset.
+    - Requries: Nothing
+    - Output: Test dataset in `$intermediate/raw`. Note: If files from the full dataset are present, they will be overwritten!
 - `download_additional_data.slrm`: Download the bee genome (also indexed here) and a bunch of additional data: 
     - Requires:
         - `data/bacteria.core.spec.tsv`
@@ -88,12 +135,13 @@ mkdir -p $intermediate
     - More output: A clone of the MOP-UP github repository for the microvirus taxonomy downloaded into this repository (not tracked by git).
 
 ### Assembly
-- `bphage_viper_with_dedup.slrm` (array of 471): ViPER pipeline
+- `bphage_viper_with_dedup.slrm` (array of 471): ViPER pipeline. If you run the test dataset, skip this script and run `bphage_viper_with_dedup_TEST_DATA.slrm` instead.
     - Requires: 
         - Sample list: `data/BPhage.sample.list`
         - SRA accession list: `data/BPhage_SRAs.tsv`
         - Raw read data in `$intermediate/raw`
     - Output: Trimmed reads, trimmed host-removed reads, assembly. For each sample there will be a separate folder in `$intermediate/bphage_viper_output`
+- `bphage_viper_with_dedup_TEST_DATA.slrm`: ViPER pipeline (see above).
 - `reorganise_viper_output.slrm`: Re-organise ViPER output 
     - Requires: 
         - `data/BPhage.sample.list`
@@ -139,6 +187,7 @@ mkdir -p $intermediate
     - Output: Separate tables for mapped reads, horizontal coverage and mean depth and a table with all contig lengths in `output/mapping_stats`
 
 ### Core contig refinement
+This cannot be done with the test dataset. If you are running the test dataset, please skip ahead to [Taxonomic classification](#taxonomic-classification).
 - `contig_refinement.slrm` (array of 97): Prepare and run cobra 
     - Requires: 
         - List of core contigs: `data/core_contigs.txt`. These are defined later in the R part of the pipeline but were stored in `data` to avoid backtracking.
@@ -163,7 +212,8 @@ mkdir -p $intermediate
         - Phold plots: `output/core_contig_refinement/extended_contigs_plots_phold`
 
 ### Annotation
-- Pharokka: `scripts/HPC/annotation_pharokka_bphage.slrm`
+Only the first script (Pharokka) can be run with the test dataset. If you are running the test dataset, please skip ahead to [Taxonomic classification](#taxonomic-classification) after that.
+- Pharokka: `annotation_pharokka_bphage.slrm`
     - Requires:
         - Phage, picobirna and unclassified bphage contigs: `output/bphage_ALL_1kb_phages.fasta.gz`, `bphage_ALL_1kb_picobirna.fasta.gz`, `bphage_ALL_1kb_unclassified_viruses.fasta.gz`
     - Output: `output/output/annotation/pharokka/bpgage_and_others`
@@ -190,13 +240,16 @@ mkdir -p $intermediate
     - Output: Gene sequences of "moron" genes: `output/kegg/moron.CDSs.fasta`. Use this to do a GhostKOALA search at the KEGG website (https://www.kegg.jp/ghostkoala/). The output has to be downloaded and turned into a useable format. As this is quite a manual work, the result of this process is at `data/kegg_mapping.tsv`
 
 ### Taxonomic classification
-- `vcontact3_clustering_with_inphared.slrm`: vConTACT3
+Only the first script (vConTACT3) can be run with the test dataset. If you are running the test dataset, please skip ahead to [Lifestyle predictions](#lifestyle-predictions) after that.
+
+- `vcontact3_clustering_with_inphared.slrm`: vConTACT3. If you run the test dataset, I strongly recommend to skip this script and run `vcontact3_clustering_with_inphared_TEST_DATA.slrm` instead. It leaves out the INPHARED dataset and therefore runs much faster.
     - Requires: 
         - Phage, picobirna and unclassified bphage contigs: `output/bphage_ALL_1kb_phages.fasta.gz`, `bphage_ALL_1kb_picobirna.fasta.gz`, `bphage_ALL_1kb_unclassified_viruses.fasta.gz`
         - INPHARED dataset: `$intermediate/additional_datasets/inphared_3Apr2024_genomes_excluding_refseq.fa.gz`
     - Output: 
         - `output/vcontact3/bphage_vcontact3_b38_with_inphared/final_assignments.csv`
         - For visualisation: `output/vcontact3/bphage_vcontact3_b38_with_inphared/graph.bin_*.cyjs` (4 files). Run `scripts/R/cytoscape.R` on these files (see comments at the top of that script for instructions).
+- `vcontact3_clustering_with_inphared_TEST_DATA.slrm`: vConTACT3 (see above)
 - `taxonomy_microviruses.slrm`: MOP-UP pipeline (for microviruses)
     - Requires: 
         - geNomad output: `output/bphage_ALL_1kb_genomad/bphage_ALL_1kb_cross_95-85_summary/bphage_ALL_1kb_cross_95-85_virus_summary.tsv.gz`
@@ -206,11 +259,11 @@ mkdir -p $intermediate
     - Output: `output/bphage_micros_mopup/bphage_micros_id30ForCytoscape.csv`. Run `scripts/R/microviruses_mopup_cytoscape.R` for visualisation (see comments at the top of this script for instructions).
 
 ### Lifestyle prediction
-- `scripts/HPC/lifestyle_replidec.slrm`: Replidec 
+- `lifestyle_replidec.slrm`: Replidec 
     - Requires: 
         - Phage, picobirna and unclassified contigs at `output/bphage_ALL_1kb_*.fasta.gz`
         - Extended core contigs: `output/core_contig_refinement/extended_contigs.fasta`
-- Output: Replidec's lifestyle prediction: `output/lifestyle/replidec/BC_predict.summary`
+    - Output: Replidec's lifestyle prediction: `output/lifestyle/replidec/BC_predict.summary`
 
 ### Host prediction
 - `iphop_bphage.slrm`: iPHoP
@@ -227,7 +280,7 @@ mkdir -p $intermediate
         - Indexed core bacteria genomes: `$intermediate/ref/core.bacteria.ref.genomes.fasta.*`
         - Mapping output: `output/mapped_phages/`
     - Output: Reads mapping only to core bacteria genomes, not to phages or bee in (merged per bee pool) `$intermediate/merged_reads/`
-- `SNP_analysis_SKA1.slrm` (array of 150): SKA fastq
+- `SNP_analysis_SKA1.slrm` (array of 150): SKA fastq. If you run this script with the test dataset you will get errors because of missing files. This is expected and can be ignored.
     - Requires:
         - Bee pool list: `data/BPhage.bee.pool.list`
         - Trimmed reads (before host filtering): `output/bphage_viper_output/READ/*.trimmed.*.fastq.gz`
@@ -253,6 +306,7 @@ mkdir -p $intermediate
     - Outout: Table of mapped reads: `output/nosema_mapped_counts_all.tsv`
 
 ### Additional datasets mapping
+This cannot be done with the test dataset. If you are running the test dataset, please skip ahead to [Novelty check: Clustering with INPHARED](#novelty-check-clustering-with-inphared).
 - `additional_datasets_mapping_with_unpaired.slrm` (array of 114): Mapping of reads from other studies to the phage genomes
     - Requires: 
         - List of SRA sccessions: `data/other_datasets_SRA_accessions.tsv`
@@ -272,7 +326,6 @@ mkdir -p $intermediate
         - Inphared dataset: `$intermediate/additional_datasets/inphared_14Apr2025_genomes_excluding_refseq.fa.gz`
     - Output: Table with clusters: `output/inphared_clustering/bphage_and_inpha_70-85_clusters.tsv`
 
-
 ---
 ---
 
@@ -291,7 +344,7 @@ If you worked through the HPC scripts, you will probably want another clone of t
 tar -tf mid_save.tar.gz | grep -v "/$"
 ```
 
-All the R scripts are meant to be run in RStudio in order of their numbering (scripts 8a, 8b etc. can be run in any order). Each script can run start to finish without user interaction in a few seconds, except `02.diversity_and_rel_abundance.R`, which takes about 1h and `03.beta_dbRDA.R`, which takes about 15 minutes. I recommend to restart the RStudio session before every script.
+All the R scripts are meant to be run in RStudio in order of their numbering. Each script can run start to finish without user interaction in a few seconds, except `02.diversity_and_rel_abundance.R`, which takes about 1h and `03.beta_dbRDA.R`, which takes about 15 minutes. I recommend to restart the RStudio session before every script.
 
 It would not be feasible to describe the in- and output of all scripts in detail here. Instead, I will provide general descriptions. [At the end of this README](#manuscript-figures), there is a table with all figures that appear in the paper, the script that creates them and their file names.
 
@@ -359,7 +412,7 @@ This script takes the iPHoP output and makes plots out of it. Note that even tho
 This script combines the gene annotations from Phold, the KEGG assignments and the host predictions. Plots and values for PHROGs and KEGG assignments as well as metabolic gene prevalence are generated.
 
 ---
-### Mixed-effects models
+### Associations with land use and pathogens (LMMs, GLMMs)
 `08a.mixed_models_gene_tpm_vs_landuse.R`, `08b.mixed_models_gene_presence_vs_landuse.R`, `08c.mixed_models_gene_tpm_vs_nosema_relabund.R`, `08d.mixed_models_pathogen_ct_vs_landuse.R`, `08e.mixed_models_pathogen_presence_vs_landuse.R`
 
 These scripts are technically very similar. `a`, `c` and `d` perform linear mixed-effects models (LMMs) on relative gene abundances vs. land use parameters (`a`), on relative gene abundances vs. *Vairimorpha* relative abundance (`c`) and on pathogen Ct values vs. land use parameters (`d`). `b` and `e` perform generalized linear (logistic) mixed-effects models (GLMMs) on gene presence vs. land use parameters (`b`) and pathogen presence vs. land use parameters (`e`). 

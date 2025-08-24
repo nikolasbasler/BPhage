@@ -16,13 +16,14 @@
 conda activate phold
 repo_location="$VSC_STAGING/BPhage"
 threads=36
+phold_db="/staging/leuven/stg_00029/DB/phold/phold_20240723"
 
 mkdir -p $VSC_SCRATCH/BPhage/annotation/phold
 cd $VSC_SCRATCH/BPhage/annotation/phold
 
 phold compare --input $repo_location/output/annotation/pharokka_bphage_and_others/bphage_and_others.gbk \
     --structures --structure_dir $repo_location/output/annotation/phold_colabfold_structures/basler_output_renamed/renamed_pdbs/ \
-    -o phold_compare_bphage_and_others -t $threads -d /staging/leuven/stg_00029/DB/phold/phold_20240723 --separate
+    -o phold_compare_bphage_and_others -t $threads -d $phold_db --separate
 
 # Undo the shortening of the contig names
 echo "phold.gbk"
