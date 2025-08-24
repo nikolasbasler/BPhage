@@ -1,26 +1,25 @@
 # The honey bee triad: Phages are mutualistic partners in the gut microbiome of *Apis mellifera*
 
-This repository contains all scripts and usage instructions to reproduce the analysis for the paper by Basler et al (XXX ref). All 97 core phage genomes as well as all >90% complete non-core genomes (1047 additional sequences) are on Genbank (See Supplementary file, sheet i - Genbank accessions).
+This repository contains all scripts and usage instructions to reproduce the analysis for the paper by Basler et al (XXX ref). 
 
-This pipeline is split into two parts. The first part is meant for a high-performance computer (HPC) and can be skipped, if so wanted. The second part is for the statistical analysis and visualisation using RStudio. The scripts pretend to be on the same computer but it is possible to clone this repo to an HPC and a local computer, run the HPC scripts, copy the relevant output files from the HPC to the local computer and continue with the statistical analysis using the R project.
+This pipeline is split into two parts. The first part is meant for a high-performance computer (HPC) and can be skipped, if so wanted. There is also a test dataset available at (XXX) to run this HPC part.
 
-To clone the repository, please run (depth set to 1 because the full history would be quite large):
+The second part is for the statistical analysis and visualisation using RStudio. If you want to skip the HPC part and only want to re-run the statistical analysis, please go straight to the ["R scripts"](#r-scripts) section of this README. The scripts pretend to be on the same computer but it is possible to clone this repo to an HPC and to a local computer, run the HPC scripts, copy the relevant output files from the HPC to the local computer and continue with the statistical analysis using the R project.
+
+To clone the repository, please run:
 ```
 git clone --depth 1 https://github.com/nikolasbasler/BPhage
 ```
-**Note**: The output of the tools and scripts will end up in the `output` folder inside the repo (which is why it's not tracked by git). The HPC scripts will create around 1.5 TB in total (plus intermediate storage, see below), the R scripts around 1 GB. Make sure to have enough free space or manage the output as it comes.
-
-**If you want to skip the HPC part and only want to re-run the statistical analysis:** Go straight to the ["R scripts"](#r-scripts) section of this README.
-
+**Note**: The output of the tools and scripts will end up in the `output` folder inside the repo (which is why it's not tracked by git). The HPC scripts will create around 1.5 TB in total (XXX for the test data), plus intermediate storage (see below). The R scripts create around 1 GB. Make sure to have enough free space or manage the output as it comes.
 
 ## HPC scripts
 ### General info
 
 - All scripts for this section are located in `scripts/HPC`.
 - These scripts mostly represent jobs for a slurm scheduler. 
-- If you also use slurm, you will have to adapt the instructions at the beginning of each script according to your setup. Particularly the `account` name and probably also the resource allocation will be different on your system.
+- If you only run the test dataset, you can do this without using slrum. After following the installation instructions below, simply run the scripts with `bash <script>` instead of `sbatch <script>`. Please make sure you have the computing resources available that the scripts require (up to 36 cores and 144 GB RAM) or adjust the scripts accordingly.
+- If you use slurm (for the full dataset), you will have to adapt the instructions at the beginning of each script according to your setup. Particularly the `account` name and probably also the resource allocation will be different on your system.
 - If you want to port these instructions to a different scheduler, your favourite generative AI tool will be very helpful.
-- You can also run all scripts without a scheduler, directly with `bash` but note that some of them run for a long time, especially if the computational resources are limited.
 - Array scripts are iterations of the same slurm job, meant to run simultaneously. If you have to run them in sequence, you can embed the entire script into a loop, with `$SLURM_ARRAY_TASK_ID` as iterator, but this will take a **very** long time for most of them.
 
 ### Installations
@@ -43,16 +42,17 @@ E.g. like this:
 mamba env create -f env_cobra.yml
 ```
 
-- **Note**: The tool MOP-UP (used for taxonomic clustering of the microviruses) relies on a library called `Boost`, which I didn't manage to install properly via conda but instead relied on a pre-installed module. If it gives you trouble, see version information in `data/env_mop-up_boost_module.txt` and ask your ID department to install it. Good luck.
+- **Note**: The tool MOP-UP (used for taxonomic clustering of the microviruses) relies on a library called `Boost`, which I didn't manage to install properly via conda but instead relied on a pre-installed module. If it gives you trouble, see version information in `data/env_mop-up_boost_module.txt` and ask your IT department to install it. Good luck.
 - Set output directories: The HPC scripts assume two locations for output storage:
     - One location for intermediate storage that can blow up quite a lot while scripts are running and also contains the raw sequencing reads – the main input for this pipeline. 
     - The `output/` directory of this repository for the permanent output, which will accumulate about 1.5 TB as you progress through the scripts.
-- To set up the scripts accordingly, please adapt and run the following line:
+- To set up the scripts accordingly, please adapt and run the following line (**WITHOUT SLASH AT THE END!**):
 ```
-intermediate="/absolute/path/to/folder" # WITHOUT SLASH AT THE END!
+intermediate="/absolute/path/to/folder"
 ``` 
-- Then navigate into the root folder of this repo and run:
+- Then run the following commands in order to change the scripts:
 ```
+cd BPhage/ # The root location of this repository
 repo_location=$(pwd)
 sed -i "s|\$VSC_STAGING\/BPhage|${repo_location}|g" scripts/HPC/*.slrm
 mkdir -p $repo_location/output/slurm_log
@@ -60,6 +60,11 @@ mkdir -p $repo_location/output/slurm_log
 sed -i "s|\$VSC_SCRATCH\/BPhage|${intermediate}|g" scripts/HPC/*.slrm
 mkdir -p $intermediate
 ```
+- If you run the test dataset and want to run the scripts directly with `bash` instead of using slrum, please also run this:
+```
+
+```
+
 - All set! I will refer to `$intermediate` in this README as the path to the intermediate storage but the variable does not have to remain set beyond this point.
 
 ### Download
@@ -94,7 +99,7 @@ mkdir -p $intermediate
         - `data/BPhage.sample.list`
         - ViPER output in `$intermediate/bphage_viper_output`
     - Output: Original files from each sample's viper output are moved into a common `CONTIGS`, `QC/FASTQC` (also with multiqc) `QC/QUAST` and `READ` (containing deduped trimmed and hostout reads) folder inside `output/bphage_viper_output`
-- `scripts/HPC/cross_sample_clustering.slrm`: Cross-sample clustering 
+- `cross_sample_clustering.slrm`: Cross-sample clustering 
     - Requires: Re-organised ViPER assemblies in `output/bphage_viper_output/CONTIGS/`
     - Output: Cross-sample clustered fasta and cluster member files: `output/bphage_ALL_1kb_cross_95-85.fasta.gz`, `output/bphage_ALL_1kb_cross_95-85_clusters.tsv.gz`
 
@@ -232,7 +237,7 @@ mkdir -p $intermediate
     - Requires: SKA kmer files: `ska/skf_files/*.skf`
     - Output: Pairwise SNP distances in bee, phage and core bacteria read sets: `output/SNP_analysis/SKA_SNP_distances/*distances.tsv` 
 
-### Nosema (Vairimorpha) mapping
+### *Vairimorpha* (*Nosema*) mapping
 - `Nosema_mapping_prep.slrm`: Index Nosema genomes for mapping
     - Requires: Nosema genome: `$intermediate/ref/Varimorpha_genomes.fasta`
     - Outoput: Indexed genome: `$intermediate/ref/Varimorpha_genomes.*`
@@ -272,7 +277,7 @@ mkdir -p $intermediate
 ---
 
 ## R scripts
-If you skipped the HPC part and jumped right here, you will want to clone this repository to a computer that runs RStudio and then extracted the `mid_save.tar.gz` (extracting this file with `-k` will not overwrite existing files, so it's safe to use if you generated some HPC output):
+If you skipped the HPC part and jumped right here, you will want to clone this repository to a computer that runs RStudio and then extracte the `mid_save.tar.gz` (extracting this file with `-k` will not overwrite existing files, so it's safe to use if you generated some HPC output):
 
 ```
 git clone --depth 1 https://github.com/nikolasbasler/BPhage
@@ -286,9 +291,9 @@ If you worked through the HPC scripts, you will probably want another clone of t
 tar -tf mid_save.tar.gz | grep -v "/$"
 ```
 
-All the R scripts are meant to be run in RStudio in order of their numbering (scripts 8a, 8b etc. can be run in any order). Each script can run start to finish without user interaction in a few seconds, except `02.diversity_and_rel_abundance.R`, which takes about 1h and `03.beta_dbRDA.R`, which takes about 15 minuts. I recommend to restart the RStudio session before every script.
+All the R scripts are meant to be run in RStudio in order of their numbering (scripts 8a, 8b etc. can be run in any order). Each script can run start to finish without user interaction in a few seconds, except `02.diversity_and_rel_abundance.R`, which takes about 1h and `03.beta_dbRDA.R`, which takes about 15 minutes. I recommend to restart the RStudio session before every script.
 
-It would not be feasible to describe the in- and output of all scripts in detail here. Instead, I will provide general descriptions. [At the end of this README](manuscript-figures), there is a table with all figures that appear in the paper, the script that creates them and their file names.
+It would not be feasible to describe the in- and output of all scripts in detail here. Instead, I will provide general descriptions. [At the end of this README](#manuscript-figures), there is a table with all figures that appear in the paper, the script that creates them and their file names.
 
 ### R and package versions
 - R 4.3.1
