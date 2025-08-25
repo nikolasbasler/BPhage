@@ -24,7 +24,7 @@ The second part is for the statistical analysis and visualisation using RStudio.
     - [SNP analysis](#snp-analysis)
     - [*Vairimorpha* (*Nosema*) mapping](#vairimorpha-nosema-mapping)
     - [Additional datasets mapping](#additional-datasets-mapping)
-    - [Novelty check: Clustering with INPHARED](#novelty-check-clustering-with-inphared)
+    - [Clustering with INPHARED](#clustering-with-inphared)
 - [R scripts](#r-scripts)
     - [R and package versions](#r-and-package-versions)
     - [Package installations](#package-installations)
@@ -44,7 +44,7 @@ The second part is for the statistical analysis and visualisation using RStudio.
 
 - All scripts for this section are located in `scripts/HPC`.
 - These scripts mostly represent jobs for a slurm scheduler. 
-- You can run these scripts without using slrum. After following the installation instructions below, simply run the scripts with `bash -l <script.slrm>` instead of `sbatch <script.slrm>`. Please make sure you have the computing resources available that the scripts require (up to 36 cores and 144 GB RAM) or adjust the scripts accordingly. **Note:** If you want to avoid slrum, you will have to transform the array job scripts (meant to run in parallel) to successive loops. There is a script that can do that for you (see below), but this is only recommended for the test dataset.
+- You can run these scripts without using slrum. After following the installation instructions below, simply run the scripts with `bash -l <script.slrm>` instead of `sbatch <script.slrm>`. Please make sure you have the computing resources available that the scripts require (up to 36 cores and 144 GB RAM) or adjust the scripts accordingly. **Note:** If you want to avoid slrum, you will have to transform the array job scripts (meant to run in parallel) into successive loops. There is a script that can do that for you (see below), but this is only recommended for the test dataset.
 - If you use slurm, you will have to adapt the instructions at the beginning of each script according to your setup. Particularly the `account` name and probably also the resource allocation will be different on your system.
 - If you want to port these instructions to a different scheduler, your favourite generative AI tool will be very helpful.
 
@@ -54,7 +54,6 @@ The second part is for the statistical analysis and visualisation using RStudio.
 git clone --depth 1 https://github.com/nikolasbasler/BPhage
 cd BPhage
 ```
-- For used tools and their versions see the conda environment `.yml` files: `data/env_*.yml`
 - Mamba/conda: Please follow the official documentation (I recommend mamba: https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html). For this analysis, `mamba` v.1.4.2 was used.
 - Conda environments: To install necessary conda environments, use the `.yml` files in `data/`. E.g. like this:
 ```
@@ -63,7 +62,18 @@ for env in data/env_*.yml; do
 done
 ```
 - ViPER pipeline: Please follow the instructions on Github **BUT** use the `viper_bphage` conda environment that you have just installed, instead of the environment from ViPER's Github page: https://github.com/Matthijnssenslab/ViPER. For this analysis, ViPER version 2.1 was used.
-- During or after installing some of the tools, you will need to install their databases. Please adapt the following code to provide the databases' locations:
+- For some tools, you will also need to install their databases. These are the databse versions used for this analysis:
+ 
+ Tool | Database version | Source
+ -- | -- | --
+vConTACT3 | v223 | https://zenodo.org/records/10935513
+Pharokka | v1.4.0 | https://zenodo.org/records/8267900
+CheckV | v1.5 | https://portal.nersc.gov/CheckV
+Phold | v0.2.0 | https://zenodo.org/records/12735568 
+iPHOP | Aug_2023_pub_rw | use `iphop download --db_version iPHoP_db_Aug23_rw --db_dir /destination/path/`
+geNomad | v1.7 | https://zenodo.org/records/10594875
+
+- After downloading these databases, please adapt and run the following commands to provide the databases' locations:
 ```
 vcontact_database="/absolute/path/to/database"
 pharokka_database="/absolute/path/to/database"
@@ -73,7 +83,7 @@ iphop_database="/absolute/path/to/database"
 genomad_database="/absolute/path/to/database"
 ```
 
-- **Note**: The tool MOP-UP (used for taxonomic clustering of the microviruses) relies on a library called `Boost`, which I didn't manage to install properly via conda but instead relied on a pre-installed module (installation happens in the `download_additional_data.slrm` script). If it gives you trouble, see version information in `data/env_mop-up_boost_module.txt` and ask your IT department to install it. If there is no way for you to install it, the rest of the pipeline still works. You will just not have Kirchberger et al's classification of microviruses.
+- **Note**: The tool MOP-UP (used for taxonomic clustering of the microviruses) relies on a library called `Boost`, which I didn't manage to install properly via conda but instead relied on a pre-installed module (installation happens in the `download_additional_data.slrm` script). If it gives you trouble, see version information in `data/env_mop-up_boost_module.txt` and ask your IT department to install it. If there is no way for you to install it, the rest of the pipeline still works. You will just not have Kirchberger et al's classification of microviruses. If you only run the test dataset, the microvirus classification can't be run anyway.
 - Set output directories: The HPC scripts assume two locations for output storage:
     - One location for intermediate storage that can blow up quite a lot while scripts are running and also contains the raw sequencing reads – the main input for this pipeline. 
     - The `output/` directory of this repository for the permanent output, which will accumulate about 1.5 TB (or 1.5 GB if the test dataset is used) as you progress through the scripts.
@@ -98,7 +108,7 @@ sed -i "s|iphop_db=.*|iphop_db=\"${iphop_database}\"|g" scripts/HPC/*.s*
 sed -i "s|genomad_db=.*|genomad_db=\"${genomad_database}\"|g" scripts/HPC/*.s*
 
 ```
-- If you turn the slrum array scripts into successive loops (only feasible with the test dataset) please also run the following:
+- If you want to turn the slrum array scripts into successive loops (only feasible with the test dataset) please also run the following:
 ```
 bash scripts/HPC/array_jobs_to_loop.sh
 ```
@@ -135,30 +145,30 @@ cut -d "_" -f1-3 data/in_test_data > data/BPhage.bee.pool.list
     - More output: A clone of the MOP-UP github repository for the microvirus taxonomy downloaded into this repository (not tracked by git).
 
 ### Assembly
-- `bphage_viper_with_dedup.slrm` (array of 471): ViPER pipeline. If you run the test dataset, skip this script and run `bphage_viper_with_dedup_TEST_DATA.slrm` instead.
+- `bphage_viper_with_dedup.slrm` (array of 471): ViPER pipeline (read trimming, host removal, assembly). If you run the test dataset, skip this script and run `bphage_viper_with_dedup_TEST_DATA.slrm` instead.
     - Requires: 
         - Sample list: `data/BPhage.sample.list`
         - SRA accession list: `data/BPhage_SRAs.tsv`
         - Raw read data in `$intermediate/raw`
     - Output: Trimmed reads, trimmed host-removed reads, assembly. For each sample there will be a separate folder in `$intermediate/bphage_viper_output`
 - `bphage_viper_with_dedup_TEST_DATA.slrm`: ViPER pipeline (see above).
-- `reorganise_viper_output.slrm`: Re-organise ViPER output 
+- `reorganise_viper_output.slrm`: Re-organise ViPER output from one folder per sample to one folder per output.
     - Requires: 
         - `data/BPhage.sample.list`
         - ViPER output in `$intermediate/bphage_viper_output`
     - Output: Original files from each sample's viper output are moved into a common `CONTIGS`, `QC/FASTQC` (also with multiqc) `QC/QUAST` and `READ` (containing deduped trimmed and hostout reads) folder inside `output/bphage_viper_output`
-- `cross_sample_clustering.slrm`: Cross-sample clustering 
+- `cross_sample_clustering.slrm`: Collapsing redundancy by clustering contigs at 95% identity over 85% length of the smaller contig (see MIUVIG standard).
     - Requires: Re-organised ViPER assemblies in `output/bphage_viper_output/CONTIGS/`
     - Output: Cross-sample clustered fasta and cluster member files: `output/bphage_ALL_1kb_cross_95-85.fasta.gz`, `output/bphage_ALL_1kb_cross_95-85_clusters.tsv.gz`
 
 ### Phage identification
-- `checkv.slrm`: CheckV 
+- `checkv.slrm`: Genome completeness estimates with CheckV.
     - Requires: Cross-sample clustered contigs: `output/bphage_ALL_1kb_cross_95-85.fasta.gz`
     - Output: `output/bphage_ALL_1kb_checkv`
-- `genomad.slrm`: geNomad
+- `genomad.slrm`: Virus identification with geNomad.
     - Requires: Cross-sample clustered contigs: `output/bphage_ALL_1kb_cross_95-85.fasta.gz`
     - Output: `output/bphage_ALL_1kb_genomad`
-- `filter_classification.slrm`: Filter for >= 50% complete phages: 
+- `filter_classification.slrm`: Identify which virues are phages and filter for >= 50% complete phages.
     - Requires: 
         - Cross-sample clustered contigs: `output/bphage_ALL_1kb_cross_95-85.fasta.gz`
         - CheckV output: `output/bphage_ALL_1kb_checkv/quality_summary.tsv.gz`
@@ -170,16 +180,16 @@ cut -d "_" -f1-3 data/in_test_data > data/BPhage.bee.pool.list
             - `output/bphage_ALL_1kb_phages.*`, `output/bphage_ALL_1kb_unclassified_viruses.*`, `output/bphage_ALL_1kb_picobirna.*`
 
 ### Mapping
-- `prepare_mapping.slrm`: Prepare mapping 
+- `prepare_mapping.slrm`: Index phage genomes for mapping.
     - Requires: Fasta files from phage identification: `output/bphage_ALL_1kb_phages.fasta.gz`, `output/bphage_ALL_1kb_unclassified_viruses.fasta.gz`, `output/bphage_ALL_1kb_picobirna.fasta.gz`
     - Output: bwa-indexed mapping ref: `$intermediate/ref/bphage_mapping_ref.fasta`
-- `bphage_mapping.slrm` (array of 471): Mapping  
+- `bphage_mapping.slrm` (array of 471): Mapping reads to the phage genomes. 
     - Requires: 
         - `data/BPhage.sample.list`
         - bwa-indexed mapping ref: `$intermediate/ref/bphage_mapping_ref.fasta`
     - Output: 
         - Mapping alignments and mapping stats of each sample in `output/mapped`
-- `gather_mapping_stats.slrm`: Gather mapping stats 
+- `gather_mapping_stats.slrm`: Gather mapping stats.
     - Requires:
         - `data/BPhage.sample.list`
         - Mapping stats of individual samples in `output/mapped/`
@@ -187,19 +197,20 @@ cut -d "_" -f1-3 data/in_test_data > data/BPhage.bee.pool.list
     - Output: Separate tables for mapped reads, horizontal coverage and mean depth and a table with all contig lengths in `output/mapping_stats`
 
 ### Core contig refinement
-This cannot be done with the test dataset. If you are running the test dataset, please skip ahead to [Taxonomic classification](#taxonomic-classification).
-- `contig_refinement.slrm` (array of 97): Prepare and run cobra 
+This cannot be done with the test dataset. If you are running the test dataset, please skip ahead to [Functional annotation](#functional-annotation)
+
+- `contig_refinement.slrm` (array of 97): Prepare and run cobra on core phage genomes to refine their assembly.
     - Requires: 
         - List of core contigs: `data/core_contigs.txt`. These are defined later in the R part of the pipeline but were stored in `data` to avoid backtracking.
         - Individual assemblies pre-clustering: `output/bphage_viper_output/CONTIGS/*_all.contigs.fasta.gz`
         - Trimmed hostout reads from vipter ouput: `output/bphage_viper_output/READ/*.Hostout.R*.fastq.gz`
     - Output: Cobra-refined contigs at `output/core_contig_refinement/`
-- `contig_refinement_stats.slrm`: Gather some stats 
+- `contig_refinement_stats.slrm`: Gather some stats.
     - Requires: Cobra outputs at `output/core_contig_refinement`
     - Output: 
         - Refinement stats: `output/core_contig_refinement/cobra_refinement_stats.tsv`
         - Fasta of extended contigs: `output/core_contig_refinement/extended_contigs.fasta`
-- `contig_refinement_checkv_pharokka_phold.slrm`: Completeness and annotation
+- `contig_refinement_checkv_pharokka_phold.slrm`: Completeness estimate and functional annotation of refined core phage genomes.
     - Requires:
         - Refinement stats: `output/core_contig_refinement/cobra_refinement_stats.tsv`
         - Fasta of extended contigs: `output/core_contig_refinement/extended_contigs.fasta`
@@ -213,19 +224,19 @@ This cannot be done with the test dataset. If you are running the test dataset, 
 
 ### Annotation
 Only the first script (Pharokka) can be run with the test dataset. If you are running the test dataset, please skip ahead to [Taxonomic classification](#taxonomic-classification) after that.
-- Pharokka: `annotation_pharokka_bphage.slrm`
+- `annotation_pharokka_bphage.slrm`: First step of functional annotation with Pharokka.
     - Requires:
         - Phage, picobirna and unclassified bphage contigs: `output/bphage_ALL_1kb_phages.fasta.gz`, `bphage_ALL_1kb_picobirna.fasta.gz`, `bphage_ALL_1kb_unclassified_viruses.fasta.gz`
     - Output: `output/output/annotation/pharokka/bpgage_and_others`
-- ColabFold: Done by collaborator George Bouras. Please refer to `scripts/HPC/protein_structures/README.md` for instructions.
+- 3D structure prediction of all proteins with ColabFold: Done by George Bouras. Please refer to `scripts/HPC/protein_structures/README.md` for instructions.
     - Requires: Pharokka's prodigal-gv output: `output/annotation/pharokka/bpgage_and_others/bpgage_and_others_prodigal-gv.faa`
     - Output: Protein structures (AlphaFold2) of all identified proteins. Has to be placed into `output/annotation/phold_colabfold_structures`
-- `annotation_phold_prepare.slrm`: Prepare phold compare
+- `annotation_phold_prepare.slrm`: Prepare phold compare.
     - Requires: pdb files of ColabFold structures in `output/annotation/phold_colabfold_structures/basler_output_renamed/renamed_pdbs/`
     - Output: 
         - Shortened pdb file names, otherwise phold will crash.
         - pdb files without corresponding entry in pharokka's output will be moved to `output/annotation/phold_colabfold_structures/basler_output_renamed/filtered_out_renamed_pdbs`
-- `scripts/HPC/annotation_phold_compare.slrm`: Phold compare
+- `scripts/HPC/annotation_phold_compare.slrm`: Look up predicted structures in a database with Phold compare.
     - Requires: 
         - Pharokka's gbk output: `output/annotation/pharokka_bphage_and_others/bphage_and_others.gbk`
         - Predicted structures at `output/annotation/phold_colabfold_structures/basler_output_renamed/renamed_pdbs/`
@@ -235,14 +246,14 @@ Only the first script (Pharokka) can be run with the test dataset. If you are ru
         - Predicted functions at: `output/annotation/phold_compare_bphage_and_others`
         - Additional files in this output folder with the original, long contig names: `output/annotation/phold_compare_bphage_and_others/*_long_names.*`
         - Ciros plots of all contigs, except a few very short ones that crashed `phold plot`: `output/annotation/plots_phold_compare_bphage_and_others` (using original, long contig names).
-- `kegg_prepare.slrm`: Extract all "moron" gene sequences
+- `kegg_prepare.slrm`: Extract all "moron" gene sequences.
     - Requires: Phold output: `output/core_contig_refinement/phold_compare_bphage_and_others/phold_aa_long_names.fasta`. Also from refined contigs: `output/core_contig_refinement/extended_contigs_phold/phold_aa_long_names.fasta`
     - Output: Gene sequences of "moron" genes: `output/kegg/moron.CDSs.fasta`. Use this to do a GhostKOALA search at the KEGG website (https://www.kegg.jp/ghostkoala/). The output has to be downloaded and turned into a useable format. As this is quite a manual work, the result of this process is at `data/kegg_mapping.tsv`
 
 ### Taxonomic classification
 Only the first script (vConTACT3) can be run with the test dataset. If you are running the test dataset, please skip ahead to [Lifestyle predictions](#lifestyle-predictions) after that.
 
-- `vcontact3_clustering_with_inphared.slrm`: vConTACT3. If you run the test dataset, I strongly recommend to skip this script and run `vcontact3_clustering_with_inphared_TEST_DATA.slrm` instead. It leaves out the INPHARED dataset and therefore runs much faster.
+- `vcontact3_clustering_with_inphared.slrm`: Taxonomic classification of all genomes with vConTACT3. If you run the test dataset, I strongly recommend to skip this script and run `vcontact3_clustering_with_inphared_TEST_DATA.slrm` instead. It leaves out the INPHARED dataset and therefore runs much faster.
     - Requires: 
         - Phage, picobirna and unclassified bphage contigs: `output/bphage_ALL_1kb_phages.fasta.gz`, `bphage_ALL_1kb_picobirna.fasta.gz`, `bphage_ALL_1kb_unclassified_viruses.fasta.gz`
         - INPHARED dataset: `$intermediate/additional_datasets/inphared_3Apr2024_genomes_excluding_refseq.fa.gz`
@@ -250,7 +261,7 @@ Only the first script (vConTACT3) can be run with the test dataset. If you are r
         - `output/vcontact3/bphage_vcontact3_b38_with_inphared/final_assignments.csv`
         - For visualisation: `output/vcontact3/bphage_vcontact3_b38_with_inphared/graph.bin_*.cyjs` (4 files). Run `scripts/R/cytoscape.R` on these files (see comments at the top of that script for instructions).
 - `vcontact3_clustering_with_inphared_TEST_DATA.slrm`: vConTACT3 (see above)
-- `taxonomy_microviruses.slrm`: MOP-UP pipeline (for microviruses)
+- `taxonomy_microviruses.slrm`: MOP-UP pipeline for taxonomic classification of microviruses.
     - Requires: 
         - geNomad output: `output/bphage_ALL_1kb_genomad/bphage_ALL_1kb_cross_95-85_summary/bphage_ALL_1kb_cross_95-85_virus_summary.tsv.gz`
         - vConTACT3 output: `output/vcontact3/bphage_vcontact3_b38_with_inphared/final_assignments.csv`
@@ -259,68 +270,68 @@ Only the first script (vConTACT3) can be run with the test dataset. If you are r
     - Output: `output/bphage_micros_mopup/bphage_micros_id30ForCytoscape.csv`. Run `scripts/R/microviruses_mopup_cytoscape.R` for visualisation (see comments at the top of this script for instructions).
 
 ### Lifestyle prediction
-- `lifestyle_replidec.slrm`: Replidec 
+- `lifestyle_replidec.slrm`: Lifestyle prediction (virulent, temperate, chronic) with Replidec. 
     - Requires: 
         - Phage, picobirna and unclassified contigs at `output/bphage_ALL_1kb_*.fasta.gz`
         - Extended core contigs: `output/core_contig_refinement/extended_contigs.fasta`
     - Output: Replidec's lifestyle prediction: `output/lifestyle/replidec/BC_predict.summary`
 
 ### Host prediction
-- `iphop_bphage.slrm`: iPHoP
+- `iphop_bphage.slrm`: Host prediction with iPHoP.
     - Requires: Phage, picobirna and unclassified contigs at `output/bphage_ALL_1kb_*.fasta.gz`
     - Output: Predicted hosts at: `output/host_prediction/`
 
 ### SNP analysis
-- `SNP_analysis_mapping_prep.slrm`: Index bacterial genomes for mapping
+- `SNP_analysis_mapping_prep.slrm`: Index bacterial genomes for mapping.
     - Requires: Core bacteria genomes: `$intermediate/ref/core.bacteria.ref.genomes.fasta`
     - Output: Indexed core bacteria genomes: `$intermediate/ref/core.bacteria.ref.genomes.fasta.*`
-- `SNP_analysis_mapping.slrm` (array of 150): Merge bam files per bee pool, retreive reads that didn't map against the phages and map those against the core bacteria genomes.
+- `SNP_analysis_mapping.slrm` (array of 150): Merge bam files per bee pool, retreive reads that didn't map against the phages (and therefore also not against the bee) and map those against the core bacteria genomes.
     - Requires: 
         - Bee pool list: `data/BPhage.bee.pool.list`
         - Indexed core bacteria genomes: `$intermediate/ref/core.bacteria.ref.genomes.fasta.*`
         - Mapping output: `output/mapped_phages/`
     - Output: Reads mapping only to core bacteria genomes, not to phages or bee in (merged per bee pool) `$intermediate/merged_reads/`
-- `SNP_analysis_SKA1.slrm` (array of 150): SKA fastq. If you run this script with the test dataset you will get errors because of missing files. This is expected and can be ignored.
+- `SNP_analysis_SKA1.slrm` (array of 150): Find slplit k-mers using SKA. If you run this script with the test dataset you will get errors because of missing files. This is expected and can be ignored.
     - Requires:
         - Bee pool list: `data/BPhage.bee.pool.list`
         - Trimmed reads (before host filtering): `output/bphage_viper_output/READ/*.trimmed.*.fastq.gz`
         - Hostout reads: `output/bphage_viper_output/READ/*.Hostout.*.fastq.gz`
     - Output: SKA kmer files for reads only mapping to bee, to phages or to core bacteria: `ska/skf_files/` (the the reads for the former two are deleted during cleanup)
-- `SNP_analysis_distances_SKA1.slrm` (array of 3): SKA distance
+- `SNP_analysis_distances_SKA1.slrm` (array of 3): Calculate pair-wise SNP distances between samples using SKA distance. This is done independently for phage reads, bacteria reads and bee reads.
     - Requires: SKA kmer files: `ska/skf_files/*.skf`
     - Output: Pairwise SNP distances in bee, phage and core bacteria read sets: `output/SNP_analysis/SKA_SNP_distances/*distances.tsv` 
 
 ### *Vairimorpha* (*Nosema*) mapping
-- `Nosema_mapping_prep.slrm`: Index Nosema genomes for mapping
+- `Nosema_mapping_prep.slrm`: Concatenate and index Nosema genomes for mapping.
     - Requires: Nosema genome: `$intermediate/ref/Varimorpha_genomes.fasta`
     - Outoput: Indexed genome: `$intermediate/ref/Varimorpha_genomes.*`
-- `Nosema_mapping_all.slrm` (array of 450): Mapping to Nosema genome
+- `Nosema_mapping_all.slrm` (array of 450): Mapping reads to Nosema genome.
     - Requires: 
         - Sample list: `data/BPhage.sample.list`
         - Hostout reads: `output/bphage_viper_output/READ/*.Hostout.*.fastq.gz`
     - Output: 
         - Nosema-mapping alignments in `$intermediate/nosema_mapping_all`
         - Per-sample mapped read counts `$intermediate/nosema_mapping_all/*_read_counts.tsv`
-- `Nosema_mapping_stats_all.slrm`: Gathering mapped read counts
+- `Nosema_mapping_stats_all.slrm`: Gathering mapped read counts of nosema mapping.
     - Requires: Per-sample mapped read counts `$intermediate/nosema_mapping_all/*_read_counts.tsv`
     - Outout: Table of mapped reads: `output/nosema_mapped_counts_all.tsv`
 
 ### Additional datasets mapping
-This cannot be done with the test dataset. If you are running the test dataset, please skip ahead to [Novelty check: Clustering with INPHARED](#novelty-check-clustering-with-inphared).
+This cannot be done with the test dataset. If you are running the test dataset, please skip ahead to [Clustering with INPHARED](#clustering-with-inphared).
 - `additional_datasets_mapping_with_unpaired.slrm` (array of 114): Mapping of reads from other studies to the phage genomes
     - Requires: 
         - List of SRA sccessions: `data/other_datasets_SRA_accessions.tsv`
         - Indexed phage genomes: `$intermediate/ref/bphage_mapping_ref.fasta`
     - Output: Per-SRA coverage and mapped reads: `output/other_studies/*.coverage.gz`, `output/other_studies/*_read_stats.tsv`
-- `additional_datasets_gather_mapping_stats_with_unpaired.slrm`: Gathering mapping stats
+- `additional_datasets_gather_mapping_stats_with_unpaired.slrm`: Gathering mapping stats.
     - Requires:
         - Phage genomes: `$intermediate/ref/bphage_mapping_ref.fasta`
         - List of SRA sccessions: `data/other_datasets_SRA_accessions.tsv`
         - Per-SRA coverage and mapped reads: `output/other_studies/*.coverage.gz`, `output/other_studies/*_read_stats.tsv`
     - Outout: Stats for horizontal coverage, maped reads, mean depth and filtering stats: `output/other_studies/stats.other_studies.*`
 
-### Novelty check: Clustering with INPHARED
-- `inphared_clustering.slrm`: Clustering phage genomes with the INPHARED dataset on 70% identity over 85% of the genome length
+### Clustering with INPHARED
+- `inphared_clustering.slrm`: Clustering phage genomes with the INPHARED dataset on 70% identity over 85% of the genome length.
     - Requires:
         - Phage, picobirna and unclassified contigs at `output/bphage_ALL_1kb_*.fasta.gz`
         - Inphared dataset: `$intermediate/additional_datasets/inphared_14Apr2025_genomes_excluding_refseq.fa.gz`
