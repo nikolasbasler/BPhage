@@ -32,7 +32,7 @@ conda activate viper_bphage
 PATH="$CONDA_PREFIX/bin:$PATH"
 
 # Add SPAdes module (because of some strange bug on our HPC)
-module load SPAdes/3.15.5-GCC-10.3.0-mi-override-off
+# module load SPAdes/3.15.5-GCC-10.3.0-mi-override-off
 
 # Make sure you use the right metaspades, just shows which metaspades is present
 # This command should return: /apps/leuven/rocky8/skylake/2021a/software/SPAdes/3.15.5-GCC-10.3.0-mi-override-off/bin/metaspades.py
@@ -40,7 +40,7 @@ which metaspades.py
 
 # Make sure you also unload the python of the module system
 # Otherwise the clustering will fail with error message "ModuleNotFoundError: No module named 'Bio"
-module unload Python/3.9.5-GCCcore-10.3.0
+# module unload Python/3.9.5-GCCcore-10.3.0
 
 # Deduplicate reads with clumpify
 clumpify.sh reorder dedupe=t overwrite=t in=raw/${line}.R1.fastq.gz in2=raw/${line}.R2.fastq.gz out=raw/${line}.dedup.R1.fastq.gz out2=raw/$line.dedup.R2.fastq.gz
