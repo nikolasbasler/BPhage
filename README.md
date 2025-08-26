@@ -53,6 +53,7 @@ The second part is for the statistical analysis and visualisation using RStudio.
 ```
 git clone --branch v0.2.2 --depth 1 https://github.com/nikolasbasler/BPhage
 cd BPhage
+
 ```
 - Mamba/conda: Please follow the official documentation (I recommend mamba: https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html). For this analysis, `mamba` v.1.4.2 was used.
 - Conda environments: To install necessary conda environments, use the `.yml` files in `data/`. E.g. like this:
@@ -60,6 +61,7 @@ cd BPhage
 for env in data/env_*.yml; do 
     mamba env create -f $env
 done
+
 ```
 - ViPER pipeline: Please follow the instructions on Github **BUT** use the `viper_bphage` conda environment that you have just installed, instead of the environment from ViPER's Github page: https://github.com/Matthijnssenslab/ViPER. For this analysis, ViPER version 2.1 was used.
 - For some tools, you will also need to install their databases. These are the databse versions used for this analysis:
@@ -81,6 +83,7 @@ checkv_database="/absolute/path/to/database"
 phold_database="/absolute/path/to/database"
 iphop_database="/absolute/path/to/database"
 genomad_database="/absolute/path/to/database"
+
 ```
 
 - **Note**: The tool MOP-UP (used for taxonomic clustering of the microviruses) relies on a library called `Boost`, which I didn't manage to install properly via conda but instead relied on a pre-installed module (installation happens in the `download_additional_data.slrm` script). If it gives you trouble, see version information in `data/env_mop-up_boost_module.txt` and ask your IT department to install it. If there is no way for you to install it, the rest of the pipeline still works. You will just not have Kirchberger et al's classification of microviruses. If you only run the test dataset, the microvirus classification can't be run anyway.
@@ -90,6 +93,7 @@ genomad_database="/absolute/path/to/database"
 - To set up the scripts accordingly, please adapt and run the following line (**without slash at the end!**):
 ```
 intermediate="/absolute/path/to/folder"
+
 ``` 
 - Then run the following commands to adapt the scripts to your folder paths. This will also incorporate the database paths given above.
 ```
@@ -111,12 +115,14 @@ sed -i "s|genomad_db=.*|genomad_db=\"${genomad_database}\"|g" scripts/HPC/*.s*
 - If you want to turn the slrum array scripts into successive loops (only feasible with the test dataset) please also run the following. This will also reduce the number of datasets downloaded from other studies.
 ```
 bash scripts/HPC/array_jobs_to_loop.sh
+
 ```
 - If you did this, call these array scripts (or all scripts) with `bash -l <script.slrm>`, so the conda environments can get loaded from within those scripts.
 - If running the test dataset, you also need to replace the sample and bee pool lists:
 ```
 cat data/in_test_data > data/BPhage.sample.list 
-cut -d "_" -f1-3 data/in_test_data > data/BPhage.bee.pool.list 
+cut -d "_" -f1-3 data/in_test_data > data/BPhage.bee.pool.list
+
 ```
 
 - All set! I will refer to `$intermediate` in this README as the path to the intermediate storage but the variable does not have to remain set beyond this point.
@@ -345,13 +351,15 @@ If you skipped the HPC part and jumped right here, you will want to clone this r
 ```
 git clone --branch v0.2.2 --depth 1 https://github.com/nikolasbasler/BPhage
 cd BPhage
-tar -kxvzf mid_save.tar.gz 
+tar -kxvzf mid_save.tar.gz
+
 ```
 
 If you worked through the HPC scripts, you will probably want another clone of this repository on a local computer and only carry over the output that is further needed. In that case, have a look at the contents of `mid_save.tar.gz` to see which files you will need:
 
 ```
 tar -tf mid_save.tar.gz | grep -v "/$"
+
 ```
 
 All the R scripts are meant to be run in RStudio in order of their numbering. Each script can run start to finish without user interaction in a few seconds, except `02.diversity_and_rel_abundance.R`, which takes about 1h and `03.beta_dbRDA.R`, which takes about 15 minutes. I recommend to restart the RStudio session before every script.
