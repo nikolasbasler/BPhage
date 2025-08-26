@@ -49,9 +49,9 @@ The second part is for the statistical analysis and visualisation using RStudio.
 - If you want to port these instructions to a different scheduler, your favourite generative AI tool will be very helpful.
 
 ### Installations
-- To clone the repository, please run:
+- To clone the repository, please run (v0.2.3 is frozen for review):
 ```
-git clone --branch v0.2.2 --depth 1 https://github.com/nikolasbasler/BPhage
+git clone --branch v0.2.3 --depth 1 https://github.com/nikolasbasler/BPhage
 cd BPhage
 
 ```
@@ -346,10 +346,10 @@ Only the first script (vConTACT3) can be run with the test dataset. If you are r
 ---
 
 ## R scripts
-If you skipped the HPC part and jumped right here, you will want to clone this repository to a computer that runs RStudio and then extracte the `mid_save.tar.gz` (extracting this file with `-k` will not overwrite existing files, so it's safe to use if you generated some HPC output):
+If you skipped the HPC part and jumped right here, you will want to clone this repository to a computer that runs RStudio and then extracte the `mid_save.tar.gz`. Extracting this file with `-k` will not overwrite existing files, so it's safe to use if you generated some HPC output. v0.2.3 is frozen for review.
 
 ```
-git clone --branch v0.2.2 --depth 1 https://github.com/nikolasbasler/BPhage
+git clone --branch v0.2.3 --depth 1 https://github.com/nikolasbasler/BPhage
 cd BPhage
 tar -kxvzf mid_save.tar.gz
 
