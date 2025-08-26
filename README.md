@@ -2,7 +2,7 @@
 
 This repository contains all scripts and usage instructions to reproduce the analysis for the paper by Basler et al (XXX ref). 
 
-This pipeline is split into two parts. The first part is meant for a high-performance computer (HPC) and can be skipped, if so wanted. There is also a test dataset [available on Zenodo](https://zenodo.org/records/16937256) for the HPC part.
+This pipeline is split into two parts. The first part is meant for a high-performance computer (HPC) and can be skipped, if so wanted. There is also a reduced test dataset [available on Zenodo](https://zenodo.org/records/16937256) for the HPC part.
 
 The second part is for the statistical analysis and visualisation using RStudio. If you want to skip the HPC part and only want to re-run the statistical analysis, please go straight to the ["R scripts"](#r-scripts) section of this README. The scripts from both parts pretend to be on the same computer but it is possible to clone this repo to an HPC and to a local computer, run the HPC scripts, copy the relevant output files from the HPC to the local computer and continue with the statistical analysis using the R project.
 
@@ -51,7 +51,7 @@ The second part is for the statistical analysis and visualisation using RStudio.
 ### Installations
 - To clone the repository, please run:
 ```
-git clone --depth 1 https://github.com/nikolasbasler/BPhage
+git clone --branch v0.2.2 --depth 1 https://github.com/nikolasbasler/BPhage
 cd BPhage
 ```
 - Mamba/conda: Please follow the official documentation (I recommend mamba: https://mamba.readthedocs.io/en/latest/installation/mamba-installation.html). For this analysis, `mamba` v.1.4.2 was used.
@@ -343,7 +343,7 @@ Only the first script (vConTACT3) can be run with the test dataset. If you are r
 If you skipped the HPC part and jumped right here, you will want to clone this repository to a computer that runs RStudio and then extracte the `mid_save.tar.gz` (extracting this file with `-k` will not overwrite existing files, so it's safe to use if you generated some HPC output):
 
 ```
-git clone --depth 1 https://github.com/nikolasbasler/BPhage
+git clone --branch v0.2.2 --depth 1 https://github.com/nikolasbasler/BPhage
 cd BPhage
 tar -kxvzf mid_save.tar.gz 
 ```
