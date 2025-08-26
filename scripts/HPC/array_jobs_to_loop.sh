@@ -19,7 +19,10 @@ while read script; do
 
 done < temp.array_scripts
 
-sed -i 's/done.*/done <(cut -f1 $repo_location\/data\/other_datasets_SRA_accessions.tsv)/g' additional_datasets_mapping_with_unpaired.slrm 
+sed -i 's/done.*/done < <(cut -f1 $repo_location\/data\/other_datasets_SRA_accessions.tsv)/g' additional_datasets_mapping_with_unpaired.slrm 
+
+sed -i '/SRR27841368/!d' $repo_location/data/other_datasets_SRA_accessions.tsv
+
 
 # Clean up
 rm temp.array_scripts
