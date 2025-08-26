@@ -108,7 +108,7 @@ sed -i "s|iphop_db=.*|iphop_db=\"${iphop_database}\"|g" scripts/HPC/*.s*
 sed -i "s|genomad_db=.*|genomad_db=\"${genomad_database}\"|g" scripts/HPC/*.s*
 
 ```
-- If you want to turn the slrum array scripts into successive loops (only feasible with the test dataset) please also run the following:
+- If you want to turn the slrum array scripts into successive loops (only feasible with the test dataset) please also run the following. This will also reduce the number of datasets downloaded from other studies.
 ```
 bash scripts/HPC/array_jobs_to_loop.sh
 ```
@@ -130,7 +130,7 @@ cut -d "_" -f1-3 data/in_test_data > data/BPhage.bee.pool.list
 - `download_test_dataset.slrm`: **Only** run if you want to use the test dataset!
     - Requries: Nothing
     - Output: Test dataset in `$intermediate/raw`. Note: If files from the full dataset are present, they will be overwritten!
-- `download_additional_data.slrm`: Download the bee genome (also indexed here) and a bunch of additional data: 
+- `download_additional_data.slrm`: Download the bee genome (also indexed here) and a bunch of additional data. If you have turned the array job scripts into successive loops (because you run the test dataset), only one SRA dataset will be downloaded here, otherwise mapping them later would take too much time.
     - Requires:
         - `data/bacteria.core.spec.tsv`
         - `data/other_datasets_SRA_accessions.tsv`
@@ -317,8 +317,7 @@ Only the first script (vConTACT3) can be run with the test dataset. If you are r
     - Outout: Table of mapped reads: `output/nosema_mapped_counts_all.tsv`
 
 ### Additional datasets mapping
-This cannot be done with the test dataset. If you are running the test dataset, please skip ahead to [Clustering with INPHARED](#clustering-with-inphared).
-- `additional_datasets_mapping_with_unpaired.slrm` (array of 114): Mapping of reads from other studies to the phage genomes
+- `additional_datasets_mapping_with_unpaired.slrm` (array of 114): Mapping of reads from other studies to the phage genomes. If you turned this array job script into a successive loop, only one of the datasets are being mapped, otherwise it would take too long, even with the test dataset.
     - Requires: 
         - List of SRA sccessions: `data/other_datasets_SRA_accessions.tsv`
         - Indexed phage genomes: `$intermediate/ref/bphage_mapping_ref.fasta`
