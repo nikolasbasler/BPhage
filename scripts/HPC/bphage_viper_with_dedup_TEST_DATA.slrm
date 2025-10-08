@@ -8,7 +8,7 @@
 #SBATCH --output=slurm-%x_%a_%A.out
 
 # Submit this as a job array (from output/slurm_log)
-# sbatch --array=1-471 --export=ALL ../../scripts/HPC/bphage_viper_with_dedup.slrm
+# sbatch --array=1-8 --export=ALL ../../scripts/HPC/bphage_viper_with_dedup_TEST_DATA.slrm
 
 
 threads=36
@@ -20,25 +20,6 @@ line=$(head -n $SLURM_ARRAY_TASK_ID $repo_location/data/BPhage.sample.list | tai
 checkv_db="/staging/leuven/stg_00029/DB/CheckV/checkv-db-v1.5"
 genomad_db="/staging/leuven/stg_00029/DB/genomad/genomad_db_1.7"
 
-#####
-
-echo "Extracting SRA raw data"
-conda activate ncbi
-
-cd $VSC_SCRATCH/BPhage/raw/
-
-raw_sra_dataset=$(grep $line $repo_location/data/BPhage_SRAs.tsv | cut -f2)
-
-fasterq-dump -O temp --threads $threads SRA/${raw_sra_dataset}/${raw_sra_dataset}.sra
-rm -r SRA/${raw_sra_dataset}
-
-pigz -p $threads temp/${raw_sra_dataset}*.fastq
-mv temp/${raw_sra_dataset}_1.fastq.gz ${line}.R1.fastq.gz
-mv temp/${raw_sra_dataset}_2.fastq.gz ${line}.R2.fastq.gz
-
-echo "SRA raw data extracted"
-
-#####
 
 # Move to wherever your files are
 mkdir -p $VSC_SCRATCH/BPhage/bphage_viper_output

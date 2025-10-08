@@ -17,26 +17,19 @@ conda activate viper_bphage
 repo_location="$VSC_STAGING/BPhage"
 
 threads=36
+genomad_db="/staging/leuven/stg_00029/DB/genomad/genomad_db_1.7"
 
 mkdir -p $VSC_SCRATCH/BPhage/
 cd $VSC_SCRATCH/BPhage/
 
 genomad end-to-end --disable-find-proviruses --cleanup --enable-score-calibration -t $threads \
 	$repo_location/output/bphage_ALL_1kb_cross_95-85.fasta.gz \
-	bphage_ALL_1kb_genomad /staging/leuven/stg_00029/DB/genomad/genomad_db_1.7
-
-genomad end-to-end --cleanup --enable-score-calibration -t $threads \
-	additional_datasets/other_studies.fa.gz \
-	other_studies_genomad /staging/leuven/stg_00029/DB/genomad/genomad_db_1.7
+	bphage_ALL_1kb_genomad $genomad_db
 
 pigz --best -p 12 bphage_ALL_1kb_genomad/*/*.faa
 pigz --best -p 12 bphage_ALL_1kb_genomad/*/*.tsv
 
-pigz --best -p 12 other_studies_genomad/*/*.faa
-pigz --best -p 12 other_studies_genomad/*/*.tsv
-
 cp -r bphage_ALL_1kb_genomad $repo_location/output/
-cp -r other_studies_genomad $repo_location/output/
 
 echo "========================================================================"
 duration=$SECONDS

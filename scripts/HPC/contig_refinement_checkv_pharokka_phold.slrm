@@ -15,6 +15,9 @@
 
 repo_location="$VSC_STAGING/BPhage"
 threads=36
+pharokka_db="/staging/leuven/stg_00029/DB/pharokka/pharokka_1.4.0"
+checkv_db="/staging/leuven/stg_00029/DB/CheckV/checkv-db-v1.5"
+phold_db="/staging/leuven/stg_00029/DB/phold/phold_20240723"
 
 conda activate viper_bphage
 cd $VSC_SCRATCH/BPhage/contig_refinement/
@@ -22,7 +25,7 @@ cd $VSC_SCRATCH/BPhage/contig_refinement/
 ################################################################################
 ##### CheckV
 checkv end_to_end $repo_location/output/core_contig_refinement/extended_contigs.fasta \
-    extended_contigs_checkv -d /staging/leuven/stg_00029/DB/CheckV/checkv-db-v1.5 \
+    extended_contigs_checkv -d $checkv_db \
     --remove_tmp -t $threads
 cut -f1,10 extended_contigs_checkv/quality_summary.tsv | sed 1d | \
     sed 's/_extended_partial//g' | sed 's/_extended_circular//g' | sort \
@@ -49,7 +52,7 @@ awk '/NODE/ {split($0, a, "_"); print a[1] "_" a[2] "_" a[7] "_" a[8] "_" a[9] "
     > temp.extended_contigs_shortened_names.fasta
 
 conda activate pharokka
-pharokka.py -i temp.extended_contigs_shortened_names.fasta -o extended_contigs_pharokka -d /staging/leuven/stg_00029/DB/pharokka/pharokka_1.4.0 \
+pharokka.py -i temp.extended_contigs_shortened_names.fasta -o extended_contigs_pharokka -d $pharokka_db \
     -t $threads -m -g prodigal-gv --meta_hmm -p extended_contigs
 
 # Copy pharokka output
@@ -60,7 +63,7 @@ cp -r extended_contigs_pharokka $repo_location/output/core_contig_refinement
 conda activate phold
 phold compare --input $repo_location/output/core_contig_refinement/extended_contigs_pharokka/extended_contigs.gbk \
     --structures --structure_dir $repo_location/output/core_contig_refinement/colabfold_structures/extended_contigs_tophits/pdbs/ \
-    -o extended_contigs_phold -t $threads -d /staging/leuven/stg_00029/DB/phold/phold_20240723 --separate
+    -o extended_contigs_phold -t $threads -d $phold_db --separate
 
 # Undo the shortening of the contig names
 echo "phold.gbk"
