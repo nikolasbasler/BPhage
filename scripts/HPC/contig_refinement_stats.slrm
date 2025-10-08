@@ -36,7 +36,17 @@ while read line; do
     seqkit grep -p $line $folder/assembly.new.fa.gz >> extended_contigs.fasta
 done < temp.extended_contigs.list
 
+
+# Make new phage contig fasta with refined contigs
+
+cut -d"_" -f1-11 extended_contigs.fasta > temp.extended_contigs_original_names.fasta
+grep ">" temp.extended_contigs_original_names.fasta | cut -c 2- > temp.extended_contigs_original_names.IDs
+seqkit grep -v -f temp.extended_contigs_original_names.IDs $repo_location/output/bphage_ALL_1kb_phages.fasta.gz > temp.non.extended_contigs.fasta 
+cat temp.extended_contigs_original_names.fasta temp.non.extended_contigs.fasta | gzip > ../bphage_ALL_1kb_phages_refined_contigs.fasta.gz
+
+# Clean up
 rm temp.*
+
 
 echo "========================================================================"
 duration=$SECONDS
