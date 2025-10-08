@@ -20,18 +20,25 @@ repo_location="$VSC_STAGING/BPhage"
 mkdir $VSC_SCRATCH/BPhage/SNP/ska/distances
 cd $VSC_SCRATCH/BPhage/SNP/
 
-datasets=$(echo -e "\
-phages
-bee
-bacteria\
-")
+# datasets=$(echo -e "\
+# phages
+# bee
+# bacteria\
+# ")
 
-dataset=$(head -n $SLURM_ARRAY_TASK_ID <(echo "$datasets") | tail -n1)
+# dataset=$(head -n $SLURM_ARRAY_TASK_ID <(echo "$datasets") | tail -n1)
 
-ska distance -c -o ska/distances/${dataset} ska/skf_files/*${dataset}.skf
+# ska distance -c -o ska/distances/${dataset} ska/skf_files/*${dataset}.skf
+
+# mkdir -p $repo_location/output/SNP_analysis/SKA_SNP_distances
+# cp ska/distances/${dataset}*.distances.tsv $repo_location/output/SNP_analysis/SKA_SNP_distances
+
+line=$(head -n $SLURM_ARRAY_TASK_ID $repo_location/data/SKA_datasets | tail -n1)
+
+ska distance -c -o ska/distances/${line} ska/skf_files/*${line}.skf
 
 mkdir -p $repo_location/output/SNP_analysis/SKA_SNP_distances
-cp ska/distances/${dataset}*.distances.tsv $repo_location/output/SNP_analysis/SKA_SNP_distances
+cp ska/distances/${line}*.distances.tsv $repo_location/output/SNP_analysis/SKA_SNP_distances
 
 echo "========================================================================"
 duration=$SECONDS

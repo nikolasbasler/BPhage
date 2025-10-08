@@ -16,6 +16,7 @@
 
 repo_location="$VSC_STAGING/BPhage"
 conda activate iphop
+iphop_db="/staging/leuven/stg_00029/DB/iphop_db/Aug_2023_pub_rw
 
 mkdir -p $VSC_SCRATCH/BPhage/iphop
 cd $VSC_SCRATCH/BPhage/iphop
@@ -27,7 +28,7 @@ zcat $repo_location/output/bphage_ALL_1kb_phages.fasta.gz \
     > iphop_input_bphage.fasta    
 
 # --min_score 75 was set out of curiosity. Later everything with score <90 will be filtered out.
-iphop predict --fa_file iphop_input_bphage.fasta --db_dir /staging/leuven/stg_00029/DB/iphop_db/Aug_2023_pub_rw \
+iphop predict --fa_file iphop_input_bphage.fasta --db_dir $iphop_db \
     --min_score 75 --num_threads 36 --out_dir iphop_output_bphage/
 
 rm iphop_input_bphage.fasta
