@@ -27,7 +27,7 @@ sed -E '/NODE_.*_length_.*_cov_/s/(NODE_|length_|cov_)//g' $repo_location/output
     > s_all_genomes.gbk
 
 # Remove locus tag (the tag is not really needed and still gives warnings for too long names)
-python3 filter_gbk_and_remove_locus_tag.py s_all_genomes.gbk s_genomes.list s_genomes.gbk
+python3 $repo_location/scripts/HPC/Genbank_submission/filter_gbk_and_remove_locus_tag.py s_all_genomes.gbk s_genomes.list s_genomes.gbk
 
 suvtk virus-info --taxonomy s_taxonomy.tsv --database /staging/leuven/stg_00029/DB/suvtk_db --output virus_info
 
@@ -85,21 +85,55 @@ cat genbank_to_table/genbank_to_table_fixed.tbl | \
 # CDSs that run off the edges need to have < before the left-column coordinate or > before the second-column coordinate (regardless of the strand, e.g. <999..1)
 python $repo_location/scripts/HPC/Genbank_submission/fix_edge_genes.py genbank_to_table/genbank_to_table_fixed_twice.tbl contigs_with_errors_no_stop contigs_with_errors_bad_start genbank_to_table/genbank_to_table_fixed_thrice.tbl
 
+# Add the missing info for repeat_region to the table (it's in pharokka's minced gff output, unfortunately under different names...)
+sed 's/48340\t48528\trepeat_region/48340\t48528\trepeat_region\n\t\t\trpt_type\tdirect\n\t\t\trpt_family\tCRISPR\n\t\t\trpt_unit_seq\tAAAGGTGTCTGGGAATATTCAAATAGCATTG/g' genbank_to_table/genbank_to_table_fixed_thrice.tbl > temp.fixed_repeat_regions
+sed -i 's/28834\t29044\trepeat_region/28834\t29044\trepeat_region\n\t\t\trpt_type\tdirect\n\t\t\trpt_family\tCRISPR\n\t\t\trpt_unit_seq\tTTTCTAAACCGCTTATGCAGCGGTGAACAGT/g' temp.fixed_repeat_regions
+sed -i 's/32917\t33244\trepeat_region/32917\t33244\trepeat_region\n\t\t\trpt_type\tdirect\n\t\t\trpt_family\tCRISPR\n\t\t\trpt_unit_seq\tTTTCTAAACCGCCTATTCGGTGGTAAAC/g' temp.fixed_repeat_regions
+sed -i 's/9804\t10076\trepeat_region/9804\t10076\trepeat_region\n\t\t\trpt_type\tdirect\n\t\t\trpt_family\tCRISPR\n\t\t\trpt_unit_seq\tATGTTCCCTGTATGCACAGGGATAAACCG/g' temp.fixed_repeat_regions
+
+# Fix the cases where the CDS should be partial but isn't for some reason:
+sed -i 's/1\t1404\tCDS/<1\t1404\tCDS/g' temp.fixed_repeat_regions
+sed -i 's/3\t1331\tCDS/<3\t1331\tCDS/g' temp.fixed_repeat_regions 
+sed -i 's/^2\t334\tCDS/<2\t334\tCDS/g' temp.fixed_repeat_regions 
+sed -i 's/^3964\t3731\tCDS/<3964\t3731\tCDS/g' temp.fixed_repeat_regions
+sed -i 's/^4329\t3772\tCDS/<4329\t3772\tCDS/g' temp.fixed_repeat_regions
+
+# Fixing clipped CDSs
+
+python $repo_location/scripts/HPC/Genbank_submission/fix_coordinates_of_edge_genes.py temp.fixed_repeat_regions temp.fixed_clipped_cds
+
+# Adding tRNA AA (I used a different scheme to shorten the names for pharokka...)
+sed 1d genbank_investigation/second_round/missing_tRNA_AA | awk '{print $2}' | cut -d "|" -f2 | sed 's/:/\t/g' | sed 's/-/\t/g' > temp.trna.coords
+cut -f1 temp.trna.coords | awk -F "_" '{print "NODE_"$1"_"$4"_"$5"_"$6"_"$7"_"$8}' > temp.trna.pharokka_names
+paste temp.trna.coords temp.trna.pharokka_names | sed 's/c\([0-9].*\)/\1/g' > temp.trna.names_and_coords
+while read line; do
+    name=$(echo "$line" | awk '{print $4}')
+    real_name=$(echo "$line" | awk '{print $1}')
+    coord_one=$(echo "$line" | awk '{print $2}')
+    coord_two=$(echo "$line" | awk '{print $3}')
+    if [ $coord_one -gt $coord_two ]; then
+        scan_coord_one=$coord_two
+        scan_coord_two=$coord_one
+    else
+        scan_coord_one=$coord_one
+        scan_coord_two=$coord_two
+    fi
+    raw_line=$(awk -v name="$name" -v coord_one="$scan_coord_one" -v coord_two="$scan_coord_two" '$1==name && $3!="exon" && $4==coord_one && $5==coord_two {print $9}' $repo_location/output/annotation/pharokka_bphage_and_others/trnascan_out.gff)
+    anticodon=$(echo $raw_line | cut -d";" -f2 | rev | cut -d "-" -f1 | cut -c -3 | rev)
+    aminoacid=$(echo $raw_line | cut -d";" -f2 | rev | cut -d "-" -f1 | cut -c 4- | rev)   
+    echo -e "$real_name\t$coord_one\t$coord_two\t$anticodon\t$aminoacid"
+done < temp.trna.names_and_coords > trna_anticodons_and_aminoacids
+
+python $repo_location/scripts/HPC/Genbank_submission/fix_tRNAs.py temp.fixed_clipped_cds trna_anticodons_and_aminoacids genbank_to_table/genbank_to_table_fixed_thrice_repeats_clips_trnas.tbl
+
+
 # Now let's finally run this for good
-suvtk table2asn -i genbank_to_table/genbank_to_table.fsa -o BPhage_genbank_submission \
-    -s s_sourcefile.tsv -f genbank_to_table/genbank_to_table_fixed_thrice.tbl \
+# suvtk table2asn -i genbank_to_table/genbank_to_table.fsa -o BPhage_genbank_submission \
+#     -s s_sourcefile.tsv -f genbank_to_table/genbank_to_table_fixed_thrice.tbl \
+#     -t template.sbt -c structured_comment.cmt 
+
+suvtk table2asn -i genbank_to_table/genbank_to_table.fsa -o BPhage_genbank_submission_updated \
+    -s s_sourcefile.tsv -f genbank_to_table/genbank_to_table_fixed_thrice_repeats_clips_trnas.tbl \
     -t template.sbt -c structured_comment.cmt 
 
-
-# Second round...
-conda activate viper_bphage
-mkdir -p submission_2/genbank_to_table
-
-seqkit grep -f submission_2/correct_these genbank_to_table/genbank_to_table.fsa  > submission_2/genbank_to_table/genbank_to_table2.fsa
-head -n 1 s_sourcefile.tsv > submission_2/s_sourcefile2.tsv
-grep -f submission_2/correct_these s_sourcefile.tsv >> submission_2/s_sourcefile2.tsv
-python $repo_location/scripts/HPC/Genbank_submission/filter_feature_table.py genbank_to_table/genbank_to_table_fixed_thrice.tbl submission_2/correct_these submission_2/genbank_to_table/genbank_to_table_fixed_thrice2.tbl
-head -n1 structured_comment.cmt > submission_2/structured_comment2.cmt
-grep -f submission_2/correct_these structured_comment.cmt >> submission_2/structured_comment2.cmt
-
-### MANUALLY CORRECT THE FEATURE TABLE submission_2/genbank_to_table/genbank_to_table_fixed_thrice2.tbl
+rm temp.*

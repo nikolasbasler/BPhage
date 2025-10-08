@@ -203,7 +203,7 @@ cut -d "_" -f1-3 data/in_test_data > data/BPhage.bee.pool.list
     - Output: Separate tables for mapped reads, horizontal coverage and mean depth and a table with all contig lengths in `output/mapping_stats`
 
 ### Core contig refinement
-This cannot be done with the test dataset. If you are running the test dataset, please skip ahead to [Functional annotation](#functional-annotation)
+This cannot be done with the test dataset. If you are running the test dataset, please skip ahead to [Annotation](#annotation)
 
 - `contig_refinement.slrm` (array of 97): Prepare and run cobra on core phage genomes to refine their assembly.
     - Requires: 
