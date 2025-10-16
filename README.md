@@ -75,6 +75,10 @@ Phold | v0.2.0 | https://zenodo.org/records/12735568
 iPHOP | Aug_2023_pub_rw | use `iphop download --db_version iPHoP_db_Aug23_rw --db_dir /destination/path/`
 geNomad | v1.7 | https://zenodo.org/records/10594875
 
+
+(vibrant | v1.2.1 | use `download-db.sh /destination/path` then go to the installed path and execute `/destination/path/databases/VIBRANT_setup.py`. Then delete `KEGG_profiles_prokaryotes.HMM.h3i` and `VOGDB94_phage.HMM.h3i` and run `hmmpress KEGG_profiles_prokaryotes.HMM` and `hmmpress VOGDB94_phage.HMM`)
+(DRAM: fix line 376 of `<cloned github repo>/mag_annotator/database_processing.py` to this `merge_files(glob(path.join(hmm_dir, 'hmm/VOG*.hmm')), vog_hmms)` then re-run pip install at repo location with conda env active then run DRAM-setup.py prepare_databases --output_dir DRAM_data )
+
 - After downloading these databases, please adapt and run the following commands to provide the databases' locations:
 ```
 vcontact_database="/absolute/path/to/database"
@@ -341,6 +345,16 @@ Only the first script (vConTACT3) can be run with the test dataset. If you are r
         - Phage, picobirna and unclassified contigs at `output/bphage_ALL_1kb_*.fasta.gz`
         - Inphared dataset: `$intermediate/additional_datasets/inphared_14Apr2025_genomes_excluding_refseq.fa.gz`
     - Output: Table with clusters: `output/inphared_clustering/bphage_and_inpha_70-85_clusters.tsv`
+
+### Metabolic gene confirmation
+- `amg_confirmation_get_annotations.slrm`
+    - Requires:
+        - List of genomes with potential AMGs: `data/AMG_genomes.tsv`
+        - Pharokka's output of the bulk contigs: `output/annotation/pharokka_bphage_and_others/prodigal-gv.faa`
+        - Pharokka's output of the refined contigs: `output/core_contig_refinement/extended_contigs_pharokka/prodigal-gv.faa`
+        - Pyhon script to filter `.gbk` files (will be called from within the script): `scripts/HPC/grep_gbk.py` 
+        - List of CDSs of potential AMGs: `data/AMG_CDSs.tsv`
+    - Output: Genome sequences of contigs with potential AMGs and their protein sequences in `output/amg_confirmation`
 
 ---
 ---
