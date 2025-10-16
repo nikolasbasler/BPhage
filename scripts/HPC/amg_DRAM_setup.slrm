@@ -1,0 +1,37 @@
+#!/bin/bash -l
+#SBATCH --job-name="amg_DRAM_setup"
+#SBATCH --cluster=genius
+#SBATCH --partition=bigmem_long
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=36
+#SBATCH --mem-per-cpu=20G
+#SBATCH --time=168:00:00
+#SBATCH --account=lp_jm_virome_group
+#SBATCH --output=slurm-%x_%j.out
+
+###############################################################################
+
+# Submit (from output/slurm_log)
+# sbatch --export=ALL ../../scripts/HPC/amg_DRAM_setup.slrm
+
+conda activate DRAM
+repo_location="$VSC_STAGING/BPhage"
+
+# To build this database, follow the instructions on the Github (using the conda installation):
+# https://github.com/WrightonLabCSU/DRAM
+# But before doing pip install, modify this file in the cloned repo:
+# mag_annotator/database_processing.py
+# Change line 376 from 
+# merge_files(glob(path.join(hmm_dir, 'VOG*.hmm')), vog_hmms)
+# to
+# merge_files(glob(path.join(hmm_dir, 'hmm/VOG*.hmm')), vog_hmms)
+# Then pip install, and afterwards run this job.
+
+# They say they currently develop DRAM2, but apparently this will be a Nextflow pipeline.
+
+date=$(date +%Y%m%d)
+DRAM-setup.py prepare_databases --threads 36 --output_dir /staging/leuven/stg_00029/DB/DRAM/DRAM_${date}
+
+echo "========================================================================"
+duration=$SECONDS
+printf 'Job finished in: %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))
