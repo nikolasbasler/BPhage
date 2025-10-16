@@ -490,7 +490,7 @@ iterations <- 1000
 source("scripts/R/helpers/rarefaction_alpha.R")
 source("scripts/R/helpers/rarefaction_beta.R")
 
-# For manuscript figure:
+# For manuscript figure (will only work if above rarefaction helper scripts were run):
 all <- alpha$Family$single_plots
 non_core_singles <- alpha_core_or_not$no$Family$single_plots
 core_singles <- alpha_core_or_not$yes$Family$single_plots
@@ -505,7 +505,7 @@ pretty_alpha_selection <- wrap_plots(
     wrap_plots(non_core_singles[5:7], axes = "collect_y", widths = c(3,4,3)) /
     wrap_plots(core_singles[5:7], axes = "collect_y", widths = c(3,4,3)))
 
-pretty_alpha_selection_abs <- wrap_plots( 
+pretty_alpha_selection_abs <- wrap_plots(
   wrap_plots(alpha_abs[["Family"]][["plot"]][[4]], alpha_abs[["Family"]][["plot"]][[5]], widths = c(4,3)) /
   wrap_plots(alpha_abs_core_or_not[["no"]][["Family"]][["plot"]][[4]], alpha_abs_core_or_not[["no"]][["Family"]][["plot"]][[5]], widths = c(4,3)) /
   wrap_plots(alpha_abs_core_or_not[["yes"]][["Family"]][["plot"]][[4]], alpha_abs_core_or_not[["yes"]][["Family"]][["plot"]][[5]], widths = c(4,3))
@@ -814,6 +814,29 @@ genera_per_family_stats <- genera_per_family_tbl %>%
 
 here_time <- Sys.time()
 here_time - start_time
+
+#------------------------------------------------------------------------------#
+#------------------------------------------------------------------------------#
+# Adding geNomad's virus score and fdr to the classification table
+virus_scores_extended_contigs<- read.delim("output/core_contig_refinement/extended_contigs_genomad/extended_contigs_summary/extended_contigs_virus_summary.tsv") %>%
+  tibble() %>%
+  mutate(contig = sapply(strsplit(seq_name, "_"), function(x) paste(head(x, 11), collapse = "_"))) %>%
+  select(contig, virus_score, fdr)
+
+virus_scores_bulk_contigs <- read.csv("output/bphage_ALL_1kb_phages.csv") %>%
+  rbind(read.csv("output/bphage_ALL_1kb_picobirna.csv")) %>%
+  rbind(read.csv("output/bphage_ALL_1kb_unclassified_viruses.csv")) %>%
+  tibble() %>%
+  rename(contig = contig_id) %>%
+  filter(contig %in% classification$contig,
+         !contig %in% virus_scores_extended_contigs$contig) %>%
+  select(contig, virus_score, fdr)
+
+virus_scores_all_contigs <- rbind(virus_scores_extended_contigs, virus_scores_bulk_contigs)
+
+classification <- classification %>%
+  left_join(., virus_scores_all_contigs, by = "contig") %>%
+  relocate(c(virus_score, fdr), .before = provirus)
 
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
