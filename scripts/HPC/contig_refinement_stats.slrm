@@ -18,13 +18,15 @@ repo_location="$VSC_STAGING/BPhage"
 
 cd $repo_location/output/core_contig_refinement
 
-ll */*fasta | awk '$5!=0 {print $9".summary.txt"}' > temp.non.empty.files
+ll */*fasta | awk '$5!=0 {print $9".summary.txt"}' | grep "NODE" > temp.non.empty.files
 
-echo -e "contig\trefined_length\toriginal_length\textended_bp\textended_percentage" > cobra_refinement_stats.tsv
+echo -e "contig\toriginal_name\trefined_length\toriginal_length\textended_bp\textended_percentage" > cobra_refinement_stats.tsv
 while read line; do
     original_length=$(sed 1d $line | cut -d"_" -f4)
-    sed 1d $line | cut -f1,2 | awk -v ol=$original_length '{print $0 "\t" ol}' | \
-        awk '{print $1 "\t" $2 "\t" $3 "\t" $2-$3 "\t" 100*($2-$3)/$3}' >> cobra_refinement_stats.tsv
+    original_name=$(sed 1d $line | cut -f1 | cut -d"_" -f1-11)
+    # sed 1d $line | cut -f1,2 | awk -v ol=$original_length '{print $0 "\t" ol}' | \
+    sed 1d $line | cut -f1,2 | awk -v ol=$original_length -v on=$original_name '{print $1 "\t" on "\t" $2  "\t" ol}' | \
+        awk '{print $1 "\t" $2 "\t" $3 "\t" $4 "\t" $3-$4 "\t" 100*($3-$4)/$4}' >> cobra_refinement_stats.tsv
 done < temp.non.empty.files
 
 sed 1d $repo_location/output/core_contig_refinement/cobra_refinement_stats.tsv | awk '$4!=0 {print $1}' \
