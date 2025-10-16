@@ -8,12 +8,6 @@ library(tidytext)
 
 source("scripts/R/helpers/mixed_helpers.R")
 
-genes_of_interest <- c("PAPS reductase")
-
-remove_for_stringency <- read.delim("output/R/AMG_curation/gene_context/remove_for_stringency.PAPS reductase.tsv")
-has_vibrant_amg <- read.delim("output/R/AMG_curation/gene_context/has_vibrant_amg.PAPS reductase.tsv") %>%
-  tibble()
-
 cropland_fraction <- read.csv("data/land_cover_results.csv") %>% 
   tibble() %>%
   mutate(cropland_fraction = cropland_fraction / 100) %>%
@@ -64,10 +58,7 @@ grene_presence_on_contigs <- phold_predictions_with_extensions %>%
   select(contig, product) %>% 
   mutate(present = 1) %>%
   distinct() %>% 
-  pivot_wider(names_from = product, values_from = present, values_fill = 0) %>%
-  mutate(`PAPS reductase` = ifelse(contig %in% remove_for_stringency$contig, 0, `PAPS reductase`),
-         # `PAPS reductase` = ifelse(contig %in% has_vibrant_amg$contig, 1, 0))
-        `PAPS reductase` = ifelse(!contig %in% has_vibrant_amg$contig, 0, `PAPS reductase`))
+  pivot_wider(names_from = product, values_from = present, values_fill = 0)
 
 gene_tpm <- grene_presence_on_contigs %>%
   pivot_longer(-contig, names_to = "gene", values_to = "present") %>%
@@ -80,6 +71,12 @@ gene_tpm <- grene_presence_on_contigs %>%
   ungroup() %>%
   select(-contig) %>%
   distinct()
+
+genes_of_interest <- c("Chitinase",
+                       "Glucosyltransferase",
+                       "Levanase",
+                       "PAPS reductase", 
+                       "PnuC")
 
 coeffs_tpm_simple <- list()
 
@@ -333,17 +330,17 @@ common_legend <- legend_factory(title = "Gene",
                                 colors = unlist(color_list$dark),
                                 position = "bottom")
 
-# wrap_of_wraps <- wrap_plots(
-#   wrap_plots(genes_log_tpm_plots$`PAPS reductase`[1:4], nrow = 1, axes = "collect"),
-#   wrap_plots(genes_log_tpm_plots$`PAPS reductase`[5:8], nrow = 1, axes = "collect"),
-#   wrap_plots(genes_log_tpm_plots$`PAPS reductase`[9:12], nrow = 1, axes = "collect"),
-#   wrap_plots(list(genes_log_tpm_plots$`PAPS reductase`$`Insecticides – Carbamates`,
-#                   genes_log_tpm_plots$PnuC$Insecticides,
-#                   genes_log_tpm_plots$Levanase$`Herbicides – Urea derivates`,
-#                   genes_log_tpm_plots$Levanase$`Herbicides – Amides`), nrow = 1, axes = "collect"),
-#   common_legend,
-#   nrow = 5, heights = c(rep(4, 4), 1)
-#   )
+wrap_of_wraps <- wrap_plots(
+  wrap_plots(genes_log_tpm_plots$`PAPS reductase`[1:4], nrow = 1, axes = "collect"),
+  wrap_plots(genes_log_tpm_plots$`PAPS reductase`[5:8], nrow = 1, axes = "collect"),
+  wrap_plots(genes_log_tpm_plots$`PAPS reductase`[9:12], nrow = 1, axes = "collect"),
+  wrap_plots(list(genes_log_tpm_plots$`PAPS reductase`$`Insecticides – Carbamates`,
+                  genes_log_tpm_plots$PnuC$Insecticides,
+                  genes_log_tpm_plots$Levanase$`Herbicides – Urea derivates`,
+                  genes_log_tpm_plots$Levanase$`Herbicides – Amides`), nrow = 1, axes = "collect"),
+  common_legend,
+  nrow = 5, heights = c(rep(4, 4), 1)
+  )
 
 # All results
 all_tests_forest_plot <- all_slopes %>%
@@ -420,8 +417,8 @@ write_delim(all_slopes, "output/R/genes_pathogens_and_landuse/gene_tpm_vs_landus
 ggsave("output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/gene_tpm_vs_landuse.all_tests.pdf",
        all_tests_forest_plot, width = 12, height = 50, limitsize = FALSE)
 
-# ggsave("output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/gene_tpm_vs_landuse.wrap.pdf",
-#        wrap_of_wraps, width = 12, height = 12)
+ggsave("output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/gene_tpm_vs_landuse.wrap.pdf",
+       wrap_of_wraps, width = 12, height = 12)
 
 write_delim(gene_tpm, "output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/gene_tpm.tsv",
             delim = "\t")
