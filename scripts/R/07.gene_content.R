@@ -453,3 +453,19 @@ ggsave("output/R/genes_pathogens_and_landuse/hosts_of_genes_all.pdf", hosts_of_g
        width = 8, height = 6)
 ggsave("output/R/genes_pathogens_and_landuse/hosts_of_genes_goi.pdf", hosts_of_genes_plot_goi,
        width = 6, height = 5.2)
+
+
+# Update lengths classification table for convenience to avoid backtracking.
+# cobra_refinement_stats <- read.delim("output/core_contig_refinement/cobra_refinement_stats.tsv") %>%
+#   filter(extended_bp > 0)
+# 
+# updated_classification <- classification %>% 
+#   left_join(., cobra_refinement_stats[c("original_name", "refined_length")], by = join_by(contig == original_name)) %>%
+#   mutate(length_kb_after_refinement = case_when(is.na(refined_length) ~ length_kb,
+#                                                 .default = refined_length/1000),
+#          contig_length_refined = case_when(is.na(refined_length) ~ FALSE,
+#                                       .default = TRUE),
+#          .after = length_kb) %>%
+#   select(-refined_length)
+# 
+# saveRDS(updated_classification, "output/R/R_variables/classification.RDS")
