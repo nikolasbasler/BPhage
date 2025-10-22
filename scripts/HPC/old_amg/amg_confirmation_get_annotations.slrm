@@ -13,7 +13,6 @@
 # Submit (from output/slurm_log)
 # sbatch --export=ALL ../../scripts/HPC/amg_confirmation_get_annotations.slrm
 
-
 conda activate viper_bphage
 repo_location="$VSC_STAGING/BPhage"
 
