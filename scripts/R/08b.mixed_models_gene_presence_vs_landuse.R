@@ -10,9 +10,22 @@ source("scripts/R/helpers/mixed_helpers.R")
 
 genes_of_interest <- c("PAPS reductase")
 
-remove_for_stringency <- read.delim("output/R/AMG_curation/gene_context/remove_for_stringency.PAPS reductase.tsv")
-has_vibrant_amg <- read.delim("output/R/AMG_curation/gene_context/has_vibrant_amg.PAPS reductase.tsv") %>%
+remove_for_stringency <- read.delim("output/R/AMG_curation/gene_context/remove_for_stringency.PAPS reductase.tsv") %>%
   tibble()
+is_vibrant_amg <- read.delim("output/R/AMG_curation/gene_context/is_vibrant_amg.PAPS reductase.tsv") %>%
+  tibble()
+
+high_confidence_paps <- read.delim("output/R/AMG_curation/gene_context/high_confidence_paps.tsv")
+
+high_confidence_paps %>% distinct(contig) %>% nrow()
+high_confidence_paps <- high_confidence_paps %>%
+  filter(!contig %in% remove_for_stringency$contig)
+high_confidence_paps %>% distinct(contig) %>% nrow()
+
+# is_vibrant_amg %>% nrow()
+# vibrant_and_stringent <- is_vibrant_amg %>%
+#   filter(!contig %in% remove_for_stringency$contig)
+# nrow(vibrant_and_stringent)
 
 cropland_fraction <- read.csv("data/land_cover_results.csv") %>%
   tibble() %>%
@@ -65,9 +78,17 @@ grene_presence_on_contigs <- phold_predictions_with_extensions %>%
   mutate(present = 1) %>%
   distinct() %>%
   pivot_wider(names_from = product, values_from = present, values_fill = 0) %>%
-  mutate(`PAPS reductase` = ifelse(contig %in% remove_for_stringency$contig, 0, `PAPS reductase`),
-         # `PAPS reductase` = ifelse(contig %in% has_vibrant_amg$contig, 1, 0))
-         `PAPS reductase` = ifelse(!contig %in% has_vibrant_amg$contig, 0, `PAPS reductase`))
+  mutate(`PAPS reductase` = ifelse(contig %in% remove_for_stringency$contig, 0, `PAPS reductase`))
+  # mutate(`PAPS reductase` = ifelse(contig %in% high_confidence_paps$contig, 1, 0))
+  # mutate(`PAPS reductase` = ifelse(contig %in% vibrant_and_stringent$contig, 1, 0))
+
+  # mutate(`PAPS reductase` = ifelse(contig %in% remove_for_stringency$contig, 0, `PAPS reductase`),
+  #        # `PAPS reductase` = ifelse(contig %in% is_vibrant_amg$contig, 1, 0))
+  #        `PAPS reductase` = ifelse(!contig %in% is_vibrant_amg$contig, 0, `PAPS reductase`))
+
+grene_presence_on_contigs %>%
+  filter(`PAPS reductase` == 1) %>%
+  summarise(paps_genomes_left = n_distinct(contig))
 
 gene_tpm <- grene_presence_on_contigs %>%
   pivot_longer(-contig, names_to = "gene", values_to = "present") %>%
