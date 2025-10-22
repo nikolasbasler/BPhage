@@ -1,0 +1,50 @@
+#!/bin/bash -l
+#SBATCH --job-name="amg_DRAM-v"
+#SBATCH --cluster=genius
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=12
+#SBATCH --mem-per-cpu=4G
+#SBATCH --time=3:00:00
+#SBATCH --account=lp_jm_virome_group
+#SBATCH --output=slurm-%x_%j.out
+
+###############################################################################
+
+# Submit (from output/slurm_log)
+# sbatch --export=ALL ../../scripts/HPC/amg_DRAM-v.slrm
+
+conda activate viper_bphage
+repo_location="$VSC_STAGING/BPhage"
+threads=12
+
+virsorter_db="/staging/leuven/stg_00029/DB/VirSorter2/vs2_20251018"
+
+mkdir -p $VSC_SCRATCH/BPhage/DRAMv
+cd $VSC_SCRATCH/BPhage/DRAMv
+
+zcat $repo_location/output/bphage_ALL_1kb_phages_refined_contigs.fasta.gz \
+    $repo_location/output/bphage_ALL_1kb_picobirna.fasta.gz \
+    $repo_location/output/bphage_ALL_1kb_unclassified_viruses.fasta.gz \
+    > bphage_ALL_1kb_all_viruses.fasta
+
+seqkit grep -f <(cut -f1 $repo_location/data/AMG_genomes.tsv | sed 1d) bphage_ALL_1kb_all_viruses.fasta \
+    > bphage_AMG_genomes.fasta
+
+conda activate vs2
+virsorter run -d ${virsorter_db} --provirus-off --keep-original-seq --prep-for-dramv \
+    -w vs2_bphage_AMG_genomes -i bphage_AMG_genomes.fasta -j ${threads} all
+
+conda activate DRAM
+DRAM-v.py annotate --input_fasta vs2_bphage_AMG_genomes/for-dramv/final-viral-combined-for-dramv.fa \
+    --virsorter_affi_contigs vs2_bphage_AMG_genomes/for-dramv/viral-affi-contigs-for-dramv.tab \
+    --output_dir dram-v_bphage_AMG_genomes --threads ${threads}
+
+DRAM.py distill --input_file dram-v_bphage_AMG_genomes/annotations.tsv --output_dir dram-v_summaries \
+    --trna_path dram-v_bphage_AMG_genomes/trnas.tsv
+
+cp -r dram-v_bphage_AMG_genomes $repo_location/output/amg_confirmation
+cp -r dram-v_summaries $repo_location/output/amg_confirmation
+
+echo "========================================================================"
+duration=$SECONDS
+printf 'Job finished in: %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))
