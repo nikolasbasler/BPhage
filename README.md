@@ -77,7 +77,8 @@ geNomad | v1.7 | https://zenodo.org/records/10594875
 
 
 (vibrant | v1.2.1 | use `download-db.sh /destination/path` then go to the installed path and execute `/destination/path/databases/VIBRANT_setup.py`. Then delete `KEGG_profiles_prokaryotes.HMM.h3i` and `VOGDB94_phage.HMM.h3i` and run `hmmpress KEGG_profiles_prokaryotes.HMM` and `hmmpress VOGDB94_phage.HMM`)
-(DRAM: fix line 376 of `<cloned github repo>/mag_annotator/database_processing.py` to this `merge_files(glob(path.join(hmm_dir, 'hmm/VOG*.hmm')), vog_hmms)` then re-run pip install at repo location with conda env active then run DRAM-setup.py prepare_databases --output_dir DRAM_data )
+(DRAM: fix line 376 of `<cloned github repo>/mag_annotator/database_processing.py` to this `merge_files(glob(path.join(hmm_dir, 'hmm/VOG*.hmm')), vog_hmms)` then re-run pip install at repo location with conda env active then run DRAM-setup.py prepare_databases --output_dir DRAM_data 
+virsorter db)
 
 - After downloading these databases, please adapt and run the following commands to provide the databases' locations:
 ```
