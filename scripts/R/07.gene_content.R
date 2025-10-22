@@ -132,12 +132,13 @@ CDSs_with_metabolism_kegg <- kegg_and_phold %>%
   unlist(use.names = FALSE)
 
 genes_with_kegg <- phold_predictions_with_extensions %>% 
-  filter(cds_id %in% CDSs_with_metabolism_kegg) %>% 
+  filter(cds_id %in% CDSs_with_metabolism_kegg) %>%
   distinct(product) %>%
   unlist(use.names = FALSE)
 
 kegg_tibble <- phold_predictions_with_extensions %>%
-  filter(product %in% genes_with_kegg) %>%
+  # filter(product %in% genes_with_kegg) %>%
+  filter(product %in% "PAPS reductase") %>%
   reframe(placeholder = "placeholder",
           `Assigned metabol. gene` = length(CDSs_with_metabolism_kegg),
           `other assigned` = n_distinct(kegg_mapping$cds_id) - `Assigned metabol. gene`,
