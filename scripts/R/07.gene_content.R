@@ -3,12 +3,15 @@ library(ggpubr)
 library(ggtext)
 library(patchwork)
 library(forcats)
+library(gggenomes)
 
 source("scripts/R/helpers/mixed_helpers.R")
 
 metadata <- readRDS("data/metadata.RDS")
 classification <- readRDS("data/classification.RDS")
 present_in_all_countries <- read_lines("data/core_contigs.txt")
+phage_tpm <- read.csv("output/R/relative_abundance/phage_tpm.csv") %>%
+  tibble()
 
 phold_annotations_extended <- read.delim("output/core_contig_refinement/extended_contigs_phold/phold_per_cds_predictions_long_names.tsv") %>%
   tibble() %>%
@@ -18,12 +21,21 @@ phold_annotations_extended <- read.delim("output/core_contig_refinement/extended
 phold_annotations_unextended <- read.delim("output/annotation/phold_compare_bphage_and_others/phold_per_cds_predictions_long_names.tsv") %>%
   tibble()
 
+## TODO: add these files to the midsave
+vfdb_cds_predictions_extended <- read.delim("output/core_contig_refinement/extended_contigs_phold/sub_db_tophits/vfdb_cds_predictions_long_names.tsv") %>%
+  tibble()
+vfdb_cds_predictions_unextended <- read.delim("output/annotation/phold_compare_bphage_and_others/sub_db_tophits/vfdb_cds_predictions_long_names.tsv") %>%
+  tibble() %>%
+  filter(!contig_id %in% vfdb_cds_predictions_extended$contig_id)
+vfdb_cds_predictions_with_extensions <- rbind(vfdb_cds_predictions_extended, vfdb_cds_predictions_unextended)
+
 phold_predictions_with_extensions <- phold_annotations_unextended %>%
   filter(str_starts(contig_id, "NODE"),
          !contig_id %in% phold_annotations_extended$contig_id) %>%
   rbind(., phold_annotations_extended) %>%
-  filter(str_starts(contig_id, "NODE")) %>%
-  mutate(
+  # filter(str_starts(contig_id, "NODE")) %>%
+  filter(contig_id %in% classification$contig) %>%
+  mutate( # Some of this is pre-peer review legacy:
     product = str_replace_all(product, "levanase", "Levanase"),
     product = str_replace_all(product, "glutamine amidotransferase", "GATase"),
     product = str_replace_all(product, "glucosyltransferase", "Glucosyltransferase"),
@@ -36,7 +48,10 @@ phold_predictions_with_extensions <- phold_annotations_unextended %>%
     product = str_replace_all(product, "phosphoadenosine phosphosulfate reductase", "PAPS reductase"),
     product = str_replace_all(product, "NrdD-like anaerobic ribonucleotide reductase large subunit", "NrdD"),
     product = str_replace_all(product, "ribosomal protein S6 glutaminyl transferase", "RimK")
-    )
+    ) %>%
+  left_join(., vfdb_cds_predictions_with_extensions[c("cds_id", "description")], by = "cds_id") %>%
+  mutate(product = ifelse(is.na(description), product, paste0("VFDB ", description))) %>%
+  select(-description)
 
 kegg_mapping <- read.delim("data/kegg_mapping.tsv", colClasses = "character") %>%
   tibble()
@@ -46,6 +61,16 @@ kegg_and_phold <- kegg_mapping %>%
 
 phage_tpm <- read.csv("output/R/relative_abundance/phage_tpm.csv") %>%
   tibble()
+
+vibrant_amg_KOs <- read_lines("data/AMG_vibrant_curated_KOs")
+
+kegg_and_phold %>%
+  summarise(cds_with_k = n_distinct(cds_id))
+
+kegg_and_phold %>%
+  filter(K_number %in% vibrant_amg_KOs) %>%
+  summarise(cds_with_k = n_distinct(cds_id))
+
 
 #####
 # PHROG BARS
@@ -123,24 +148,19 @@ for(set in names(phrog_bar_vertical)) {
 # KEGG BAR
 
 CDSs_with_metabolism_kegg <- kegg_and_phold %>%
-  filter(Pathway_category == "Metabolism" | 
-           product %in% c("Chitinase", "GATase", "PnuC")) %>%
-  filter(!product %in% c("decoy of host sigma70", "MazF-like growth inhibitor",
-                         "toxin", "VFDB virulence factor protein")) %>%
-  filter(!str_detect(product, "Que")) %>% # This will remove 3 genes. All of them are only present in one sample (the same one for all 3)
-  distinct(cds_id) %>% 
-  unlist(use.names = FALSE)
+  filter(K_number %in% vibrant_amg_KOs) %>%
+  select(cds_id, contig_id, product) %>%
+  distinct()
 
 genes_with_kegg <- phold_predictions_with_extensions %>% 
-  filter(cds_id %in% CDSs_with_metabolism_kegg) %>%
+  filter(cds_id %in% CDSs_with_metabolism_kegg$cds_id) %>%
   distinct(product) %>%
   unlist(use.names = FALSE)
 
 kegg_tibble <- phold_predictions_with_extensions %>%
-  # filter(product %in% genes_with_kegg) %>%
-  filter(product %in% "PAPS reductase") %>%
+  filter(product %in% genes_with_kegg) %>%
   reframe(placeholder = "placeholder",
-          `Assigned metabol. gene` = length(CDSs_with_metabolism_kegg),
+          `Assigned metabol. gene` = length(CDSs_with_metabolism_kegg$cds_id),
           `other assigned` = n_distinct(kegg_mapping$cds_id) - `Assigned metabol. gene`,
           `Unass. metabol. gene` = n_distinct(cds_id) - `Assigned metabol. gene`,
           `other unassigned` = phold_predictions_with_extensions %>% 
@@ -165,195 +185,339 @@ kegg_bar <- kegg_tibble %>%
   )
 
 #####
-# MORON BAR
+# AMG curation
 
-genes_of_interest <- c("Chitinase",
-                       "Glucosyltransferase",
-                       "Levanase",
-                       "PAPS reductase", 
-                       "PnuC")
+pois <- c("PAPS reductase", "Levanase", "Glucosyltransferase",
+          "Chitinase" # This is pre-peer review legacy. Chitinase is not in the list of Vibrant's KOs and based on the surrounding genes, it's most likely not an AMG
+          )
+contigs_with_POI <- list()
+for (poi in pois) {
+  contigs_with_POI[[poi]] <- phold_predictions_with_extensions %>%
+    filter(product == poi) %>%
+    distinct(contig_id) %>%
+    unlist(use.names = FALSE)
+}
 
-# The 64 sulf genes occur on 60 diffferent genomes. All other genes only appear once on each genome
-metabolism_tibble <- phold_predictions_with_extensions %>%
-  filter(product %in% genes_with_kegg) %>%
-  count(product, name = "gene_count") %>%
-  arrange(desc(gene_count)) %>%
-  mutate(asterisk = ifelse(product %in% genes_of_interest, "*", ""),
-         product_label = paste0(asterisk, asterisk, product, " (", gene_count, ")", asterisk, asterisk)) %>%
-  select(-asterisk)
+phrog_colors <- c(
+  "head and packaging" = "#235050",
+  "connector" = "#338080",
+  "tail" = "#66CCCC",
+  "lysis" = "#8B4513",
+  "transcription regulation" = "#ef8f01",
+  "integration and excision" = "#FFC300",
+  "DNA, RNA and nucleotide metabolism" = "#FFA07A",
+  "moron, auxiliary metabolic gene and host takeover" = "#DDA0DD",
+  "PAPS reductase" = "#6A0DAD",
+  "Levanase" = "#6A0DAD",
+  "Glucosyltransferase" = "#6A0DAD",
+  "Chitinase" = "#6A0DAD",
+  "unknown function" = "lightgray",
+  "empty" = "lightgray",
+  "other" = "black",
+  "unknown with phrog" = "black"
+)
 
-gene_colors <- rev(c("PAPS reductase" = "#ef8f01", 
-                     "Chitinase" = "#8B4513",
-                     "Glucosyltransferase" = "#FFC300", 
-                     "Levanase" = "#FFA07A", 
-                     "RimK" = "#66CCCC", 
-                     "PnuC" = "#FFDAB9",
-                     "GATase" = "#4CB3B3",
-                     "RmlC" = "#338080",
-                     "NrdD" = "#2A6666",
-                     "CobT" = "#235050",
-                     "NMNAT" = "#1C3A3A",
-                     "Porphyrin synthesis protein" = "#162E2E"))
-
-goi_bar <- metabolism_tibble %>%
-  mutate(product_label = factor(product_label, levels = rev(metabolism_tibble$product_label)),
-         product = factor(product, levels = rev(metabolism_tibble$product))) %>%
-  ggplot(aes(x = 1, y = gene_count, fill = product)) +
-  geom_col(position = "fill") +
-  theme_void() +
-  theme(
-    legend.position = "none",
-    plot.margin = margin(c(5,5,5,5), unit = "pt"),
+plots_of_genomes <- list()
+features <- list()
+for (poi in pois) {
+  
+  features[[poi]] <- phold_predictions_with_extensions %>%
+    filter(contig_id %in% contigs_with_POI[[poi]]) %>%
+    left_join(., classification[c("contig", "length_kb_after_refinement", "completeness", "completeness_method", "virus_score", "fdr")], by = join_by(contig_id == contig)) %>%
+    mutate(genome_label = paste0(contig_id, " - CheckV completeness: ", completeness, "%, ", completeness_method, " - geNomad virus score: ", virus_score, " (fdr = ", fdr, ")"),
+           length = length_kb_after_refinement * 1000) %>%
+    select(contig_id, length, genome_label, start, end, strand, phrog, function., product) %>%
+    rename(seq_id = contig_id, funct = function.) %>%
+    mutate(
+      type = "CDS",
+      funct = ifelse(funct == "", "empty", funct),
+      fill_group = ifelse(product %in% pois, product, funct),
+      fill_group = ifelse(fill_group == "unknown function" & phrog != "No_PHROG", "unknown with phrog", fill_group),
+      gene_label = ifelse(product %in% pois, as.character(product), NA_character_),
+      contig = seq_id
+    )
+  
+  genome_seqs <- features[[poi]] %>%
+    select(seq_id, length, genome_label) %>%
+    distinct()
+  
+  plots_of_genomes[[poi]] <- gggenomes(genes = features[[poi]], seqs = genome_seqs) +
+    geom_seq() +
+    geom_seq_label(aes(label = genome_label), fontface = "bold") +
+    geom_gene(aes(fill=fill_group)) +
+    scale_fill_manual(values = phrog_colors, breaks = names(phrog_colors)) +
+    geom_gene_tag(aes(label = gene_label, color = "#6A0DAD"),
+                  na.rm = TRUE,
+                  size = 2.5,
+                  angle = 0,
+                  nudge_y = 0.14,
+                  hjust = 0.5) +
+    scale_color_identity(guide = "none") +
+    theme(legend.position = "top",
+          legend.title = element_text(face = "bold"),
+          legend.key.spacing.x = unit(0.5, "cm")
     ) +
-  scale_fill_manual(values = gene_colors,
-                    labels = setNames(as.character(metabolism_tibble$product_label),
-                                      metabolism_tibble$product)
-  )
+    labs(fill = "PHROG category or GOI")
+}
+
+###
+# Only keep genes, where
+# 1.  They are not the last annotation before one of the contig edges, unless 
+#     completeness is 100%
+# 2.  Between both sides of the gene and the contig edges, there is at least one
+#     other gene assigned to a PHROGS category (unknown genes in between are ok,
+#     as long as they are assigned to a PHROG).
+# 3.  On one or no side of the gene, the next annotated gene is assigned to a 
+#     structural function.
+
+removed_CDSs <- tibble(
+  cds = c(
+    "NODE_A10_length_30913_cov_20.162408_NL_19102_spr_mid_d_CDS_0035",
+    "NODE_A21_length_29443_cov_20.814377_NL_19104_spr_rec_d_CDS_0001",
+    "NODE_A7_length_26493_cov_31.033502_CH_17692_aut_rec_d_CDS_0005",
+    "NODE_A8_length_37910_cov_326.687099_PT_19414_sum_rec_d_CDS_0044",
+    "NODE_A2_length_44969_cov_51.188675_PT_19409_aut_mid_d_CDS_0039"  # There is another, fragmented PAPS reductase gene on this contig, with a pholdseek hit with evalue 1.5e-05
+    ),
+  product = c(
+    "PAPS reductase",
+    "PAPS reductase",
+    "PAPS reductase",
+    "PAPS reductase",
+    "PAPS reductase"
+    ),
+  reason = c(
+    "at_edge_of_incomplete_genome",
+    "at_edge_of_incomplete_genome",
+    "not_flanked_by_viral_genes",
+    "at_edge_of_incomplete_genome",
+    "transferred_pharokka_annotation"
+    )
+  ) %>%
+  rbind(tibble(
+    cds = c(
+      "NODE_A10_length_37053_cov_15.348794_PT_19407_sum_rec_d_CDS_0041",
+      "NODE_A12_length_38214_cov_201.678370_PT_19413_sum_rec_d_CDS_0001",
+      "NODE_A1_length_73530_cov_277.772249_RO_17363_spr_mid_d_CDS_0074",
+      "NODE_A2_length_32063_cov_15.566779_NL_19104_sum_mid_d_CDS_0029",
+      "NODE_A3_length_49905_cov_25.785020_BE_16562_aut_mid_d_CDS_0027",
+      "NODE_A3_length_45605_cov_104.639321_PT_19412_sum_mid_d_CDS_0054",
+      "NODE_A3_length_35019_cov_23.526272_RO_17363_spr_mid_d_CDS_0057"
+      ),
+    product = c(
+      "Levanase",
+      "Levanase",
+      "Levanase",
+      "Levanase",
+      "Levanase",
+      "Levanase",
+      "Levanase"
+      ),
+    reason = c(
+      "at_edge_of_incomplete_genome",
+      "at_edge_of_incomplete_genome",
+      "flanked_by_structural_genes",
+      "flanked_by_structural_genes",
+      "flanked_by_structural_genes",
+      "flanked_by_structural_genes",
+      "at_edge_of_incomplete_genome"
+      )
+    )
+    ) %>%
+  rbind(tibble(
+    cds = c(
+      "NODE_A12_length_15305_cov_21.290846_NL_19100_sum_mid_d_CDS_0015",
+      "NODE_A4_length_43482_cov_12.495703_DE_18029_spr_mid_d_CDS_0009",
+      "NODE_A9_length_39063_cov_166.162905_FR_19767_sum_rec_d_CDS_0045"
+    ),
+    product = c(
+      "Glucosyltransferase",
+      "Glucosyltransferase",
+      "Glucosyltransferase"
+      ),
+    reason = c(
+      "flanked_by_structural_genes",
+      "flanked_by_structural_genes",
+      "flanked_by_structural_genes"
+    )
+  )) %>%
+  mutate(contig = str_replace(cds, "_CDS_.*", ""), .before = cds)
+
+pois <- c("PAPS reductase", "Levanase", "Glucosyltransferase")
+updated_contigs_with_POI <- list()
+for (poi in pois) {
+  filt_remoded_CDSs <- removed_CDSs %>%
+    filter(product == poi)
+  updated_contigs_with_POI[[poi]] <- phold_predictions_with_extensions %>%
+    filter(product == poi,
+           !cds_id %in% filt_remoded_CDSs$cds) %>%
+    distinct(contig_id) %>%
+    unlist(use.names = FALSE)
+}
+
+paps_length_and_completeness_quantiles <- classification %>%
+  filter(contig %in% updated_contigs_with_POI$`PAPS reductase`) %>%
+  reframe(quantile = names(quantile(completeness)),
+          completeness = quantile(completeness),
+          length_kb_after_refinement = quantile(length_kb_after_refinement))
+
+paps_completeness_histogram <- classification %>%
+  filter(contig %in% updated_contigs_with_POI$`PAPS reductase`) %>%
+  ggplot(aes(x = completeness)) +
+  geom_histogram(bins = 40) +
+  ggtitle("contigs carrying PAPS reductase")
+
+paps_length_histogram <- classification %>%
+  filter(contig %in% updated_contigs_with_POI$`PAPS reductase`) %>%
+  ggplot(aes(x = length_kb_after_refinement)) +
+  geom_histogram(bins = 40) +
+  ggtitle("contigs carrying PAPS reductase") +
+  labs(x = "contig length (kb)")
+
+goi_presence <- classification %>%
+  select(contig) %>%
+  mutate(
+    `GOI_PAPS reductase` = ifelse(contig %in% updated_contigs_with_POI$`PAPS reductase`, TRUE, FALSE),
+    GOI_Levanase = ifelse(contig %in% updated_contigs_with_POI$Levanase, TRUE, FALSE),
+    GOI_Glucosyltransferase = ifelse(contig %in% updated_contigs_with_POI$Glucosyltransferase, TRUE, FALSE)
+    )
+
+complete_caudos_with_goi <- classification %>%
+  select(-starts_with("GOI_")) %>%
+  filter(Class == "Caudoviricetes",
+         completeness == 100) %>%
+  left_join(., goi_presence, by = "contig")
+
+prop_of_goi_carrying_genomes <- complete_caudos_with_goi %>%
+  summarise(across(starts_with("GOI_"), ~ sum(.x, na.rm = TRUE))) %>%
+  pivot_longer(everything(), names_to = "genomes", values_to = "count") %>%
+  left_join(
+    complete_caudos_with_goi %>%
+      summarise(across(starts_with("GOI_"), ~ mean(.x, na.rm = TRUE))) %>%
+      pivot_longer(everything(), names_to = "genomes", values_to = "proportion"),
+    by = "genomes"
+  ) %>%
+  bind_rows(tibble(genomes = "complete_caudo_genomes", count = nrow(complete_caudos_with_goi), proportion = 1)) %>%
+  arrange(desc(genomes))
 
 #####
-# GENE PREVALENCE
+# MORON BAR
 
-grene_presence_on_contigs <- phold_predictions_with_extensions %>%
-  filter(product %in% metabolism_tibble$product) %>%
-  rename(contig = contig_id) %>%
-  select(contig, product) %>%
-  mutate(present = 1) %>%
-  distinct() %>%
-  pivot_wider(names_from = product, values_from = present, values_fill = 0)
+#####
+# Gene sample prevalence
 
-gene_presence_in_samples <- grene_presence_on_contigs %>%
-  pivot_longer(-contig, names_to = "gene", values_to = "present") %>%
-  left_join(., phage_tpm, by = "contig") %>%
-  mutate(across(-c(contig, gene, present), ~ .x * present)) %>%
-  select(-present) %>%
-  pivot_longer(-c(contig, gene), names_to = "Sample_ID", values_to = "tpm") %>%
-  group_by(gene, Sample_ID) %>%
-  mutate(presence = ifelse(sum(tpm) > 0 , 1, 0)) %>%
-  ungroup() %>%
-  select(-c(contig, tpm)) %>%
-  distinct() %>%
+classification %>%
+  filter(contig %in% CDSs_with_metabolism_kegg$contig_id) %>%
+  count(Class)
+
+sample_and_country_prevalence <- phold_predictions_with_extensions %>%
+  filter(product %in% CDSs_with_metabolism_kegg$product,
+         !cds_id %in% removed_CDSs$cds,
+         !product %in% c("toxin", "MazF-like growth inhibitor") # toxin/antitoxin genes
+         ) %>%
+  select(cds_id, contig_id, product) %>%
+  left_join(., phage_tpm, by = join_by(contig_id == contig)) %>%
+  pivot_longer(-c(cds_id, contig_id, product), names_to = "Sample_ID", values_to = "tpm") %>%
   left_join(., metadata[c("Sample_ID", "Country")], by = "Sample_ID") %>%
-  group_by(gene) %>%
-  ungroup() %>%
-  mutate(gene = fct_reorder(gene, presence, .fun = mean, .desc = TRUE))
+  filter(tpm > 0) %>% 
+  group_by(product) %>%
+  summarise(
+    number_of_samples = n_distinct(Sample_ID),
+    number_of_countries = n_distinct(Country)
+    ) %>%
+  mutate(
+    sample_prevalance = number_of_samples / (ncol(phage_tpm)-1),
+    country_prevalence = number_of_countries / n_distinct(metadata$Country, na.rm = TRUE)
+  ) %>%
+  arrange(desc(sample_prevalance))
 
-prevalence_plot <- list()
-prevalence_plot$overall <- gene_presence_in_samples %>%
-  ggplot(aes(x = reorder(gene, -presence, FUN = mean), y = presence, fill = gene)) +
+sample_and_country_prevalence %>% filter(country_prevalence == 1)
+
+# "PAPS reductase" and "Glucosyltransferase" occur in all countries, but the 
+# latter occurs only in few samples (11.1%) and its status as AMG is debatable. 
+# This leaves only PAPS reductase as protein of interest.
+
+paps_gene_and_genome_count <- phold_predictions_with_extensions %>%
+  filter(product == "PAPS reductase",
+         !cds_id %in% removed_CDSs$cds) %>%
+  reframe(product = "PAPS reductase", gene_count = n(), genome_count = n_distinct(contig_id))
+
+#####
+# PREVALENCE
+
+paps_sample_prev <- sample_and_country_prevalence %>% 
+  filter(product == "PAPS reductase") %>% 
+  select(sample_prevalance) %>% 
+  unlist(use.names = FALSE)
+
+prevalence_plot <- phage_tpm %>%
+  pivot_longer(-contig, names_to = "Sample_ID", values_to = "tpm") %>%
+  left_join(., metadata[c("Sample_ID", "Country")], by = "Sample_ID") %>%
+  mutate(paps_on_contig = ifelse(contig %in% updated_contigs_with_POI$`PAPS reductase` & tpm > 0, TRUE, FALSE)) %>%
+  group_by(Sample_ID, Country) %>%
+  mutate(paps_in_sample = ifelse(sum(paps_on_contig) > 0, 1, 0)) %>%
+  ungroup() %>%
+  select(Sample_ID, Country, paps_in_sample) %>%
+  distinct() %>%
+  ggplot(aes(x = reorder(Country, -paps_in_sample, FUN = mean), y = paps_in_sample)) +
   geom_bar(stat = "summary", fun = mean) +
   geom_text(
     stat = "summary",
     fun = mean,
     aes(label = paste0(round(after_stat(y*100)), "%")),
     vjust = -0.5,
-  ) +  
-  labs(x = "Gene", y = "Prevalence") +
-  scale_y_continuous(expand = expansion(mult = c(0, 0.1))) +
-  scale_fill_manual(values = gene_colors) +
-  theme_void() +
-  theme(
-    plot.margin = margin(r = 5, l = 5, t = 5, b = 5, unit = "pt"),
-    axis.text.x = element_text(angle = 90, hjust = 1, margin = margin(t = 5)),
-    legend.title = element_text(face = "bold")
-  ) 
-
-prevalence_plot$country_facet <- prevalence_plot$overall + 
-  facet_wrap(~Country) +
-  theme_grey() +
-  theme(
-    axis.text.x = element_text(angle = 90, hjust = 1)
-  ) 
-prevalence_plot$gene_facet <- prevalence_plot$overall + 
-  aes(x = Country, y = presence, fill = gene) + facet_wrap(~gene) +
-  theme_grey()
+  ) +
+  labs(x = "Country", y = "Prevalence") +
+  geom_hline(yintercept = paps_sample_prev) +
+  ggtitle("Sample prevalence of PAPS reductase") +
+  theme_minimal()
 
 #####
 # Hosts
 
-host_pie_colors <- c("***Bifidobacterium***" = "#FFDAB9",
-                     "***Lactobacillus***" = "#FFA07A",
-                     "***Snodgrassella***" = "#FFC300",
-                     "***Bombilactobacillus***" = "#ef8f01",
-                     "***Gilliamella***" = "#8B4513",
-                     "*Frischella*" = "#1C3A3A",
-                     "*Commensalibacter*" = "#2A6666",
-                     "*Bartonella*" = "#4CB3B3",
-                     "*Bombella*" = "#338080",
+host_pie_colors <- c("Bifidobacterium" = "#FFDAB9",
+                     "Lactobacillus" = "#FFA07A",
+                     "Snodgrassella" = "#FFC300",
+                     "Bombilactobacillus" = "#ef8f01",
+                     "Gilliamella" = "#8B4513",
+                     "Frischella" = "#1C3A3A",
+                     "Commensalibacter" = "#2A6666",
+                     "Bartonella" = "#4CB3B3",
+                     "Bombella" = "#338080",
                      "other" = "#555555",
                      "unknown" = "lightgrey")
 
-hosts_of_genes_tibble <- grene_presence_on_contigs %>%
-  pivot_longer(-contig, names_to = "gene") %>%
-  filter(value > 0) %>%
-  left_join(., classification[c("contig", "Host_group")], by = "contig") %>%
-  group_by(gene, Host_group) %>%
-  reframe(host_count = n()) %>%
-  arrange(gene) %>%
-  mutate()
+paps_hosts_tibble <- classification %>%
+  filter(contig %in% updated_contigs_with_POI$`PAPS reductase`) %>%
+  count(Host_group, name = "host_count") %>%
+  mutate(host_label = case_when(
+    Host_group %in% c("Gilliamella", "Lactobacillus", "Bifidobacterium", "Bombilactobacillus", "Snodgrassella") ~ paste0("***", Host_group, "*** **(", host_count, ")**"),
+    Host_group %in% c("other", "unknown") ~ paste0(Host_group, " (", host_count, ")"),
+    .default = paste0("*", Host_group, "* (", host_count, ")")),
+    Host_group = factor(Host_group, levels = rev(c("unknown", "other", "Bartonella", "Frischella", "Gilliamella", "Snodgrassella")))
+  ) %>%
+  arrange(Host_group)
 
-hosts_of_genes_plot_all_genes <- hosts_of_genes_tibble %>%
-  mutate(gene = factor(gene, levels = c("PAPS reductase", "Chitinase", "Glucosyltransferase", "Levanase", "PnuC",
-                                        "RimK", "GATase", "RmlC", "NrdD", "CobT", "NMNAT", "Porphyrin synthesis protein")),
-         Host_group = case_when(Host_group %in% c("Gilliamella", "Lactobacillus", "Bifidobacterium", "Bombilactobacillus", "Snodgrassella") ~ paste0("***", Host_group, "***"),
-                                Host_group %in% c("other", "unknown") ~ Host_group,
-                                .default = paste0("*", Host_group, "*")),
-         Host_group = factor(Host_group, levels = rev(c("unknown", "other", "***Gilliamella***", "***Snodgrassella***", "*Bombella*", "*Bartonella*", "*Frischella*")))
-         ) %>%
-  ggplot(aes(x = gene, y = host_count, fill = Host_group)) +
-  geom_col() +
-  scale_fill_manual(values = host_pie_colors) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle=90, vjust=0.5, hjust=1),
-        legend.text = element_markdown()) +
-  labs(x = "Metabolic gene", y = "Host genus count")
+host_group_colors <- tibble(Host_group = names(host_pie_colors), color = host_pie_colors) %>%
+  left_join(paps_hosts_tibble, ., by = "Host_group") %>%
+  select(host_label, color) %>%
+  deframe()
 
-hosts_of_genes_plot_goi <- hosts_of_genes_tibble %>%
-  filter(gene %in% genes_of_interest) %>%
-  mutate(gene = factor(gene, levels = c("PAPS reductase", "Chitinase", "Glucosyltransferase", "Levanase", "PnuC",
-                                        "RimK", "GATase", "RmlC", "NrdD", "CobT", "NMNAT", "Porphyrin synthesis protein")),
-         Host_group = case_when(Host_group %in% c("Gilliamella", "Lactobacillus", "Bifidobacterium", "Bombilactobacillus", "Snodgrassella") ~ paste0("***", Host_group, "***"),
-                                Host_group %in% c("other", "unknown") ~ Host_group,
-                                .default = paste0("*", Host_group, "*")),
-         Host_group = factor(Host_group, levels = rev(c("unknown", "other", "*Bombella*", "*Bartonella*", "*Frischella*", "***Gilliamella***", "***Snodgrassella***")))) %>%
-  rename(`Host genus` = Host_group) %>%
-  ggplot(aes(x = gene, y = host_count, fill = `Host genus`)) +
+paps_hosts_bar <- paps_hosts_tibble %>%
+  mutate(host_label = factor(host_label, levels = paps_hosts_tibble$host_label)) %>%
+  ggplot(aes(x = "", y = host_count, fill = host_label)) +
   geom_col() +
-  scale_fill_manual(values = host_pie_colors) +
+  scale_fill_manual(values = host_group_colors) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle=35, vjust=1.1, hjust=1, size = 11),
-        plot.margin = margin(c(5,5,5,5), unit = "pt"),
-        legend.title = element_text(face = "bold"),
-        axis.title.x = element_blank(),
-        axis.title.y = element_text(face = "bold"),
-        legend.text = element_markdown()
-  ) +
-  labs(x = "Metabolic gene", y = "Genome count")
-  
+  theme(
+    legend.text = element_markdown(),
+    legend.title = element_text(face = "bold")
+    ) +
+  labs(x = NULL, y = "Genome count", fill = "Host group")
+
 #####
 # Disassemble to make a pretty figure
 
 legend_gg <- list()
-
-# PREVALENCE
-# Remove geom_text
-p <- prevalence_plot$overall
-p$layers <- Filter(function(l) !inherits(l$geom, "GeomText"), p$layers)
-
-prev_plot <- p + 
-  theme(legend.position = "none",
-        axis.text.x = element_blank(),
-        plot.margin = margin(c(5,5,5,5), unit = "pt")
-  ) +
-  coord_flip() +
-  scale_y_reverse(expand = expansion(mult = c(0.1, 0))) +
-  geom_text(
-    stat = "summary",
-    fun = mean,
-    aes(label = paste0(round(after_stat(y*100)), "%")),
-    vjust = 0.5,
-    hjust = 1.2,
-    size = 5
-  )
 
 # PHROG
 phrog_with_legend <- phrog_bar_vertical$all +
@@ -389,78 +553,78 @@ kegg_with_legend <- kegg_bar +
   )
 legend_gg$kegg <- extract_legend(kegg_with_legend)
 
-# GOI
-goi_with_legend <- goi_bar +
-  guides(
-    fill = guide_legend(
-      title            = "Gene product",
-      title.theme      = element_text(face = "bold"),
-    )
-  ) +
-  theme(
-    legend.position = "right",
-    legend.text = element_markdown(),
-  )
-legend_gg$goi <- extract_legend(goi_with_legend)
+# Hosts
+host_bar_without_legend <- paps_hosts_bar +
+  theme_void() +
+  theme(legend.position = "none")
 
+legend_gg$host <- extract_legend(paps_hosts_bar)
 
 # #####
 # SAVE FILES
+system("mkdir -p output/R/gene_content/phrog_kegg_and_host")
+system("mkdir -p output/R/gene_content/amg_curation")
 
-system("mkdir -p output/R/gene_content")
-system("mkdir -p output/R/genes_pathogens_and_landuse")
-
-write_delim(phold_predictions_with_extensions, 
+write_delim(phold_predictions_with_extensions,
             "output/R/gene_content/phold_predictions_with_extensions_bphage_renamed_genes.tsv",
             delim = "\t")
 
-system("mkdir -p output/R/genes_pathogens_and_landuse/phrog_and_kegg")
-
-ggsave("output/R/genes_pathogens_and_landuse/gene_prevalence.overall.pdf",
-       prevalence_plot$overall, height = 8, width = 8)
-ggsave("output/R/genes_pathogens_and_landuse/gene_prevalence.country_facet.pdf",
-       prevalence_plot$country_facet, height = 10, width = 16)
-ggsave("output/R/genes_pathogens_and_landuse/gene_prevalence.gene_facet.pdf",
-       prevalence_plot$gene_facet, height = 10, width = 18.5)
+ggsave("output/R/gene_content/gene_prevalence.PAPS reductase.pdf",
+       prevalence_plot, height = 4.5, width = 4.5)
 
 for (set in names(phrog_bar_vertical)) {
-  ggsave(paste0("output/R/genes_pathogens_and_landuse/phrog_and_kegg/phrog_bar.vertical.", set, ".pdf"),
+  ggsave(paste0("output/R/gene_content/phrog_kegg_and_host/phrog_bar.vertical.", set, ".pdf"),
          phrog_bar_vertical[[set]], height = 5.85, width = 0.875)
-  ggsave(paste0("output/R/genes_pathogens_and_landuse/phrog_and_kegg/phrog_bar.horizontal.", set, ".pdf"),
+  ggsave(paste0("output/R/gene_content/phrog_kegg_and_host/phrog_bar.horizontal.", set, ".pdf"),
          phrog_bar_horizontal[[set]], height = 3, width = 6)
 }
-
-ggsave("output/R/genes_pathogens_and_landuse/phrog_and_kegg/kegg_bar.pdf",
+ggsave("output/R/gene_content/phrog_kegg_and_host/kegg_bar.pdf",
        kegg_bar, height = 5.85, width = 0.75)
-ggsave("output/R/genes_pathogens_and_landuse/phrog_and_kegg/goi_bar.pdf",
-       goi_bar, height = 5.85, width = 0.75)
-
-ggsave("output/R/genes_pathogens_and_landuse/phrog_and_kegg/gene_prevalence.overall.nolegend.pdf",
-       prev_plot, height = 5.85, width = 4)
-
 
 for (legend in names(legend_gg)) {
-  ggsave(paste0("output/R/genes_pathogens_and_landuse/phrog_and_kegg/legend.", legend, ".pdf"),
+  ggsave(paste0("output/R/gene_content/phrog_kegg_and_host/legend.", legend, ".pdf"),
          legend_gg[[legend]], height = 6, width = 6)
 }
 
-write_delim(hosts_of_genes_tibble, "output/R/genes_pathogens_and_landuse/hosts_of_genes.tsv",
+write_delim(paps_hosts_tibble, "output/R/gene_content/hosts.PAPS reductase.tsv",
             delim = "\t")
 
-write_delim(kegg_and_phold, "output/R/genes_pathogens_and_landuse/kegg_and_phold.tsv",
+ggsave("output/R/gene_content/hosts.PAPS reductase.pdf",
+       host_bar_without_legend, height = 5.85, width = 0.75)
+ggsave("output/R/gene_content/hosts.PAPS reductase_with_legend.pdf",
+       paps_hosts_bar, height = 5, width = 4)
+
+write_delim(kegg_and_phold, "output/R/gene_content/kegg_and_phold.tsv",
             delim = "\t")
 
-ggsave("output/R/genes_pathogens_and_landuse/hosts_of_genes_all.pdf", hosts_of_genes_plot_all_genes,
-       width = 8, height = 6)
-ggsave("output/R/genes_pathogens_and_landuse/hosts_of_genes_goi.pdf", hosts_of_genes_plot_goi,
-       width = 6, height = 5.2)
+for (gene in names(updated_contigs_with_POI)) {
+  write_lines(updated_contigs_with_POI[[gene]], 
+              paste0("output/R/gene_content/amg_curation/contigs_with.", gene, ".txt"))
+}
+write_delim(removed_CDSs, "output/R/gene_content/amg_curation/removed_CDSs.tsv", delim = "\t")
+write_delim(prop_of_goi_carrying_genomes, "output/R/gene_content/amg_curation/complete_caudo_genomes_that_carry_goi.tsv", delim = "\t")
 
+write_delim(paps_length_and_completeness_quantiles, "output/R/gene_content/amg_curation/paps_length_and_completeness_quantiles.tsv", delim = "\t")
+ggsave("output/R/gene_content/amg_curation/paps_length_histogram.pdf",
+       paps_length_histogram, height = 4, width = 4)
+ggsave("output/R/gene_content/amg_curation/paps_completeness_histogram.pdf",
+       paps_completeness_histogram, height = 4, width = 4)
 
-# Update lengths classification table for convenience to avoid backtracking.
+for (poi in names(features)) {
+  hei <- 1 + n_distinct(features[[poi]]$seq_id) / 2
+  wid <- max(features[[poi]]$length) / 5000
+  
+  ggsave(paste0("output/R/gene_content/amg_curation/genome_maps.", poi, ".pdf"),
+         plots_of_genomes[[poi]], width = wid, height = hei)
+  write_delim(features[[poi]], paste0("output/R/gene_content/amg_curation/genome_maps.", poi, ".tsv"),
+              delim = "\t")
+}
+
+# # Update lengths classification table for convenience to avoid backtracking.
 # cobra_refinement_stats <- read.delim("output/core_contig_refinement/cobra_refinement_stats.tsv") %>%
 #   filter(extended_bp > 0)
 # 
-# updated_classification <- classification %>% 
+# updated_classification <- classification %>%
 #   left_join(., cobra_refinement_stats[c("original_name", "refined_length")], by = join_by(contig == original_name)) %>%
 #   mutate(length_kb_after_refinement = case_when(is.na(refined_length) ~ length_kb,
 #                                                 .default = refined_length/1000),
@@ -469,4 +633,32 @@ ggsave("output/R/genes_pathogens_and_landuse/hosts_of_genes_goi.pdf", hosts_of_g
 #          .after = length_kb) %>%
 #   select(-refined_length)
 # 
-# saveRDS(updated_classification, "output/R/R_variables/classification.RDS")
+# # Updating classification table to include presence of GOIs. Only PAPS reductase
+# # presence is curated.
+# updated_classification <- updated_classification %>%
+#   select(!starts_with("GOI_"))
+# for (poi in names(updated_contigs_with_POI)) {
+#   name_of_col <- paste0("GOI_", poi)
+#   updated_classification <- updated_classification %>%
+#     mutate(!!name_of_col := case_when(contig %in% updated_contigs_with_POI[[poi]] ~ TRUE,
+#                                       .default = FALSE),
+#            .before = "INPHARED_clustered")
+# }
+# write_delim(updated_classification, "output/R/classification.csv", delim = "\t")
+
+# List of AMG-containing contigs for George. Saved to data for convenience
+# AMG_CDSs <- phold_predictions_with_extensions %>%
+#   filter(product %in% pois) %>%
+#   select(cds_id, product, contig_id) %>%
+#   left_join(., classification[c("contig", "contig_length_refined")], by = join_by(contig_id == contig)) %>%
+#   filter(contig_id %in% unlist(updated_contigs_with_POI))
+# write_delim(AMG_CDSs, "data/AMG_CDSs.tsv", delim = "\t")
+# 
+# AMG_genomes <- updated_classification %>%
+#   filter(contig %in% AMG_CDSs$contig_id) %>%
+#   select(contig, length_kb_after_refinement, contig_length_refined, lowest_taxon,
+#          provirus, gene_count, viral_genes, host_genes, checkv_quality,
+#          miuvig_quality, completeness, completeness_method, contamination,
+#          Host_genus, Lifestyle_replidec, starts_with("GOI"))
+# write_delim(AMG_genomes, "data/AMG_genomes.tsv", delim = "\t")
+

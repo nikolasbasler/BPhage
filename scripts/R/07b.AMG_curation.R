@@ -224,16 +224,12 @@ prop_of_goi_carrying_genomes <- complete_caudos_with_goi %>%
   bind_rows(tibble(GOI = "complete_caudo_genomes", abs = nrow(complete_caudos_with_goi), prop = 1)) %>%
   arrange(desc(GOI))
 
-## TODO: 
-# - Mark excluded GOIs in plots?
-
 ## Save files
 
 system("mkdir -p output/R/AMG_curation/")
 
 write_delim(remove_for_stringency$`PAPS reductase`, "output/R/AMG_curation/remove_for_stringency.PAPS reductase.tsv",
             delim = "\t")
-
 write_delim(prop_of_goi_carrying_genomes, "output/R/AMG_curation/prop_of_goi_carrying_genomes.tsv",
             delim = "\t")
 
@@ -261,7 +257,10 @@ for (poi in pois) {
 
 # phold_predictions_with_extensions_bphage_renamed_genes %>%
 #   filter(product %in% pois) %>%
-#   select(cds_id, product) %>%
+#   select(cds_id, product, contig_id) %>%
+#   left_join(., classification[c("contig", "contig_length_refined")], by = join_by(contig_id == contig)) %>%
+#   filter(!contig_id %in% str_subset(unlist(remove_for_stringency), "NODE"),
+#          cds_id != "NODE_A2_length_44969_cov_51.188675_PT_19409_aut_mid_d_CDS_0039") %>% 
 #   write_delim("data/AMG_CDSs.tsv", delim = "\t")
 
 # genomes_with_goi %>%
@@ -274,16 +273,16 @@ for (poi in pois) {
 
 # Updating classification table to include presence of GOIs. Only PAPS reductase
 # presence is curated.
-updated_classification <- classification %>%
-  select(!starts_with("GOI_"))
-for (poi in names(contigs_with_POI)) {
-  name_of_col <- paste0("GOI_", poi)
-  updated_classification <- updated_classification %>%
-    mutate(!!name_of_col := case_when(contig %in% contigs_with_POI[[poi]] & !(contig %in% remove_for_stringency[[poi]]$contig) ~ TRUE,
-                                      .default = FALSE),
-           .before = "INPHARED_clustered")
-
-}
+# updated_classification <- classification %>%
+#   select(!starts_with("GOI_"))
+# for (poi in names(contigs_with_POI)) {
+#   name_of_col <- paste0("GOI_", poi)
+#   updated_classification <- updated_classification %>%
+#     mutate(!!name_of_col := case_when(contig %in% contigs_with_POI[[poi]] & !(contig %in% remove_for_stringency[[poi]]$contig) ~ TRUE,
+#                                       .default = FALSE),
+#            .before = "INPHARED_clustered")
+# 
+# }
 # write_delim(updated_classification, "output/R/classification.csv", delim = "\t")
 
 
