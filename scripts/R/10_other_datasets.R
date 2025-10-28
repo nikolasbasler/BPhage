@@ -247,7 +247,6 @@ write_csv(dataset_overlap, "output/R/other_studies/dataset_overlap.csv")
 #          Present_in_Feng = Feng) %>%
 #   left_join(classification_strip, ., by = "contig")
 # write_csv(new_classification_df, "output/R/classification.csv")
-# saveRDS(new_classification_df, "output/R/R_variables/classification.RDS")
 
 
 

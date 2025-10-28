@@ -106,4 +106,3 @@ for (cutoff in names(lifestyle_tibble)) {
 # new_classification_df <- left_join(classification_strip, all_predictions, by = "contig")
 #
 # write_csv(new_classification_df, "output/R/classification.csv")
-# saveRDS(new_classification_df, "output/R/R_variables/classification.RDS")
