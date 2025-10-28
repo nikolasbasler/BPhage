@@ -21,7 +21,6 @@ phold_annotations_extended <- read.delim("output/core_contig_refinement/extended
 phold_annotations_unextended <- read.delim("output/annotation/phold_compare_bphage_and_others/phold_per_cds_predictions_long_names.tsv") %>%
   tibble()
 
-## TODO: add these files to the midsave
 vfdb_cds_predictions_extended <- read.delim("output/core_contig_refinement/extended_contigs_phold/sub_db_tophits/vfdb_cds_predictions_long_names.tsv") %>%
   tibble()
 vfdb_cds_predictions_unextended <- read.delim("output/annotation/phold_compare_bphage_and_others/sub_db_tophits/vfdb_cds_predictions_long_names.tsv") %>%
@@ -33,7 +32,6 @@ phold_predictions_with_extensions <- phold_annotations_unextended %>%
   filter(str_starts(contig_id, "NODE"),
          !contig_id %in% phold_annotations_extended$contig_id) %>%
   rbind(., phold_annotations_extended) %>%
-  # filter(str_starts(contig_id, "NODE")) %>%
   filter(contig_id %in% classification$contig) %>%
   mutate( # Some of this is pre-peer review legacy:
     product = str_replace_all(product, "levanase", "Levanase"),
@@ -74,7 +72,6 @@ kegg_and_phold %>%
 
 #####
 # PHROG BARS
-# moron_bar_colors <- rev(c("lightgrey", "#E4B3E4", "#555555"))
 moron_bar_colors <- rev(c("lightgrey", "#F9DDF9", "#555555"))
 
 phrog_tibble <- phold_predictions_with_extensions %>%
