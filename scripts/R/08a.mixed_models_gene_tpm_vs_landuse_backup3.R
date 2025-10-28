@@ -9,8 +9,9 @@ library(tidytext)
 source("scripts/R/helpers/mixed_helpers.R")
 
 genes_of_interest <- c("PAPS reductase")
+# genes_of_interest <- c("PAPS reductase", "VFDB virulence factor protein")
 
-contigs_with.PAPS.reductase <- read_lines("output/R/gene_content/amg_curation/contigs_with.PAPS reductase.txt")
+remove_for_stringency <- read.delim("output/R/AMG_curation/remove_for_stringency.PAPS reductase.tsv")
 
 cropland_fraction <- read.csv("data/land_cover_results.csv") %>% 
   tibble() %>%
@@ -37,14 +38,52 @@ phage_tpm <- read.csv("output/R/relative_abundance/phage_tpm.csv") %>%
 
 phold_predictions_with_extensions <- read.delim("output/R/gene_content/phold_predictions_with_extensions_bphage_renamed_genes.tsv")
 
-gene_tpm <- phage_tpm %>%
-  pivot_longer(-contig, names_to = "Sample_ID", values_to = "tpm") %>%
-  mutate(tpm = ifelse(contig %in% contigs_with.PAPS.reductase, tpm, 0)) %>%
-  group_by(Sample_ID) %>%
-  mutate(tpm = sum(tpm),
-         gene = "PAPS reductase") %>%
+kegg_mapping <- read.delim("data/kegg_mapping.tsv", colClasses = "character") %>%
+  tibble()
+
+kegg_and_phold <- kegg_mapping %>%
+  left_join(., phold_predictions_with_extensions[c("cds_id", "phrog", "function.", "product")], by = "cds_id")
+
+CDSs_with_metabolism_kegg <- kegg_and_phold %>%
+  filter(Pathway_category == "Metabolism" | 
+           product %in% c("Chitinase", "GATase", "PnuC")) %>%
+  filter(!product %in% c("decoy of host sigma70", "MazF-like growth inhibitor",
+                         "toxin", "VFDB virulence factor protein")) %>%
+  filter(!str_detect(product, "Que")) %>% # This will remove 3 genes. All of them are only present in one sample (the same one for all 3)
+  distinct(cds_id) %>% 
+  unlist(use.names = FALSE)
+
+genes_with_kegg <- phold_predictions_with_extensions %>% 
+  filter(cds_id %in% CDSs_with_metabolism_kegg) %>% 
+  distinct(product) %>%
+  unlist(use.names = FALSE)
+
+# genes_with_kegg <- c(genes_with_kegg, "VFDB virulence factor protein")
+
+grene_presence_on_contigs <- phold_predictions_with_extensions %>% 
+  tibble() %>%
+  filter(product %in% genes_with_kegg) %>%
+  rename(contig = contig_id) %>%
+  select(contig, product) %>% 
+  mutate(present = 1) %>%
+  distinct() %>% 
+  pivot_wider(names_from = product, values_from = present, values_fill = 0) %>%
+  mutate(`PAPS reductase` = ifelse(contig %in% remove_for_stringency$contig, 0, `PAPS reductase`))
+
+grene_presence_on_contigs %>%
+  filter(`PAPS reductase` == 1) %>%
+  summarise(paps_genomes_left = n_distinct(contig))
+
+gene_tpm <- grene_presence_on_contigs %>%
+  pivot_longer(-contig, names_to = "gene", values_to = "present") %>%
+  left_join(., phage_tpm, by = "contig") %>% 
+  mutate(across(-c(contig, gene, present), ~ .x * present)) %>%
+  select(-present) %>%
+  pivot_longer(-c(contig, gene), names_to = "Sample_ID", values_to = "tpm") %>%
+  group_by(gene, Sample_ID) %>%
+  mutate(tpm = sum(tpm)) %>%
   ungroup() %>%
-  select(Sample_ID, gene, tpm) %>%
+  select(-contig) %>%
   distinct()
 
 coeffs_tpm_simple <- list()
@@ -273,8 +312,8 @@ sig_tests <- all_slopes %>%
   )) %>%
   select(-effect)
 
-color_list <- list(dark = list( `PAPS reductase` = "#ef8f01"),
-                   bright = list( `PAPS reductase` = "#ef8f01"))
+color_list <- list(dark = list( `PAPS reductase` = "#ef8f01", PnuC = "#FFB89A", Levanase = "#FF8C69"),
+                   bright = list( `PAPS reductase` = "#ef8f01", PnuC = "#FFB89A", Levanase = "#FF8C69"))
 
 genes_log_tpm_plots <- list()
 for (t_name in unique(sig_tests$test_name)) {
@@ -373,6 +412,9 @@ write_delim(all_slopes, "output/R/genes_pathogens_and_landuse/gene_tpm_vs_landus
             delim = "\t")
 ggsave("output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/gene_tpm_vs_landuse.all_tests.pdf",
        all_tests_forest_plot, width = 12, height = 50, limitsize = FALSE)
+
+# ggsave("output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/gene_tpm_vs_landuse.wrap.pdf",
+#        wrap_of_wraps, width = 12, height = 12)
 
 write_delim(gene_tpm, "output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/gene_tpm.tsv",
             delim = "\t")
