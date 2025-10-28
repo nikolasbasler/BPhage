@@ -10,14 +10,28 @@ source("scripts/R/helpers/mixed_helpers.R")
 
 genes_of_interest <- c("PAPS reductase")
 
-contigs_with.PAPS.reductase <- read_lines("output/R/gene_content/amg_curation/contigs_with.PAPS reductase.txt")
+remove_for_stringency <- read.delim("output/R/AMG_curation/gene_context/remove_for_stringency.PAPS reductase.tsv") %>%
+  tibble()
+is_vibrant_amg <- read.delim("output/R/AMG_curation/gene_context/is_vibrant_amg.PAPS reductase.tsv") %>%
+  tibble()
+
+high_confidence_paps <- read.delim("output/R/AMG_curation/gene_context/high_confidence_paps.tsv")
+
+high_confidence_paps %>% distinct(contig) %>% nrow()
+high_confidence_paps <- high_confidence_paps %>%
+  filter(!contig %in% remove_for_stringency$contig)
+high_confidence_paps %>% distinct(contig) %>% nrow()
+
+# is_vibrant_amg %>% nrow()
+# vibrant_and_stringent <- is_vibrant_amg %>%
+#   filter(!contig %in% remove_for_stringency$contig)
+# nrow(vibrant_and_stringent)
 
 cropland_fraction <- read.csv("data/land_cover_results.csv") %>%
   tibble() %>%
   mutate(cropland_fraction = cropland_fraction / 100) %>%
   rename(cropland_fraction_2k_radius = cropland_fraction) %>%
   arrange(cropland_fraction_2k_radius)
-
 # make FAOSTAT_added_data:
 source("scripts/R/helpers/FAOstat_table.R")
 
@@ -37,15 +51,62 @@ phage_tpm <- read.csv("output/R/relative_abundance/phage_tpm.csv") %>%
 
 phold_predictions_with_extensions <- read.delim("output/R/gene_content/phold_predictions_with_extensions_bphage_renamed_genes.tsv")
 
-gene_tpm <- phage_tpm %>%
-  pivot_longer(-contig, names_to = "Sample_ID", values_to = "tpm") %>%
-  mutate(tpm = ifelse(contig %in% contigs_with.PAPS.reductase, tpm, 0)) %>%
-  group_by(Sample_ID) %>%
-  mutate(tpm = sum(tpm),
-         gene = "PAPS reductase") %>%
+kegg_mapping <- read.delim("data/kegg_mapping.tsv", colClasses = "character") %>%
+  tibble()
+
+kegg_and_phold <- kegg_mapping %>%
+  left_join(., phold_predictions_with_extensions[c("cds_id", "phrog", "function.", "product")], by = "cds_id")
+
+CDSs_with_metabolism_kegg <- kegg_and_phold %>%
+  filter(Pathway_category == "Metabolism" | 
+           product %in% c("Chitinase", "GATase", "PnuC")) %>%
+  filter(!product %in% c("decoy of host sigma70", "MazF-like growth inhibitor",
+                         "toxin", "VFDB virulence factor protein")) %>%
+  filter(!str_detect(product, "Que")) %>% # This will remove 3 genes. All of them are only present in one sample (the same one for all 3)
+  distinct(cds_id) %>%
+  unlist(use.names = FALSE)
+
+genes_with_kegg <- phold_predictions_with_extensions %>%
+  filter(cds_id %in% CDSs_with_metabolism_kegg) %>%
+  distinct(product) %>%
+  unlist(use.names = FALSE)
+
+grene_presence_on_contigs <- phold_predictions_with_extensions %>%
+  filter(product %in% genes_with_kegg) %>%
+  rename(contig = contig_id) %>%
+  select(contig, product) %>%
+  mutate(present = 1) %>%
+  distinct() %>%
+  pivot_wider(names_from = product, values_from = present, values_fill = 0) %>%
+  mutate(`PAPS reductase` = ifelse(contig %in% remove_for_stringency$contig, 0, `PAPS reductase`))
+  # mutate(`PAPS reductase` = ifelse(contig %in% high_confidence_paps$contig, 1, 0))
+  # mutate(`PAPS reductase` = ifelse(contig %in% vibrant_and_stringent$contig, 1, 0))
+
+  # mutate(`PAPS reductase` = ifelse(contig %in% remove_for_stringency$contig, 0, `PAPS reductase`),
+  #        # `PAPS reductase` = ifelse(contig %in% is_vibrant_amg$contig, 1, 0))
+  #        `PAPS reductase` = ifelse(!contig %in% is_vibrant_amg$contig, 0, `PAPS reductase`))
+
+grene_presence_on_contigs %>%
+  filter(`PAPS reductase` == 1) %>%
+  summarise(paps_genomes_left = n_distinct(contig))
+
+gene_tpm <- grene_presence_on_contigs %>%
+  pivot_longer(-contig, names_to = "gene", values_to = "present") %>%
+  left_join(., phage_tpm, by = "contig") %>%
+  mutate(across(-c(contig, gene, present), ~ .x * present)) %>%
+  select(-present) %>%
+  pivot_longer(-c(contig, gene), names_to = "Sample_ID", values_to = "tpm") %>%
+  group_by(gene, Sample_ID) %>%
+  mutate(tpm = sum(tpm)) %>%
   ungroup() %>%
-  select(Sample_ID, gene, tpm) %>%
+  select(-contig) %>%
   distinct()
+
+# genes_of_interest <- c("Chitinase",
+#                        "Glucosyltransferase",
+#                        "Levanase",
+#                        "PAPS reductase", 
+#                        "PnuC")
 
 coeffs_logit <- list()
 
@@ -242,6 +303,7 @@ all_slopes <- bind_rows(slopes) %>%
                                           p_adjusted <= 0.075 ~ ".",
                                           .default = "n.s."))
 
+
 #####
 # MAKE PLOTS
 
@@ -271,8 +333,8 @@ sig_tests <- all_slopes %>%
   )) %>%
   select(-effect) 
 
-color_list <- list(dark = list(`PAPS reductase` = "#ef8f01"),
-                   bright = list(`PAPS reductase` = "#ef8f01"))
+color_list <- list(dark = list(Chitinase = "#8B4513", Glucosyltransferase = "#FFC300", `PAPS reductase` = "#ef8f01"),
+                   bright = list(Chitinase = "#8B4513", Glucosyltransferase = "#FFC300", `PAPS reductase` = "#ef8f01"))
 
 genes_logit_plots <- list()
 for (t_name in unique(sig_tests$test_name)) {
@@ -298,6 +360,17 @@ common_legend <- legend_factory(title = "Gene",
                       colors = unlist(color_list$dark),
                       position = "bottom")
 
+# wrap_of_wraps <- wrap_plots(
+#   wrap_plots(genes_logit_plots$Chitinase[1:3], nrow = 1, axes = "collect"),
+#     wrap_plots(genes_logit_plots$Chitinase[4:6], nrow = 1, axes = "collect"),
+#     wrap_plots(genes_logit_plots$Chitinase[7:9], nrow = 1, axes = "collect"),
+#     wrap_plots(list(genes_logit_plots$Chitinase$`Insecticides – Pyrethroids`,
+#                     genes_logit_plots$Chitinase$`Insecticides – Carbamates`, 
+#                     genes_logit_plots$Glucosyltransferase$`Insecticides – Organo-phosphates`), nrow = 1, axes = "collect"),
+#     wrap_plots(genes_logit_plots$`PAPS reductase`, nrow = 1, axes = "collect"),
+#     common_legend,
+#   nrow = 6, heights = c(rep(4, 5), 1)
+# )
 
 # All results
 all_tests_forest_plot <- all_slopes %>%
@@ -323,6 +396,7 @@ for (item in names(model_logit)) {
   }
 }
 
+
 #####
 # SAVE FILES
 
@@ -338,6 +412,9 @@ write_delim(all_slopes, "output/R/genes_pathogens_and_landuse/gene_presence_vs_l
             delim = "\t")
 ggsave("output/R/genes_pathogens_and_landuse/gene_presence_vs_landuse/gene_presence_vs_landuse.all_tests.pdf",
        all_tests_forest_plot, width = 12, height = 40, limitsize = FALSE)
+
+# ggsave("output/R/genes_pathogens_and_landuse/gene_presence_vs_landuse/gene_presence_vs_landuse.wrap.pdf",
+#        wrap_of_wraps, height = 13, width = 9.25)
 
 for (goi in names(genes_logit_plots)) {
   for (item in names(genes_logit_plots[[goi]])) {
@@ -356,4 +433,19 @@ for (item in names(model_diagnostics)) {
            model_diagnostics[[item]][[goi]], width = 6, height = 6)
   }
 }
+
+## To avoid backtracking:
+# new_classification_df <- grene_presence_on_contigs %>%
+#   mutate(GOI_cysH = `PAPS reductase` == 1,
+#          GOI_chitinase = Chitinase == 1,
+#          GOI_levanase = Levanase == 1,
+#          GOI_pnuc = PnuC == 1,
+#          GOI_glucosyltransferase = Glucosyltransferase == 1
+#   ) %>%
+#   select(contig, GOI_cysH, GOI_chitinase, GOI_levanase, GOI_pnuc, GOI_glucosyltransferase) %>%
+#   left_join(classification, ., by = "contig") %>%
+#   mutate(across(c(GOI_cysH, GOI_chitinase, GOI_levanase, GOI_pnuc, GOI_glucosyltransferase), ~ replace_na(., FALSE)))
+# write_csv(new_classification_df, "output/R/classification.csv")
+# saveRDS(new_classification_df, "output/R/R_variables/classification.RDS")
+
 
