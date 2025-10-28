@@ -75,11 +75,6 @@ Phold | v0.2.0 | https://zenodo.org/records/12735568
 iPHOP | Aug_2023_pub_rw | use `iphop download --db_version iPHoP_db_Aug23_rw --db_dir /destination/path/`
 geNomad | v1.7 | https://zenodo.org/records/10594875
 
-
-(vibrant | v1.2.1 | use `download-db.sh /destination/path` then go to the installed path and execute `/destination/path/databases/VIBRANT_setup.py`. Then delete `KEGG_profiles_prokaryotes.HMM.h3i` and `VOGDB94_phage.HMM.h3i` and run `hmmpress KEGG_profiles_prokaryotes.HMM` and `hmmpress VOGDB94_phage.HMM`)
-(DRAM: fix line 376 of `<cloned github repo>/mag_annotator/database_processing.py` to this `merge_files(glob(path.join(hmm_dir, 'hmm/VOG*.hmm')), vog_hmms)` then re-run pip install at repo location with conda env active then run DRAM-setup.py prepare_databases --output_dir DRAM_data 
-virsorter db)
-
 - After downloading these databases, please adapt and run the following commands to provide the databases' locations:
 ```
 vcontact_database="/absolute/path/to/database"
@@ -446,9 +441,9 @@ This script combines the gene annotations from Phold, the KEGG assignments and t
 
 ---
 ### Associations with land use and pathogens (LMMs, GLMMs)
-`08a.mixed_models_gene_tpm_vs_landuse.R`, `08b.mixed_models_gene_presence_vs_landuse.R`, `08c.mixed_models_gene_tpm_vs_nosema_relabund.R`, `08d.mixed_models_pathogen_ct_vs_landuse.R`, `08e.mixed_models_pathogen_presence_vs_landuse.R`
+`08a.mixed_models_gene_tpm_vs_landuse.R`, `08b.mixed_models_gene_presence_vs_landuse.R`, `08c.mixed_models_pathogen_ct_vs_landuse.R`, `08d.mixed_models_pathogen_presence_vs_landuse.R`
 
-These scripts are technically very similar. `a`, `c` and `d` perform linear mixed-effects models (LMMs) on relative gene abundances vs. land use parameters (`a`), on relative gene abundances vs. *Vairimorpha* relative abundance (`c`) and on pathogen Ct values vs. land use parameters (`d`). `b` and `e` perform generalized linear (logistic) mixed-effects models (GLMMs) on gene presence vs. land use parameters (`b`) and pathogen presence vs. land use parameters (`e`). 
+These scripts are technically very similar. `a` and `c` perform linear mixed-effects models (LMMs) on relative gene abundances vs. land use parameters (`a`), and on pathogen Ct values vs. land use parameters (`c`). `b` and `d` perform generalized linear (logistic) mixed-effects models (GLMMs) on gene presence vs. land use parameters (`b`) and pathogen presence vs. land use parameters (`d`). 
 
 The helper script `scripts/R/helpers/FAOstat_table.R` takes the country-wide pesticde usage (`data/FAOSTAT_pest_data_en_3-4-2025.csv`) and landuse (`data/FAOSTAT_area_data_en_3-5-2025.csv`) information from the FAO and combines it with the cropland area around the sampling sites (`data/land_cover_results.csv`) measured by COPERNICUS. Estimates of specific pesticide use at the sampling cites are then calculated. All numbers are from 2019, the year preceeding our sampling.
 
@@ -477,15 +472,14 @@ The landuse parameters all refer to a 2 km radius around the sampling sites. The
 1. Fung & Bact - nes
 1. Plant Growth Regulators
 
-In total there are 23 landuse parameters, 5 genes of interet (encoding PAPS reductasse, chitinase, glucosyltransferase, levanase and PnuC), 3 pathogens (BQCV, SBV and DWV-B) for the Ct value test in `d` and 3 pathogens (ABPV, V. ceranae and CBPV) for the pathogen presence/absence test in `e`. Benjamini-Hochberg correction of p-values was done in each script for all tests that successfully converged. Tests that failed to converge were excluded from further analyses. 
+In total there are 23 landuse parameters, 1 genes of interet (encoding PAPS reductasse), 3 pathogens (BQCV, SBV and DWV-B) for the Ct value test in `c` and 3 pathogens (ABPV, V. ceranae and CBPV) for the pathogen presence/absence test in `d`. Benjamini-Hochberg correction of p-values was done in each script for all tests that successfully converged. Tests that failed to converge were excluded from further analyses. 
 
 Script | Test | Number of tests | Successfully converged | Significant after BH correction
 :---: | :---: | :---: | :---: | :---:
-`a` | LMM (gene rel. abund. vs. landuse) | 115 | 115 | 16
-`b` | GLMM (gene presence vs. landuse)| 115 | 99 | 15
-`c` | LMM (gene rel. abund. vs. nosema rel. abund.)| 5 | 5 | 1
-`d` | LMM (pathogen Ct vs. landuse) | 69 | 69 | 4
-`e` | GLMM (paghogen presence vs. landuse) | 69 | 62 | 0
+`a` | LMM (gene rel. abund. vs. landuse) | 23 | 23 | 15
+`b` | GLMM (gene presence vs. landuse)| 23 | 21 | 3
+`c` | LMM (pathogen Ct vs. landuse) | 69 | 69 | 4
+`d` | GLMM (paghogen presence vs. landuse) | 69 | 62 | 0
 
 Several tables and plots are produced and placed into `output/R/genes_pathogens_and_landuse` (and subfolders), including plots of raw residuals vs. fitted values for model diagnostics. The figures in the paper were stiched together in the next script.
 
