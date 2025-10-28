@@ -1,0 +1,42 @@
+cd /Users/nikolasbasler/Library/CloudStorage/OneDrive-KULeuven/PhD/Virome/BPhage/output/annotation/paps_structures
+
+delete prot1
+delete prot2
+
+load pdb1sur.ent, prot1
+load NODE_A17_length_24847_cov_190.785709_NL_19102_spr_rec_d_CDS_0023.pdb, prot2
+
+align prot2, prot1
+super prot2, prot1 
+
+hide everything
+show cartoon, prot1
+show cartoon, prot2
+
+
+set cartoon_transparency, 0.3, prot1
+# set_color good_red, [228,74,62]
+# set_color good_yellow, [250,199,44]
+# set_color good_teal, [40,176,193]
+# set_color good_green, [170,195,47]
+# set_color good_pink, [236,114,164]
+# set_color good_peach, [249,145,120]
+# set_color good_blue, [68,153,231]
+set_color good_purple, [106,13,173]
+set_color good_yellow, [255,195,0]
+set_color good_orange, [239,143,1]
+set_color good_teal_dark, [35,80,80]
+set_color good_grey, [102,102,102]
+
+color good_grey, prot1
+color good_orange, prot2
+
+bg_color white
+set antialias, 2
+set cartoon_smooth_loops, on
+set cartoon_flat_sheets, on
+zoom all
+orient
+
+ray 2400,1800
+png comparison.png, dpi=600
