@@ -165,4 +165,3 @@ ggsave("output/R/alpha/total_contigs_per_bee_pool.pdf", contigs_per_bee_pool_his
 
 # For convenience, to avoid backtracking
 # write_csv(new_classification_df, "output/R/classification.csv")
-# saveRDS(new_classification_df, "output/R/R_variables/classification.RDS")

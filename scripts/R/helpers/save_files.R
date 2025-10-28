@@ -9,10 +9,10 @@ metadata_clean <- metadata %>%
 write_csv(metadata_clean, "output/R/metadata_clean.csv")
 
 ## Metadata and classification variables
-system("mkdir -p output/R/R_variables")
-saveRDS(metadata, "output/R/R_variables/metadata.RDS")
-saveRDS(classification, "output/R/R_variables/classification.RDS")
-saveRDS(classification_gnmd, "output/R/R_variables/classification_gnmd.RDS")
+# system("mkdir -p output/R/R_variables")
+# saveRDS(metadata, "output/R/R_variables/metadata.RDS")
+# saveRDS(classification, "output/R/R_variables/classification.RDS")
+# saveRDS(classification_gnmd, "output/R/R_variables/classification_gnmd.RDS")
 
 ## Taxon and core pies
 system("mkdir -p output/R/taxon_pies")
