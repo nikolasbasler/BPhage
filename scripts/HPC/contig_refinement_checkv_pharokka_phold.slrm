@@ -78,6 +78,9 @@ sed -f $repo_location/data/phold/relengthen.core.contig.names.sed extended_conti
 echo "phold_aa.fasta"
 sed -f $repo_location/data/phold/relengthen.core.contig.names.sed extended_contigs_phold/phold_aa.fasta \
     > extended_contigs_phold/phold_aa_long_names.fasta
+echo "vfdb"
+sed -f $repo_location/data/phold/relengthen.contig.names.sed extended_contigs_phold/sub_db_tophits/vfdb_cds_predictions.tsv \
+    > extended_contigs_phold/sub_db_tophits/vfdb_cds_predictions_long_names.tsv
 echo "separate gbks"
 mkdir -p extended_contigs_phold/separate_gbks_long_names
 while read pattern; do

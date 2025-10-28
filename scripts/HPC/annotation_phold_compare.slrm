@@ -38,6 +38,9 @@ sed -f $repo_location/data/phold/relengthen.contig.names.sed phold_compare_bphag
 echo "phold_aa.fasta"
 sed -f $repo_location/data/phold/relengthen.contig.names.sed phold_compare_bphage_and_others/phold_aa.fasta \
     > phold_compare_bphage_and_others/phold_aa_long_names.fasta
+echo "vfdb"
+sed -f $repo_location/data/phold/relengthen.contig.names.sed phold_compare_bphage_and_others/sub_db_tophits/vfdb_cds_predictions.tsv \
+    > phold_compare_bphage_and_others/sub_db_tophits/vfdb_cds_predictions_long_names.tsv
 echo "separate gbks"
 mkdir -p phold_compare_bphage_and_others/separate_gbks_long_names
 while read pattern; do
