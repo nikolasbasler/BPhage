@@ -188,7 +188,8 @@ mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_c
       y = arrow_head_center_y,
       label = filt_test_tibble$p_adjust_significant,
       color = "white",
-      vjust = ifelse(slo < 0, 0.5, 1),
+      # vjust = ifelse(slo < 0, 0.5, 1),
+      vjust = ifelse(slo < 0, 0.75, 1),
       size = 4.5,
       # fontface = "bold"
     ) +
