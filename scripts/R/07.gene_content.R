@@ -554,8 +554,12 @@ legend_gg$kegg <- extract_legend(kegg_with_legend)
 host_bar_without_legend <- paps_hosts_bar +
   theme_void() +
   theme(legend.position = "none")
+legend_gg$host_left <- extract_legend(paps_hosts_bar)
 
-legend_gg$host <- extract_legend(paps_hosts_bar)
+p <- paps_hosts_bar +
+  theme(legend.position = "top") +
+  guides(fill = guide_legend(reverse = TRUE))
+legend_gg$host_top <- extract_legend(p)
 
 # #####
 # SAVE FILES
@@ -586,7 +590,7 @@ for (legend in names(legend_gg)) {
 write_delim(paps_hosts_tibble, "output/R/gene_content/hosts.PAPS reductase.tsv",
             delim = "\t")
 
-ggsave("output/R/gene_content/hosts.PAPS reductase.pdf",
+ggsave("output/R/gene_content/phrog_kegg_and_host/hosts.PAPS reductase.pdf",
        host_bar_without_legend, height = 5.85, width = 0.75)
 ggsave("output/R/gene_content/hosts.PAPS reductase_with_legend.pdf",
        paps_hosts_bar, height = 5, width = 4)
