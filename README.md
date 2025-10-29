@@ -476,7 +476,7 @@ In total there are 23 landuse parameters, 1 genes of interet (encoding PAPS redu
 
 Script | Test | Number of tests | Successfully converged | Significant after BH correction
 :---: | :---: | :---: | :---: | :---:
-`a` | LMM (gene rel. abund. vs. landuse) | 23 | 23 | 15
+`a` | LMM (gene rel. abund. vs. landuse) | 23 | 23 | 13
 `b` | GLMM (gene presence vs. landuse)| 23 | 21 | 3
 `c` | LMM (pathogen Ct vs. landuse) | 69 | 69 | 4
 `d` | GLMM (paghogen presence vs. landuse) | 69 | 62 | 0
