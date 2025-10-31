@@ -381,7 +381,7 @@ goi_presence <- classification %>%
 complete_caudos_with_goi <- classification %>%
   select(-starts_with("GOI_")) %>%
   filter(Class == "Caudoviricetes",
-         completeness == 100) %>%
+         completeness >= 100) %>%
   left_join(., goi_presence, by = "contig")
 
 prop_of_goi_carrying_genomes <- complete_caudos_with_goi %>%
@@ -395,6 +395,42 @@ prop_of_goi_carrying_genomes <- complete_caudos_with_goi %>%
   ) %>%
   bind_rows(tibble(genomes = "complete_caudo_genomes", count = nrow(complete_caudos_with_goi), proportion = 1)) %>%
   arrange(desc(genomes))
+
+paps_families <- complete_caudos_with_goi %>%
+  filter(`GOI_PAPS reductase`) %>% 
+  distinct(Family) %>%
+  deframe()
+
+paps_family_prevalence <- complete_caudos_with_goi %>%
+  filter(Family %in% paps_families) %>%
+  group_by(Family) %>%
+  summarise(
+    contigs_in_family = n(),
+    contigs_with_paps = sum(`GOI_PAPS reductase`),
+    family_prev = mean(`GOI_PAPS reductase`),
+    .groups = "drop") %>%
+  mutate(
+    contigs_in_family_ignore_ones = ifelse(contigs_in_family == 1, 0, contigs_in_family),
+    contigs_with_paps_ignore_ones = ifelse(contigs_in_family == 1, 0, contigs_with_paps)
+  ) %>%
+  reframe(
+    complete_contigs_in_families_with_paps = sum(contigs_in_family),
+    complete_contigs_with_paps = sum(contigs_with_paps),
+    paps_prevalence_in_families = complete_contigs_with_paps / complete_contigs_in_families_with_paps,
+    
+    complete_contigs_in_families_with_paps_ignoring_one_counts = sum(contigs_in_family_ignore_ones),
+    complete_contigs_with_paps_ignoring_one_counts = sum(contigs_with_paps_ignore_ones),
+    paps_prevalence_in_families_ignoring_one_counts = complete_contigs_with_paps_ignoring_one_counts / complete_contigs_in_families_with_paps_ignoring_one_counts
+    ) %>%
+  pivot_longer(everything(), names_to = "metric")
+
+# complete_caudos_with_goi %>%
+#   group_by(Family) %>%
+#   summarise(family_prev = mean(`GOI_PAPS reductase`),
+#             complete_contigs_in_family = n(),
+#             weighted_family_prev = family_prev * complete_contigs_in_family) %>% View()
+#   reframe(mean_family_prev = mean(family_prev),
+#           median_family_prev = median(family_prev))
 
 #####
 # MORON BAR
@@ -604,6 +640,7 @@ for (gene in names(updated_contigs_with_POI)) {
 }
 write_delim(removed_CDSs, "output/R/gene_content/amg_curation/removed_CDSs.tsv", delim = "\t")
 write_delim(prop_of_goi_carrying_genomes, "output/R/gene_content/amg_curation/complete_caudo_genomes_that_carry_goi.tsv", delim = "\t")
+write_delim(paps_family_prevalence, "output/R/gene_content/amg_curation/complete_caudo_genomes_paps_family_prevalence.tsv", delim = "\t")
 
 write_delim(paps_length_and_completeness_quantiles, "output/R/gene_content/amg_curation/paps_length_and_completeness_quantiles.tsv", delim = "\t")
 ggsave("output/R/gene_content/amg_curation/paps_length_histogram.pdf",
