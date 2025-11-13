@@ -52,7 +52,8 @@ print_names <- c("Deboutte" = "Deboutte",
                  "Busby" = "Busby",
                  "Bonilla" = "Bonilla-Rosso",
                  "Sbardellati" = "Sbardellati",
-                 "Feng" = "Feng")
+                 "Feng" = "Feng",
+                 "Ndiaye" = "Ndiaye")
 present_in_dataset <- list()
 for (dataset in unique(SRA_to_study$study)) {
   print_name <- print_names[[dataset]]
@@ -138,6 +139,7 @@ dataset_overlap <- tibble(contig = present_in_all_countries) %>%
          Busby = ifelse(contig %in% present_in_dataset$Busby, TRUE, FALSE),
          Sbardellati = ifelse(contig %in% present_in_dataset$Sbardellati, TRUE, FALSE),
          Feng = ifelse(contig %in% present_in_dataset$Feng, TRUE, FALSE),
+         Ndiaye = ifelse(contig %in% present_in_dataset$Ndiaye, TRUE, FALSE),
   ) %>%
   pivot_longer(-contig) %>%
   group_by(contig) %>%
@@ -183,32 +185,41 @@ read_counts_and_pools <- read.delim("output/bphage_viper_output/read_stats.tsv")
                            study == "Busby" ~ 1,
                            study == "Deboutte" ~ 102,
                            study == "Sbardellati" ~ 3,
-                           study == "Feng" ~ 6),
+                           study == "Feng" ~ 6,
+                           study == "Ndiaye" ~ 1),
          bees_per_pool = case_when(study == "BPhage" ~ 10,
                                    study == "Bonilla-Rosso" ~ 100,
                                    study == "Busby" ~ 75,
                                    study == "Deboutte" ~ 6,
                                    study == "Sbardellati" ~ 100,
-                                   study == "Feng" ~ 100)) %>%
+                                   study == "Feng" ~ 100,
+                                   study == "Ndiaye" ~ 1
+                                   )) %>%
   left_join(., positive_pools, by = "study") %>%
   mutate(sampling_time = case_when(study == "BPhage" ~ "2020",
                                    study == "Bonilla-Rosso" ~ "2015/16",
                                    study == "Busby" ~ "2020",
                                    study == "Deboutte" ~ "2012/13",
                                    study == "Sbardellati" ~ "2023",
-                                   study == "Feng" ~ "2020"), # Autumn 2020, only mentioned in "Reporting summary"
+                                   study == "Feng" ~ "2020", # Autumn 2020, only mentioned in "Reporting summary"
+                                   study == "Ndiaye" ~ "2021"
+                                   
+                                   ),
          sampling_region = case_when(study == "BPhage" ~ "Europe",
                                      study == "Bonilla-Rosso" ~ "Switzerland",
                                      study == "Busby" ~ "Texas, USA",
                                      study == "Deboutte" ~ "Belgium",
                                      study == "Sbardellati" ~ "California, USA",
-                                     study == "Feng" ~ "China"),
+                                     study == "Feng" ~ "China",
+                                     study == "Ndiaye" ~ "Switzerland"
+         ),
          total_core_phages = case_when(study == "BPhage" ~ sum(dataset_overlap$Bphage),
                                        study == "Bonilla-Rosso" ~ sum(dataset_overlap$Bonilla),
                                        study == "Busby" ~ sum(dataset_overlap$Busby),
                                        study == "Deboutte" ~ sum(dataset_overlap$Deboutte),
                                        study == "Sbardellati" ~ sum(dataset_overlap$Sbardellati),
-                                       study == "Feng" ~ sum(dataset_overlap$Feng)
+                                       study == "Feng" ~ sum(dataset_overlap$Feng),
+                                       study == "Ndiaye" ~ sum(dataset_overlap$Ndiaye),
          )
   ) %>%
   arrange(desc(total_core_phages))
@@ -233,7 +244,7 @@ write_csv(dataset_overlap, "output/R/other_studies/dataset_overlap.csv")
 
 # For convenience, to avoid backtracking
 # classification_strip <- classification %>%
-#   select(-c(Prevalence_other_datasets, Present_in_Deboutte, Present_in_Bonilla, 
+#   select(-c(Prevalence_other_datasets, Present_in_Deboutte, Present_in_Bonilla,
 #             Present_in_Busby, Present_in_Sbardellati, Present_in_Feng))
 # 
 # new_classification_df <- dataset_overlap %>%
@@ -244,7 +255,9 @@ write_csv(dataset_overlap, "output/R/other_studies/dataset_overlap.csv")
 #          Present_in_Bonilla = Bonilla,
 #          Present_in_Busby = Busby,
 #          Present_in_Sbardellati = Sbardellati,
-#          Present_in_Feng = Feng) %>%
+#          Present_in_Feng = Feng,
+#          Present_in_Ndiaye = Ndiaye,
+#   ) %>% 
 #   left_join(classification_strip, ., by = "contig")
 # write_csv(new_classification_df, "output/R/classification.csv")
 
