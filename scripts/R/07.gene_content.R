@@ -663,6 +663,7 @@ for (poi in names(features)) {
 #   filter(extended_bp > 0)
 # 
 # updated_classification <- classification %>%
+#   select(-contains("refine")) %>%
 #   left_join(., cobra_refinement_stats[c("original_name", "refined_length")], by = join_by(contig == original_name)) %>%
 #   mutate(length_kb_after_refinement = case_when(is.na(refined_length) ~ length_kb,
 #                                                 .default = refined_length/1000),
@@ -670,7 +671,7 @@ for (poi in names(features)) {
 #                                       .default = TRUE),
 #          .after = length_kb) %>%
 #   select(-refined_length)
-# 
+
 # # Updating classification table to include presence of GOIs. Only PAPS reductase
 # # presence is curated.
 # updated_classification <- updated_classification %>%
