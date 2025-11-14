@@ -89,10 +89,18 @@ core_read_presence_overlap$upset <- plot_upset(vennObj,
            # sets.bar.show.numbers = TRUE
            # relative_width = 1.5
 )
-core_read_presence_overlap$upset
 
-only_intersection_bars <- tibble(intersection_set = LETTERS[1:15],
-       set_count = rev(c(1,1,3,3,4,4,5,6,7,9,9,9,11,12,13))) %>% # HARD-CODED!
+set_sizes <- core_read_presence_overlap$upset[["plotlist"]][[1]][["data"]] %>%
+  select(id, size) %>%
+  distinct() %>%
+  select(size) %>%
+  arrange(desc(size)) %>%
+  deframe()
+
+only_intersection_bars <- tibble(intersection_set = LETTERS[1:length(set_sizes)],
+       # set_count = rev(c(1,1,3,3,4,4,5,6,7,9,9,9,11,12,13))) %>% # HARD-CODED and outdated!
+       set_count = set_sizes
+       ) %>%
   ggplot(aes(x = intersection_set, y = set_count)) +
   geom_col(fill = "black") +
   theme_void() +
@@ -186,7 +194,7 @@ read_counts_and_pools <- read.delim("output/bphage_viper_output/read_stats.tsv")
                            study == "Deboutte" ~ 102,
                            study == "Sbardellati" ~ 3,
                            study == "Feng" ~ 6,
-                           study == "Ndiaye" ~ 1),
+                           study == "Ndiaye" ~ 49),
          bees_per_pool = case_when(study == "BPhage" ~ 10,
                                    study == "Bonilla-Rosso" ~ 100,
                                    study == "Busby" ~ 75,
@@ -237,7 +245,7 @@ ggsave(paste0("output/R/other_studies/core_read_presence_overlap.upset.pdf"),
        core_read_presence_overlap$upset, width = 18, height = 6)
 
 ggsave(paste0("output/R/other_studies/core_read_presence_overlap.upset.patch.pdf"),
-       upset_patch, width = 14, height = 5.5)
+       upset_patch, width = 14, height = 6)
 
 write_csv(read_counts_and_pools, "output/R/other_studies/read_counts_and_pools.csv")
 write_csv(dataset_overlap, "output/R/other_studies/dataset_overlap.csv")

@@ -450,6 +450,14 @@ paps_families <- complete_caudos_with_goi %>%
   distinct(Family) %>%
   deframe()
 
+complete_caudo_familiess <- classification %>%
+  filter(
+    Class == "Caudoviricetes",
+    completeness == 100
+  ) %>%
+  distinct(Family) %>%
+  deframe()
+
 paps_family_prevalence <- complete_caudos_with_goi %>%
   filter(Family %in% paps_families) %>%
   group_by(Family) %>%
@@ -471,7 +479,16 @@ paps_family_prevalence <- complete_caudos_with_goi %>%
     complete_contigs_with_paps_ignoring_one_counts = sum(contigs_with_paps_ignore_ones),
     paps_prevalence_in_families_ignoring_one_counts = complete_contigs_with_paps_ignoring_one_counts / complete_contigs_in_families_with_paps_ignoring_one_counts
     ) %>%
-  pivot_longer(everything(), names_to = "metric")
+  pivot_longer(everything(), names_to = "metric") %>%
+  rbind(tibble(
+    metric = c("families_of_complete_caudos", 
+               "families_of_complete_paps_encoding_caudos",
+               "families_of_complete_paps_encoding_caudos_prop"),
+    value = c(length(complete_caudo_familiess), 
+              length(paps_families),
+              length(paps_families) / length(complete_caudo_familiess)
+              )
+  ))
 
 # complete_caudos_with_goi %>%
 #   group_by(Family) %>%
