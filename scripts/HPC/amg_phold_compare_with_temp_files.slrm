@@ -1,0 +1,78 @@
+#!/bin/bash -l
+#SBATCH --job-name="amg_phold_compare_with_temp_files"
+#SBATCH --cluster=genius
+#SBATCH --nodes=1
+#SBATCH --ntasks-per-node=36
+#SBATCH --mem-per-cpu=4G
+#SBATCH --time=30:00
+#SBATCH --account=lp_jm_virome_group
+#SBATCH --output=slurm-%x_%j.out
+
+###############################################################################
+
+# Submit (from output/slurm_log)
+# sbatch --export=ALL ../../scripts/HPC/amg_phold_compare_with_temp_files.slrm
+
+conda activate phold
+repo_location="$VSC_STAGING/BPhage"
+threads=36
+phold_db="/staging/leuven/stg_00029/DB/phold/phold_20240723"
+
+mkdir -p $VSC_SCRATCH/BPhage/amg_confirmation/phold_with_temp_files
+cd $VSC_SCRATCH/BPhage/amg_confirmation/phold_with_temp_files
+
+# awk -F "\t" '($16 == "TRUE" && $3 == "TRUE") {print $1}' $repo_location/data/AMG_genomes.tsv > temp.paps_contigs
+grep "PAPS reductase" $repo_location/data/AMG_CDSs.tsv | cut -f3  |  sort -u | cut -d "_" -f1,2,7- > temp.paps_contigs
+grep "PAPS reductase" $repo_location/data/AMG_CDSs.tsv | awk -F "\t" '$4 == "FALSE" {print $3}' | sort -u | cut -d "_" -f1,2,7- > temp.unextended_paps_contigs
+grep "PAPS reductase" $repo_location/data/AMG_CDSs.tsv | awk -F "\t" '$4 == "TRUE" {print $3}' | sort -u | cut -d "_" -f1,2,7- > temp.extended_paps_contigs
+
+python $repo_location/scripts/HPC/grep_gbk.py \
+    $repo_location/output/annotation/pharokka_bphage_and_others/bphage_and_others.gbk \
+    temp.unextended_paps_contigs \
+    temp.unextended_paps_contigs.gbk
+
+python $repo_location/scripts/HPC/grep_gbk.py \
+    $repo_location/output/core_contig_refinement/extended_contigs_pharokka/extended_contigs.gbk \
+    temp.extended_paps_contigs \
+    temp.extended_paps_contigs.gbk
+
+cat temp.unextended_paps_contigs.gbk temp.extended_paps_contigs.gbk > temp.paps_contigs.gbk
+
+mkdir -p temp_structures_of_amg_genomes
+while read line; do
+    echo "Copying structures for genome: $line"
+    cp $repo_location/output/annotation/phold_colabfold_structures/basler_output_renamed/renamed_pdbs/${line}_*.pdb \
+        temp_structures_of_amg_genomes/
+done < temp.unextended_paps_contigs
+while read line; do
+    echo "Copying structures for genome: $line"
+    cp $repo_location/output/core_contig_refinement/colabfold_structures/extended_contigs_tophits/pdbs/${line}_*.pdb \
+        temp_structures_of_amg_genomes/
+done < temp.extended_paps_contigs
+
+phold compare --keep_tmp_files --input temp.paps_contigs.gbk \
+    --structures --structure_dir temp_structures_of_amg_genomes \
+    -o phold_compare_amg_genomes -t $threads -d $phold_db --separate
+
+# Re-lengthen contig names in foldseek results
+echo "foldseek_results.tsv"
+# sed -f $repo_location/data/phold/relengthen.contig.names.sed phold_compare_amg_genomes/foldseek_results.tsv \
+#     > phold_compare_amg_genomes/foldseek_results_amg_cds_long_names.tsv
+
+grep "PAPS reductase" $repo_location/data/AMG_CDSs.tsv | cut -f1 | cut -d "_" -f1,2,7- > temp.paps_cds_ids
+grep -f temp.paps_cds_ids phold_compare_amg_genomes/foldseek_results.tsv > paps_foldseek_results.tsv 
+sed -f $repo_location/data/phold/relengthen.contig.names.sed paps_foldseek_results.tsv  \
+    > paps_foldseek_results_long_names.tsv
+
+# # Copy foldseek table to output location
+gzip -c paps_foldseek_results.tsv \
+    > $repo_location/output/annotation/phold_compare_bphage_and_others/paps_foldseek_results.tsv.gz
+gzip -c paps_foldseek_results_long_names.tsv \
+    > $repo_location/output/annotation/phold_compare_bphage_and_others/paps_foldseek_results_long_names.tsv.gz
+
+# # Clean up
+rm -r temp*
+
+echo "========================================================================"
+duration=$SECONDS
+printf 'Job finished in: %02d:%02d:%02d\n' $((duration/3600)) $((duration%3600/60)) $((duration%60))
