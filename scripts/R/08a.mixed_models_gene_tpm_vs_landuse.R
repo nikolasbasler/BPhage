@@ -311,6 +311,7 @@ facet_order <- c("Pesticides (total)",
               "Insecticides",
               "Herbicides",
               "Fungicides and Bactericides",
+              "Plant Growth Regulators",
               spec_pests)
 pest_use_tibble <- cropland_and_FAO %>%
   select(Country, Cropland_in_2km_radius, all_of(facet_order)) %>%

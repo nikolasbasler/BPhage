@@ -549,7 +549,14 @@ prevalence_plot <- phage_tpm %>%
     vjust = -0.5,
   ) +
   labs(x = "Country", y = "Prevalence") +
-  geom_hline(yintercept = paps_sample_prev) +
+  geom_hline(yintercept = paps_sample_prev, linetype = 2) +
+  annotate(
+    "label",
+    x = 7.25, y = 0.7, 
+    label = paste0("overall prevalence: \n", round(paps_sample_prev*100), "%"),
+    size = 3.5,
+    vjust = 0
+    ) +
   ggtitle("Sample prevalence of PAPS reductase") +
   theme_minimal()
 
