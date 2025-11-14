@@ -242,7 +242,7 @@ Only the first script (Pharokka) can be run with the test dataset. If you are ru
     - Output: 
         - Shortened pdb file names, otherwise phold will crash.
         - pdb files without corresponding entry in pharokka's output will be moved to `output/annotation/phold_colabfold_structures/basler_output_renamed/filtered_out_renamed_pdbs`
-- `scripts/HPC/annotation_phold_compare.slrm`: Look up predicted structures in a database with Phold compare.
+- `annotation_phold_compare.slrm`: Look up predicted structures in a database with Phold compare.
     - Requires: 
         - Pharokka's gbk output: `output/annotation/pharokka_bphage_and_others/bphage_and_others.gbk`
         - Predicted structures at `output/annotation/phold_colabfold_structures/basler_output_renamed/renamed_pdbs/`
@@ -252,6 +252,15 @@ Only the first script (Pharokka) can be run with the test dataset. If you are ru
         - Predicted functions at: `output/annotation/phold_compare_bphage_and_others`
         - Additional files in this output folder with the original, long contig names: `output/annotation/phold_compare_bphage_and_others/*_long_names.*`
         - Ciros plots of all contigs, except a few very short ones that crashed `phold plot`: `output/annotation/plots_phold_compare_bphage_and_others` (using original, long contig names).
+- `amg_phold_compare_with_temp_files.slrm`: Re-run phold on PAPS reductase genes and keep temp files to retreive more than just the top foldseek his.
+    - Requires: 
+        - Putative AMG CDSs: `data/AMG_CDSs.tsv`
+        - Python script to filter down `.gbk` files: `grep_gbk.py` (called from within the script)
+        - Pharokka output of non-refined contigs: `output/annotation/pharokka_bphage_and_others/bphage_and_others.gbk`
+        - Pharokka output of refined contigs: `output/core_contig_refinement/extended_contigs_pharokka/extended_contigs.gbk`
+        - Predicted structures at `output/annotation/phold_colabfold_structures/basler_output_renamed/renamed_pdbs/`
+        - sed script to re-lengthen contig names: `data/phold/relengthen.contig.names.sed`
+    - Output: Detailsed foldseek results: `output/annotation/phold_compare_bphage_and_others/paps_foldseek_results_long_names.tsv.gz`
 - `kegg_prepare.slrm`: Extract all "moron" gene sequences.
     - Requires: Phold output: `output/core_contig_refinement/phold_compare_bphage_and_others/phold_aa_long_names.fasta`. Also from refined contigs: `output/core_contig_refinement/extended_contigs_phold/phold_aa_long_names.fasta`
     - Output: Gene sequences of "moron" genes: `output/kegg/moron.CDSs.fasta`. Use this to do a GhostKOALA search at the KEGG website (https://www.kegg.jp/ghostkoala/). The output has to be downloaded and turned into a useable format. As this is quite a manual work, the result of this process is at `data/kegg_mapping.tsv`
