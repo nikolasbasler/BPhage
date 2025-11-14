@@ -1,5 +1,5 @@
 #!/bin/bash -l
-#SBATCH --job-name="amg_phold_compare_with_temp_files"
+#SBATCH --job-name="amg_phold_v1_compare_with_temp_files"
 #SBATCH --cluster=genius
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=36
@@ -11,15 +11,15 @@
 ###############################################################################
 
 # Submit (from output/slurm_log)
-# sbatch --export=ALL ../../scripts/HPC/amg_phold_compare_with_temp_files.slrm
+# sbatch --export=ALL ../../scripts/HPC/amg_phold_v1_compare_with_temp_files.slrm
 
-conda activate phold
+conda activate phold_v1
 repo_location="$VSC_STAGING/BPhage"
 threads=36
-phold_db="/staging/leuven/stg_00029/DB/phold/phold_20240723"
+phold_db="/staging/leuven/stg_00029/DB/phold/phold_20251018"
 
-mkdir -p $VSC_SCRATCH/BPhage/amg_confirmation/phold_with_temp_files
-cd $VSC_SCRATCH/BPhage/amg_confirmation/phold_with_temp_files
+mkdir -p $VSC_SCRATCH/BPhage/amg_confirmation/phold_v1_with_temp_files
+cd $VSC_SCRATCH/BPhage/amg_confirmation/phold_v1_with_temp_files
 
 # awk -F "\t" '($16 == "TRUE" && $3 == "TRUE") {print $1}' $repo_location/data/AMG_genomes.tsv > temp.paps_contigs
 grep "PAPS reductase" $repo_location/data/AMG_CDSs.tsv | cut -f3  |  sort -u | cut -d "_" -f1,2,7- > temp.paps_contigs
@@ -65,11 +65,11 @@ sed -f $repo_location/data/phold/relengthen.contig.names.sed paps_foldseek_resul
     > paps_foldseek_results_long_names.tsv
 
 # # Copy foldseek table to output location
+mkdir -p $repo_location/output/amg_confirmation
 gzip -c paps_foldseek_results.tsv \
-    > $repo_location/output/annotation/phold_compare_bphage_and_others/paps_foldseek_results.tsv.gz
+    > $repo_location/output/amg_confirmation/phold_v1_paps_foldseek_results.tsv.gz
 gzip -c paps_foldseek_results_long_names.tsv \
-    > $repo_location/output/annotation/phold_compare_bphage_and_others/paps_foldseek_results_long_names.tsv.gz
-
+    > $repo_location/output/amg_confirmation/phold_v1_paps_foldseek_results_long_names.tsv.gz
 # # Clean up
 rm -r temp*
 
