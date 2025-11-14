@@ -23,6 +23,7 @@ plots$gene_tpm$`PAPS reductase`$Cropland_in_2km_radius <- readRDS("output/R/gene
 plots$gene_tpm$`PAPS reductase`$`Pesticides (total)` <- readRDS("output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/single_panels/RDS.PAPS reductase.Pesticides (total).rds")
 plots$gene_tpm$`PAPS reductase`$`Fungicides and Bactericides` <- readRDS("output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/single_panels/RDS.PAPS reductase.Fungicides and Bactericides.rds")
 plots$gene_tpm$`PAPS reductase`$Herbicides <- readRDS("output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/single_panels/RDS.PAPS reductase.Herbicides.rds")
+plots$gene_tpm$`PAPS reductase`$`Plant Growth Regulators` <- readRDS("output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/single_panels/RDS.PAPS reductase.Plant Growth Regulators.rds")
 
 color_list <- list(dark = list(
   `PAPS reductase` = "#ef8f01",
@@ -62,6 +63,8 @@ paps_square <- plots$gene_tpm$`PAPS reductase`$Cropland_in_2km_radius +
   plots$gene_tpm$`PAPS reductase`$`Pesticides (total)` +
   plots$gene_tpm$`PAPS reductase`$`Fungicides and Bactericides` +
   plots$gene_tpm$`PAPS reductase`$Herbicides +
+  plot_spacer() +
+  plots$gene_tpm$`PAPS reductase`$`Plant Growth Regulators` +
   plot_layout(ncol = 2, axes = "collect")
 
 pathogens <-   
@@ -75,6 +78,7 @@ names_presence <- c(
   "RDS.PAPS reductase.Herbicides – Dinitroanilines.rds",
   "RDS.PAPS reductase.Insecticides - nes.rds"
 )
+
 names_tpm <- c(
   "RDS.PAPS reductase.Fung & Bact – Dithiocarbamates.rds",
   "RDS.PAPS reductase.Fung & Bact - nes.rds",
@@ -84,7 +88,11 @@ names_tpm <- c(
   "RDS.PAPS reductase.Herbicides – Urea derivates.rds",
   "RDS.PAPS reductase.Herbicides - nes.rds",
   "RDS.PAPS reductase.Insecticides – Carbamates.rds",
-  "RDS.PAPS reductase.Insecticides – Pyrethroids.rds"
+  "RDS.PAPS reductase.Insecticides – Pyrethroids.rds",
+  "RDS.PAPS reductase.Fung & Bact – Benzimidazoles.rds",
+  "RDS.PAPS reductase.Fung & Bact – Diazines, morpholines.rds",
+  "RDS.PAPS reductase.Fung & Bact – Triazoles, diazoles.rds",
+  "RDS.PAPS reductase.Herbicides – Carbamates.rds"
 )
 names_ct <- c(
   "RDS.BQCV.Insecticides - nes.rds",
