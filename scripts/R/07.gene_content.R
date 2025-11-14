@@ -51,6 +51,22 @@ phold_predictions_with_extensions <- phold_annotations_unextended %>%
   mutate(product = ifelse(is.na(description), product, paste0("VFDB ", description))) %>%
   select(-description)
 
+paps_foldseek_results_long_names.tsv <- read.delim("output/annotation/phold_compare_bphage_and_others/paps_foldseek_results_long_names.tsv.gz", header=FALSE) %>%
+  tibble() %>%
+  rename(
+    cds_id = V1,
+    hit_protein = V2,
+    bitscore = V3,
+    fident = V4,
+    evalue = V5,
+    qStart = V6,
+    qEnd = V7,
+    qLen = V8,
+    tStart = V9,
+    tEnd = V10,
+    tLen = V11
+  )
+
 kegg_mapping <- read.delim("data/kegg_mapping.tsv", colClasses = "character") %>%
   tibble()
 
@@ -257,6 +273,25 @@ for (poi in pois) {
     labs(fill = "PHROG category or GOI")
 }
 
+
+paps_phrogs <- c("phrog_2302", "phrog_424", "phrog_33262")
+CDSs_with_more_than_one_non_paps_in_top_three_foldseek_hits <- paps_foldseek_results_long_names.tsv %>%
+  group_by(cds_id) %>%
+  arrange(desc(bitscore)) %>%
+  mutate(
+    hit_number = row_number(),
+    total_hits = n()
+  ) %>% 
+  ungroup() %>% 
+  filter(hit_number <= 3) %>% 
+  mutate(hit_phrog = str_extract(hit_protein, "phrog_[0-9]*")) %>% 
+  group_by(cds_id, hit_phrog) %>%
+  count(hit_phrog) %>%
+  filter(
+    !hit_phrog %in% paps_phrogs,
+    n > 1
+    )
+
 ###
 # Only keep genes, where
 # 1.  They are not the last annotation before one of the contig edges, unless 
@@ -266,6 +301,7 @@ for (poi in pois) {
 #     as long as they are assigned to a PHROG).
 # 3.  On one or no side of the gene, the next annotated gene is assigned to a 
 #     structural function.
+# 4.  Max 1 non-paps hit in the top 3 foldseek hits
 
 removed_CDSs <- tibble(
   cds = c(
@@ -273,9 +309,18 @@ removed_CDSs <- tibble(
     "NODE_A21_length_29443_cov_20.814377_NL_19104_spr_rec_d_CDS_0001",
     "NODE_A7_length_26493_cov_31.033502_CH_17692_aut_rec_d_CDS_0005",
     "NODE_A8_length_37910_cov_326.687099_PT_19414_sum_rec_d_CDS_0044",
-    "NODE_A2_length_44969_cov_51.188675_PT_19409_aut_mid_d_CDS_0039"  # There is another, fragmented PAPS reductase gene on this contig, with a pholdseek hit with evalue 1.5e-05
+    "NODE_A2_length_44969_cov_51.188675_PT_19409_aut_mid_d_CDS_0039",  # There is another, fragmented PAPS reductase gene on this contig, with a pholdseek hit with evalue 1.5e-05
+    "NODE_A3_length_73628_cov_24.519327_BE_16556_sum_rec_d_CDS_0023",
+    "NODE_A4_length_61640_cov_572.171532_BE_16556_sum_rec_d_CDS_0091",
+    "NODE_A2_length_53539_cov_25.264468_DE_18029_spr_rec_d_CDS_0003",
+    "NODE_A3_length_31309_cov_22.437180_DE_18032_sum_mid_d_CDS_0004"
+    
     ),
   product = c(
+    "PAPS reductase",
+    "PAPS reductase",
+    "PAPS reductase",
+    "PAPS reductase",
     "PAPS reductase",
     "PAPS reductase",
     "PAPS reductase",
@@ -287,7 +332,11 @@ removed_CDSs <- tibble(
     "at_edge_of_incomplete_genome",
     "not_flanked_by_viral_genes",
     "at_edge_of_incomplete_genome",
-    "transferred_pharokka_annotation"
+    "transferred_pharokka_annotation",
+    "more_than_1_non_paps_hit_in_top_3_foldseek_hits",
+    "more_than_1_non_paps_hit_in_top_3_foldseek_hits",
+    "more_than_1_non_paps_hit_in_top_3_foldseek_hits",
+    "more_than_1_non_paps_hit_in_top_3_foldseek_hits"
     )
   ) %>%
   rbind(tibble(
@@ -683,6 +732,7 @@ for (poi in names(features)) {
 #                                       .default = FALSE),
 #            .before = "INPHARED_clustered")
 # }
+
 # write_delim(updated_classification, "output/R/classification.csv", delim = "\t")
 
 # List of AMG-containing contigs for George. Saved to data for convenience
