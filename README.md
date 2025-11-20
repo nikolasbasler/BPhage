@@ -285,11 +285,9 @@ Only the first script (vConTACT3) can be run with the test dataset. If you are r
     - Output: `output/bphage_micros_mopup/bphage_micros_id30ForCytoscape.csv`. Run `scripts/R/microviruses_mopup_cytoscape.R` for visualisation (see comments at the top of this script for instructions).
 
 ### Lifestyle prediction
-- `lifestyle_replidec.slrm`: Lifestyle prediction (virulent, temperate, chronic) with Replidec. 
-    - Requires: 
-        - Phage, picobirna and unclassified contigs at `output/bphage_ALL_1kb_*.fasta.gz`
-        - Extended core contigs: `output/core_contig_refinement/extended_contigs.fasta`
-    - Output: Replidec's lifestyle prediction: `output/lifestyle/replidec/BC_predict.summary`
+- `lifestyle_bacphlip`: Lifestyle prediction (virulent, temperate) with Bacphlip.
+    - Requires: Phage, picobirna and unclassified contigs `$repo_location/output/bphage_ALL_1kb_phages_refined_contigs.fasta.gz`, `$repo_location/output/bphage_ALL_1kb_picobirna.fasta.gz`, `$repo_location/output/bphage_ALL_1kb_unclassified_viruses.fasta.gz`
+    - Output: Bacphlip scores for virulent or temperate calls: `output/lifestyle/bphage_and_extended.fasta.bacphlip`
 
 ### Host prediction
 - `iphop_bphage.slrm`: Host prediction with iPHoP.
