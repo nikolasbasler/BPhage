@@ -23,6 +23,7 @@ plots$gene_tpm$`PAPS reductase`$Cropland_in_2km_radius <- readRDS("output/R/gene
 plots$gene_tpm$`PAPS reductase`$`Pesticides (total)` <- readRDS("output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/single_panels/RDS.PAPS reductase.Pesticides (total).rds")
 plots$gene_tpm$`PAPS reductase`$`Fungicides and Bactericides` <- readRDS("output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/single_panels/RDS.PAPS reductase.Fungicides and Bactericides.rds")
 plots$gene_tpm$`PAPS reductase`$Herbicides <- readRDS("output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/single_panels/RDS.PAPS reductase.Herbicides.rds")
+plots$gene_tpm$`PAPS reductase`$`Plant Growth Regulators` <- readRDS("output/R/genes_pathogens_and_landuse/gene_tpm_vs_landuse/single_panels/RDS.PAPS reductase.Plant Growth Regulators.rds")
 
 color_list <- list(dark = list(
   `PAPS reductase` = "#ef8f01",
@@ -62,6 +63,8 @@ paps_square <- plots$gene_tpm$`PAPS reductase`$Cropland_in_2km_radius +
   plots$gene_tpm$`PAPS reductase`$`Pesticides (total)` +
   plots$gene_tpm$`PAPS reductase`$`Fungicides and Bactericides` +
   plots$gene_tpm$`PAPS reductase`$Herbicides +
+  plot_spacer() +
+  plots$gene_tpm$`PAPS reductase`$`Plant Growth Regulators` +
   plot_layout(ncol = 2, axes = "collect")
 
 pathogens <-   
@@ -75,6 +78,7 @@ names_presence <- c(
   "RDS.PAPS reductase.Herbicides – Dinitroanilines.rds",
   "RDS.PAPS reductase.Insecticides - nes.rds"
 )
+
 names_tpm <- c(
   "RDS.PAPS reductase.Fung & Bact – Dithiocarbamates.rds",
   "RDS.PAPS reductase.Fung & Bact - nes.rds",
@@ -84,7 +88,11 @@ names_tpm <- c(
   "RDS.PAPS reductase.Herbicides – Urea derivates.rds",
   "RDS.PAPS reductase.Herbicides - nes.rds",
   "RDS.PAPS reductase.Insecticides – Carbamates.rds",
-  "RDS.PAPS reductase.Insecticides – Pyrethroids.rds"
+  "RDS.PAPS reductase.Insecticides – Pyrethroids.rds",
+  "RDS.PAPS reductase.Fung & Bact – Benzimidazoles.rds",
+  "RDS.PAPS reductase.Fung & Bact – Diazines, morpholines.rds",
+  "RDS.PAPS reductase.Fung & Bact – Triazoles, diazoles.rds",
+  "RDS.PAPS reductase.Herbicides – Carbamates.rds"
 )
 names_ct <- c(
   "RDS.BQCV.Insecticides - nes.rds",
@@ -104,7 +112,7 @@ for (file in names_ct) {
   supp_plots$ct[[file]] <- readRDS(paste0("output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/single_panels/", file))
 }
 
-sup_figure_presence <- wrap_plots(supp_plots$presence, axes = "collect_y", ncol = 1)
+sup_figure_presence <- wrap_plots(supp_plots$presence, axes = "collect_y")
 sup_figure_tpm <- wrap_plots(supp_plots$tpm, axes = "collect_y")
 sup_figure_ct <- wrap_plots(supp_plots$ct, axes = "collect_y")
 
@@ -116,11 +124,11 @@ system("mkdir -p output/R/genes_pathogens_and_landuse/selected_graphs")
 
 # Main figure
 ggsave("output/R/genes_pathogens_and_landuse/selected_graphs/main_paps_tpm.pdf",
-       paps_square, height = 5, width = 6)
+       paps_square, height = 8.5, width = 6)
 ggsave("output/R/genes_pathogens_and_landuse/selected_graphs/main_paps_presence.pdf",
-       plots$gene_presence$`PAPS reductase`$Insecticides, height = 2.5, width = 3)
+       plots$gene_presence$`PAPS reductase`$Insecticides, height = 2.83, width = 3)
 ggsave("output/R/genes_pathogens_and_landuse/selected_graphs/main_pathogen_ct.pdf",
-       pathogens, height = 2.5, width = 6)
+       pathogens, height = 2.83, width = 6)
 
 
 # Legends
@@ -135,9 +143,9 @@ ggsave("output/R/genes_pathogens_and_landuse/selected_graphs/legend_viruses_left
 
 # Supp figure
 ggsave("output/R/genes_pathogens_and_landuse/selected_graphs/supp_paps_presence.pdf",
-       sup_figure_presence, height = 5, width = 3)
+       sup_figure_presence, height = 3, width = 6)
 ggsave("output/R/genes_pathogens_and_landuse/selected_graphs/supp_paps_tpm.pdf",
-       sup_figure_tpm, height = 8.5, width = 8.5)
+       sup_figure_tpm, height = 12, width = 12)
 ggsave("output/R/genes_pathogens_and_landuse/selected_graphs/supp_pathogen_ct.pdf",
-       sup_figure_ct, height = 2.5, width = 6)
+       sup_figure_ct, height = 3, width = 6)
 
