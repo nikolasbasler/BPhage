@@ -430,9 +430,9 @@ PCoA and distance-based redundancy analysis is performed on SKA's pairwise SNP d
 
 ---
 ### Lifestyle predictions
-`05.lifestyle.R`
+`05.lifestyle_bacphlip.R`
 
-Replidec's lifestyle predictions are summed up in this script. The `classification` table is updated accordingly.
+Bacphlip's lifestyle predictions are summed up in this script. The `classification` table is updated accordingly.
 
 ---
 ### Host predictions
