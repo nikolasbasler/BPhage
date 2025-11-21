@@ -236,8 +236,8 @@ for (poi in pois) {
   
   features[[poi]] <- phold_predictions_with_extensions %>%
     filter(contig_id %in% contigs_with_POI[[poi]]) %>%
-    left_join(., classification[c("contig", "length_kb_after_refinement", "completeness", "completeness_method", "virus_score", "fdr")], by = join_by(contig_id == contig)) %>%
-    mutate(genome_label = paste0(contig_id, " - CheckV completeness: ", completeness, "%, ", completeness_method, " - geNomad virus score: ", virus_score, " (fdr = ", fdr, ")"),
+    left_join(., classification[c("contig", "length_kb_after_refinement", "completeness_after_refinement", "completeness_method", "virus_score", "fdr")], by = join_by(contig_id == contig)) %>%
+    mutate(genome_label = paste0(contig_id, " - CheckV completeness: ", completeness_after_refinement, "%, ", completeness_method, " - geNomad virus score: ", virus_score, " (fdr = ", fdr, ")"),
            length = length_kb_after_refinement * 1000) %>%
     select(contig_id, length, genome_label, start, end, strand, phrog, function., product) %>%
     rename(seq_id = contig_id, funct = function.) %>%
@@ -402,13 +402,13 @@ for (poi in pois) {
 
 paps_length_and_completeness_quantiles <- classification %>%
   filter(contig %in% updated_contigs_with_POI$`PAPS reductase`) %>%
-  reframe(quantile = names(quantile(completeness)),
-          completeness = quantile(completeness),
+  reframe(quantile = names(quantile(completeness_after_refinement)),
+          completeness_after_refinement = quantile(completeness_after_refinement),
           length_kb_after_refinement = quantile(length_kb_after_refinement))
 
 paps_completeness_histogram <- classification %>%
   filter(contig %in% updated_contigs_with_POI$`PAPS reductase`) %>%
-  ggplot(aes(x = completeness)) +
+  ggplot(aes(x = completeness_after_refinement)) +
   geom_histogram(bins = 40) +
   ggtitle("contigs carrying PAPS reductase")
 
@@ -430,7 +430,7 @@ goi_presence <- classification %>%
 complete_caudos_with_goi <- classification %>%
   select(-starts_with("GOI_")) %>%
   filter(Class == "Caudoviricetes",
-         completeness >= 100) %>%
+         completeness_after_refinement >= 100) %>%
   left_join(., goi_presence, by = "contig")
 
 prop_of_goi_carrying_genomes <- complete_caudos_with_goi %>%
@@ -453,7 +453,7 @@ paps_families <- complete_caudos_with_goi %>%
 complete_caudo_familiess <- classification %>%
   filter(
     Class == "Caudoviricetes",
-    completeness == 100
+    completeness_after_refinement == 100
   ) %>%
   distinct(Family) %>%
   deframe()
@@ -711,6 +711,7 @@ for (gene in names(updated_contigs_with_POI)) {
   write_lines(updated_contigs_with_POI[[gene]], 
               paste0("output/R/gene_content/amg_curation/contigs_with.", gene, ".txt"))
 }
+
 write_delim(removed_CDSs, "output/R/gene_content/amg_curation/removed_CDSs.tsv", delim = "\t")
 write_delim(prop_of_goi_carrying_genomes, "output/R/gene_content/amg_curation/complete_caudo_genomes_that_carry_goi.tsv", delim = "\t")
 write_delim(paps_family_prevalence, "output/R/gene_content/amg_curation/complete_caudo_genomes_paps_family_prevalence.tsv", delim = "\t")
