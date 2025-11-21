@@ -1,5 +1,6 @@
 library(tidyverse)
 library(ggtext)
+library(patchwork)
 
 phage_tpm <- read.csv("output/R/relative_abundance/phage_tpm.csv") %>%
   tibble()
@@ -17,6 +18,8 @@ host_pie_colors <- c("***Bifidobacterium***" = "#FFDAB9",
                      "unknown" = "lightgrey")
 
 classification <- readRDS("data/classification.RDS")
+metadata <- readRDS("data/metadata.RDS") %>% tibble()
+
 all_contigs <- classification$contig %>% as.character()
 present_in_all_countries <- read_lines("data/core_contigs.txt")
 
@@ -145,6 +148,89 @@ for (set in c("all", "core", "noncore")) {
   
 }
 
+
+gut_part_tibble <- phage_tpm %>%
+  filter(contig %in% present_in_all_countries) %>%
+  pivot_longer(-contig, names_to = "Sample_ID", values_to = "tpm") %>%
+  left_join(., metadata[c("Sample_ID", "Gut_part")], by = "Sample_ID") %>%
+  left_join(., host_group$all, by = join_by(contig == Virus)) %>%
+  mutate(presence = ifelse(tpm > 0, 1, 0)) %>%
+  group_by(Sample_ID, Genus) %>%
+  mutate(summed_tpm = sum(tpm)) %>%
+  group_by(Gut_part, Genus) %>%
+  summarise(
+    average_tpm = mean(summed_tpm), 
+    genome_count = sum(presence),
+    .groups = "drop"
+    ) %>%
+  mutate(core_bacterium = ifelse(Genus %in% c("Gilliamella", "Lactobacillus", "Bifidobacterium", "Bombilactobacillus", "Snodgrassella"), TRUE, FALSE)) %>%
+  arrange(core_bacterium) %>%
+  mutate(Genus = case_when(
+    core_bacterium ~ paste0("***", Genus, "***"),
+    Genus == "Frischella" ~ "*Frischella*",
+    .default = Genus
+    )
+  ) %>%
+  mutate(Genus = factor(Genus, levels = rev(c("unknown", "other", genus_order))))
+
+gut_part_tpm_plot <- gut_part_tibble %>%
+  ggplot(aes(x = Gut_part, y = average_tpm, fill = Genus)) +
+  geom_col(position = "fill") +
+  scale_fill_manual(values = host_pie_colors) +
+  theme_minimal() +
+  theme(legend.text = element_markdown())
+gut_part_count_plot <- gut_part_tibble %>%
+  ggplot(aes(x = Gut_part, y = genome_count, fill = Genus)) +
+  geom_col(position = "fill") +
+  scale_fill_manual(values = host_pie_colors) +
+  theme_minimal() +
+  theme(legend.text = element_markdown())
+
+host_bar <- list()
+host_bar_tpm <- list()
+for (set in names(host_pie)) {
+  # host_bar[[set]] <- host_pie[[set]] +
+  #   coord_cartesian() +
+  #   geom_col(position = position_stack(reverse = TRUE)) 
+  # 
+  # host_bar_tpm[[set]] <- host_pie_tpm[[set]] +
+  #   coord_cartesian() +
+  #   geom_col(position = position_stack(reverse = TRUE)) 
+  host_bar[[set]] <- host_tibble[[set]] %>%
+    mutate(Genus = case_when(Genus %in% c("Gilliamella", "Lactobacillus", "Bifidobacterium", "Bombilactobacillus", "Snodgrassella") ~ paste0("***", Genus, "***"),
+                             Genus %in% c("other", "unknown") ~ Genus,
+                             .default = paste0("*", Genus, "*"))) %>%
+    mutate(Genus = factor(Genus, levels = rev(c("unknown", "other", genus_order)))) %>%
+    ggplot(aes(x = "", y = count, fill = Genus)) +
+    geom_col(position = "fill") +
+    scale_fill_manual(values = host_pie_colors) +
+    theme_minimal() +
+    theme(legend.text = element_markdown())
+  
+  host_bar_tpm[[set]] <- host_tpm_tibble[[set]] %>%
+    mutate(Genus = case_when(Genus %in% c("Gilliamella", "Lactobacillus", "Bifidobacterium", "Bombilactobacillus", "Snodgrassella") ~ paste0("***", Genus, "***"),
+                             Genus %in% c("other", "unknown") ~ Genus,
+                             .default = paste0("*", Genus, "*"))) %>%
+    mutate(Genus = factor(Genus, levels = rev(c("unknown", "other", genus_order)))) %>%
+    ggplot(aes(x = "", y = mean_tpm, fill = Genus)) +
+    geom_col(position = "fill") +
+    scale_fill_manual(values = host_pie_colors) +
+    theme_minimal() +
+    theme(legend.text = element_markdown())
+}
+
+core_patch <- (host_bar$noncore + theme(legend.position = "none") ) + 
+(host_bar$core + theme(legend.position = "none") ) + 
+  (gut_part_count_plot + theme_minimal() + theme(legend.position = "none", axis.title.y = element_blank())) +
+  plot_layout(widths = c(1.1, 1.1, 3), axes = "collect")
+
+core_patch_tpm <- (host_bar_tpm$noncore + theme(legend.position = "none", panel.grid.major.y = element_line()) ) + 
+  (host_bar_tpm$core + theme(legend.position = "none") ) + 
+  (gut_part_tpm_plot + theme_minimal() + theme(legend.position = "none", axis.title.y = element_blank())) +
+  plot_layout(widths = c(1.1, 1.1, 3), axes = "collect")
+
+##### Save files
+
 system("mkdir -p output/R/host_pies")
 for (pie in names(host_pie)) {
   ggsave(paste0("output/R/host_pies/hosts.", pie, ".pdf"),
@@ -157,7 +243,23 @@ for (pie in names(host_pie)) {
             paste0("output/R/host_pies/hosts.", pie, ".tpm.csv"))
   write_csv(all_hosts[[pie]],
             paste0("output/R/host_pies/all_hosts.", pie, ".csv"))
+  
+  ggsave(paste0("output/R/host_pies/bar_hosts.", pie, ".pdf"),
+         host_bar[[pie]], height = 6, width = 3)
+  ggsave(paste0("output/R/host_pies/bar_hosts.", pie, ".tpm.pdf"),
+         host_bar_tpm[[pie]], height = 6, width = 3)
 }
+
+write_delim(gut_part_tibble, "output/R/host_pies/gut_part_hosts.tsv", delim = "\t")
+ggsave("output/R/host_pies/gut_part_hosts.pdf",
+       gut_part_count_plot, height = 6, width = 6)
+ggsave("output/R/host_pies/gut_part_hosts_tpm.pdf",
+       gut_part_tpm_plot, height = 6, width = 6)
+
+ggsave("output/R/host_pies/core_patch.pdf",
+       core_patch, height = 6, width = 8)
+ggsave("output/R/host_pies/core_patch_tpm.pdf",
+       core_patch_tpm, height = 4.75, width = 7.65)
 
 # Written do data/ for convenience to avoid back tracking. So it can be used in the previous R script.
 # host_group$all %>%
