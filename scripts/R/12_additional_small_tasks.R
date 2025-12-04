@@ -148,8 +148,10 @@ inpha_clustering <- tibble(contig = names(contigs_with_inphas_list),
                                        unlist())
 
 new_classification_df <- classification %>%
-  select(-INPHARED_clustered) %>% # comment out if needed
-  left_join(., inpha_clustering, by = "contig")
+  select(!starts_with("INPHARED")) %>%
+  left_join(., inpha_clustering, by = "contig") %>% 
+  relocate(INPHARED_clustered, .before = Prevalence_other_datasets) %>%
+  rename(INPHARED_and_Bueren_clustered = INPHARED_clustered)
 
 #####
 #### Save files
