@@ -52,6 +52,13 @@ mv 3Apr2024_genomes_excluding_refseq.fa.gz inphared_3Apr2024_genomes_excluding_r
 wget https://millardlab-inphared.s3.climb.ac.uk/14Apr2025_genomes_excluding_refseq.fa.gz
 mv 14Apr2025_genomes_excluding_refseq.fa.gz inphared_14Apr2025_genomes_excluding_refseq.fa.gz
 
+# Prophages from Bueren et al 2023 PeerJ
+curl -L -C - \
+  -H "Referer: https://data.lib.vt.edu/articles/dataset/HBProphage_PeerJ_2023/22203001/1" \
+  -H "User-Agent: Mozilla/5.0" \
+  -o Bueren_dc525_rd3.fna \
+  "https://data.lib.vt.edu/ndownloader/files/39461182"
+
 # Kirchberger et al 2022 microvirus proteins
 wget https://raw.githubusercontent.com/martinez-zacharya/MOP-UP/refs/heads/master/Micro2022_02_24_input.fasta
 
