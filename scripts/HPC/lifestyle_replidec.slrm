@@ -22,12 +22,10 @@ mkdir -p $VSC_SCRATCH/BPhage/lifestyle/replidec
 cd $VSC_SCRATCH/BPhage/lifestyle/replidec
 
 # Get sequences:
-zcat $repo_location/output/bphage_ALL_1kb_phages.fasta.gz \
+zcat $repo_location/output/bphage_ALL_1kb_phages_refined_contigs.fasta.gz \
     $repo_location/output/bphage_ALL_1kb_picobirna.fasta.gz \
     $repo_location/output/bphage_ALL_1kb_unclassified_viruses.fasta.gz \
     > bphage_and_extended.fasta
-cat $repo_location/output/core_contig_refinement/extended_contigs.fasta \
-    >> bphage_and_extended.fasta
 
 Replidec -p multiSeqEachAsOne -i bphage_and_extended.fasta -w replidec_run -t $threads
 
