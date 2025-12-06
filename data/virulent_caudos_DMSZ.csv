@@ -1,0 +1,165 @@
+ID,Name,"Collection number","Type phage","Accession number",Class
+812,"Achromobacter phage JWAlpha (Achromobacter virus JWAlpha)","DSM 26830",Virulent,KF787095,Caudoviricetes
+811,"Achromobacter phage JWDelta","DSM 26829",Virulent,KF787094,Caudoviricetes
+2,"Acinetobacter phage BS46","HER 401",Virulent,MN276049,Caudoviricetes
+23,"Aeromonas phage 25","HER 85",Virulent,DQ529280,Caudoviricetes
+21,"Aeromonas phage 31 Popoff","HER 105",Virulent,KY290951,Caudoviricetes
+27,"Aeromonas phage 32 Popoff","HER 106",Virulent,KY290952,Caudoviricetes
+30,"Aeromonas phage 51 Popoff","HER 108",Virulent,KY290953,Caudoviricetes
+22,"Aeromonas phage 56 Popoff","HER 109",Virulent,KY290954,Caudoviricetes
+1048,"Agrobacterium phage 7-7-1","DSM 110111",Virulent,JQ312117,Caudoviricetes
+1032,"Bacillus phage vB_BmeM-Goe8 (Bacillus virus vBBmeMGoe8)","DSM 109056",Virulent,MN043729,Caudoviricetes
+1035,"Bacillus phage vB_BsuM-Goe9","DSM 109899",Virulent,MT601270,Caudoviricetes
+929,"Bacillus phage vB_BthM_Goe5","DSM 105108",Virulent,MK215646,Caudoviricetes
+928,"Bacillus phage vB_BthP_Goe4 (Bacillus virus Goe4)","DSM 105107",Virulent,MH817022,Caudoviricetes
+1033,"Bacillus phage vB_BveM-Goe7","DSM 109177",Virulent,MN043730,Caudoviricetes
+1058,"Cellulophaga phage Calle_1","DSM 111231",Virulent,MT732432,Caudoviricetes
+1063,"Cellulophaga phage Ingeline_1","DSM 111236",Virulent,MT732435,Caudoviricetes
+1065,"Cellulophaga phage Nekkels_1","DSM 111239",Virulent,MT732443,Caudoviricetes
+147,"Enterococcus phage VD13","HER 44;DSM 112150;ATCC 29200-B1",Virulent,KJ127303,Caudoviricetes
+660,"Escherichia phage T1 (Escherichia virus T1)","DSM 5801",Virulent,AY216660,Caudoviricetes
+160,"Escherichia phage T4","HER 27; ATCC 11303-B4; DSM 4505",Virulent,AF158101,Caudoviricetes
+1137,"Escherichia phage vB_EcoM_AdolfPortmann (Bas44)","DSM 112922",Virulent,MZ501046,Caudoviricetes
+1140,"Escherichia phage vB_EcoM_AlbertHofmann (Bas47)","DSM 112925",Virulent,MZ501047,Caudoviricetes
+1149,"Escherichia phage vB_EcoM_AlexBoehm (Bas56)","DSM 112934",Virulent,MZ501048,Caudoviricetes
+1135,"Escherichia phage vB_EcoM_AndreasVesalius (Bas42)","DSM 112920",Virulent,MZ501050,Caudoviricetes
+1131,"Escherichia phage vB_EcoM_AugustSocin (Bas38)","DSM 112916",Virulent,MZ501052,Caudoviricetes
+1141,"Escherichia phage vB_EcoM_CarlMeissner (Bas48)","DSM 112926",Virulent,MZ501054,Caudoviricetes
+1139,"Escherichia phage vB_EcoM_ChristianSchoenbein (Bas46)","DSM 112924",Virulent,MZ501056,Caudoviricetes
+1143,"Escherichia phage vB_EcoM_DrSchubert (Bas50)","DSM 112928",Virulent,MZ501060,Caudoviricetes
+882,"Escherichia phage vB_EcoM_EdH4","DSM 103295",Virulent,MK327930,Caudoviricetes
+1152,"Escherichia phage vB_EcoM_EduardKellenberger (Bas59)","DSM 112937",Virulent,MZ501061,Caudoviricetes
+1142,"Escherichia phage vB_EcoM_EmilHeitz (Bas49)","DSM 112927",Virulent,MZ501062,Caudoviricetes
+1153,"Escherichia phage vB_EcoM_EmilieFrey (Bas61)","DSM 112939",Virulent,MZ501063,Caudoviricetes
+1134,"Escherichia phage vB_EcoM_FelixPlatter (Bas40)","DSM 112918",Virulent,MZ501065,Caudoviricetes
+1132,"Escherichia phage vB_EcoM_FriedrichMiescher (Bas39)","DSM 112917",Virulent,MZ501066,Caudoviricetes
+1133,"Escherichia phage vB_EcoM_FriedrichZschokke (Bas41)","DSM 112919",Virulent,MZ501067,Caudoviricetes
+906,"Escherichia phage vB_EcoM_G2540 (Escherichia virus T4)","DSM 103895",Virulent,MK327936,Caudoviricetes
+892,"Escherichia phage vB_EcoM_G37-3","DSM 103879",Virulent,MK327941,Caudoviricetes
+917,"Escherichia phage vB_EcoM_Goslar (Escherichia virus Goslar)","DSM 104658",Virulent,MK327938,Caudoviricetes
+876,"Escherichia phage vB_EcoM_HdK5","DSM 103286",Virulent,MK373780,Caudoviricetes
+1151,"Escherichia phage vB_EcoM_HeinrichReichert (Bas58)","DSM 112936",Virulent,MZ501073,Caudoviricetes
+1148,"Escherichia phage vB_EcoM_JeffSchatz (Bas55)","DSM 112933",Virulent,MZ501082,Caudoviricetes
+1146,"Escherichia phage vB_EcoM_JohannBauhin (Bas53)","DSM 112931",Virulent,MZ501083,Caudoviricetes
+1154,"Escherichia phage vB_EcoM_JohannJBalmer (Bas62)","DSM 112940",Virulent,MZ501084,Caudoviricetes
+1155,"Escherichia phage vB_EcoM_JohannRWettstein (Bas63)","DSM 112941",Virulent,MZ501086,Caudoviricetes
+1130,"Escherichia phage vB_EcoM_KarlGJung (Bas37)","DSM 112915",Virulent,MZ501089,Caudoviricetes
+1147,"Escherichia phage vB_EcoM_MaxBurger (Bas54)","DSM 112932",Virulent,MZ501093,Caudoviricetes
+1150,"Escherichia phage vB_EcoM_MaxTheCat (Bas57)","DSM 112935",Virulent,MZ501094,Caudoviricetes
+844,"Escherichia phage vB_EcoM_MM02","DSM 29475",Virulent,MK373784,Caudoviricetes
+1129,"Escherichia phage vB_EcoM_Paracelsus (Bas36)","DSM 112914",Virulent,MZ501096,Caudoviricetes
+1138,"Escherichia phage vB_EcoM_PaulHMǬller (Bas45)","DSM 112923",Virulent,MZ501098,Caudoviricetes
+715,"Escherichia phage vB_EcoM_PaulScherrer (Bas60)","DSM 112938",Virulent,MZ501100,Caudoviricetes
+1145,"Escherichia phage vB_EcoM_RudolfGeigy (Bas52)","DSM 112930",Virulent,MZ501102,Caudoviricetes
+908,"Escherichia phage vB_EcoM_Schickermooser (Escherichia virus Schickermooser)","DSM 104098",Virulent,MK373788,Caudoviricetes
+1136,"Escherichia phage vB_EcoM_TadeuszReichstein (Bas43)","DSM 112921",Virulent,MZ501106,Caudoviricetes
+1144,"Escherichia phage vB_EcoM_WalterGehring (Bas51)","DSM 112929",Virulent,MZ501111,Caudoviricetes
+877,"Escherichia phage vB_EcoM_WFC","DSM 103287",Virulent,MK373777,Caudoviricetes
+874,"Escherichia phage vB_EcoM_WFH","DSM 103160",Virulent,MK373776,Caudoviricetes
+1128,"Escherichia phage vB_EcoM_WilhelmHis (Bas35)","DSM 112913",Virulent,MZ501113,Caudoviricetes
+971,"Escherichia phage vB_EcoM-D5505","DSM 101794",Virulent,MK327929,Caudoviricetes
+905,"Escherichia phage vB_EcoM-G10400 (Escherichia virus T4)","DSM 103894",Virulent,MK327937,Caudoviricetes
+925,"Escherichia phage vB_EcoM-G2133 (Escherichia virus T4)","DSM 104754",Virulent,MK327928,Caudoviricetes
+896,"Escherichia phage vB_EcoM-G2248","DSM 103883",Virulent,MK327932,Caudoviricetes
+895,"Escherichia phage vB_EcoM-G2285 (Escherichia virus RB69)","DSM 103884",Virulent,MK327933,Caudoviricetes
+897,"Escherichia phage vB_EcoM-G2494 (Escherichia virus RB49)","DSM 103886",Virulent,MK327935,Caudoviricetes
+899,"Escherichia phage vB_EcoM-G2540-3 (Escherichia virus T4)","DSM 103888",Virulent,MK327944,Caudoviricetes
+889,"Escherichia phage vB_EcoM-G28 (Escherichia virus G28)","DSM 103876",Virulent,MG867727,Caudoviricetes
+890,"Escherichia phage vB_EcoM-G29 (Escherichia virus T4)","DSM 103877",Virulent,MK327940,Caudoviricetes
+918,"Escherichia phage vB_EcoM-G4498 (Escherichia virus G4498)","DSM 104660",Virulent,MK327939,Caudoviricetes
+901,"Escherichia phage vB_EcoM-G4500 (Escherichia virus T4)","DSM 103890",Virulent,MK327945,Caudoviricetes
+902,"Escherichia phage vB_EcoM-G4507 (Escherichia virus G4507)","DSM 103891",Virulent,MK327946,Caudoviricetes
+893,"Escherichia phage vB_EcoM-G50 (Escherichia virus G50)","DSM 103881",Virulent,MK327942,Caudoviricetes
+903,"Escherichia phage vB_EcoM-G5211 (Escherichia virus RB49)","DSM 103892",Virulent,MK327947,Caudoviricetes
+894,"Escherichia phage vB_EcoM-G53 (Escherichia virus RB69)","DSM 103882",Virulent,MK327943,Caudoviricetes
+919,"Escherichia phage vB_EcoM-G8 (Escherichia virus G8)","DSM 104661",Virulent,MK373787,Caudoviricetes
+904,"Escherichia phage vB_EcoM-G9062 (Escherichia virus G9062)","DSM 103893",Virulent,MK373779,Caudoviricetes
+909,"Escherichia phage vB_EcoM-KAW1E185 (Escherichia virus KAW1E185)","DSM 104099",Virulent,MK373781,Caudoviricetes
+921,"Escherichia phage vB_EcoM-KAW3E185 (Escherichia virus T4)","DSM 104663",Virulent,MK373782,Caudoviricetes
+972,"Escherichia phage vB_EcoM-OE5505 (Escherichia virus OE5505)","DSM 101795",Virulent,MK373785,Caudoviricetes
+973,"Escherichia phage vB_EcoM-R5505","DSM 101797",Virulent,MK373786,Caudoviricetes
+912,"Escherichia phage vB_EcoM-WfbE185","DSM 104653",Virulent,MK373778,Caudoviricetes
+878,"Escherichia phage vB_EcoM-WFK (Escherichia virus RB69)","DSM 103288",Virulent,MK373775,Caudoviricetes
+1161,"Escherichia phage vB_EcoP_AlfredRasser (Bas69)","DSM 112947",Virulent,MZ501049,Caudoviricetes
+1160,"Escherichia phage vB_EcoP_CarlSpitteler (Bas68)","DSM 112946",Virulent,MZ501055,Caudoviricetes
+1159,"Escherichia phage vB_EcoP_ErnstBeyeler (Bas67)","DSM 112945",Virulent,MZ501064,Caudoviricetes
+1157,"Escherichia phage vB_EcoP_JacobBurckhardt (Bas65)","DSM 112943",Virulent,MZ501078,Caudoviricetes
+1156,"Escherichia phage vB_EcoP_JeanTinguely (Bas64)","DSM 112942",Virulent,MZ501081,Caudoviricetes
+910,"Escherichia phage vB_EcoP_KAW1A4500","DSM 104100",Virulent,MK373773,Caudoviricetes
+970,"Escherichia phage vB_EcoP_R4596 (Escherichia virus K1E)","DSM 101793",Virulent,MK373771,Caudoviricetes
+974,"Escherichia phage vB_EcoP-PMBT57","DSM 106787",Virulent,MG770228,Caudoviricetes
+839,"Escherichia phage vB_EcoP-PTXU04 (Escherichia virus PTXU04)","DSM 28612",Virulent,MK373772,Caudoviricetes
+957,"Escherichia phage vB_EcoP-WFl101126","DSM 106161",Virulent,MK373770,Caudoviricetes
+1095,"Escherichia phage vB_EcoS_AugustePiccard (Bas01)","DSM 112879",Virulent,MZ501051,Caudoviricetes
+1106,"Escherichia phage vB_EcoS_BrunoManser (Bas12)","DSM 112890",Virulent,MZ501053,Caudoviricetes
+1113,"Escherichia phage vB_EcoS_ChristophMerian (Bas19)","DSM 112897",Virulent,MZ501057,Caudoviricetes
+1125,"Escherichia phage vB_EcoS_DaisyDussoix (Bas31)","DSM 112909",Virulent,MZ501058,Caudoviricetes
+1102,"Escherichia phage vB_EcoS_DanielBernoulli (Bas08)","DSM 112886",Virulent,MZ501059,Caudoviricetes
+881,"Escherichia phage vB_EcoS_EASG3","DSM 103294",Virulent,MK373799,Caudoviricetes
+1114,"Escherichia phage vB_EcoS_FritzHoffmann (Bas20)","DSM 112898",Virulent,MZ501068,Caudoviricetes
+1098,"Escherichia phage vB_EcoS_FritzSarasin (Bas04)","DSM 112882",Virulent,MZ501069,Caudoviricetes
+1110,"Escherichia phage vB_EcoS_GeorgBuechner (Bas16)","DSM 112894",Virulent,MZ501070,Caudoviricetes
+1115,"Escherichia phage vB_EcoS_GottfriedDienst (Bas21)","DSM 112899",Virulent,MZ501071,Caudoviricetes
+1120,"Escherichia phage vB_EcoS_GreteKellenberger (Bas26)","DSM 112904",Virulent,MZ501072,Caudoviricetes
+884,"Escherichia phage vB_EcoS_HASG4","DSM 103298",Virulent,MK373797,Caudoviricetes
+875,"Escherichia phage vB_EcoS_HdH2","DSM 103285",Virulent,MK373796,Caudoviricetes
+913,"Escherichia phage vB_EcoS_HdK1","DSM 104654",Virulent,MK373794,Caudoviricetes
+1126,"Escherichia phage vB_EcoS_HildyBeyerler (Bas33)","DSM 112911",Virulent,MZ501074,Caudoviricetes
+873,"Escherichia phage vB_EcoS_IrisVonRoten (Bas32)","DSM 112910",Virulent,MZ501075,Caudoviricetes
+1122,"Escherichia phage vB_EcoS_IrmaTschudi (Bas28)","DSM 112906",Virulent,MZ501076,Caudoviricetes
+1104,"Escherichia phage vB_EcoS_IsaakIselin (Bas10)","DSM 112888",Virulent,MZ501077,Caudoviricetes
+1101,"Escherichia phage vB_EcoS_JakobBernoulli (Bas07)","DSM 112885",Virulent,MZ501079,Caudoviricetes
+1096,"Escherichia phage vB_EcoS_JeanPiccard (Bas02)","DSM 112880",Virulent,MZ501080,Caudoviricetes
+1105,"Escherichia phage vB_EcoS_JohannLBurckhardt (Bas11)","DSM 112889",Virulent,MZ501085,Caudoviricetes
+1097,"Escherichia phage vB_EcoS_JulesPiccard (Bas03)","DSM 112881",Virulent,MZ501087,Caudoviricetes
+1111,"Escherichia phage vB_EcoS_KarlBarth (Bas17)","DSM 112895",Virulent,MZ501088,Caudoviricetes
+1100,"Escherichia phage vB_EcoS_KarlJaspers (Bas06)","DSM 112884",Virulent,MZ501090,Caudoviricetes
+1116,"Escherichia phage vB_EcoS_KurtStettler (Bas22)","DSM 112900",Virulent,MZ501091,Caudoviricetes
+1107,"Escherichia phage vB_EcoS_LeonhardEuler (Bas13)","DSM 112891",Virulent,MZ501092,Caudoviricetes
+843,"Escherichia phage vB_EcoS_MM01","DSM 29474",Virulent,MK373793,Caudoviricetes
+1112,"Escherichia phage vB_EcoS_Oekolampad (Bas18)","DSM 112896",Virulent,MZ501095,Caudoviricetes
+1109,"Escherichia phage vB_EcoS_PaulFeyerabend (Bas15)","DSM 112893",Virulent,MZ501097,Caudoviricetes
+1103,"Escherichia phage vB_EcoS_PaulSarasin (Bas09)","DSM 112887",Virulent,MZ501099,Caudoviricetes
+1099,"Escherichia phage vB_EcoS_PeterMerian (Bas05)","DSM 112883",Virulent,MZ501101,Caudoviricetes
+1127,"Escherichia phage vB_EcoS_SelmaRatti (Bas34)","DSM 112912",Virulent,MZ501103,Caudoviricetes
+1118,"Escherichia phage vB_EcoS_SeppeHuegi (Bas24)","DSM 112902",Virulent,MZ501104,Caudoviricetes
+1123,"Escherichia phage vB_EcoS_SuperGirl (Bas29)","DSM 112907",Virulent,MZ501105,Caudoviricetes
+1108,"Escherichia phage vB_EcoS_TheodorHerzl (Bas14)","DSM 112892",Virulent,MZ501107,Caudoviricetes
+1121,"Escherichia phage vB_EcoS_TrudiGerster (Bas27)","DSM 112905",Virulent,MZ501108,Caudoviricetes
+1124,"Escherichia phage vB_EcoS_TrudiRoth (Bas30)","DSM 112908",Virulent,MZ501109,Caudoviricetes
+1119,"Escherichia phage vB_EcoS_VogelGryff (Bas25)","DSM 112903",Virulent,MZ501110,Caudoviricetes
+968,"Escherichia phage vB_EcoS_WF5505","DSM 101796",Virulent,MK373790,Caudoviricetes
+1117,"Escherichia phage vB_EcoS_WildeMaa (Bas23)","DSM 112901",Virulent,MZ501112,Caudoviricetes
+891,"Escherichia phage vB_EcoS-G29-2 (Escherichia virus G29-2)","DSM 103878",Virulent,MK373798,Caudoviricetes
+914,"Escherichia phage vB_EcoS-HdSG1","DSM 104655",Virulent,MK373795,Caudoviricetes
+840,"Escherichia phage vB_EcoS-PT-XU06","DSM 28622",Virulent,MK373789,Caudoviricetes
+1054,"Escherichia phage vB_EcoS-RTP (Escherichia virus Rtp)","DSM 110509",Virulent,AM156909,Caudoviricetes
+880,"Escherichia phage vB_EcoS-VAH1 (Escherichia phage T5)","DSM 103292",Virulent,MK373792,Caudoviricetes
+883,"Escherichia phage vB_EcoS-WFL","DSM 103297",Virulent,MK373791,Caudoviricetes
+669,"Lactococcus phage P008","DSM 10567",Virulent,DQ054536,Caudoviricetes
+283,"Listeria phage A511","HER 394",Virulent,DQ003638,Caudoviricetes
+1070,"Maribacter phage Molly_1","DSM 111257",Virulent,MT732451,Caudoviricetes
+1069,"Olleya phage Harreka_1","DSM 111256",Virulent,MT732457,Caudoviricetes
+1026,"Pectobacterium phage vB_PatP_CB1","DSM 108907",Virulent,KY514264,Caudoviricetes
+1027,"Pectobacterium phage vB_PatP_CB3","DSM 108908",Virulent,KY514265,Caudoviricetes
+1028,"Pectobacterium phage vB_PatP_CB4","DSM 108909",Virulent,KY549659,Caudoviricetes
+1029,"Pectobacterium phage vB_Patp_CB5","DSM 108910",Virulent,KY953156,Caudoviricetes
+1031,"Pectobacterium phage vB_PcaM_CBB","DSM 108912",Virulent,KU574722,Caudoviricetes
+1059,"Polaribacter phage Danklef_1","DSM 111232",Virulent,MT732458,Caudoviricetes
+1060,"Polaribacter phage Freya_1","DSM 111233",Virulent,MT732463,Caudoviricetes
+1064,"Polaribacter phage Leef_1","DSM 111238",Virulent,MT732473,Caudoviricetes
+797,"Pseudomonas phage JG024 (Unassigned)","DSM 22045",Virulent,GU815091,Caudoviricetes
+1162,"Pseudomonas phage LIT1","DSM 113935",Virulent,FN422399,Caudoviricetes
+1163,"Pseudomonas phage LUZ7","DSM 113936",Virulent,FN422398,Caudoviricetes
+351,"Pseudomonas phage phi KZ","HER 153",Virulent,AF399011,Caudoviricetes
+721,"Salmonella phage Felix O1","DSM 18524",Virulent,AF320576,Caudoviricetes
+870,"Staphyloccoccus phage EBHT","DSM 26856",Virulent,MT926124,Caudoviricetes
+485,"Staphylococcus phage Twort","HER 48",Virulent,AY954970,Caudoviricetes
+718,"Staphylococcus phage Twort (Staphylococcus virus Twort)","DSM 17442",Virulent,MT151386,Caudoviricetes
+1079,"Streptomyces phage Coruscant","DSM 111650",Virulent,MT711976,Caudoviricetes
+1062,"Tenacibaculum phage Gundel_1","DSM 111235",Virulent,MT732474,Caudoviricetes
+1067,"Winogradshyella phage Peternella_1","DSM 111241",Virulent,MT732475,Caudoviricetes
+801,"Yersinia phage Phi80-18 (Yersinia virus Phi80-18)","DSM 23253",Virulent,HE956710,Caudoviricetes
+799,"Yersinia phage PhiR1-37 (Unassigned)","DSM 23251",Virulent,AJ972879,Caudoviricetes
+802,"Yersinia phage PhiR8-01 (Yersinia virus R8-01)","DSM 23254",Virulent,HE956707,Caudoviricetes
+800,"Yersinia phage phiYeO3-12 (Yersinia virus YeO3-12)","DSM 23252",Virulent,AJ251805,Caudoviricetes
