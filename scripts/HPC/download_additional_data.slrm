@@ -59,6 +59,14 @@ curl -L -C - \
   -o Bueren_dc525_rd3.fna \
   "https://data.lib.vt.edu/ndownloader/files/39461182"
 
+# Virulent caudo phages (list from DMSZ's PhageDive)
+cut -d, -f5 $repo_location/data/virulent_caudos_DMSZ.csv | sed '1d' > temp.accessions.txt
+epost -db nuccore -input temp.accessions.txt -format acc | efetch -format fasta | sed 's/\..*//g' | sed 's/>/>DMSZ_/g' > virulent_caudos_DMSZ.fasta
+rm temp.accessions.txt
+
+# Phage isolates from Engel group (all virulent)
+epost -db nuccore -input $repo_location/data/virulent_phages_Engel.txt -format acc | efetch -format fasta | sed 's/\..*//g' | sed 's/>/>Engel_/g' > virulent_phages_Engel.fasta
+
 # Kirchberger et al 2022 microvirus proteins
 wget https://raw.githubusercontent.com/martinez-zacharya/MOP-UP/refs/heads/master/Micro2022_02_24_input.fasta
 
