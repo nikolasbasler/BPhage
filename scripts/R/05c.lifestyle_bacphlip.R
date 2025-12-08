@@ -1,7 +1,12 @@
 library(tidyverse)
 
 classification <- readRDS("data/classification.RDS")
-lifestyle_colors <- c("Virulent" = "#1C3A3A", "Chronic" =  "#8B4513", "Temperate" ="#FFC300", "uncertain" = "#666666")
+
+lifestyle_colors <- c("Virulent" = "#1C3A3A", 
+                      "uncertain_Virulent" = "#338080",
+                      "Chronic" =  "#8B4513", 
+                      "Temperate" ="#FFC300", 
+                      "uncertain_Temperate" = "#FFDAB9")
 
 bphage_and_extended.fasta <- read.delim("output/lifestyle/bacphlip/bphage_and_extended.fasta.bacphlip") %>%
   tibble() %>%
@@ -17,6 +22,8 @@ bacphlip_assignment <- classification %>%
   mutate(assignment = case_when(
     Virulent >= threshold ~ "Virulent",
     Temperate >= threshold ~ "Temperate",
+    Virulent > Temperate & Virulent < threshold ~ "uncertain_Virulent",
+    Temperate > Virulent & Temperate < threshold ~ "uncertain_Temperate",
     .default = "uncertain"
   ))
 
@@ -31,7 +38,6 @@ updated_classif <- classification %>%
 bacphlip_lifestyle_tibble <- updated_classif %>%
   filter(
     Class == "Caudoviricetes",
-    Lifestyle_bacphlip != "uncertain",
     # Order == "Microviruses"
   ) %>%
   count(Core, Lifestyle_bacphlip) %>%
@@ -39,7 +45,7 @@ bacphlip_lifestyle_tibble <- updated_classif %>%
   mutate(
     prop = n / sum(n),
     Core = factor(Core, levels = c("yes", "no")),
-    Lifestyle_bacphlip = factor(Lifestyle_bacphlip, levels = c("Virulent", "uncertain", "Temperate"))
+    Lifestyle_bacphlip = factor(Lifestyle_bacphlip, levels = c("Virulent", "uncertain_Virulent", "uncertain_Temperate", "Temperate"))
   ) %>%
   ungroup()
 
