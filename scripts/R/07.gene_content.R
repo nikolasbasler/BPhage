@@ -85,6 +85,9 @@ kegg_and_phold %>%
   filter(K_number %in% vibrant_amg_KOs) %>%
   summarise(cds_with_k = n_distinct(cds_id))
 
+kegg_and_phold %>%
+  filter(K_number %in% vibrant_amg_KOs) %>%
+  count(product)
 
 #####
 # PHROG BARS
@@ -510,7 +513,7 @@ classification %>%
 
 sample_and_country_prevalence <- phold_predictions_with_extensions %>%
   filter(product %in% CDSs_with_metabolism_kegg$product,
-         !cds_id %in% removed_CDSs$cds,
+         !cds_id %in% removed_CDSs$cds, # COMMENT OUT THIS LINE FOR PRE-CURATION PREVALENCES. THIS WOULD LEAVE PAPS, LEVANASE AND GLUCOSYLTRTANSFERASE in 8 COUNTRIES.
          !product %in% c("toxin", "MazF-like growth inhibitor") # toxin/antitoxin genes
          ) %>%
   select(cds_id, contig_id, product) %>%
