@@ -229,6 +229,12 @@ core_patch_tpm <- (host_bar_tpm$noncore + theme(legend.position = "none", panel.
   (gut_part_tpm_plot + theme_minimal() + theme(legend.position = "none", axis.title.y = element_blank())) +
   plot_layout(widths = c(1.1, 1.1, 3), axes = "collect")
 
+core_patch_mixed <- (host_bar$noncore + theme(legend.position = "none", panel.grid.major.y = element_line()) ) + 
+  (host_bar$core + theme(legend.position = "none") ) + 
+  plot_spacer() +
+  (gut_part_tpm_plot + theme_minimal() + theme(legend.position = "none")) +
+  plot_layout(widths = c(1.1, 1.1, 0.5, 2.8), axes = "collect")
+
 ##### Save files
 
 system("mkdir -p output/R/host_pies")
@@ -260,6 +266,8 @@ ggsave("output/R/host_pies/core_patch.pdf",
        core_patch, height = 6, width = 8)
 ggsave("output/R/host_pies/core_patch_tpm.pdf",
        core_patch_tpm, height = 4.75, width = 7.65)
+ggsave("output/R/host_pies/core_patch_mixed.pdf",
+       core_patch_mixed, height = 4.75, width = 7.65)
 
 # Written do data/ for convenience to avoid back tracking. So it can be used in the previous R script.
 # host_group$all %>%
