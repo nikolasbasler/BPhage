@@ -48,6 +48,12 @@ presence_absence <- filtered_ab_long %>%
   mutate(present = ifelse(sum(reads >0), TRUE, FALSE)) %>%
   ungroup()
 
+presence_in_ndaiye_samples <- presence_absence %>%
+  filter(study == "Ndiaye") %>%
+  mutate(present = ifelse(reads > 0, TRUE, FALSE)) %>%
+  group_by(SRA) %>%
+  summarise(count = sum(present))
+
 print_names <- c("Deboutte" = "Deboutte",
                  "Busby" = "Busby",
                  "Bonilla" = "Bonilla-Rosso",
@@ -249,6 +255,7 @@ ggsave(paste0("output/R/other_studies/core_read_presence_overlap.upset.patch.pdf
 
 write_csv(read_counts_and_pools, "output/R/other_studies/read_counts_and_pools.csv")
 write_csv(dataset_overlap, "output/R/other_studies/dataset_overlap.csv")
+write_csv(presence_in_ndaiye_samples, "output/R/other_studies/core_phages_in_ndaiye_samples.csv")
 
 # For convenience, to avoid backtracking
 # classification_strip <- classification %>%
