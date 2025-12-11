@@ -28,12 +28,14 @@ plots$gene_tpm$`PAPS reductase`$`Plant Growth Regulators` <- readRDS("output/R/g
 color_list <- list(dark = list(
   `PAPS reductase` = "#ef8f01",
   `DWV B` = "#6A0DAD",
-  BQCV = "black"
+  BQCV = "black",
+  SBV = "#2A6666"
   ),
   bright = list(
     `PAPS reductase` = "#ef8f01",
     `DWV B` = "#6A0DAD",
-    BQCV = "black"
+    BQCV = "black",
+    SBV = "#2A6666"
     )
   )
 
@@ -53,6 +55,10 @@ common_legend_2b <- legend_factory(title = "Pathogen",
                                   items = names(color_list$dark)[c(2,3)],
                                   colors = unlist(color_list$dark)[c(2,3)],
                                   position = "left")
+common_legend_3 <- legend_factory(title = "Pathogen",
+                                   items = names(color_list$dark)[c(2:4)],
+                                   colors = unlist(color_list$dark)[c(2:4)],
+                                   position = "left")
 # common_legend_row3b <- legend_factory(title = "Gene",
 #                                       items = names(color_list$dark)[1],
 #                                       colors = unlist(color_list$dark)[1],
@@ -141,6 +147,8 @@ ggsave("output/R/genes_pathogens_and_landuse/selected_graphs/legend_viruses_top.
        common_legend_2, height = 1, width = 3)
 ggsave("output/R/genes_pathogens_and_landuse/selected_graphs/legend_viruses_left.pdf",
        common_legend_2b, height = 1, width = 3)
+ggsave("output/R/genes_pathogens_and_landuse/selected_graphs/legend_viruses_left_all.pdf",
+       common_legend_3, height = 1, width = 3)
 
 # Supp figure
 ggsave("output/R/genes_pathogens_and_landuse/selected_graphs/supp_paps_presence.pdf",
