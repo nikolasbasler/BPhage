@@ -96,7 +96,8 @@ names_tpm <- c(
 )
 names_ct <- c(
   "RDS.BQCV.Insecticides - nes.rds",
-  "RDS.DWV B.Herbicides – Dinitroanilines.rds"
+  "RDS.DWV B.Herbicides – Dinitroanilines.rds",
+  "RDS.SBV.Herbicides – Phenoxy hormone products.rds"
 )
 
 

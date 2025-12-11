@@ -39,6 +39,7 @@ pathogens <- c("DWV A", "DWV B", "ABPV", "CBPV", "BQCV", "SBV", "EFB",
 
 pathogen_ct <- pathogen_data %>% 
   filter(Years == 2020) %>%
+  mutate(BGOOD_sample_code = stringi::stri_trim_both(BGOOD_sample_code)) %>%
   select(BGOOD_sample_code, all_of(pathogens_Cts), "N. spores") %>%
   mutate(nosema_spores = ifelse(`N. spores` == "ND", "0", `N. spores`),
          nosema_spores = ifelse(`N. spores` == '< 25000', "25000" , nosema_spores),
@@ -283,8 +284,8 @@ sig_tests <- all_slopes %>%
     .default = y_stretching_factor)) %>%
   select(-effect)
 
-color_list <- list(dark = list(BQCV = "black", `DWV B` = "#6A0DAD"),
-                   bright = list(BQCV = "black", `DWV B` = "#6A0DAD"))
+color_list <- list(dark = list(BQCV = "black", `DWV B` = "#6A0DAD", SBV = "#2A6666"),
+                   bright = list(BQCV = "black", `DWV B` = "#6A0DAD", SBV = "#2A6666"))
 
 
 pathogens_ct_plots <- list()
@@ -309,13 +310,17 @@ common_legend <- legend_factory(title = "Pathogen",
                                 items = names(color_list$dark),
                                 colors = unlist(color_list$dark),
                                 position = "bottom")
+common_legend_2 <- legend_factory(title = "Pathogen", 
+                                items = names(color_list$dark),
+                                colors = unlist(color_list$dark),
+                                position = "left")
 
 wrap_of_wraps <- wrap_plots(
   wrap_plots(pathogens_ct_plots$`DWV B`, nrow = 1, axes = "collect"),
-    wrap_plots(pathogens_ct_plots$BQCV, nrow = 1, axes = "collect"),
-    common_legend,
-  nrow = 3, heights = c(rep(4, 2), 1)
-)
+  pathogens_ct_plots$SBV$`Herbicides – Phenoxy hormone products`,
+  wrap_plots(pathogens_ct_plots$BQCV, nrow = 1, axes = "collect"),
+  common_legend_2,
+  nrow = 2, widths = c(2,1))
 
 # All results
 all_tests_forest_plot <- all_slopes %>%
@@ -356,7 +361,7 @@ ggsave("output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/pathogen_ct_
        all_tests_forest_plot, width = 12, height = 30, limitsize = FALSE)
 
 ggsave("output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/pathogen_ct_vs_landuse.wrap.pdf",
-       wrap_of_wraps, width = 6, height = 6)
+       wrap_of_wraps, width = 9, height = 6)
 
 write_delim(pathogen_ct, "output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/pathogen_ct.tsv",
             delim = "\t")

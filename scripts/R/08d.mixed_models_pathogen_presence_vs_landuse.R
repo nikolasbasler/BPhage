@@ -37,6 +37,7 @@ pathogens_Cts <- c("DWV A", "DWV B", "ABPV", "CBPV", "BQCV", "SBV", "EFB",
 
 pathogen_ct <- pathogen_data %>% 
   filter(Years == 2020) %>%
+  mutate(BGOOD_sample_code = stringi::stri_trim_both(BGOOD_sample_code)) %>%
   select(BGOOD_sample_code, all_of(pathogens_Cts)) %>%
   left_join(metadata[c("BGOOD_sample_code", "Bee_pool")], ., by = "BGOOD_sample_code") %>%
   distinct() %>%
@@ -64,6 +65,14 @@ for (poi in pathogens_Cts) {
 
 #####
 # PREVALENCE PLOT
+
+prevalence_tible <- bind_rows(test_tibble_logit) %>% 
+  group_by(pathogen) %>%
+  summarise(tested_pools = n_distinct(Bee_pool),
+            positive_pools = sum(presence),
+            prevalence = mean(presence),
+            .groups = "drop"
+            )
 
 prevalence_plots <- list()
 prevalence_plots$overall <- bind_rows(test_tibble_logit) %>%
@@ -307,5 +316,6 @@ ggsave("output/R/genes_pathogens_and_landuse/pathogen_presence_vs_landuse/pathog
        prevalence_plots$pathogen_facet, width = 10, height = 8)
 ggsave("output/R/genes_pathogens_and_landuse/pathogen_presence_vs_landuse/pathogen_prevalence.overall.pdf",
        prevalence_plots$overall, width = 5, height = 5)
-
+write_delim(prevalence_tible, "output/R/genes_pathogens_and_landuse/pathogen_presence_vs_landuse/pathogen_prevalence.tsv",
+            delim = "\t")
 
