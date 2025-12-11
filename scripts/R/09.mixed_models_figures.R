@@ -148,5 +148,5 @@ ggsave("output/R/genes_pathogens_and_landuse/selected_graphs/supp_paps_presence.
 ggsave("output/R/genes_pathogens_and_landuse/selected_graphs/supp_paps_tpm.pdf",
        sup_figure_tpm, height = 12, width = 12)
 ggsave("output/R/genes_pathogens_and_landuse/selected_graphs/supp_pathogen_ct.pdf",
-       sup_figure_ct, height = 3, width = 6)
+       sup_figure_ct, height = 3, width = 9)
 
