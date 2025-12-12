@@ -4,27 +4,26 @@ library(patchwork)
 comps = c("comp_100", "comp_083", "comp_067", "comp_050")
 names(comps) <- c("100", "083", "067", "050")
 
-bacphlip_threshold = 0.9
+thresh = 0.9
 
 both_predictions <- list()
 for (comp in names(comps)) {
   bacphlip_predictions <- read.delim(paste0("output/lifestyle/tool_test/all_seqs_completeness_", comp, ".fasta.bacphlip")) %>%
     tibble() %>%
     rename(sample_name = X) %>%
-    mutate(
-      bacphlip_lenient = ifelse(Virulent > Temperate, "Virulent", "Temperate"),
-      bacphlip_stringent = case_when(
-        Virulent >= bacphlip_threshold ~ "Virulent",
-        Temperate >= bacphlip_threshold ~ "Temperate",
-        .default = "uncertain"
-      )
-    ) %>%
-    select(sample_name, bacphlip_lenient, bacphlip_stringent)
+    mutate(BACPHLIP = case_when(
+      Virulent > Temperate & Virulent >= thresh ~ "Virulent",
+      Virulent >= Temperate & Virulent < thresh ~ "Virulent (uncertain)",
+      Temperate > Virulent & Temperate >= thresh ~ "Temperate",
+      Temperate > Virulent & Temperate < thresh ~ "Temperate (uncertain)",
+      
+    )) %>%
+    select(sample_name, BACPHLIP)
   
   replidec_predictions <- read.delim(paste0("output/lifestyle/tool_test/replidec_run_", comp, "_BC_predict.summary")) %>%
     tibble() %>%
-    rename(replidec_final_label = final_label) %>%
-    select(sample_name, replidec_final_label)
+    rename(Replidec = final_label) %>%
+    select(sample_name, Replidec)
   
   both_predictions[[comps[comp]]] <- full_join(
     bacphlip_predictions, 
@@ -34,37 +33,37 @@ for (comp in names(comps)) {
            ground_truth = case_when(
              dataset == "Engel" ~ "Virulent",
              dataset == "DMSZ" ~ "Virulent",
-             dataset == "Bueren" ~ "Temperate"
-           )
+             dataset == "Bueren" ~ "Temperate",
+           ),
+           BACPHLIP = factor(BACPHLIP, levels = c("Chronic", "Temperate", "Temperate (uncertain)", "Virulent (uncertain)", "Virulent")),
+           Replidec = factor(Replidec, levels = c("Chronic", "Temperate", "Virulent")),
     )
 }
 
-color_vector <- c("Virulent" = "#1C3A3A", 
+color_vector <- c("Virulent" = "#1C3A3A",
+                  "Virulent (uncertain)" = "#4CB3B3",
                   "Chronic" =  "#8B4513", 
                   "Temperate" ="#FFC300", 
-                  "uncertain" = "#777777"
+                  "Temperate (uncertain)" = "#FFDAB9"
                   )
 
-
 plots <- list()
+plots2 <- list()
 Engel_plots <- list()
 for (compo in names(comps)) {
   for (gt in c("Virulent", "Temperate")) {
     plots[[paste0(gt, "_", compo)]] <- both_predictions[[comps[compo]]] %>%
       filter(ground_truth == gt) %>%
-      select(sample_name, bacphlip_lenient, bacphlip_stringent, replidec_final_label) %>%
+      select(sample_name, BACPHLIP, Replidec) %>%
       pivot_longer(-sample_name, names_to = "method", values_to = "call") %>%
       group_by(method, call) %>%
       mutate(count = n()) %>%
       ungroup() %>%
       select(-sample_name) %>%
       distinct() %>%
-      mutate(method = case_when(
-        method == "bacphlip_lenient" ~ "BACPHLIP\n(lentient)",
-        method == "bacphlip_stringent" ~ "BACPHLIP\n(stringent)",
-        method == "replidec_final_label" ~ "Replidec"
-        )) %>%
       rename(Assignment = call) %>%
+      complete(method, Assignment, fill = list(count = 0L)) %>%
+      
       ggplot(aes(x = method, y = count, fill = Assignment)) +
       geom_col() +
       labs(y = paste0("completeness: ", as.integer(compo), "%"),
@@ -76,6 +75,12 @@ for (compo in names(comps)) {
         axis.title = element_text(face = "bold")
         ) +
       scale_fill_manual(values = color_vector)
+    
+    plots2[[paste0(gt, "_", compo)]] <- plots[[paste0(gt, "_", compo)]] + 
+      labs(x = paste0("completeness: ", as.integer(compo), "%"),
+           y = gt
+      )
+    
   }
   
   Engel_plots[[compo]] <- both_predictions[[comps[compo]]] %>%
@@ -102,35 +107,41 @@ comparison_wrap <- wrap_plots(plots,
                               labels = "collect", ncol = 2
                               )
 
+plots2 <- list(
+  Virulent_100 = plots2$Virulent_100, Virulent_083 = plots2$Virulent_083, Virulent_067 = plots2$Virulent_067, Virulent_050 = plots2$Virulent_050,
+  Temperate_100 = plots2$Temperate_100, Temperate_083 = plots2$Temperate_083, Temperate_067 = plots2$Temperate_067, Temperate_050 = plots2$Temperate_050
+  )
+
+comparison_wrap2 <- wrap_plots(plots2, 
+           guides = "collect", axes = "collect", 
+           labels = "collect", ncol = 4
+           )
+
 engel_wrap <- wrap_plots(Engel_plots,
            guides = "collect", axes = "collect", 
            labels = "collect", ncol = 1)
 
 full_tibble <- both_predictions$comp_100 %>%
-  relocate(bacphlip_lenient, bacphlip_stringent, replidec_final_label,
+  relocate(BACPHLIP, Replidec,
            .after = ground_truth) %>%
   rename(
-    bacphlip_lenient_100 = bacphlip_lenient,
-    bacphlip_stringent_100 = bacphlip_stringent,
-    replidec_final_label_100 = replidec_final_label
+    BACPHLIP_100 = BACPHLIP,
+    Replidec_100 = Replidec
     ) %>%
-  left_join(., both_predictions$comp_083[c("sample_name", "bacphlip_lenient", "bacphlip_stringent", "replidec_final_label")], by = "sample_name") %>%
+  left_join(., both_predictions$comp_083[c("sample_name", "BACPHLIP", "Replidec")], by = "sample_name") %>%
   rename(
-    bacphlip_lenient_83 = bacphlip_lenient,
-    bacphlip_stringent_83 = bacphlip_stringent,
-    replidec_final_label_83 = replidec_final_label
+    BACPHLIP_083 = BACPHLIP,
+    Replidec_083 = Replidec
   ) %>%
-  left_join(., both_predictions$comp_067[c("sample_name", "bacphlip_lenient", "bacphlip_stringent", "replidec_final_label")], by = "sample_name") %>%
+  left_join(., both_predictions$comp_067[c("sample_name", "BACPHLIP", "Replidec")], by = "sample_name") %>%
   rename(
-    bacphlip_lenient_67 = bacphlip_lenient,
-    bacphlip_stringent_67 = bacphlip_stringent,
-    replidec_final_label_67 = replidec_final_label
+    BACPHLIP_067 = BACPHLIP,
+    Replidec_067 = Replidec
   ) %>%
-  left_join(., both_predictions$comp_050[c("sample_name", "bacphlip_lenient", "bacphlip_stringent", "replidec_final_label")], by = "sample_name") %>%
+  left_join(., both_predictions$comp_050[c("sample_name", "BACPHLIP", "Replidec")], by = "sample_name") %>%
   rename(
-    bacphlip_lenient_50 = bacphlip_lenient,
-    bacphlip_stringent_50 = bacphlip_stringent,
-    replidec_final_label_50 = replidec_final_label
+    BACPHLIP_050 = BACPHLIP,
+    Replidec_050 = Replidec
   )
 
 #####
@@ -139,6 +150,8 @@ full_tibble <- both_predictions$comp_100 %>%
 system("mkdir -p output/R/lifestyle/tool_test/")
 ggsave("output/R/lifestyle/tool_test/tool_comparison.pdf", comparison_wrap,
        height = 8, width = 6)
+ggsave("output/R/lifestyle/tool_test/tool_comparison_horizontal.pdf", comparison_wrap2,
+       height = 5, width = 10)
 ggsave("output/R/lifestyle/tool_test/engels_phages.pdf", engel_wrap,
        height = 8, width = 3.5)
 
