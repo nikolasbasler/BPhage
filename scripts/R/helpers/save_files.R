@@ -97,6 +97,7 @@ for (set in names(threshold_plot)) {
 system("mkdir -p output/R/alpha")
 system("mkdir -p output/R/alpha/alpha_all")
 system("mkdir -p output/R/alpha/alpha_core_or_not")
+system("mkdir -p output/R/alpha/shannon_family_pairwise")
 
 # Raw bee pool richness:
 ggsave("output/R/alpha/raw_bee_pool_richness.pdf",
@@ -180,6 +181,21 @@ for (country in names(alpha_abs_by_country)) {
       write_csv(alpha_by_country_core_or_not[[core_or_not]][[country]][[tax]]$table,
                 paste0("output/R/alpha/alpha_by_country_core_or_not/alpha_abs_by_country_core.",core_or_not,".",tax,".kruskal.csv"))
     }
+  }
+}
+
+# Shannon family pair-wise comparisons
+
+for (set in names(alpha_family_pwc)) {
+  for (met in names(alpha_family_pwc[[set]])) {
+    write_delim(alpha_family_pwc[[set]][[met]],
+                paste0("output/R/alpha/shannon_family_pairwise/shannon_family_pairwise.", set, ".", met, ".tsv"),
+                       delim = "\t")
+  }
+  for (met in names(alpha_abs_family_pwc[[set]])) {
+    write_delim(alpha_abs_family_pwc[[set]][[met]],
+                paste0("output/R/alpha/shannon_family_pairwise/shannon_abs_family_pairwise.", set, ".", met, ".tsv"),
+                       delim = "\t")
   }
 }
 

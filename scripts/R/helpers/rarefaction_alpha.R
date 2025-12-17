@@ -86,5 +86,48 @@ for (countr in levels(metadata$Country)) {
     }
   }
 }
+
+# Get detailed results of pair-wise comparison tests:
+shannon_and_meta <- list()
+shannon_and_meta$all <- alpha$Family$table %>%
+  left_join(., metadata[c("Sample_ID", "Gut_part", "Country", "Season")], by = "Sample_ID") %>%
+  select(Sample_ID, Hill_Shannon, Gut_part, Country, Season)
+shannon_and_meta$noncore <- alpha_core_or_not$no$Family$table %>%
+  left_join(., metadata[c("Sample_ID", "Gut_part", "Country", "Season")], by = "Sample_ID") %>%
+  select(Sample_ID, Hill_Shannon, Gut_part, Country, Season)
+shannon_and_meta$core <- alpha_core_or_not$yes$Family$table %>%
+  left_join(., metadata[c("Sample_ID", "Gut_part", "Country", "Season")], by = "Sample_ID") %>%
+  select(Sample_ID, Hill_Shannon, Gut_part, Country, Season)
+
+shannon_and_meta_abs <- list()
+shannon_and_meta_abs$all <- alpha_abs$Family$table %>%
+  left_join(., metadata[c("Sample_ID", "Gut_part", "Country", "Season")], by = "Sample_ID") %>%
+  select(Sample_ID, Hill_Shannon, Gut_part, Country, Season)
+shannon_and_meta_abs$noncore <- alpha_abs_core_or_not$no$Family$table %>%
+  left_join(., metadata[c("Sample_ID", "Gut_part", "Country", "Season")], by = "Sample_ID") %>%
+  select(Sample_ID, Hill_Shannon, Gut_part, Country, Season)
+shannon_and_meta_abs$core <- alpha_abs_core_or_not$yes$Family$table %>%
+  left_join(., metadata[c("Sample_ID", "Gut_part", "Country", "Season")], by = "Sample_ID") %>%
+  select(Sample_ID, Hill_Shannon, Gut_part, Country, Season)
+
+alpha_family_pwc <- list()
+alpha_abs_family_pwc <- list()
+for (set in names(shannon_and_meta)) {
+  metavars <- c("Gut_part", "Country", "Season")
+  for (mv in metavars) {
+    alpha_family_pwc[[set]][[mv]] <- pwc_shannon_square(
+      s_and_h = shannon_and_meta[[set]],
+      meta_var = mv
+    )
+  }
+  metavars <- c("Country", "Season")
+  for (mv in metavars) {
+    alpha_abs_family_pwc[[set]][[mv]] <- pwc_shannon_square(
+      s_and_h = shannon_and_meta_abs[[set]],
+      meta_var = mv
+    )
+  }
+}
+
 alpha_end <- Sys.time()
 alpha_end - alpha_start

@@ -174,3 +174,29 @@ alpha_stats = function(df, meta_vars, min_seq = NA, df_lengths = NA, absolut_val
   patch <- wrap_plots(panels, ncol=length(meta_vars), axes = "collect_y")
   return(list(plot=patch, table=alpha_tbl, kruskal = kruskal_results, single_plots = panels))
 }
+
+pwc_shannon_square <- function(s_and_h, meta_var) {
+  
+  groups <- levels(factor(s_and_h[[meta_var]]))  
+  pwc <- rstatix::pairwise_wilcox_test(s_and_h, formula = as.formula(paste("Hill_Shannon ~", meta_var)), p.adjust.method = "BH") %>%
+    select(group1, group2, statistic, p.adj)
+  
+  square <- pwc %>%
+    select(-p.adj) %>%
+    complete(group1 = groups, group2 = groups, fill = list(statistic = NA)) %>%
+    mutate(
+      group1 = factor(group1, levels = groups),
+      group2 = factor(group2, levels = groups)
+    ) %>%
+    arrange(group1, group2) %>%
+    left_join(., pwc[c("group1", "group2", "p.adj")], by = join_by(group1 == group2, group2 == group1)) %>%
+    mutate(value = case_when(
+      is.finite(statistic) & is.na(p.adj) ~ statistic,
+      is.finite(p.adj) & is.na(statistic) ~ p.adj,
+      .default = NA
+    )) %>%
+    select(group1, group2, value) %>%
+    pivot_wider(names_from = group2) %>%
+    rename(group = group1)
+  return(square)
+}
