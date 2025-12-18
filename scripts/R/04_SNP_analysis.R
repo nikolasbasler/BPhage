@@ -179,11 +179,13 @@ RDA_patch_vertical <- RDA_plots$bee / RDA_plots$bacteria / RDA_plots$phages / co
 ### Tests
 
 mantel_tests <- list()
+mantel_tests_raw <- list()
 for (mant in c("bee_phages", "bee_bacteria", "phages_bacteria")) {
   first_set <- str_split(mant, "_")[[1]][[1]]
   second_set <- str_split(mant, "_")[[1]][[2]]
   
-  mantel_tests[[mant]] <- mantel(ska_matrix[[first_set]], ska_matrix[[second_set]], method = "spearman") %>%
+  mantel_tests_raw[[mant]] <- mantel(ska_matrix[[first_set]], ska_matrix[[second_set]], method = "spearman")
+  mantel_tests[[mant]] <- mantel_tests_raw[[mant]] %>%
     unlist() %>%
     t() %>% 
     as.data.frame() %>%
