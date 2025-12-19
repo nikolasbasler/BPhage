@@ -20,15 +20,15 @@ mkdir -p $VSC_SCRATCH/BPhage/additional_datasets/
 mkdir -p $VSC_SCRATCH/BPhage/ref/
 
 # Nosema genome
-cd $VSC_SCRATCH/BPhage/ref/
-datasets download genome accession GCF_000988165.1
-unzip ncbi_dataset.zip
-mv ncbi_dataset/data/GCF_000988165.1/GCF_000988165.1_ASM98816v1_genomic.fna Varimorpha_genomes.fasta
-rm -r md5sum.txt ncbi_dataset ncbi_dataset.zip README.md
-datasets download genome accession GCA_000447185.1
-unzip ncbi_dataset.zip
-cat ncbi_dataset/data/GCA_000447185.1/GCA_000447185.1_NapisBRLv01_genomic.fna >> Varimorpha_genomes.fasta
-rm -r md5sum.txt ncbi_dataset ncbi_dataset.zip README.md
+# cd $VSC_SCRATCH/BPhage/ref/
+# datasets download genome accession GCF_000988165.1
+# unzip ncbi_dataset.zip
+# mv ncbi_dataset/data/GCF_000988165.1/GCF_000988165.1_ASM98816v1_genomic.fna Varimorpha_genomes.fasta
+# rm -r md5sum.txt ncbi_dataset ncbi_dataset.zip README.md
+# datasets download genome accession GCA_000447185.1
+# unzip ncbi_dataset.zip
+# cat ncbi_dataset/data/GCA_000447185.1/GCA_000447185.1_NapisBRLv01_genomic.fna >> Varimorpha_genomes.fasta
+# rm -r md5sum.txt ncbi_dataset ncbi_dataset.zip README.md
 
 # Bacterial refseq genomes
 cd $VSC_SCRATCH/BPhage/ref/
@@ -59,9 +59,9 @@ curl -L -C - \
   -o Bueren_dc525_rd3.fna \
   "https://data.lib.vt.edu/ndownloader/files/39461182"
 
-# Virulent caudo phages (list from DMSZ's PhageDive)
-cut -d, -f5 $repo_location/data/virulent_caudos_DMSZ.csv | sed '1d' > temp.accessions.txt
-epost -db nuccore -input temp.accessions.txt -format acc | efetch -format fasta | sed 's/\..*//g' | sed 's/>/>DMSZ_/g' > virulent_caudos_DMSZ.fasta
+# Virulent caudo phages (list from DSMZ's PhageDive)
+cut -d, -f5 $repo_location/data/virulent_caudos_DSMZ.csv | sed '1d' > temp.accessions.txt
+epost -db nuccore -input temp.accessions.txt -format acc | efetch -format fasta | sed 's/\..*//g' | sed 's/>/>DSMZ_/g' > virulent_caudos_DSMZ.fasta
 rm temp.accessions.txt
 
 # Phage isolates from Engel group (all virulent)

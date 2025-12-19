@@ -32,7 +32,7 @@ for (comp in names(comps)) {
     mutate(dataset = str_extract(sample_name, "^[A-Za-z]*"),
            ground_truth = case_when(
              dataset == "Engel" ~ "Virulent",
-             dataset == "DMSZ" ~ "Virulent",
+             dataset == "DSMZ" ~ "Virulent",
              dataset == "Bueren" ~ "Temperate",
            ),
            BACPHLIP = factor(BACPHLIP, levels = c("Chronic", "Temperate", "Temperate (uncertain)", "Virulent (uncertain)", "Virulent")),
