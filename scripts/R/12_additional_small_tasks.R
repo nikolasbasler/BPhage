@@ -21,7 +21,7 @@ bphage_and_inpha_95.85_clusters <- read.delim("output/inphared_clustering/bphage
   tibble()
 
 ##### 
-## Calculating this factor of 25, regarding the value bee pollination services vs. the value of honey and beeswax:
+## Calculating this factor of 25 (value of pollination vs honey and wax), regarding the value bee pollination services vs. the value of honey and beeswax:
 
 # according to the federal reserve bank of st. louis (https://fred.stlouisfed.org/graph/?g=RJJP)
 exchange_rate_2005 <- read.csv("data/Dollar_to_Euro_exchange_rates_2005_from_fred.stlouisfed.org.csv") %>%
