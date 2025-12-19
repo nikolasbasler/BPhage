@@ -1,8 +1,8 @@
-# The honey bee triad: Phages are mutualistic partners in the gut microbiome of *Apis mellifera*
+# The honey bee triad: Phages in the gut microbiome of *Apis mellifera* show signs of mutualism
 
 This repository contains all scripts and usage instructions to reproduce the analysis for the paper by Basler et al (XXX ref). 
 
-This pipeline is split into two parts. The first part is meant for a high-performance computer (HPC) and can be skipped, if so wanted. There is also a reduced test dataset [available on Zenodo](https://zenodo.org/records/16937256) for the HPC part.
+This pipeline is split into two parts. The first part is meant for a high-performance computer (HPC) and can be skipped, if so wanted. There is also a reduced test dataset for the HPC part. The reduced test dataset as well as a "midsave" file to skip the HPC part [available on Zenodo](https://doi.org/10.5281/zenodo.16937255)
 
 The second part is for the statistical analysis and visualisation using RStudio. If you want to skip the HPC part and only want to re-run the statistical analysis, please go straight to the ["R scripts"](#r-scripts) section of this README. The scripts from both parts pretend to be on the same computer but it is possible to clone this repo to an HPC and to a local computer, run the HPC scripts, copy the relevant output files from the HPC to the local computer and continue with the statistical analysis using the R project.
 
@@ -22,7 +22,6 @@ The second part is for the statistical analysis and visualisation using RStudio.
     - [Lifestyle prediction](#lifestyle-prediction)
     - [Host prediction](#host-prediction)
     - [SNP analysis](#snp-analysis)
-    - [*Vairimorpha* (*Nosema*) mapping](#vairimorpha-nosema-mapping)
     - [Additional datasets mapping](#additional-datasets-mapping)
     - [Clustering with INPHARED](#clustering-with-inphared)
 - [R scripts](#r-scripts)
@@ -49,9 +48,9 @@ The second part is for the statistical analysis and visualisation using RStudio.
 - If you want to port these instructions to a different scheduler, your favourite generative AI tool will be very helpful.
 
 ### Installations
-- To clone the repository, please run (v0.2.3 is frozen for review):
+- To clone the repository, please run (v0.2.4 is frozen for the second round of review):
 ```
-git clone --branch v0.2.3 --depth 1 https://github.com/nikolasbasler/BPhage
+git clone --branch v0.2.4 --depth 1 https://github.com/nikolasbasler/BPhage
 cd BPhage
 
 ```
@@ -86,7 +85,7 @@ genomad_database="/absolute/path/to/database"
 
 ```
 
-- **Note**: The tool MOP-UP (used for taxonomic clustering of the microviruses) relies on a library called `Boost`, which I didn't manage to install properly via conda but instead relied on a pre-installed module (installation happens in the `download_additional_data.slrm` script). If it gives you trouble, see version information in `data/env_mop-up_boost_module.txt` and ask your IT department to install it. If there is no way for you to install it, the rest of the pipeline still works. You will just not have Kirchberger et al's classification of microviruses. If you only run the test dataset, the microvirus classification can't be run anyway.
+- **Note**: The tool [MOP-UP](https://github.com/martinez-zacharya/MOP-UP) (used for taxonomic clustering of the microviruses) relies on a library called `Boost`, which I didn't manage to install properly via conda but instead relied on a pre-installed module (installation happens in the `download_additional_data.slrm` script). If it gives you trouble, see version information in `data/env_mop-up_boost_module.txt` and ask your IT department to install it. If there is no way for you to install it, the rest of the pipeline still works. You will just not have [Kirchberger et al](https://journals.asm.org/doi/10.1128/mbio.00588-22)'s classification of microviruses. If you only run the test dataset, the microvirus classification can't be run anyway.
 - Set output directories: The HPC scripts assume two locations for output storage:
     - One location for intermediate storage that can blow up quite a lot while scripts are running and also contains the raw sequencing reads – the main input for this pipeline. 
     - The `output/` directory of this repository for the permanent output, which will accumulate about 1.5 TB (or 1.5 GB if the test dataset is used) as you progress through the scripts.
@@ -95,7 +94,7 @@ genomad_database="/absolute/path/to/database"
 intermediate="/absolute/path/to/folder"
 
 ``` 
-- Then run the following commands to adapt the scripts to your folder paths. This will also incorporate the database paths given above.
+- Then run the following commands to adapt the scripts to your folder paths. This will also incorporate the database paths given above, so make sure you ran all these commands in the same terminal session.
 ```
 repo_location=$(pwd)
 sed -i "s|\$VSC_STAGING\/BPhage|${repo_location}|g" scripts/HPC/*.s*
@@ -141,14 +140,13 @@ cut -d "_" -f1-3 data/in_test_data > data/BPhage.bee.pool.list
         - `data/bacteria.core.spec.tsv`
         - `data/other_datasets_SRA_accessions.tsv`
     - Output in `$intermediate/ref`: 
-        - Nosema genome
         - Core bacteria genomes 
         - Apis mellifera genome (indexed with bowtie2)
     - Output in `$intermediate/additional_datasets`: 
         - Raw reads from other studies
         - Two INPHARED datasets 
-        - Kirchberger et al's microvirus protines
-    - More output: A clone of the MOP-UP github repository for the microvirus taxonomy downloaded into this repository (not tracked by git).
+        - Kirchberger et al's microvirus proteins
+    - More output: A clone of the MOP-UP github repository for the microvirus taxonomy will be downloaded into this repository (not tracked by git).
 
 ### Assembly
 - `bphage_viper_with_dedup.slrm` (array of 471): ViPER pipeline (read trimming, host removal, assembly). If you run the test dataset, skip this script and run `bphage_viper_with_dedup_TEST_DATA.slrm` instead.
@@ -163,7 +161,7 @@ cut -d "_" -f1-3 data/in_test_data > data/BPhage.bee.pool.list
         - `data/BPhage.sample.list`
         - ViPER output in `$intermediate/bphage_viper_output`
     - Output: Original files from each sample's viper output are moved into a common `CONTIGS`, `QC/FASTQC` (also with multiqc) `QC/QUAST` and `READ` (containing deduped trimmed and hostout reads) folder inside `output/bphage_viper_output`
-- `cross_sample_clustering.slrm`: Collapsing redundancy by clustering contigs at 95% identity over 85% length of the smaller contig (see MIUVIG standard).
+- `cross_sample_clustering.slrm`: Collapsing redundancy by clustering contigs at 95% identity over 85% length of the smaller contig (see MIUViG standard).
     - Requires: Re-organised ViPER assemblies in `output/bphage_viper_output/CONTIGS/`
     - Output: Cross-sample clustered fasta and cluster member files: `output/bphage_ALL_1kb_cross_95-85.fasta.gz`, `output/bphage_ALL_1kb_cross_95-85_clusters.tsv.gz`
 
@@ -252,7 +250,7 @@ Only the first script (Pharokka) can be run with the test dataset. If you are ru
         - Predicted functions at: `output/annotation/phold_compare_bphage_and_others`
         - Additional files in this output folder with the original, long contig names: `output/annotation/phold_compare_bphage_and_others/*_long_names.*`
         - Ciros plots of all contigs, except a few very short ones that crashed `phold plot`: `output/annotation/plots_phold_compare_bphage_and_others` (using original, long contig names).
-- `amg_phold_compare_with_temp_files.slrm`: Re-run phold on PAPS reductase genes and keep temp files to retreive more than just the top foldseek his.
+- `amg_phold_compare_with_temp_files.slrm`: Re-run phold on PAPS reductase genes and keep temp files to retreive more than just the top foldseek his. You could already run `phold --keep_tmp_files` in the first run but that would produce a very large and mostly unneeded output.
     - Requires: 
         - Putative AMG CDSs: `data/AMG_CDSs.tsv`
         - Python script to filter down `.gbk` files: `grep_gbk.py` (called from within the script)
@@ -285,9 +283,21 @@ Only the first script (vConTACT3) can be run with the test dataset. If you are r
     - Output: `output/bphage_micros_mopup/bphage_micros_id30ForCytoscape.csv`. Run `scripts/R/microviruses_mopup_cytoscape.R` for visualisation (see comments at the top of this script for instructions).
 
 ### Lifestyle prediction
-- `lifestyle_bacphlip`: Lifestyle prediction (virulent, temperate) with Bacphlip.
+
+- `lifestyle_tool_test.slrm`: Skip if you are running th test dataset. Test [Replidec](https://www.biorxiv.org/content/10.1101/2022.07.18.500415v1)'s and [BACPHLIP](https://peerj.com/articles/11396/)'s performance on prophages (all 233 from honey bees) and virulent phages (10 of 173 from honey bees).
+    - Requires: Downloaded datasets:
+        - Virulent phages from the [DSMZ](https://phagedive.dsmz.de/): `$intermediate/additional_datasets/virulent_caudos_DSMZ.fasta`
+        - Virulent phages isolated from honey bees by [Bonilla-Rosso et al](https://www.pnas.org/doi/suppl/10.1073/pnas.2000228117): `$intermediate/additional_datasets/virulent_phages_Engel.fasta`
+        - Honey bee prohages from [Bueren et al](https://peerj.com/articles/15383/): `$intermediate/additional_datasets/Bueren_dc525_rd3.fna`
+    - Output: Lifestyle predictions of both tools on the complete genomes as well as truncated versions with 83%, 67% and 50% completeness: `output/lifestyle/tool_test`
+
+- `lifestyle_replidec.slrm`: Lifestyle prediction (virulent, temperate, chronic) with Replidec.
     - Requires: Phage, picobirna and unclassified contigs `$repo_location/output/bphage_ALL_1kb_phages_refined_contigs.fasta.gz`, `$repo_location/output/bphage_ALL_1kb_picobirna.fasta.gz`, `$repo_location/output/bphage_ALL_1kb_unclassified_viruses.fasta.gz`
-    - Output: Bacphlip scores for virulent or temperate calls: `output/lifestyle/bphage_and_extended.fasta.bacphlip`
+    - Output: Replidec predictions: `output/lifestyle/bacphlip/bphage_and_extended.fasta.bacphlip`
+
+- `lifestyle_bacphlip.slrm`: Lifestyle prediction (virulent, temperate) with Bacphlip. Only presented in the supplements. Replidec's predictions are presented in the main part of the paper.
+    - Requires: Phage, picobirna and unclassified contigs `$repo_location/output/bphage_ALL_1kb_phages_refined_contigs.fasta.gz`, `$repo_location/output/bphage_ALL_1kb_picobirna.fasta.gz`, `$repo_location/output/bphage_ALL_1kb_unclassified_viruses.fasta.gz`
+    - Output: Bacphlip scores for virulent or temperate calls: `output/lifestyle/replidec/BC_predict.summary`
 
 ### Host prediction
 - `iphop_bphage.slrm`: Host prediction with iPHoP.
@@ -314,23 +324,8 @@ Only the first script (vConTACT3) can be run with the test dataset. If you are r
     - Requires: SKA kmer files: `ska/skf_files/*.skf`
     - Output: Pairwise SNP distances in bee, phage and core bacteria read sets: `output/SNP_analysis/SKA_SNP_distances/*distances.tsv` 
 
-### *Vairimorpha* (*Nosema*) mapping
-- `Nosema_mapping_prep.slrm`: Concatenate and index Nosema genomes for mapping.
-    - Requires: Nosema genome: `$intermediate/ref/Varimorpha_genomes.fasta`
-    - Outoput: Indexed genome: `$intermediate/ref/Varimorpha_genomes.*`
-- `Nosema_mapping_all.slrm` (array of 450): Mapping reads to Nosema genome.
-    - Requires: 
-        - Sample list: `data/BPhage.sample.list`
-        - Hostout reads: `output/bphage_viper_output/READ/*.Hostout.*.fastq.gz`
-    - Output: 
-        - Nosema-mapping alignments in `$intermediate/nosema_mapping_all`
-        - Per-sample mapped read counts `$intermediate/nosema_mapping_all/*_read_counts.tsv`
-- `Nosema_mapping_stats_all.slrm`: Gathering mapped read counts of nosema mapping.
-    - Requires: Per-sample mapped read counts `$intermediate/nosema_mapping_all/*_read_counts.tsv`
-    - Outout: Table of mapped reads: `output/nosema_mapped_counts_all.tsv`
-
 ### Additional datasets mapping
-- `additional_datasets_mapping_with_unpaired.slrm` (array of 114): Mapping of reads from other studies to the phage genomes. If you turned this array job script into a successive loop, only one of the datasets are being mapped, otherwise it would take too long, even with the test dataset.
+- `additional_datasets_mapping_with_unpaired.slrm` (array of 163): Mapping of reads from other studies to the phage genomes. If you turned this array job script into a successive loop, only one of the datasets are being mapped, otherwise it would take too long, even with the test dataset.
     - Requires: 
         - List of SRA sccessions: `data/other_datasets_SRA_accessions.tsv`
         - Indexed phage genomes: `$intermediate/ref/bphage_mapping_ref.fasta`
@@ -342,42 +337,27 @@ Only the first script (vConTACT3) can be run with the test dataset. If you are r
         - Per-SRA coverage and mapped reads: `output/other_studies/*.coverage.gz`, `output/other_studies/*_read_stats.tsv`
     - Outout: Stats for horizontal coverage, maped reads, mean depth and filtering stats: `output/other_studies/stats.other_studies.*`
 
-### Clustering with INPHARED
-- `inphared_clustering.slrm`: Clustering phage genomes with the INPHARED dataset on 70% identity over 85% of the genome length.
+### Clustering with INPHARED and additional honey bee prophages
+- `inphared_clustering.slrm`: Clustering phage genomes with the INPHARED dataset on 70% ANI over 85% of the genome length.
     - Requires:
-        - Phage, picobirna and unclassified contigs at `output/bphage_ALL_1kb_*.fasta.gz`
+        - Phage, picobirna and unclassified contigs: `output/bphage_ALL_1kb_phages.fasta.gz`, `output/bphage_ALL_1kb_unclassified_viruses.fasta.gz`, `output/bphage_ALL_1kb_picobirna.fasta.gz`
         - Inphared dataset: `$intermediate/additional_datasets/inphared_14Apr2025_genomes_excluding_refseq.fa.gz`
+        - Honey bee prophage genomes: `$intermediate/BPhage/additional_datasets/Bueren_dc525_rd3.fna`. They were never deposited at Genbank so they are not fetched by INPHARED.
     - Output: Table with clusters: `output/inphared_clustering/bphage_and_inpha_70-85_clusters.tsv`
 
-### Metabolic gene confirmation
-- `amg_confirmation_get_annotations.slrm`
-    - Requires:
-        - List of genomes with potential AMGs: `data/AMG_genomes.tsv`
-        - Pharokka's output of the bulk contigs: `output/annotation/pharokka_bphage_and_others/prodigal-gv.faa`
-        - Pharokka's output of the refined contigs: `output/core_contig_refinement/extended_contigs_pharokka/prodigal-gv.faa`
-        - Pyhon script to filter `.gbk` files (will be called from within the script): `scripts/HPC/grep_gbk.py` 
-        - List of CDSs of potential AMGs: `data/AMG_CDSs.tsv`
-    - Output: Genome sequences of contigs with potential AMGs and their protein sequences in `output/amg_confirmation`
-
----
 ---
 
 ## R scripts
-If you skipped the HPC part and jumped right here, you will want to clone this repository to a computer that runs RStudio and then extracte the `mid_save.tar.gz`. Extracting this file with `-k` will not overwrite existing files, so it's safe to use if you generated some HPC output. v0.2.3 is frozen for review.
+If you skipped the HPC part and jumped right here, you will want to clone this repository to a computer that runs RStudio, download the `mid_save.tar.gz` file from [Zenodo](https://doi.org/10.5281/zenodo.16937255) and place it into the root directory of the repository and extract it. Extracting this file with `-k` will not overwrite existing files, so it's safe to use if you generated some HPC output. 
 
 ```
-git clone --branch v0.2.3 --depth 1 https://github.com/nikolasbasler/BPhage
+git clone --branch v0.2.4 --depth 1 https://github.com/nikolasbasler/BPhage
 cd BPhage
 tar -kxvzf mid_save.tar.gz
 
 ```
 
-If you worked through the HPC scripts, you will probably want another clone of this repository on a local computer and only carry over the output that is further needed. In that case, have a look at the contents of `mid_save.tar.gz` to see which files you will need:
-
-```
-tar -tf mid_save.tar.gz | grep -v "/$"
-
-```
+If you worked through the HPC scripts, you will probably want another clone of this repository on a local computer and only carry over the output that is further needed. In that case, have a look at `data/midsave_file_list`. It's an inventory of the files that are contained in the midsave file (i.e. everything that will be needed from now on).
 
 All the R scripts are meant to be run in RStudio in order of their numbering. Each script can run start to finish without user interaction in a few seconds, except `02.diversity_and_rel_abundance.R`, which takes about 1h and `03.beta_dbRDA.R`, which takes about 15 minutes. I recommend to restart the RStudio session before every script.
 
@@ -390,7 +370,7 @@ It would not be feasible to describe the in- and output of all scripts in detail
 
 ### Package installations
 - For reproducibility, it would be best to install R 4.3.1. On Windows, RStudio supports switching between different R versions. On Mac or Linux, you may have to rely on `rig` (https://github.com/r-lib/rig) to do that.
-- Once you open the R project (`BPhage.Rproj`), `renv` should install itself. If not, please install it yourself.
+- Once you open the R project (`BPhage.Rproj`), `renv` should install itself. If not, please install it.
 - To reproduce R package versions run `renv::restore()` in the RStudio terminal.
     - Don't worry about the `ERROR [error code 22]` messages during download. `renv` will keep trying and is usually able to download a package after a few attempts.
     - The message `GitHub authentication credentials are not available` can also be ignored.
@@ -430,9 +410,16 @@ PCoA and distance-based redundancy analysis is performed on SKA's pairwise SNP d
 
 ---
 ### Lifestyle predictions
-`05.lifestyle_bacphlip.R`
 
-Bacphlip's lifestyle predictions are summed up in this script. The `classification` table is updated accordingly.
+`05a.lifestyle_tool_test.R`
+
+Comparing the predictions of Replidec's and BACPHLIP on honey bee prohages from [Bueren et al](https://peerj.com/articles/15383/) and virulent phages from the [DSMZ](https://phagedive.dsmz.de/) and [Bonilla-Rosso et al](https://www.pnas.org/doi/suppl/10.1073/pnas.2000228117).
+
+`05b.lifestyle_replidec.R`
+Visulaising Replidec's lifestyle predictions. The `classification` table is updated accordingly.
+
+`05c.lifestyle_bacphlip.R`
+Visulaising BACPHLIP's lifestyle predictions. These visualisations are not used in the paper, but the predictions are noted in the supplements and the `classification` table is updated accordingly.
 
 ---
 ### Host predictions
@@ -444,13 +431,20 @@ This script takes the iPHoP output and makes plots out of it. Note that even tho
 ### Functional annotation
 `07.gene_content.R`
 
-This script combines the gene annotations from Phold, the KEGG assignments and the host predictions. Plots and values for PHROGs and KEGG assignments as well as metabolic gene prevalence are generated.
+==UPATE==
+
+This script combines the gene annotations from Phold, the KEGG assignments and the host predictions. Plots and values for PHROGs and KEGG assignments as well as metabolic gene prevalence are generated. Maps of genomes carrying genes that were assigned to a KEGG ortholog (KO) from [Kieft et al](https://link.springer.com/article/10.1186/s40168-020-00867-0)'s curated list of AMG KOs are generated and screened to
+1. exclude genes on contig edges (unless their genome is 100% complete) as they might be bacterial
+1. include only genes if between their own position and both contig edges there is at least one other gene assigned to a PHROG category (including "unknown function" and "other") to further ensure viral context
+1. exclude genes if their nearest annotated neighbouring genes on both sides are structural (PHROG categories "head and packaging", "connector" and "tail") as this would be unexpected for true AMGs
+1. include only genes if 2 of the 3 top-scoring hits in the structure-based searches agreed in their annotation to exclude genes potentially misannotated due to shared domains
 
 ---
 ### Associations with land use and pathogens (LMMs, GLMMs)
+
 `08a.mixed_models_gene_tpm_vs_landuse.R`, `08b.mixed_models_gene_presence_vs_landuse.R`, `08c.mixed_models_pathogen_ct_vs_landuse.R`, `08d.mixed_models_pathogen_presence_vs_landuse.R`
 
-These scripts are technically very similar. `a` and `c` perform linear mixed-effects models (LMMs) on relative gene abundances vs. land use parameters (`a`), and on pathogen Ct values vs. land use parameters (`c`). `b` and `d` perform generalized linear (logistic) mixed-effects models (GLMMs) on gene presence vs. land use parameters (`b`) and pathogen presence vs. land use parameters (`d`). 
+These scripts are technically very similar. `a` and `c` perform linear mixed-effects models (LMMs) on relative gene abundances vs. land use parameters (`a`) and on pathogen Ct values vs. land use parameters (`c`). `b` and `d` perform generalized linear (logistic) mixed-effects models (GLMMs) on gene presence vs. land use parameters (`b`) and pathogen presence vs. land use parameters (`d`). 
 
 The helper script `scripts/R/helpers/FAOstat_table.R` takes the country-wide pesticde usage (`data/FAOSTAT_pest_data_en_3-4-2025.csv`) and landuse (`data/FAOSTAT_area_data_en_3-5-2025.csv`) information from the FAO and combines it with the cropland area around the sampling sites (`data/land_cover_results.csv`) measured by COPERNICUS. Estimates of specific pesticide use at the sampling cites are then calculated. All numbers are from 2019, the year preceeding our sampling.
 
@@ -479,13 +473,13 @@ The landuse parameters all refer to a 2 km radius around the sampling sites. The
 1. Fung & Bact - nes
 1. Plant Growth Regulators
 
-In total there are 23 landuse parameters, 1 genes of interet (encoding PAPS reductasse), 3 pathogens (BQCV, SBV and DWV-B) for the Ct value test in `c` and 3 pathogens (ABPV, V. ceranae and CBPV) for the pathogen presence/absence test in `d`. Benjamini-Hochberg correction of p-values was done in each script for all tests that successfully converged. Tests that failed to converge were excluded from further analyses. 
+In total there are 23 landuse parameters, 1 gene of interet (cysH, encoding PAPS reductasse), 3 pathogens (BQCV, SBV and DWV-B) for the Ct value test in `c` and 3 pathogens (ABPV, V. ceranae and CBPV) for the pathogen presence/absence test in `d`. Benjamini-Hochberg correction of p-values was done in each script for all tests that successfully converged. Tests that failed to converge were excluded from further analyses. 
 
 Script | Test | Number of tests | Successfully converged | Significant after BH correction
 :---: | :---: | :---: | :---: | :---:
 `a` | LMM (gene rel. abund. vs. landuse) | 23 | 23 | 13
 `b` | GLMM (gene presence vs. landuse)| 23 | 21 | 3
-`c` | LMM (pathogen Ct vs. landuse) | 69 | 69 | 4
+`c` | LMM (pathogen Ct vs. landuse) | 69 | 69 | 5
 `d` | GLMM (paghogen presence vs. landuse) | 69 | 62 | 0
 
 Several tables and plots are produced and placed into `output/R/genes_pathogens_and_landuse` (and subfolders), including plots of raw residuals vs. fitted values for model diagnostics. The figures in the paper were stiched together in the next script.
@@ -514,6 +508,8 @@ Some smaller tasks that don't deserve their own scripts are done here. For examp
 
 ### Manuscript figures
 
+==UPDATE==
+
 Figure | Created in script | Files (inside `output/R/`) 
 --- | --- |--- 
 Figure 1 | NA | NA
@@ -521,17 +517,19 @@ Figure 2 | `02.diversity_and_rel_abundance.R` | `taxon_pies/pretty_pie.n.Class.p
 Figure 3a | `02.diversity_and_rel_abundance.R` | `prevalence/prevalence.Countries.pdf`
 Figure 3b | `02.diversity_and_rel_abundance.R` | `relative_abundance/relative_abundance_by_metavar_core_or_not/By_prevalence_Prevalence_Countries_relative_abundance.Country.pdf`
 Figure 3c | `05.lifestyle.R` | `lifestyle/replidec.Caudoviricetes.all.horizontal.pdf`
-Figure 3d | `06.host.R` | `host_pies/hosts.noncore.pdf` <br> `host_pies/hosts.core.pdf`
+Figure 3d | `06.host.R` | `host_pies/core_patch_mixed.pdf`
 Figure 4a | NA | NA
 Figure 4b | `10_other_datasets.R` | `other_studies/core_read_presence_overlap.upset.patch.pdf`
 Figure 5a | `02.diversity_and_rel_abundance.R` | `alpha/pretty_alpha_selection.pdf`
 Figure 5b | `03.beta_dbRDA.R` | `beta/beta_dbRDA/dbRDA.Family_patch.vertical.pdf`
 Figure 5c | `04_SNP_analysis.R` | `SNP_analysis/SNP_RDA_horizontal.pdf`
-Figure 6a | `07.gene_content.R` | `genes_pathogens_and_landuse/phrog_and_kegg/phrog_bar.vertical.all.pdf` <br> `genes_pathogens_and_landuse/phrog_and_kegg/legend.phrog.pdf` <br> `genes_pathogens_and_landuse/phrog_and_kegg/kegg_bar.pdf` <br> `genes_pathogens_and_landuse/phrog_and_kegg/legend.kegg.pdf` <br> `genes_pathogens_and_landuse/phrog_and_kegg/goi_bar.pdf` <br> `genes_pathogens_and_landuse/phrog_and_kegg/legend.goi.pdf`
-Figure 6b | `07.gene_content.R` | `genes_pathogens_and_landuse/hosts_of_genes_goi.pdf`
-Figure 6c | `09.mixed_models_figures.R` | `genes_pathogens_and_landuse/selected_graphs/paps_tpm.pdf`
-Figure 6d | `09.mixed_models_figures.R` | `genes_pathogens_and_landuse/selected_graphs/goi_presence.pdf`
-Figure 6e | `09.mixed_models_figures.R` | `genes_pathogens_and_landuse/selected_graphs/nosema_relabund_and_ct.pdf`
+Figure 6a | `07.gene_content.R` | `gene_content/phrog_kegg_and_host/phrog_bar.vertical.all.pdf` <br> `gene_content/phrog_kegg_and_host/legend.phrog.pdf` <br> `gene_content/phrog_kegg_and_host/kegg_bar.pdf` <br> `gene_content/phrog_kegg_and_host/legend.kegg.pdf`
+Figure 6b | `07.gene_content.R` | `gene_content/phrog_kegg_and_host/hosts.PAPS reductase.pdf`
+Figure 6c | `09.mixed_models_figures.R` | `genes_pathogens_and_landuse/selected_graphs/main_paps_tpm.pdf`
+Figure 6d | `09.mixed_models_figures.R` | `genes_pathogens_and_landuse/selected_graphs/main_paps_presence.pdf`
+Figure 6e | `09.mixed_models_figures.R` | `genes_pathogens_and_landuse/selected_graphs/main_pathogen_ct.pdf`
+
+# CONTINUE HERE
 Supplementary Figure 1 | `02.diversity_and_rel_abundance.R` | `beta/beta_all/Family_pcoa/beta.Family.all.all.pcoa.pdf` <br> `beta/beta_core_or_not/Family_pcoa/beta_core.no.Family.all.all.pcoa.pdf` <br> `beta/beta_core_or_not/Family_pcoa/beta_core.yes.Family.all.all.pcoa.pdf`
 Supplementary Figure 2a | `07.gene_content.R` | `genes_pathogens_and_landuse/gene_prevalence.gene_facet.pdf`
 Supplementary Figure 2b | `07.gene_content.R` | `genes_pathogens_and_landuse/gene_prevalence.overall.pdf`
