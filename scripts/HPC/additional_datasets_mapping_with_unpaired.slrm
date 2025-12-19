@@ -12,7 +12,7 @@
 
 # Submit (from output/slurm_log)
 # Only job 105 needs a whole node for memory reasons. All other ones finish on 12 cores within 30 minutes.
-# sbatch --array=1-114 --export=ALL ../../scripts/HPC/additional_datasets_mapping_with_unpaired.slrm
+# sbatch --array=1-163 --export=ALL ../../scripts/HPC/additional_datasets_mapping_with_unpaired.slrm
 
 repo_location="$VSC_STAGING/BPhage"
 
