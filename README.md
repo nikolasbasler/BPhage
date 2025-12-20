@@ -508,19 +508,17 @@ Some smaller tasks that don't deserve their own scripts are done here. For examp
 
 ### Manuscript figures
 
-==UPDATE==
-
 Figure | Created in script | Files (inside `output/R/`) 
 --- | --- |--- 
 Figure 1 | NA | NA
-Figure 2 | `02.diversity_and_rel_abundance.R` | `taxon_pies/pretty_pie.n.Class.pie.pdf` <br> `taxon_pies/pretty_pie.n.Class.legend.pdf` <br> `taxon_pies/pretty_pie.n.Order.pie.pdf` <br> `taxon_pies/pretty_pie.n.Order.legend.pdf` <br> `taxon_pies/pretty_pie.n.Family.pie.pdf` <br> `taxon_pies/pretty_pie.n.Family.legend.pdf`
-Figure 3a | `02.diversity_and_rel_abundance.R` | `prevalence/prevalence.Countries.pdf`
-Figure 3b | `02.diversity_and_rel_abundance.R` | `relative_abundance/relative_abundance_by_metavar_core_or_not/By_prevalence_Prevalence_Countries_relative_abundance.Country.pdf`
-Figure 3c | `05.lifestyle.R` | `lifestyle/replidec.Caudoviricetes.all.horizontal.pdf`
+Figure 2 | `02.diversity_and_rel_abundance.R` <br> `helpers/pretty_pies.R` <br> `helpers/save_files.R` | `taxon_pies/pretty_pie.n.Class.pie.pdf` <br> `taxon_pies/pretty_pie.n.Class.legend.pdf` <br> `taxon_pies/pretty_pie.n.Order.pie.pdf` <br> `taxon_pies/pretty_pie.n.Order.legend.pdf` <br> `taxon_pies/pretty_pie.n.Family.pie.pdf` <br> `taxon_pies/pretty_pie.n.Family.legend.pdf`
+Figure 3a | `02.diversity_and_rel_abundance.R` <br> `helpers/save_files.R` | `prevalence/prevalence.Countries.pdf`
+Figure 3b | `02.diversity_and_rel_abundance.R` <br> `helpers/save_files.R` | `relative_abundance/relative_abundance_by_metavar_core_or_not/By_prevalence_Prevalence_Countries_relative_abundance.Country.pdf`
+Figure 3c | `05b.lifestyle_replidec.R` | `lifestyle/replidec_horizontal_all_caudos.pdf`
 Figure 3d | `06.host.R` | `host_pies/core_patch_mixed.pdf`
 Figure 4a | NA | NA
 Figure 4b | `10_other_datasets.R` | `other_studies/core_read_presence_overlap.upset.patch.pdf`
-Figure 5a | `02.diversity_and_rel_abundance.R` | `alpha/pretty_alpha_selection.pdf`
+Figure 5a | `02.diversity_and_rel_abundance.R` <br> `save_files.R` | `alpha/pretty_alpha_selection.pdf`
 Figure 5b | `03.beta_dbRDA.R` | `beta/beta_dbRDA/dbRDA.Family_patch.vertical.pdf`
 Figure 5c | `04_SNP_analysis.R` | `SNP_analysis/SNP_RDA_horizontal.pdf`
 Figure 6a | `07.gene_content.R` | `gene_content/phrog_kegg_and_host/phrog_bar.vertical.all.pdf` <br> `gene_content/phrog_kegg_and_host/legend.phrog.pdf` <br> `gene_content/phrog_kegg_and_host/kegg_bar.pdf` <br> `gene_content/phrog_kegg_and_host/legend.kegg.pdf`
@@ -528,18 +526,16 @@ Figure 6b | `07.gene_content.R` | `gene_content/phrog_kegg_and_host/hosts.PAPS r
 Figure 6c | `09.mixed_models_figures.R` | `genes_pathogens_and_landuse/selected_graphs/main_paps_tpm.pdf`
 Figure 6d | `09.mixed_models_figures.R` | `genes_pathogens_and_landuse/selected_graphs/main_paps_presence.pdf`
 Figure 6e | `09.mixed_models_figures.R` | `genes_pathogens_and_landuse/selected_graphs/main_pathogen_ct.pdf`
-
-# CONTINUE HERE
-Supplementary Figure 1 | `02.diversity_and_rel_abundance.R` | `beta/beta_all/Family_pcoa/beta.Family.all.all.pcoa.pdf` <br> `beta/beta_core_or_not/Family_pcoa/beta_core.no.Family.all.all.pcoa.pdf` <br> `beta/beta_core_or_not/Family_pcoa/beta_core.yes.Family.all.all.pcoa.pdf`
-Supplementary Figure 2a | `07.gene_content.R` | `genes_pathogens_and_landuse/gene_prevalence.gene_facet.pdf`
-Supplementary Figure 2b | `07.gene_content.R` | `genes_pathogens_and_landuse/gene_prevalence.overall.pdf`
-Supplementary Figure 3a | `09.mixed_models_figures.R` | `genes_pathogens_and_landuse/selected_graphs/sup_fig_presence.pdf` <br> `genes_pathogens_and_landuse/selected_graphs/sup_fig_presence_legend.pdf`
-Supplementary Figure 3b | `09.mixed_models_figures.R` | `genes_pathogens_and_landuse/selected_graphs/sup_fig_tpm.pdf` <br> `genes_pathogens_and_landuse/selected_graphs/sup_fig_tpm_legend.pdf`
-Supplementary Figure 3c | `09.mixed_models_figures.R` | `genes_pathogens_and_landuse/selected_graphs/sup_fig_ct.pdf` <br> `genes_pathogens_and_landuse/selected_graphs/sup_fig_ct_legend.pdf`
-Supplementary Figure 4 | `02.diversity_and_rel_abundance.R` | `absolute_counts_all_samples.pdf`
-Supplementary Figure 5a | `02.diversity_and_rel_abundance.R` | `alpha/pretty_alpha_selection_abs.pdf` 
+Supplementary Figure 1 | `05a.lifestyle_tool_test.R` | `lifestyle/tool_test/tool_comparison_horizontal.pdf`
+Supplementary Figure 2 | `02.diversity_and_rel_abundance.R` <br> `save_files.R` | `beta/beta_all/Family_pcoa/beta.Family.all.all.pcoa.pdf` <br> `beta/beta_core_or_not/Family_pcoa/beta_core.no.Family.all.all.pcoa.pdf` <br> `beta/beta_core_or_not/Family_pcoa/beta_core.yes.Family.all.all.pcoa.pdf`
+Supplementary Figure 3a | `09.mixed_models_figures.R` | `genes_pathogens_and_landuse/selected_graphs/supp_paps_presence.pdf`
+Supplementary Figure 3b | `09.mixed_models_figures` | `genes_pathogens_and_landuse/selected_graphs/supp_paps_tpm.pdf`
+Supplementary Figure 3c | `09.mixed_models_figures` | `genes_pathogens_and_landuse/selected_graphs/supp_pathogen_ct.pdf`
+Supplementary Figure 4a | NA | NA
+Supplementary Figure 4b | `02.diversity_and_rel_abundance.R` <br> `helpers/save_files.R` | `absolute_counts_all_samples.pdf`
+Supplementary Figure 5a | `02.diversity_and_rel_abundance.R` <br> `helpers/save_files.R` | `alpha/pretty_alpha_selection_abs.pdf` 
 Supplementary Figure 5b | `02b.abs_rel_diversity_correlations.R` | `alpha/rel_abs_shannon_correlation/alpha_rel_abs_shannon_correlation.wrap.pdf`
-Supplementary Figure 5c | `02.diversity_and_rel_abundance.R` | `beta/beta_all/Family_pcoa/beta_abs.Family.all.all.pcoa.pdf` <br> `beta/beta_core_or_not/Family_pcoa/beta_abs_core.no.Family.all.all.pcoa.pdf` <br> `beta/beta_core_or_not/Family_pcoa/beta_abs_core.yes.Family.all.all.pcoa.pdf`
+Supplementary Figure 5c | `02.diversity_and_rel_abundance.R` <br> `helpers/save_files.R` | `beta/beta_all/Family_pcoa/beta_abs.Family.all.all.pcoa.pdf` <br> `beta/beta_core_or_not/Family_pcoa/beta_abs_core.no.Family.all.all.pcoa.pdf` <br> `beta/beta_core_or_not/Family_pcoa/beta_abs_core.yes.Family.all.all.pcoa.pdf`
 Supplementary Figure 5d | `02b.abs_rel_diversity_correlations.R` | `beta/rel_abs_bray_correlation/beta_rel_abs_bray_correlation.wrap.pdf`
 Supplementary Figure 6 | `11_accumulation_curves.R` | `accumulation_curves/accumulation_curve.all.all.pdf`
 Supplementary Figure 7 | `12_additional_small_tasks.R` | `core_shared_between_guts.pdf`
