@@ -464,6 +464,7 @@ for (core_or_not in names(prevalence_plots_per_country)) {
 }
 
 ## Upset ####
+system("mkdir -p output/R/venns")
 pdf(file="output/R/venns/country_upset.pdf",
     width = 25, height = 5) 
 country_upset_plot
