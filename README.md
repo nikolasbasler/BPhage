@@ -348,11 +348,17 @@ Only the first script (vConTACT3) can be run with the test dataset. If you are r
 ---
 
 ## R scripts
-If you skipped the HPC part and jumped right here, you will want to clone this repository to a computer that runs RStudio, download the `mid_save.tar.gz` file from [Zenodo](https://doi.org/10.5281/zenodo.16937255) and place it into the root directory of the repository and extract it. Extracting this file with `-k` will not overwrite existing files, so it's safe to use if you generated some HPC output. 
+If you skipped the HPC part and jumped right here, you will first want to clone this repository to a computer that runs RStudio: 
 
 ```
 git clone --branch v0.2.4 --depth 1 https://github.com/nikolasbasler/BPhage
 cd BPhage
+
+```
+
+Then download the `mid_save.tar.gz` file from [Zenodo](https://doi.org/10.5281/zenodo.16937255), place it into the root directory of the repository and extract it. Extracting this file with `-k` will not overwrite existing files, so it's safe to use if you generated some HPC output. 
+
+```
 tar -kxvzf mid_save.tar.gz
 
 ```
@@ -431,9 +437,9 @@ This script takes the iPHoP output and makes plots out of it. Note that even tho
 ### Functional annotation
 `07.gene_content.R`
 
-==UPATE==
+This script combines the gene annotations from Phold, the KEGG assignments and the host predictions. Plots and values for PHROGs and KEGG assignments, metabolic gene prevalence and genome maps. Potential AMGs are screened to
 
-This script combines the gene annotations from Phold, the KEGG assignments and the host predictions. Plots and values for PHROGs and KEGG assignments as well as metabolic gene prevalence are generated. Maps of genomes carrying genes that were assigned to a KEGG ortholog (KO) from [Kieft et al](https://link.springer.com/article/10.1186/s40168-020-00867-0)'s curated list of AMG KOs are generated and screened to
+1. be assigned to a KEGG ortholog (KO) from [VIBRANT](https://github.com/AnantharamanLab/VIBRANT)'s curated list of AMG KOs
 1. exclude genes on contig edges (unless their genome is 100% complete) as they might be bacterial
 1. include only genes if between their own position and both contig edges there is at least one other gene assigned to a PHROG category (including "unknown function" and "other") to further ensure viral context
 1. exclude genes if their nearest annotated neighbouring genes on both sides are structural (PHROG categories "head and packaging", "connector" and "tail") as this would be unexpected for true AMGs
@@ -522,7 +528,7 @@ Figure 5a | `02.diversity_and_rel_abundance.R` <br> `save_files.R` | `alpha/pret
 Figure 5b | `03.beta_dbRDA.R` | `beta/beta_dbRDA/dbRDA.Family_patch.vertical.pdf`
 Figure 5c | `04_SNP_analysis.R` | `SNP_analysis/SNP_RDA_horizontal.pdf`
 Figure 6a | `07.gene_content.R` | `gene_content/phrog_kegg_and_host/phrog_bar.vertical.all.pdf` <br> `gene_content/phrog_kegg_and_host/legend.phrog.pdf` <br> `gene_content/phrog_kegg_and_host/kegg_bar.pdf` <br> `gene_content/phrog_kegg_and_host/legend.kegg.pdf`
-Figure 6b | `07.gene_content.R` | `gene_content/phrog_kegg_and_host/hosts.PAPS reductase.pdf`
+Figure 6b | `07.gene_content.R` | `gene_content/phrog_kegg_and_host/hosts.PAPS reductase.pdf` <br> `gene_content/phrog_kegg_and_host/legend.host_top.pdf`
 Figure 6c | `09.mixed_models_figures.R` | `genes_pathogens_and_landuse/selected_graphs/main_paps_tpm.pdf`
 Figure 6d | `09.mixed_models_figures.R` | `genes_pathogens_and_landuse/selected_graphs/main_paps_presence.pdf`
 Figure 6e | `09.mixed_models_figures.R` | `genes_pathogens_and_landuse/selected_graphs/main_pathogen_ct.pdf`
