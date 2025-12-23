@@ -842,7 +842,7 @@ classification <- classification %>%
 #------------------------------------------------------------------------------#
 # Save files # Out-sourced for easy deactivation.
 
-# source("scripts/R/helpers/save_files.R")
+source("scripts/R/helpers/save_files.R")
 
 end_time <- Sys.time()
 end_time - start_time
