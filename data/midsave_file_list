@@ -13,6 +13,7 @@ output/core_contig_refinement/extended_contigs_phold/sub_db_tophits/vfdb_cds_pre
 output/host_prediction/iphop_output_bphage/Host_prediction_to_genus_m75.csv
 output/host_prediction/iphop_output_core/Host_prediction_to_genus_m75.csv
 output/inphared_clustering/bphage_and_inpha_70-85_clusters.tsv
+output/lifestyle/bacphlip/bphage_and_extended.fasta.bacphlip
 output/lifestyle/replidec/BC_predict.summary
 output/lifestyle/tool_test/all_seqs_completeness_050.fasta.bacphlip
 output/lifestyle/tool_test/all_seqs_completeness_067.fasta.bacphlip
