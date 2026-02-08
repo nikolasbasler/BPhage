@@ -1,4 +1,4 @@
-# The honey bee triad: Phages in the gut microbiome of *Apis mellifera* show signs of mutualism
+# The honey bee triad: Phages in the gut microbiome of *Apis mellifera* encode potentially collaborative genes
 
 This repository contains all scripts and usage instructions to reproduce the analysis for the paper by Basler et al (XXX ref). 
 
