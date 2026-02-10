@@ -1,4 +1,4 @@
-# The honey bee triad: Phages in the gut microbiome of *Apis mellifera* encode potentially collaborative genes
+# The honey bee triad: Phages of the *Apis mellifera* gut microbiome encode potentially collaborative genes
 
 This repository contains all scripts and usage instructions to reproduce the analysis for the paper by Basler et al (XXX ref). 
 
@@ -50,7 +50,7 @@ The second part is for the statistical analysis and visualisation using RStudio.
 ### Installations
 - To clone the repository, please run:
 ```
-git clone --branch v0.2.5 --depth 1 https://github.com/nikolasbasler/BPhage
+git clone --branch v0.2.6 --depth 1 https://github.com/nikolasbasler/BPhage
 cd BPhage
 
 ```
@@ -351,7 +351,7 @@ Only the first script (vConTACT3) can be run with the test dataset. If you are r
 If you skipped the HPC part and jumped right here, you will first want to clone this repository to a computer that runs RStudio: 
 
 ```
-git clone --branch v0.2.5 --depth 1 https://github.com/nikolasbasler/BPhage
+git clone --branch v0.2.6 --depth 1 https://github.com/nikolasbasler/BPhage
 cd BPhage
 
 ```
