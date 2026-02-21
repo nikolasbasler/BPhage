@@ -148,7 +148,7 @@ for (set in c("all", "core", "noncore")) {
   
 }
 
-
+# CONTINUE HERE. THERE MAY BE A MISTAKE WITH THE TPM AND COUNT CALCULATION!
 gut_part_tibble <- phage_tpm %>%
   filter(contig %in% present_in_all_countries) %>%
   pivot_longer(-contig, names_to = "Sample_ID", values_to = "tpm") %>%
@@ -156,7 +156,10 @@ gut_part_tibble <- phage_tpm %>%
   left_join(., host_group$all, by = join_by(contig == Virus)) %>%
   mutate(presence = ifelse(tpm > 0, 1, 0)) %>%
   group_by(Sample_ID, Genus) %>%
-  mutate(summed_tpm = sum(tpm)) %>%
+  mutate(summed_tpm = sum(tpm)) %>% 
+  
+  select(Sample_ID, Gut_part, Genus, presence, summed_tpm) %>% distinct() %>%
+  
   group_by(Gut_part, Genus) %>%
   summarise(
     average_tpm = mean(summed_tpm), 
@@ -171,7 +174,11 @@ gut_part_tibble <- phage_tpm %>%
     .default = Genus
     )
   ) %>%
-  mutate(Genus = factor(Genus, levels = rev(c("unknown", "other", genus_order))))
+  mutate(Genus = factor(Genus, levels = rev(c("unknown", "other", genus_order)))) %>%
+  select(-core_bacterium) %>%
+  arrange(Gut_part)
+
+gut_part_tibble %>% group_by(Gut_part) %>% summarise(genome_count = sum(genome_count))
 
 gut_part_tpm_plot <- gut_part_tibble %>%
   ggplot(aes(x = Gut_part, y = average_tpm, fill = Genus)) +
