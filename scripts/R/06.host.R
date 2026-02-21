@@ -268,8 +268,8 @@ for (pie in names(host_pie)) {
          host_bar_tpm[[pie]], height = 6, width = 3)
 }
 
-write_delim(gut_part_tpm_tibble, "output/R/host_pies/gut_part_hosts_count.tsv", delim = "\t")
-write_delim(gut_part_count_tibble, "output/R/host_pies/gut_part_hosts_tpm.tsv", delim = "\t")
+write_delim(gut_part_tpm_tibble, "output/R/host_pies/gut_part_hosts_tpm.tsv", delim = "\t")
+write_delim(gut_part_count_tibble, "output/R/host_pies/gut_part_hosts_count.tsv", delim = "\t")
 ggsave("output/R/host_pies/gut_part_hosts_count.pdf",
        gut_part_count_plot, height = 6, width = 6)
 ggsave("output/R/host_pies/gut_part_hosts_tpm.pdf",
