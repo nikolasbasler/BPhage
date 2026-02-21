@@ -148,51 +148,56 @@ for (set in c("all", "core", "noncore")) {
   
 }
 
-# CONTINUE HERE. THERE MAY BE A MISTAKE WITH THE TPM AND COUNT CALCULATION!
-gut_part_tibble <- phage_tpm %>%
+gut_part_tpm_tibble <- phage_tpm %>%
   filter(contig %in% present_in_all_countries) %>%
   pivot_longer(-contig, names_to = "Sample_ID", values_to = "tpm") %>%
-  left_join(., metadata[c("Sample_ID", "Gut_part")], by = "Sample_ID") %>%
   left_join(., host_group$all, by = join_by(contig == Virus)) %>%
-  mutate(presence = ifelse(tpm > 0, 1, 0)) %>%
   group_by(Sample_ID, Genus) %>%
-  mutate(summed_tpm = sum(tpm)) %>% 
-  
-  select(Sample_ID, Gut_part, Genus, presence, summed_tpm) %>% distinct() %>%
-  
-  group_by(Gut_part, Genus) %>%
-  summarise(
-    average_tpm = mean(summed_tpm), 
-    genome_count = sum(presence),
-    .groups = "drop"
-    ) %>%
+  summarise(summed_tpm = sum(tpm), .groups = "drop") %>%
+  left_join(., metadata[c("Sample_ID", "Gut_part")], by = "Sample_ID") %>% 
+  group_by(Genus, Gut_part) %>%
+  summarise(mean_tpm = mean(summed_tpm), .groups = "drop") %>%
   mutate(core_bacterium = ifelse(Genus %in% c("Gilliamella", "Lactobacillus", "Bifidobacterium", "Bombilactobacillus", "Snodgrassella"), TRUE, FALSE)) %>%
-  arrange(core_bacterium) %>%
   mutate(Genus = case_when(
     core_bacterium ~ paste0("***", Genus, "***"),
     Genus == "Frischella" ~ "*Frischella*",
     .default = Genus
     )
   ) %>%
-  mutate(Genus = factor(Genus, levels = rev(c("unknown", "other", genus_order)))) %>%
   select(-core_bacterium) %>%
-  arrange(Gut_part)
+  mutate(Genus = factor(Genus, levels = rev(c("unknown", "other", genus_order))))
 
-gut_part_tibble %>% group_by(Gut_part) %>% summarise(genome_count = sum(genome_count))
-
-gut_part_tpm_plot <- gut_part_tibble %>%
-  ggplot(aes(x = Gut_part, y = average_tpm, fill = Genus)) +
+gut_part_count_tibble <- phage_tpm %>%
+  filter(contig %in% present_in_all_countries) %>%
+  pivot_longer(-contig, names_to = "Sample_ID", values_to = "tpm") %>%
+  left_join(., host_group$all, by = join_by(contig == Virus)) %>%
+  left_join(., metadata[c("Sample_ID", "Gut_part")], by = "Sample_ID") %>% 
+  filter(tpm > 0) %>%
+  group_by(Genus, Gut_part) %>%
+  summarise(genome_count = n_distinct(contig), .groups = "drop") %>%
+  mutate(core_bacterium = ifelse(Genus %in% c("Gilliamella", "Lactobacillus", "Bifidobacterium", "Bombilactobacillus", "Snodgrassella"), TRUE, FALSE)) %>%
+  mutate(Genus = case_when(
+    core_bacterium ~ paste0("***", Genus, "***"),
+    Genus == "Frischella" ~ "*Frischella*",
+    .default = Genus
+  )
+  ) %>%
+  select(-core_bacterium) %>%
+  mutate(Genus = factor(Genus, levels = rev(c("unknown", "other", genus_order))))
+  
+gut_part_tpm_plot <- gut_part_tpm_tibble %>%
+  ggplot(aes(x = Gut_part, y = mean_tpm, fill = Genus)) +
   geom_col(position = "fill") +
   scale_fill_manual(values = host_pie_colors) +
   theme_minimal() +
   theme(legend.text = element_markdown())
-gut_part_count_plot <- gut_part_tibble %>%
+gut_part_count_plot <- gut_part_count_tibble %>%
   ggplot(aes(x = Gut_part, y = genome_count, fill = Genus)) +
   geom_col(position = "fill") +
   scale_fill_manual(values = host_pie_colors) +
   theme_minimal() +
   theme(legend.text = element_markdown())
-
+  
 host_bar <- list()
 host_bar_tpm <- list()
 for (set in names(host_pie)) {
@@ -263,8 +268,9 @@ for (pie in names(host_pie)) {
          host_bar_tpm[[pie]], height = 6, width = 3)
 }
 
-write_delim(gut_part_tibble, "output/R/host_pies/gut_part_hosts.tsv", delim = "\t")
-ggsave("output/R/host_pies/gut_part_hosts.pdf",
+write_delim(gut_part_tpm_tibble, "output/R/host_pies/gut_part_hosts_count.tsv", delim = "\t")
+write_delim(gut_part_count_tibble, "output/R/host_pies/gut_part_hosts_tpm.tsv", delim = "\t")
+ggsave("output/R/host_pies/gut_part_hosts_count.pdf",
        gut_part_count_plot, height = 6, width = 6)
 ggsave("output/R/host_pies/gut_part_hosts_tpm.pdf",
        gut_part_tpm_plot, height = 6, width = 6)
