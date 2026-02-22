@@ -102,6 +102,16 @@ for (dataset in names(ska_distance)) {
   ska_plot[[dataset]]
 }
 
+snp_dist_combinded <- tibble("Bee_pool_1" = character(), "Bee_pool_2" = character())
+for (set in names(ska_matrix)) {
+  snp_dist_combinded <- ska_matrix[[set]] %>%
+    rownames_to_column("Bee_pool_1") %>%
+    tibble() %>%
+    pivot_longer(-Bee_pool_1, names_to = "Bee_pool_2", values_to = paste0("SNP_distance_", set)) %>%
+    filter(Bee_pool_1 > Bee_pool_2) %>%
+    full_join(snp_dist_combinded, snp_dist_long[[set]], by = c("Bee_pool_1", "Bee_pool_2"))
+}
+
 pcoa_wrap <- wrap_plots(ska_plot) +
   plot_layout(guides = "collect")
 
@@ -234,6 +244,8 @@ for (dataset in names(ska_plot)) {
               paste0("output/R/SNP_analysis/SNP_RDA_", dataset, ".tsv"),
               delim = "\t")
 }
+
+write_tsv(snp_dist_combinded, "output/R/SNP_analysis/SNP_distances.tsv")
 
 for (test in names(mantel_tests)) {
   write_delim(mantel_tests[[test]],
