@@ -12,6 +12,10 @@ prevalence.Hives <- read.csv("output/R/prevalence/prevalence.Hives.csv") %>%
 classification <- readRDS("data/classification.RDS") %>%
   tibble()
 
+phage_tpm <- read.csv("output/R/relative_abundance/phage_tpm.csv") %>%
+  tibble()
+metadata <- readRDS("data/metadata.RDS")
+
 ##### Mapping
 
 horizontal_coverage_threshold = 70
@@ -85,7 +89,8 @@ core_read_presence_overlap$venn <- ggVennDiagram(present_in_dataset,
 vennObj <- Venn(present_in_dataset)
 
 core_read_presence_overlap$upset <- plot_upset(vennObj,
-           nintersects = 15,
+           # nintersects = 15,
+           nintersects = 20,
            sets.bar.color  = "black",
            top.bar.color = "black",
            intersection.matrix.color = "black",
@@ -147,7 +152,7 @@ only_points <- p +
 upset_patch <- only_intersection_bars / only_points + plot_layout(heights = c(2,1))
 
 dataset_overlap <- tibble(contig = present_in_all_countries) %>%
-  mutate(Bphage = TRUE,
+mutate(Bphage = TRUE,
          Deboutte = ifelse(contig %in% present_in_dataset$Deboutte, TRUE, FALSE),
          Bonilla = ifelse(contig %in% present_in_dataset$Bonilla, TRUE, FALSE),
          Busby = ifelse(contig %in% present_in_dataset$Busby, TRUE, FALSE),
@@ -163,10 +168,6 @@ dataset_overlap <- tibble(contig = present_in_all_countries) %>%
   relocate(dataset_prevalence, .after = last_col()) %>%
   left_join(., prevalence.Hives, by = "contig") %>%
   left_join(., prevalence.Bee_pools, by = "contig")
-
-phage_tpm <- read.csv("output/R/relative_abundance/phage_tpm.csv") %>%
-  tibble()
-metadata <- readRDS("data/metadata.RDS")
 
 positive_pools <- phage_tpm %>%
   pivot_longer(-contig, names_to = "Sample_ID", values_to = "reads") %>% # it's not really reads but it doesn't matter here
