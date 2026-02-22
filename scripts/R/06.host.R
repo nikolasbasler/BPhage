@@ -201,13 +201,6 @@ gut_part_count_plot <- gut_part_count_tibble %>%
 host_bar <- list()
 host_bar_tpm <- list()
 for (set in names(host_pie)) {
-  # host_bar[[set]] <- host_pie[[set]] +
-  #   coord_cartesian() +
-  #   geom_col(position = position_stack(reverse = TRUE)) 
-  # 
-  # host_bar_tpm[[set]] <- host_pie_tpm[[set]] +
-  #   coord_cartesian() +
-  #   geom_col(position = position_stack(reverse = TRUE)) 
   host_bar[[set]] <- host_tibble[[set]] %>%
     mutate(Genus = case_when(Genus %in% c("Gilliamella", "Lactobacillus", "Bifidobacterium", "Bombilactobacillus", "Snodgrassella") ~ paste0("***", Genus, "***"),
                              Genus %in% c("other", "unknown") ~ Genus,
