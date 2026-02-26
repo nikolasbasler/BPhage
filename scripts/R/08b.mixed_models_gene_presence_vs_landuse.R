@@ -226,10 +226,10 @@ for (level in names(coeffs_logit)) {
       filter(metric == "(Intercept)") %>%
       mutate(test_name = paste0(gene, "; ", temp_slope_tibble$Item), .before = gene) %>%
       rename(intercept = Estimate,
-             sd_intercept = `Std. Error`) %>%
-      select(test_name, intercept, sd_intercept) %>%
+             se_intercept = `Std. Error`) %>%
+      select(test_name, intercept, se_intercept) %>%
       full_join(temp_slope_tibble, ., by = "test_name") %>%
-      relocate(c(intercept, sd_intercept), .after = `Std. Error`)
+      relocate(c(intercept, se_intercept), .after = `Std. Error`)
     
   }
 }

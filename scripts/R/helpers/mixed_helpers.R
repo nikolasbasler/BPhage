@@ -59,7 +59,7 @@ mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_c
   
   x_axis_label <- str_replace_all(filt_test_tibble$Item, "_", " ")
   inter <- filt_test_tibble$intercept
-  inter_sd <- filt_test_tibble$sd_intercept
+  inter_sd <- filt_test_tibble$se_intercept
   high <- filt_test_tibble$highest
   low <- filt_test_tibble$lowest
   slo <- filt_test_tibble$Estimate
