@@ -40,7 +40,9 @@ correlate_shannons <- function(rel_alpha, abs_alpha, title) {
     rename(abs_Hill_Shannon = Hill_Shannon) %>%
     select(Sample_ID, abs_Hill_Shannon)
   
-  p <- left_join(shannon_relative, shannon_absolute, by = "Sample_ID") %>%
+  source <- left_join(shannon_relative, shannon_absolute, by = "Sample_ID")
+  
+  p <- source %>%
     ggplot(aes(x = rel_Hill_Shannon, y = abs_Hill_Shannon)) +
     geom_point() +
     geom_smooth(formula = "y~x", method = "lm") +
@@ -50,13 +52,16 @@ correlate_shannons <- function(rel_alpha, abs_alpha, title) {
          y = "Hill Shannon (count data)") #+
     # ggtitle(title)
   
-  return(p)
+  return(list(tibble = source, plot = p))
 }
 
 # Bray cor plotting function
 correlate_brays <- function(rel_beta, abs_beta, title) {
   bray_relative <- rel_beta %>%
     pivot_longer(-Sample_ID, names_to = "Sample_ID_2", values_to = "rel_Bray") %>%
+    
+    filter(Sample_ID > Sample_ID_2) %>%
+    
     left_join(., metadata[c("Sample_ID", "VLPs_per_ul")], by = "Sample_ID") %>%
     filter(!is.na(VLPs_per_ul)) %>%
     select(-VLPs_per_ul) %>%
@@ -65,9 +70,12 @@ correlate_brays <- function(rel_beta, abs_beta, title) {
     select(-VLPs_per_ul)
   
   bray_absolute <- abs_beta %>%
-    pivot_longer(-Sample_ID, names_to = "Sample_ID_2", values_to = "abs_Bray")
+    pivot_longer(-Sample_ID, names_to = "Sample_ID_2", values_to = "abs_Bray")  %>%
+    filter(Sample_ID > Sample_ID_2)
   
-  p <- left_join(bray_relative, bray_absolute, by = c("Sample_ID", "Sample_ID_2")) %>%
+  source <- left_join(bray_relative, bray_absolute, by = c("Sample_ID", "Sample_ID_2"))
+  
+  p <- source %>%
     ggplot(aes(x = rel_Bray, y = abs_Bray)) +
     geom_point(alpha = 0.1) +
     geom_smooth(formula = "y~x", method = "lm") +
@@ -77,30 +85,53 @@ correlate_brays <- function(rel_beta, abs_beta, title) {
          y = "Bray-Curtus (count data)") # +
     # ggtitle(title)
   
-  return(p)
+  return(list(tibble = source, plot = p))
 }
 
 titles <- c("all" = "all phages", "noncore" = "non-core", "core" = "core")
 
 # Shannon correlation
 shannon_cor_plots <- list()
+shannon_cor_source <- tibble(Sample_ID = character())
 for (set in c("all", "noncore", "core")) {
-  shannon_cor_plots[[set]] <- correlate_shannons(
+  
+  correlations <- correlate_shannons(
     rel_alpha = alpha_family[[set]],
     abs_alpha = alpha_family_abs[[set]],
     title = titles[[set]])
+  
+  shannon_cor_plots[[set]] <- correlations$plot
+
+  column_rel <- paste0("Hill_Shannon_", set, "_phages_read_data")
+  column_abs <- paste0("Hill_Shannon_", set, "_phages_count_data")
+  shannon_cor_source <- correlations$tibble %>%
+    rename(!!sym(column_rel) := rel_Hill_Shannon, !!sym(column_abs) := abs_Hill_Shannon) %>%
+    full_join(shannon_cor_source, ., by = "Sample_ID")
 }
 
 shannon_wrap <- wrap_plots(shannon_cor_plots, axes = "collect", ncol = 1)
 
 # Bray correlation
 bray_cor_plots <- list()
+bray_cor_source <- tibble(Sample_ID_1 = character(), Sample_ID_2 = character())
 for (set in c("all", "noncore", "core")) {
-  bray_cor_plots[[set]] <- correlate_brays(
+  
+  correlations <- correlate_brays(
     rel_beta = beta_family[[set]],
     abs_beta = beta_family_abs[[set]],
     title = titles[[set]]
   )
+  
+  bray_cor_plots[[set]] <- correlations$plot
+  
+  column_rel <- paste0("Bray-Curtis_", set, "_phages_read_data")
+  column_abs <- paste0("Bray-Curtis_", set, "_phages_count_data")
+  bray_cor_source <- correlations$tibble %>%
+    rename(Sample_ID_1 = Sample_ID) %>%
+    rename(!!sym(column_rel) := rel_Bray, !!sym(column_abs) := abs_Bray) %>%
+    full_join(bray_cor_source, ., by = c("Sample_ID_1", "Sample_ID_2"))
+  
+  
 }
 
 bray_wrap <- wrap_plots(bray_cor_plots, axes = "collect", ncol = 1)
@@ -113,8 +144,17 @@ system("mkdir -p output/R/beta/rel_abs_bray_correlation")
 
 ggsave("output/R/alpha/rel_abs_shannon_correlation/alpha_rel_abs_shannon_correlation.wrap.pdf", 
        shannon_wrap, height = 8, width = 5)
+write_tsv(shannon_cor_source, 
+          "output/R/alpha/rel_abs_shannon_correlation/alpha_rel_abs_shannon_correlation.wrap.tsv"
+          )
+
 ggsave("output/R/beta/rel_abs_bray_correlation/beta_rel_abs_bray_correlation.wrap.pdf", 
        bray_wrap, height = 8, width = 5)
+write_tsv(bray_cor_source, 
+          "output/R/beta/rel_abs_bray_correlation/beta_rel_abs_bray_correlation.wrap.tsv"
+          )
+
+
 
 for (set in c("all", "noncore", "core")) {
   ggsave(paste0("output/R/alpha/rel_abs_shannon_correlation/alpha_rel_abs_shannon_correlation.", set, ".pdf"),
