@@ -67,9 +67,14 @@ color_vector <- c("Virulent" = "#1C3A3A",
 plots <- list()
 plots2 <- list()
 Engel_plots <- list()
+source_data <- list()
+source_data_all <- tibble(method = character(), Assignment = character())
 for (compo in names(comps)) {
   for (gt in c("Virulent", "Temperate")) {
-    plots[[paste0(gt, "_", compo)]] <- all_predictions[[comps[compo]]] %>%
+    
+    key <- paste0(gt, "_", compo)
+    
+    source_data[[key]] <- all_predictions[[comps[compo]]] %>%
       filter(ground_truth == gt) %>%
       select(sample_name, BACPHLIP, PhaTYP, Replidec) %>%
       pivot_longer(-sample_name, names_to = "method", values_to = "call") %>%
@@ -79,8 +84,13 @@ for (compo in names(comps)) {
       select(-sample_name) %>%
       distinct() %>%
       rename(Assignment = call) %>%
-      complete(method, Assignment, fill = list(count = 0L)) %>%
-      
+      complete(method, Assignment, fill = list(count = 0L))
+    
+    source_data_all <- source_data[[key]] %>%
+      rename(!!sym(key) := count) %>%
+      full_join(source_data_all, ., by = c("method", "Assignment"))
+
+    plots[[key]] <- source_data[[key]] %>%
       ggplot(aes(x = method, y = count, fill = Assignment)) +
       geom_col() +
       labs(y = paste0("completeness: ", as.integer(compo), "%"),
@@ -93,7 +103,7 @@ for (compo in names(comps)) {
       ) +
       scale_fill_manual(values = color_vector)
     
-    plots2[[paste0(gt, "_", compo)]] <- plots[[paste0(gt, "_", compo)]] + 
+    plots2[[key]] <- plots[[key]] + 
       labs(x = paste0("completeness: ", as.integer(compo), "%"),
            y = gt
       )
@@ -118,6 +128,18 @@ for (compo in names(comps)) {
     scale_y_continuous(breaks=c(seq(2,10,2)))
   
 }
+
+source_long <- source_data_all %>%
+  pivot_longer(-c(method, Assignment), names_to = "dataset", values_to = "count") %>%
+  mutate(count = case_when(
+    method == "BACPHLIP" & Assignment == "Chronic" ~ NA,
+    method == "PhaTYP" & Assignment == "Chronic" ~ NA,
+    method == "Replidec" & str_detect(Assignment, "uncertain") ~ NA,
+    .default = count
+  )) %>% 
+  rename(Tool = method) %>%
+  select(Tool, dataset, Assignment, count)
+  
 
 comparison_wrap <- wrap_plots(plots, 
                               guides = "collect", axes = "collect", 
@@ -179,3 +201,7 @@ ggsave("output/R/lifestyle/tool_test/engels_phages.pdf", engel_wrap,
 
 write_delim(full_tibble, "output/R/lifestyle/tool_test/tool_comparison.tsv",
             delim = "\t")
+
+write_delim(source_long, "output/R/lifestyle/tool_test/tool_comparison_source.tsv",
+            delim = "\t")
+
