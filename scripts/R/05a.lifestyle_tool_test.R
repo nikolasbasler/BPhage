@@ -132,9 +132,11 @@ for (compo in names(comps)) {
 source_long <- source_data_all %>%
   pivot_longer(-c(method, Assignment), names_to = "dataset", values_to = "count") %>%
   mutate(count = case_when(
+    method == "BACPHLIP" & Assignment == "no prediction" ~ NA,
     method == "BACPHLIP" & Assignment == "Chronic" ~ NA,
     method == "PhaTYP" & Assignment == "Chronic" ~ NA,
     method == "Replidec" & str_detect(Assignment, "uncertain") ~ NA,
+    method == "Replidec" & Assignment == "no prediction" ~ NA,
     .default = count
   )) %>% 
   rename(Tool = method) %>%
