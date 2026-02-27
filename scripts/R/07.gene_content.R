@@ -105,13 +105,13 @@ phrog_tibble <- phold_predictions_with_extensions %>%
   select(-Core) %>%
   rename(count_core = count) %>%
   mutate(collapsed_cat = case_when(function. == "unknown function" ~"unknown function",
-                                   function. == "moron, auxiliary metabolic gene and host takeover" ~ '"moron", AMG\nand host takeover',
+                                   function. == "moron, auxiliary metabolic gene and host takeover" ~ 'moron, AMG\nand host takeover',
                                    .default = "other PHROG\ncategories"
                                    )) %>%
   group_by(collapsed_cat) %>%
   summarise(core = sum(count_core),
             all = sum(count_all)) %>%
-  mutate(collapsed_cat = factor(collapsed_cat, levels = c("other PHROG\ncategories", '"moron", AMG\nand host takeover', "unknown function")))
+  mutate(collapsed_cat = factor(collapsed_cat, levels = c("other PHROG\ncategories", 'moron, AMG\nand host takeover', "unknown function")))
 
 phrog_bar_vertical <- list()
 phrog_bar_vertical$both <- phrog_tibble %>%
