@@ -481,6 +481,23 @@ min_seq_count_core_or_not$yes <- 1073 # Looks like a natural breaking point. 2 d
 discarded <- discards(count_stats_core_or_not$yes$ratios, min_seq_count_core_or_not$yes)$discarded
 lost_bees <- discards(count_stats_core_or_not$yes$ratios, min_seq_count_core_or_not$yes)$lost_bees # No bee pool lost completely. Only gut parts from different locations/time points.
 
+
+threshold_source_all <- threshold_plot[["all"]][["data"]] %>%
+  ungroup() %>%
+  select(Sample_ID, gut_part, n_seq) %>%
+  rename(reads_mapping_to_all_phages = n_seq)
+threshold_source_noncore <- threshold_plot[["noncore"]][["data"]] %>%
+  ungroup() %>%
+  select(Sample_ID, gut_part, n_seq) %>%
+  rename(reads_mapping_to_noncore_phages = n_seq)
+threshold_source_core <- threshold_plot[["core"]][["data"]] %>%
+  ungroup() %>%
+  select(Sample_ID, gut_part, n_seq) %>%
+  rename(reads_mapping_to_core_phages = n_seq)
+
+threshold_source <- full_join(threshold_source_all, threshold_source_noncore, by = c("Sample_ID", "gut_part")) %>%
+  full_join(., threshold_source_core, by = c("Sample_ID", "gut_part"))
+
 #------------------------------------------------------------------------------#
 #------------------------------------------------------------------------------#
 # Alpha and beta diversity # Out-sourced to easily deactivate for testing, 

@@ -92,6 +92,7 @@ for (set in names(threshold_plot)) {
   ggsave(paste0("output/R/rarefaction_thresholds/rarefaction_threshold.", set, ".pdf"),
          threshold_plot[[set]], width = 6, height = 5)
 }
+write_tsv(threshold_source, "output/R/rarefaction_thresholds/rarefaction_threshold_source.tsv")
 
 ## Alpha diversity plots and tables ####
 system("mkdir -p output/R/alpha")
