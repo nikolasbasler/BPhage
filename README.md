@@ -2,7 +2,7 @@
 
 This repository contains all scripts and usage instructions to reproduce the analysis for the paper by Basler et al (XXX ref). 
 
-This pipeline is split into two parts. The first part is meant for a high-performance computer (HPC) and can be skipped, if so wanted. There is also a reduced test dataset for the HPC part. The reduced test dataset as well as a "midsave" file to skip the HPC part [available on Zenodo](https://doi.org/10.5281/zenodo.16937255)
+This pipeline is split into two parts. The first part is meant for a high-performance computer (HPC) and can be skipped, if so wanted. There is also a reduced test dataset for the HPC part. The reduced test dataset as well as a "midsave" file to skip the HPC part [available in this Zenodo record](https://doi.org/10.5281/zenodo.16937255). Predicted protein structures are [available in this Zenodo record](https://doi.org/10.5281/zenodo.18771769). 
 
 The second part is for the statistical analysis and visualisation using RStudio. If you want to skip the HPC part and only want to re-run the statistical analysis, please go straight to the ["R scripts"](#r-scripts) section of this README. The scripts from both parts pretend to be on the same computer but it is possible to clone this repo to an HPC and to a local computer, run the HPC scripts, copy the relevant output files from the HPC to the local computer and continue with the statistical analysis using the R project.
 
