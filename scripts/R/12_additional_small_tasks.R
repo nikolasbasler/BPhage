@@ -59,6 +59,13 @@ for (gpart in unique(presence$Gut_part)) {
     unlist(use.names = FALSE)
 }
 
+venn_source <- tibble(core_contig = present_in_all_countries) %>%
+  mutate(
+    present_in_midgut = core_contig %in% for_venn$mid,
+    present_in_ileum = core_contig %in% for_venn$ile,
+    present_in_rectum = core_contig %in% for_venn$rec
+  )
+
 core_shared_between_guts <- ggVennDiagram(for_venn)
 
 ##### 
@@ -159,6 +166,10 @@ new_classification_df <- classification %>%
 # Venn diagram
 ggsave("output/R/core_shared_between_guts.pdf", core_shared_between_guts,
        width = 5, height = 5)
+write_tsv(
+  venn_source, "output/R/core_shared_between_guts.tsv"
+)
+
 
 # Histogram contigs per bee pool
 write_csv(contigs_per_bee_pool, "output/R/alpha/total_contigs_per_bee_pool.csv")
