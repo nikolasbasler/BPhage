@@ -169,30 +169,30 @@ mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_c
     geom_polygon(data = arrow_poly, aes(x = x, y = y), fill = dark_col, alpha = 1) +
     
     # Print the effect size into the arrow
-    annotate(
-      "text",
-      x = arrow_x_center,
-      y = (arrow_base + arrow_head_base_y) / 2,
-      # label = sprintf("%.2f", effect_size),
-      label = paste0(effect_prefix, effect_size, effect_suffix),
-      angle = 90,
-      # size = 4,
-      size = 3, 
-      color = "white"
-    ) +
+    # annotate(
+    #   "text",
+    #   x = arrow_x_center,
+    #   y = (arrow_base + arrow_head_base_y) / 2,
+    #   # label = sprintf("%.2f", effect_size),
+    #   label = paste0(effect_prefix, effect_size, effect_suffix),
+    #   angle = 90,
+    #   # size = 4,
+    #   size = 3, 
+    #   color = "white"
+    # ) +
     
     # Print asterisks for siginificance level into head of arrow
-    annotate(
-      "text",
-      x = arrow_x_center,
-      y = arrow_head_center_y,
-      label = filt_test_tibble$p_adjust_significant,
-      color = "white",
-      # vjust = ifelse(slo < 0, 0.5, 1),
-      vjust = ifelse(slo < 0, 0.75, 1),
-      size = 4.5,
-      # fontface = "bold"
-    ) +
+    # annotate(
+    #   "text",
+    #   x = arrow_x_center,
+    #   y = arrow_head_center_y,
+    #   label = filt_test_tibble$p_adjust_significant,
+    #   color = "white",
+    #   # vjust = ifelse(slo < 0, 0.5, 1),
+    #   vjust = ifelse(slo < 0, 0.75, 1),
+    #   size = 4.5,
+    #   # fontface = "bold"
+    # ) +
     
     # Make axis ticks only for the coordinates of the points
     scale_x_continuous(
