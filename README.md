@@ -1,4 +1,4 @@
-# The honey bee triad: Phages of the *Apis mellifera* gut microbiome encode potentially collaborative genes
+# A comprehensive catalogue of phages in the honey bee gut microbiome
 
 This repository contains all scripts and usage instructions to reproduce the analysis for the paper by Basler et al (XXX ref). 
 
