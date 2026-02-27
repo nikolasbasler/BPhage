@@ -53,6 +53,7 @@ for (set in names(phages)) {
 ## Accumulation curves
 accumulation_plot <- list()
 total_observed <- tibble()
+accum_tibble <- list()
 for (set in names(phage_presence_mat)) {
   for (met_v in names(phage_presence_mat[[set]])) {
   
@@ -60,7 +61,7 @@ for (set in names(phage_presence_mat)) {
                        method       = "random",
                        permutations = 100)
     
-    accum_tibble <- tibble(sites = accum$sites,
+    accum_tibble[[set]][[met_v]] <- tibble(sites = accum$sites,
                            richness = accum$richness,
                            sd = accum$sd
     ) %>%
@@ -68,10 +69,10 @@ for (set in names(phage_presence_mat)) {
              upper = richness + sd)
 
     total_observed <- tibble(slice = paste0(set, "_", met_v),
-           total_observed = max(accum_tibble$richness)) %>%
+           total_observed = max(accum_tibble[[set]][[met_v]]$richness)) %>%
       rbind(total_observed, .)
     
-    accumulation_plot[[set]][[met_v]] <- ggplot(accum_tibble, aes(x = sites, y = richness)) +
+    accumulation_plot[[set]][[met_v]] <- ggplot(accum_tibble[[set]][[met_v]], aes(x = sites, y = richness)) +
       geom_ribbon(aes(ymin = lower, ymax = upper), alpha = 0.3) +
       geom_point(size = 0.5) +
       labs(
@@ -90,6 +91,11 @@ for (set in names(accumulation_plot)) {
     ggsave(paste0("output/R/accumulation_curves/accumulation_curve.", set, ".", met_v,".pdf"),
            accumulation_plot[[set]][[met_v]],
            width = 6, height = 6)
+    
+    write_tsv(
+      accum_tibble[[set]][[met_v]],
+      paste0("output/R/accumulation_curves/accumulation_curve.", set, ".", met_v,".tsv")
+      )
   }
 }
 write_csv(total_observed, "output/R/accumulation_curves/total_observed.csv")
