@@ -238,6 +238,8 @@ for (item in names(model_tpm)) {
       rename(effect_in_predictor_minmax_range = Estimate) %>%
       mutate(
         test_name = paste0(goi, "; ", item), 
+        predictor_min = x_min,
+        predictor_max = x_max,
         .before = effect_in_predictor_minmax_range
       ) %>%
       mutate(

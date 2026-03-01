@@ -236,6 +236,8 @@ for (item in names(model_logit)) {
     
     effects <- tibble(
       test_name = paste0(goi, "; ", item), 
+      predictor_min = x_min,
+      predictor_max = x_max,
       effect_in_predictor_minmax_range = est_link,
       lower = ci_link[1],
       upper = ci_link[2],
