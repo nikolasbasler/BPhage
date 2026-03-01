@@ -72,7 +72,7 @@ prevalence_tible <- bind_rows(test_tibble_logit) %>%
             positive_pools = sum(presence),
             prevalence = mean(presence),
             .groups = "drop"
-            )
+  )
 
 prevalence_plots <- list()
 prevalence_plots$overall <- bind_rows(test_tibble_logit) %>%
@@ -111,13 +111,15 @@ prevalence_plots$pathogen_facet <- bind_rows(test_tibble_logit) %>%
 ###### 
 # CROPLAND
 
+model_logit <- list()
+
 pathogens_of_interest <- c("ABPV", "N. ceranae", "CBPV")
 
 coeffs_logit <- list()
-model_logit_cropland <- list()
+model_logit$Cropland_in_2km_radius <- list()
 for (poi in pathogens_of_interest) {
-
-  model_logit_cropland[[poi]] <- glmer(
+  
+  model_logit$Cropland_in_2km_radius[[poi]] <- glmer(
     presence ~ Cropland_in_2km_radius + Season + ( 1 | Hive_ID ),
     data = test_tibble_logit[[poi]],
     family = binomial)
@@ -125,25 +127,25 @@ for (poi in pathogens_of_interest) {
   test_tibble_logit[[poi]] %>% count(Country) %>% arrange(desc(n))
   test_tibble_logit[[poi]] %>% count(Hive_ID) %>% arrange(desc(n))
   test_tibble_logit[[poi]] %>% count(Season) %>% arrange(desc(n))
-  # summary(model_logit_cropland[[poi]])
-
+  # summary(model_logit$Cropland_in_2km_radius[[poi]])
+  
   has_convergence_issues <- FALSE
-  messages <- model_logit_cropland[[poi]]@optinfo$conv$lme4$messages
+  messages <- model_logit$Cropland_in_2km_radius[[poi]]@optinfo$conv$lme4$messages
   if (!is.null(messages) & any(str_detect(messages, "failed to converge"))) {
     has_convergence_issues <- TRUE
   }
-
+  
   if (has_convergence_issues) {
     print(paste0(poi, " - Model didn't converge. Removed from the list."))
-    model_logit_cropland[[poi]] <- NULL
+    model_logit$Cropland_in_2km_radius[[poi]] <- NULL
   } else {
-    coeffs_logit$cropland <- summary(model_logit_cropland[[poi]])$coefficients %>%
+    coeffs_logit$cropland <- summary(model_logit$Cropland_in_2km_radius[[poi]])$coefficients %>%
       as.data.frame() %>%
       rownames_to_column("metric") %>%
       tibble() %>%
       mutate(pathogen = poi, .before = metric) %>%
       mutate(Item = metric, .before = metric) %>%
-      mutate(singular = ifelse(isSingular(model_logit_cropland[[poi]]), TRUE, FALSE)) %>%
+      mutate(singular = ifelse(isSingular(model_logit$Cropland_in_2km_radius[[poi]]), TRUE, FALSE)) %>%
       rbind(coeffs_logit$cropland)
   }
 }
@@ -151,36 +153,35 @@ for (poi in pathogens_of_interest) {
 ##### 
 # PESTICIDES:
 
-model_logit_total_pest <- list()
 # coeffs_logit$total_pest <- tibble()
 coeffs_logit$total_pest <- coeffs_logit$cropland %>% filter(FALSE)
 for (poi in pathogens_of_interest) {
   temp_test_tibble <- test_tibble_logit[[poi]] %>%
     rename(est_use_in_2k_radius = `Pesticides (total)`)
   
-  model_logit_total_pest[[poi]][["Pesticides (total)"]] <- glmer(presence ~ est_use_in_2k_radius + Season +
+  model_logit$`Pesticides (total)`[[poi]] <- glmer(presence ~ est_use_in_2k_radius + Season +
                                                                    ( 1 | Country / Hive_ID ), data = temp_test_tibble,
                                                                  family = binomial)
-  # summary( model_logit_total_pest[[poi]][["Pesticides (total)"]])
+  # summary( model_logit$`Pesticides (total)`[[poi]])
   
   has_convergence_issues <- FALSE
-  messages <- model_logit_total_pest[[poi]][["Pesticides (total)"]]@optinfo$conv$lme4$messages
+  messages <- model_logit$`Pesticides (total)`[[poi]]@optinfo$conv$lme4$messages
   if (!is.null(messages) & any(str_detect(messages, "failed to converge"))) {
     has_convergence_issues <- TRUE
   }
   
   if (has_convergence_issues) {
     print(paste0(poi, " - Model didn't converge. Removed from the list."))
-    model_logit_total_pest[[poi]] <- NULL
+    model_logit$`Pesticides (total)`[[poi]] <- NULL
   } else {
-    coeffs_logit$total_pest <- summary(model_logit_total_pest[[poi]][["Pesticides (total)"]])$coefficients %>%
+    coeffs_logit$total_pest <- summary(model_logit$`Pesticides (total)`[[poi]])$coefficients %>%
       as.data.frame() %>%
       rownames_to_column("metric") %>%
       tibble() %>%
       mutate(pathogen = poi, 
              Item = "Pesticides (total)",
              .before = metric) %>%
-      mutate(singular = ifelse(isSingular(model_logit_total_pest[[poi]][["Pesticides (total)"]]), TRUE, FALSE)) %>%
+      mutate(singular = ifelse(isSingular(model_logit$`Pesticides (total)`[[poi]]), TRUE, FALSE)) %>%
       rbind(coeffs_logit$total_pest)
   }
 }
@@ -188,35 +189,34 @@ for (poi in pathogens_of_interest) {
 
 #####
 # PEST GROUPS
-model_logit_pest_groups <- list()
 coeffs_logit$pest_groups <- tibble()
 for (poi in pathogens_of_interest) {
   for (item in c("Insecticides", "Herbicides", "Fungicides and Bactericides", "Plant Growth Regulators")) {
     temp_test_tibble <- test_tibble_logit[[poi]] %>% 
       rename(est_use_in_2k_radius = all_of(item))
     
-    model_logit_pest_groups[[poi]][[item]] <- glmer(presence ~ est_use_in_2k_radius + Season +
+    model_logit[[item]][[poi]] <- glmer(presence ~ est_use_in_2k_radius + Season +
                                                       ( 1 | Country / Hive_ID ), data = temp_test_tibble,
                                                     family = binomial)
     
     has_convergence_issues <- FALSE
-    messages <- model_logit_pest_groups[[poi]][[item]]@optinfo$conv$lme4$messages
+    messages <- model_logit[[item]][[poi]]@optinfo$conv$lme4$messages
     if (!is.null(messages) & any(str_detect(messages, "failed to converge"))) {
       has_convergence_issues <- TRUE
     }
     
     if (has_convergence_issues) {
       print(paste0(poi, "; ", item, " - Model didn't converge. Removed from the list."))
-      model_logit_pest_groups[[poi]][[item]] <- NULL
+      model_logit[[item]][[poi]] <- NULL
     } else {
-      coeffs_logit$pest_groups <- summary(model_logit_pest_groups[[poi]][[item]])$coefficients %>%
+      coeffs_logit$pest_groups <- summary(model_logit[[item]][[poi]])$coefficients %>%
         as.data.frame() %>%
         rownames_to_column("metric") %>%
         tibble() %>%
         mutate(pathogen = poi, 
                Item = item,
                .before = metric) %>%
-        mutate(singular = ifelse(isSingular(model_logit_pest_groups[[poi]][[item]]), TRUE, FALSE)) %>%
+        mutate(singular = ifelse(isSingular(model_logit[[item]][[poi]]), TRUE, FALSE)) %>%
         rbind(coeffs_logit$pest_groups)
     }
   }
@@ -230,38 +230,80 @@ spec_pests <- tibble(Item = colnames(cropland_and_FAO)) %>%
   filter(str_detect(Item, "Herbicides ") | str_detect(Item, "Fung & Bact ") | str_detect(Item, "Insecticides ")) %>%
   unlist(use.names = FALSE)
 
-model_logit_specific_pests <- list()
 coeffs_logit$specific_pests <- tibble()
 for (poi in pathogens_of_interest) {
   for (item in spec_pests) {
     temp_test_tibble <- test_tibble_logit[[poi]] %>% 
       rename(est_use_in_2k_radius = all_of(item))
     
-    model_logit_specific_pests[[poi]][[item]] <- glmer(presence ~ est_use_in_2k_radius + Season +
+    model_logit[[item]][[poi]] <- glmer(presence ~ est_use_in_2k_radius + Season +
                                                          ( 1 | Country / Hive_ID ), data = temp_test_tibble,
                                                        family = binomial)
     
     has_convergence_issues <- FALSE
-    messages <- model_logit_specific_pests[[poi]][[item]]@optinfo$conv$lme4$messages
+    messages <- model_logit[[item]][[poi]]@optinfo$conv$lme4$messages
     if (!is.null(messages) & any(str_detect(messages, "failed to converge"))) {
       has_convergence_issues <- TRUE
     }
     if (has_convergence_issues) {
       print(paste0(poi, "; ", item, " - Model didn't converge. Removed from the list."))
-      model_logit_pest_groups[[poi]][[item]] <- NULL
+      model_logit[[item]][[poi]] <- NULL
     } else {
-      coeffs_logit$specific_pests <- summary(model_logit_specific_pests[[poi]][[item]])$coefficients %>%
+      coeffs_logit$specific_pests <- summary(model_logit[[item]][[poi]])$coefficients %>%
         as.data.frame() %>%
         rownames_to_column("metric") %>%
         tibble() %>%
         mutate(pathogen = poi, 
                Item = item,
                .before = metric) %>%
-        mutate(singular = ifelse(isSingular(model_logit_specific_pests[[poi]][[item]]), TRUE, FALSE)) %>%
+        mutate(singular = ifelse(isSingular(model_logit[[item]][[poi]]), TRUE, FALSE)) %>%
         rbind(coeffs_logit$specific_pests)
     }
   }
 }
+
+#####
+# CALCULATE EFFECT SIZES WITH 95% CI
+
+effects <- NULL
+
+for (item in names(model_logit)) {
+  for (poi in names(model_logit[[item]])) {
+    
+    input_data <- test_tibble_logit[[poi]]
+    model <- model_logit[[item]][[poi]]
+    
+    predictor <- "Cropland_in_2km_radius"
+    if (item != "Cropland_in_2km_radius") {
+      predictor <- "est_use_in_2k_radius"
+    }
+    
+    x_min <- min(input_data[[item]], na.rm = TRUE)
+    x_max <- max(input_data[[item]], na.rm = TRUE)
+
+    confidence_level = 0.95
+    
+    beta_hat <- fixef(model)[predictor]
+    delta_x <- x_max - x_min
+    est_link <- delta_x * beta_hat
+    se_link <- sqrt((delta_x^2) * vcov(model)[predictor, predictor])
+    crit <- qnorm(1 - (1 - confidence_level) / 2)
+    ci_link <- est_link + c(-1,1) * crit * se_link
+
+    effects <- tibble(
+      test_name = paste0(poi, "; ", item),
+      effect_in_predictor_minmax_range = est_link,
+      lower = ci_link[1],
+      upper = ci_link[2],
+      confidence_interval = confidence_level,
+      odds_ratio_effect = exp(effect_in_predictor_minmax_range),
+      odds_ratio_lower = exp(lower),
+      odds_ratio_upper = exp(upper)
+    ) %>%
+      rbind(effects, .)
+  }
+}
+
 
 
 #####
@@ -287,7 +329,8 @@ all_slopes <- bind_rows(slopes) %>%
                                           p_adjusted <= 0.01 ~ "**",
                                           p_adjusted <= 0.05 ~ "*",
                                           p_adjusted <= 0.075 ~ ".",
-                                          .default = "n.s."))
+                                          .default = "n.s.")) %>%
+  left_join(., effects, by = "test_name")
 
 #####
 # MAKE PLOTS

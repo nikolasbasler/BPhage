@@ -218,6 +218,46 @@ for (poi in pathogens_of_interest) {
   }
 }
 
+#####
+# CALCULATE EFFECT SIZES WITH 95% CI
+
+effects <- NULL
+
+for (item in names(model_ct)) {
+  for (poi in names(model_ct[[item]])) {
+    
+    input_data <- test_tibble_ct[[poi]]
+    model <- model_ct[[item]][[poi]]
+    
+    predictor <- "Cropland_in_2km_radius"
+    if (item != "Cropland_in_2km_radius") {
+      predictor <- "est_use_in_2k_radius"
+    }
+    
+    x_min <- min(input_data[[item]], na.rm = TRUE)
+    x_max <- max(input_data[[item]], na.rm = TRUE)
+    
+    delta_x <- x_max - x_min
+    coefs <- names(fixef(model))
+    L <- rep(0, length(coefs))
+    names(L) <- coefs
+    L[[predictor]] <- delta_x
+    confidence_level = 0.95
+    out1d <- contest1D(model, L, confint = TRUE, level = confidence_level, ddf = "Satterthwaite")
+    
+    effects <- out1d %>% 
+      tibble() %>%
+      select(Estimate, lower, upper) %>%
+      rename(effect_in_predictor_minmax_range = Estimate) %>%
+      mutate(
+        test_name = paste0(poi, "; ", item), 
+        .before = effect_in_predictor_minmax_range
+      ) %>%
+      mutate(confidence_interval = confidence_level) %>%
+      rbind(effects, .)
+  }
+}
+
 
 #####
 # EXTRACT SLOPES
@@ -254,7 +294,8 @@ all_slopes <- bind_rows(slopes) %>%
                                           p_adjusted <= 0.05 ~ "*",
                                           p_adjusted <= 0.075 ~ ".",
                                           .default = "n.s.")
-  )
+  ) %>%
+  left_join(., effects, by = "test_name")
 
 #####
 # MAKE PLOTS
@@ -366,12 +407,12 @@ ggsave("output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/pathogen_ct_
 write_delim(pathogen_ct, "output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/pathogen_ct.tsv",
             delim = "\t")
 
-for (goi in names(pathogens_ct_plots)) {
-  for (item in names(pathogens_ct_plots[[goi]])) {
-    ggsave(paste0("output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/single_panels/", goi, ".", item, ".pdf"),
-           pathogens_ct_plots[[goi]][[item]], height = 3.5, width = 3.5)
-    saveRDS(pathogens_ct_plots[[goi]][[item]], 
-            paste0("output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/single_panels/RDS.", goi, ".", item, ".rds"))
+for (poi in names(pathogens_ct_plots)) {
+  for (item in names(pathogens_ct_plots[[poi]])) {
+    ggsave(paste0("output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/single_panels/", poi, ".", item, ".pdf"),
+           pathogens_ct_plots[[poi]][[item]], height = 3.5, width = 3.5)
+    saveRDS(pathogens_ct_plots[[poi]][[item]], 
+            paste0("output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/single_panels/RDS.", poi, ".", item, ".rds"))
   }
 }
 ggsave("output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/single_panels/common_legend.pdf",
@@ -379,9 +420,9 @@ ggsave("output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/single_panel
 
 
 for (item in names(model_diagnostics)) {
-  for (goi in names(model_diagnostics[[item]])) {
-    ggsave(paste0("output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/model_diagnostics/model_diagnostics.", item, ".", goi, ".pdf"),
-           model_diagnostics[[item]][[goi]], width = 6, height = 6)
+  for (poi in names(model_diagnostics[[item]])) {
+    ggsave(paste0("output/R/genes_pathogens_and_landuse/pathogen_ct_vs_landuse/model_diagnostics/model_diagnostics.", item, ".", poi, ".pdf"),
+           model_diagnostics[[item]][[poi]], width = 6, height = 6)
   }
 }
 

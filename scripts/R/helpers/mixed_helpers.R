@@ -55,6 +55,12 @@ ct_effect_fun <- function(s, h, l) {
   return(ct_change)
 }
 
+log_scale_to_percentage <- function(log_value) {
+  percentage <- (10^log_value - 1) * 100
+  return(percentage)
+}
+
+
 mixed_model_plot <- function(filt_test_tibble, transform_fun, effect_fun, dark_col, bright_col, y_axis_label) {
   
   x_axis_label <- str_replace_all(filt_test_tibble$Item, "_", " ")

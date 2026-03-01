@@ -205,6 +205,50 @@ for (goi in genes_of_interest) {
   }
 }
 
+
+#####
+# CALCULATE EFFECT SIZES WITH 95% CI
+
+effects <- NULL
+
+for (item in names(model_logit)) {
+  for (goi in names(model_logit[[item]])) {
+    
+    input_data <- test_tibble_logit[[goi]]
+    model <- model_logit[[item]][[goi]]
+    
+    predictor <- "Cropland_in_2km_radius"
+    if (item != "Cropland_in_2km_radius") {
+      predictor <- "est_use_in_2k_radius"
+    }
+    
+    x_min <- min(input_data[[item]], na.rm = TRUE)
+    x_max <- max(input_data[[item]], na.rm = TRUE)
+    
+    confidence_level = 0.95
+    
+    beta_hat <- fixef(model)[predictor]
+    delta_x <- x_max - x_min
+    est_link <- delta_x * beta_hat
+    se_link <- sqrt((delta_x^2) * vcov(model)[predictor, predictor])
+    crit <- qnorm(1 - (1 - confidence_level) / 2)
+    ci_link <- est_link + c(-1,1) * crit * se_link
+    
+    effects <- tibble(
+      test_name = paste0(goi, "; ", item), 
+      effect_in_predictor_minmax_range = est_link,
+      lower = ci_link[1],
+      upper = ci_link[2],
+      confidence_interval = confidence_level,
+      odds_ratio_effect = exp(effect_in_predictor_minmax_range),
+      odds_ratio_lower = exp(lower),
+      odds_ratio_upper = exp(upper)
+    ) %>%
+      rbind(effects, .)
+  }
+}
+
+
 #####
 # EXTRACT SLOPES
 slopes <- list()
@@ -240,7 +284,8 @@ all_slopes <- bind_rows(slopes) %>%
                                           p_adjusted <= 0.01 ~ "**",
                                           p_adjusted <= 0.05 ~ "*",
                                           p_adjusted <= 0.075 ~ ".",
-                                          .default = "n.s."))
+                                          .default = "n.s.")) %>%
+  left_join(., effects, by = "test_name")
 
 #####
 # MAKE PLOTS
