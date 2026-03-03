@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.18602555.svg)](https://doi.org/10.5281/zenodo.18602555)
+
 # A comprehensive catalogue of phages in the honey bee gut microbiome
 
 This repository contains all scripts and usage instructions to reproduce the analysis for the paper by Basler et al (XXX ref). 
