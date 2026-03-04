@@ -286,12 +286,12 @@ Only the first script (vConTACT3) can be run with the test dataset. If you are r
 
 ### Lifestyle prediction
 
-- `lifestyle_tool_test.slrm`: Skip if you are running th test dataset. Test [Replidec](https://www.biorxiv.org/content/10.1101/2022.07.18.500415v1)'s and [BACPHLIP](https://peerj.com/articles/11396/)'s performance on prophages (all 233 from honey bees) and virulent phages (10 of 173 from honey bees).
+- `lifestyle_tool_test.slrm`: Skip if you are running th test dataset. Test [Replidec](https://doi.org/10.1101/2022.07.18.500415)'s, [BACPHLIP](https://doi.org/10.7717/peerj.11396)'s and [PhaTYP](https://doi.org/10.1093/bib/bbac487)'s performance on prophages (all 233 from honey bees) and virulent phages (10 of 173 from honey bees).
     - Requires: Downloaded datasets:
         - Virulent phages from the [DSMZ](https://phagedive.dsmz.de/): `$intermediate/additional_datasets/virulent_caudos_DSMZ.fasta`
         - Virulent phages isolated from honey bees by [Bonilla-Rosso et al](https://www.pnas.org/doi/suppl/10.1073/pnas.2000228117): `$intermediate/additional_datasets/virulent_phages_Engel.fasta`
         - Honey bee prohages from [Bueren et al](https://peerj.com/articles/15383/): `$intermediate/additional_datasets/Bueren_dc525_rd3.fna`
-    - Output: Lifestyle predictions of both tools on the complete genomes as well as truncated versions with 83%, 67% and 50% completeness: `output/lifestyle/tool_test`
+    - Output: Lifestyle predictions of all tools on the complete genomes as well as truncated versions with 83%, 67% and 50% completeness: `output/lifestyle/tool_test`
 
 - `lifestyle_replidec.slrm`: Lifestyle prediction (virulent, temperate, chronic) with Replidec.
     - Requires: Phage, picobirna and unclassified contigs `$repo_location/output/bphage_ALL_1kb_phages_refined_contigs.fasta.gz`, `$repo_location/output/bphage_ALL_1kb_picobirna.fasta.gz`, `$repo_location/output/bphage_ALL_1kb_unclassified_viruses.fasta.gz`
@@ -421,7 +421,7 @@ PCoA and distance-based redundancy analysis is performed on SKA's pairwise SNP d
 
 `05a.lifestyle_tool_test.R`
 
-Comparing the predictions of Replidec's and BACPHLIP on honey bee prohages from [Bueren et al](https://peerj.com/articles/15383/) and virulent phages from the [DSMZ](https://phagedive.dsmz.de/) and [Bonilla-Rosso et al](https://www.pnas.org/doi/suppl/10.1073/pnas.2000228117).
+Comparing the predictions of Replidec, BACPHLIP and PhaTYP on honey bee prohages from [Bueren et al](https://peerj.com/articles/15383/) and virulent phages from the [DSMZ](https://phagedive.dsmz.de/) and [Bonilla-Rosso et al](https://www.pnas.org/doi/suppl/10.1073/pnas.2000228117).
 
 `05b.lifestyle_replidec.R`
 Visulaising Replidec's lifestyle predictions. The `classification` table is updated accordingly.
