@@ -192,11 +192,20 @@ for (set in names(alpha_family_pwc)) {
     write_delim(alpha_family_pwc[[set]][[met]],
                 paste0("output/R/alpha/shannon_family_pairwise/shannon_family_pairwise.", set, ".", met, ".tsv"),
                        delim = "\t")
+    
+    write_delim(alpha_family_pwc_long[[set]][[met]],
+                paste0("output/R/alpha/shannon_family_pairwise/long_shannon_family_pairwise.", set, ".", met, ".tsv"),
+                delim = "\t")
+    
   }
   for (met in names(alpha_abs_family_pwc[[set]])) {
     write_delim(alpha_abs_family_pwc[[set]][[met]],
                 paste0("output/R/alpha/shannon_family_pairwise/shannon_abs_family_pairwise.", set, ".", met, ".tsv"),
                        delim = "\t")
+    
+    write_delim(alpha_abs_family_pwc_long[[set]][[met]],
+                paste0("output/R/alpha/shannon_family_pairwise/long_shannon_abs_family_pairwise.", set, ".", met, ".tsv"),
+                delim = "\t")
   }
 }
 

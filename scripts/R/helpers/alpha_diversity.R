@@ -200,3 +200,20 @@ pwc_shannon_square <- function(s_and_h, meta_var) {
     rename(group = group1)
   return(square)
 }
+
+pwc_shannon_long <- function(s_and_h, meta_var) {
+  colname_1 = paste0(meta_var, "_1")
+  colname_2 = paste0(meta_var, "_2")
+  pwc <- rstatix::pairwise_wilcox_test(s_and_h, formula = as.formula(paste("Hill_Shannon ~", meta_var)), p.adjust.method = "BH") %>%
+    mutate(
+      !!sym(colname_1) := group1,
+      !!sym(colname_2) := group2,
+      BH_adjusted_p = p.adj,
+      W = statistic,
+      .after = group2
+      ) %>%
+    select(all_of(c(colname_1, colname_2)), BH_adjusted_p, W)
+  return(pwc)
+}
+
+

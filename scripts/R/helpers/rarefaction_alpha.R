@@ -6,6 +6,7 @@ print("Starting alpha 1 of 4 with full set.")
 alpha_start <- Sys.time()
 met_v <- c("Country", "Season", "Gut_part", "Health")
 taxlevels <- c("contig", "Genus", "Family")
+# taxlevels <- c("Family")
 alpha <- list()
 alpha_core_or_not <- list()
 for (tlvl in taxlevels) {
@@ -25,6 +26,7 @@ for (tlvl in taxlevels) {
 print("Starting alpha 2 of 4 by country and core or not.")
 met_v <- c("Season", "Gut_part", "Health")
 taxlevels <- c("contig", "Genus", "Family")
+# taxlevels <- c("Family")
 alpha_by_country <- list()
 alpha_by_country_core_or_not <- list()
 for (countr in levels(metadata$Country)) {
@@ -50,6 +52,7 @@ for (countr in levels(metadata$Country)) {
 print("Starting alpha 3 of 4 with absolute counts, full set and core or not.")
 met_v <- c("Country", "Season", "Health")
 taxlevels <- c("contig", "Genus", "Family")
+# taxlevels <- c("Family")
 alpha_abs <- list()
 alpha_abs_core_or_not <- list()
 for (tlvl in taxlevels) {
@@ -68,6 +71,7 @@ print("Starting alpha 4 of 4 with absolute counts cor or not country by country.
 
 met_v <- c("Season", "Health")
 taxlevels <- c("contig", "Genus", "Family")
+# taxlevels <- c("Family")
 alpha_abs_by_country <- list()
 alpha_abs_by_country_core_or_not <- list()
 for (countr in levels(metadata$Country)) {
@@ -112,6 +116,10 @@ shannon_and_meta_abs$core <- alpha_abs_core_or_not$yes$Family$table %>%
 
 alpha_family_pwc <- list()
 alpha_abs_family_pwc <- list()
+
+alpha_family_pwc_long <- list()
+alpha_abs_family_pwc_long <- list()
+
 for (set in names(shannon_and_meta)) {
   metavars <- c("Gut_part", "Country", "Season")
   for (mv in metavars) {
@@ -119,10 +127,21 @@ for (set in names(shannon_and_meta)) {
       s_and_h = shannon_and_meta[[set]],
       meta_var = mv
     )
+    
+    alpha_family_pwc_long[[set]][[mv]] <- pwc_shannon_long(
+      s_and_h = shannon_and_meta[[set]],
+      meta_var = mv
+    )
+    
   }
   metavars <- c("Country", "Season")
   for (mv in metavars) {
     alpha_abs_family_pwc[[set]][[mv]] <- pwc_shannon_square(
+      s_and_h = shannon_and_meta_abs[[set]],
+      meta_var = mv
+    )
+    
+    alpha_abs_family_pwc_long[[set]][[mv]] <- pwc_shannon_long(
       s_and_h = shannon_and_meta_abs[[set]],
       meta_var = mv
     )
