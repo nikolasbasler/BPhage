@@ -5,9 +5,9 @@ channels:
   - conda-forge
   - nodefaults
 dependencies:
-  - ncbi-datasets-cli
-  - taxonkit
+  - ncbi-datasets-cli=16.6.0
+  - taxonkit=0.16.0
   - ca-certificates
-  - entrez-direct
-  - sra-tools
+  - entrez-direct=21.6
+  - sra-tools=3.1.1
   - openssl
