@@ -4,9 +4,10 @@
 # Full set and core or not
 print("Starting alpha 1 of 4 with full set.")
 alpha_start <- Sys.time()
-met_v <- c("Country", "Season", "Gut_part", "Health")
-taxlevels <- c("contig", "Genus", "Family")
-# taxlevels <- c("Family")
+# met_v <- c("Country", "Season", "Gut_part", "Health")
+# taxlevels <- c("contig", "Genus", "Family")
+met_v <- c("Country", "Season", "Gut_part")
+taxlevels <- c("Family")
 alpha <- list()
 alpha_core_or_not <- list()
 for (tlvl in taxlevels) {
@@ -24,9 +25,9 @@ for (tlvl in taxlevels) {
 
 # By country and core or not by country
 print("Starting alpha 2 of 4 by country and core or not.")
-met_v <- c("Season", "Gut_part", "Health")
-taxlevels <- c("contig", "Genus", "Family")
-# taxlevels <- c("Family")
+# taxlevels <- c("contig", "Genus", "Family")
+met_v <- c("Season", "Gut_part")
+taxlevels <- c("Family")
 alpha_by_country <- list()
 alpha_by_country_core_or_not <- list()
 for (countr in levels(metadata$Country)) {
@@ -50,9 +51,10 @@ for (countr in levels(metadata$Country)) {
 
 # Absolute counts full (measured) set and core or not
 print("Starting alpha 3 of 4 with absolute counts, full set and core or not.")
-met_v <- c("Country", "Season", "Health")
-taxlevels <- c("contig", "Genus", "Family")
-# taxlevels <- c("Family")
+# met_v <- c("Country", "Season", "Health")
+# taxlevels <- c("contig", "Genus", "Family")
+met_v <- c("Country", "Season")
+taxlevels <- c("Family")
 alpha_abs <- list()
 alpha_abs_core_or_not <- list()
 for (tlvl in taxlevels) {
@@ -69,9 +71,10 @@ for (tlvl in taxlevels) {
 # Absolute counts by country and core or not by country
 print("Starting alpha 4 of 4 with absolute counts cor or not country by country.")
 
-met_v <- c("Season", "Health")
-taxlevels <- c("contig", "Genus", "Family")
-# taxlevels <- c("Family")
+# met_v <- c("Season", "Health")
+# taxlevels <- c("contig", "Genus", "Family")
+met_v <- c("Season")
+taxlevels <- c("Family")
 alpha_abs_by_country <- list()
 alpha_abs_by_country_core_or_not <- list()
 for (countr in levels(metadata$Country)) {

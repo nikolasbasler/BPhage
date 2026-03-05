@@ -5,8 +5,10 @@
 beta_start <- Sys.time()
 print("Starting beta 1 of 4 with full set.")
 
-met_v <- c("Country", "Season", "Gut_part", "Health")
-taxlevels <- c("contig", "Genus", "Family")
+# met_v <- c("Country", "Season", "Gut_part", "Health")
+# taxlevels <- c("contig", "Genus", "Family")
+met_v <- c("Country", "Season", "Gut_part")
+taxlevels <- c("Family")
 beta_dist <- list()
 beta_plot_list <- list()
 for (tlvl in taxlevels) {
@@ -23,8 +25,10 @@ for (tlvl in taxlevels) {
 # Core or not
 print("Starting beta 2 of 4 core or not.")
 
-met_v <- c("Country", "Season", "Gut_part", "Health")
-taxlevels <- c("contig", "Genus", "Family")
+# met_v <- c("Country", "Season", "Gut_part", "Health")
+# taxlevels <- c("contig", "Genus", "Family")
+met_v <- c("Country", "Season", "Gut_part")
+taxlevels <- c("Family")
 beta_dist_core_or_not <- list()
 beta_plot_list_core_or_not <- list()
 for (core_or_not in unique(classification$Core)) {
@@ -43,8 +47,10 @@ for (core_or_not in unique(classification$Core)) {
 # Absolute counts
 print("Starting beta 3 of 4 with absolute counts, full set.")
 
-met_v <- c("Country", "Season", "Health")
-taxlevels <- c("contig", "Genus", "Family")
+# met_v <- c("Country", "Season", "Health")
+# taxlevels <- c("contig", "Genus", "Family")
+met_v <- c("Country", "Season")
+taxlevels <- c("Family")
 beta_abs_dist <- list()
 beta_abs_plot_list <- list()
 for (tlvl in taxlevels) {
@@ -60,8 +66,10 @@ for (tlvl in taxlevels) {
 # Absolute counts core or not
 print("Starting beta 4 of 4 with absolute counts core or not.")
 
-met_v <- c("Country", "Season", "Health")
-taxlevels <- c("contig", "Genus", "Family")
+# met_v <- c("Country", "Season", "Health")
+# taxlevels <- c("contig", "Genus", "Family")
+met_v <- c("Country", "Season")
+taxlevels <- c("Family")
 beta_abs_dist_core_or_not <- list()
 beta_abs_plot_list_core_or_not <- list()
 for (core_or_not in unique(classification$Core)) {
