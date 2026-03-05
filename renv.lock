@@ -538,8 +538,7 @@
       "NeedsCompilation": "yes",
       "Author": "Brian Ripley [aut, cre, cph], Bill Venables [ctb], Douglas M. Bates [ctb], Kurt Hornik [trl] (partial port ca 1998), Albrecht Gebhardt [trl] (partial port ca 1998), David Firth [ctb]",
       "Maintainer": "Brian Ripley <ripley@stats.ox.ac.uk>",
-      "Repository": "RSPM",
-      "Encoding": "UTF-8"
+      "Repository": "CRAN"
     },
     "Matrix": {
       "Package": "Matrix",
@@ -584,7 +583,7 @@
       "NeedsCompilation": "yes",
       "Author": "Douglas Bates [aut] (<https://orcid.org/0000-0001-8316-9503>), Martin Maechler [aut, cre] (<https://orcid.org/0000-0002-8685-9910>), Mikael Jagan [aut] (<https://orcid.org/0000-0002-3542-2938>), Timothy A. Davis [ctb] (<https://orcid.org/0000-0001-7614-6899>, SuiteSparse libraries, notably CHOLMOD and AMD, collaborators listed in dir(pattern=\"^[A-Z]+[.]txt$\", full.names=TRUE, system.file(\"doc\", \"SuiteSparse\", package=\"Matrix\"))), Jens Oehlschlägel [ctb] (initial nearPD()), Jason Riedy [ctb] (<https://orcid.org/0000-0002-4345-4200>, GNU Octave's condest() and onenormest(), Copyright: Regents of the University of California), R Core Team [ctb] (base R's matrix implementation)",
       "Maintainer": "Martin Maechler <mmaechler+Matrix@gmail.com>",
-      "Repository": "https://packagemanager.posit.co/cran/2024-04-26"
+      "Repository": "RSPM"
     },
     "MatrixModels": {
       "Package": "MatrixModels",
@@ -657,7 +656,8 @@
       "Description": "Provides color schemes for maps (and other graphics) designed by Cynthia Brewer as described at http://colorbrewer2.org.",
       "License": "Apache License 2.0",
       "NeedsCompilation": "no",
-      "Repository": "CRAN"
+      "Repository": "RSPM",
+      "Encoding": "UTF-8"
     },
     "RCurl": {
       "Package": "RCurl",
@@ -1024,33 +1024,6 @@
       "Repository": "CRAN",
       "Encoding": "UTF-8"
     },
-    "VennDiagram": {
-      "Package": "VennDiagram",
-      "Version": "1.7.3",
-      "Source": "Repository",
-      "Type": "Package",
-      "Title": "Generate High-Resolution Venn and Euler Plots",
-      "Date": "2022-04-11",
-      "Author": "Hanbo Chen",
-      "Maintainer": "Paul Boutros <pboutros@mednet.ucla.edu>",
-      "Imports": [
-        "methods"
-      ],
-      "Depends": [
-        "R (>= 3.5.0)",
-        "grid (>= 2.14.1)",
-        "futile.logger"
-      ],
-      "Description": "A set of functions to generate high-resolution Venn and Euler plots. Includes handling for several special cases, including two-case scaling, and extensive customization of plot shape and structure.",
-      "License": "GPL-2",
-      "LazyLoad": "yes",
-      "Suggests": [
-        "testthat"
-      ],
-      "NeedsCompilation": "no",
-      "Repository": "CRAN",
-      "Encoding": "UTF-8"
-    },
     "XVector": {
       "Package": "XVector",
       "Version": "0.42.0",
@@ -1336,7 +1309,8 @@
       "License": "GPL-2 | GPL-3",
       "URL": "http://www.rforge.net/base64enc",
       "NeedsCompilation": "yes",
-      "Repository": "CRAN"
+      "Repository": "RSPM",
+      "Encoding": "UTF-8"
     },
     "biomformat": {
       "Package": "biomformat",
@@ -1878,7 +1852,8 @@
       "NeedsCompilation": "no",
       "Author": "Jennifer Bryan [cre, aut], Hadley Wickham [ctb]",
       "Maintainer": "Jennifer Bryan <jenny@stat.ubc.ca>",
-      "Repository": "CRAN"
+      "Repository": "RSPM",
+      "Encoding": "UTF-8"
     },
     "cli": {
       "Package": "cli",
@@ -2953,35 +2928,6 @@
       "Repository": "CRAN",
       "Encoding": "UTF-8"
     },
-    "formatR": {
-      "Package": "formatR",
-      "Version": "1.14",
-      "Source": "Repository",
-      "Type": "Package",
-      "Title": "Format R Code Automatically",
-      "Authors@R": "c( person(\"Yihui\", \"Xie\", role = c(\"aut\", \"cre\"), email = \"xie@yihui.name\", comment = c(ORCID = \"0000-0003-0645-5666\")), person(\"Ed\", \"Lee\", role = \"ctb\"), person(\"Eugene\", \"Ha\", role = \"ctb\"), person(\"Kohske\", \"Takahashi\", role = \"ctb\"), person(\"Pavel\", \"Krivitsky\", role = \"ctb\"), person() )",
-      "Description": "Provides a function tidy_source() to format R source code. Spaces and indent will be added to the code automatically, and comments will be preserved under certain conditions, so that R code will be more human-readable and tidy. There is also a Shiny app as a user interface in this package (see tidy_app()).",
-      "Depends": [
-        "R (>= 3.2.3)"
-      ],
-      "Suggests": [
-        "rstudioapi",
-        "shiny",
-        "testit",
-        "rmarkdown",
-        "knitr"
-      ],
-      "License": "GPL",
-      "URL": "https://github.com/yihui/formatR",
-      "BugReports": "https://github.com/yihui/formatR/issues",
-      "VignetteBuilder": "knitr",
-      "RoxygenNote": "7.2.3",
-      "Encoding": "UTF-8",
-      "NeedsCompilation": "no",
-      "Author": "Yihui Xie [aut, cre] (<https://orcid.org/0000-0003-0645-5666>), Ed Lee [ctb], Eugene Ha [ctb], Kohske Takahashi [ctb], Pavel Krivitsky [ctb]",
-      "Maintainer": "Yihui Xie <xie@yihui.name>",
-      "Repository": "CRAN"
-    },
     "fs": {
       "Package": "fs",
       "Version": "1.6.5",
@@ -3065,56 +3011,6 @@
       "Author": "Davis Vaughan [aut, cre], Matt Dancho [aut], RStudio [cph, fnd]",
       "Maintainer": "Davis Vaughan <davis@rstudio.com>",
       "Repository": "CRAN"
-    },
-    "futile.logger": {
-      "Package": "futile.logger",
-      "Version": "1.4.3",
-      "Source": "Repository",
-      "Type": "Package",
-      "Title": "A Logging Utility for R",
-      "Date": "2016-07-10",
-      "Author": "Brian Lee Yung Rowe",
-      "Maintainer": "Brian Lee Yung Rowe <r@zatonovo.com>",
-      "Depends": [
-        "R (>= 3.0.0)"
-      ],
-      "Imports": [
-        "utils",
-        "lambda.r (>= 1.1.0)",
-        "futile.options"
-      ],
-      "Suggests": [
-        "testthat",
-        "jsonlite"
-      ],
-      "Description": "Provides a simple yet powerful logging utility. Based loosely on log4j, futile.logger takes advantage of R idioms to make logging a convenient and easy to use replacement for cat and print statements.",
-      "License": "LGPL-3",
-      "LazyLoad": "yes",
-      "NeedsCompilation": "no",
-      "ByteCompile": "yes",
-      "Collate": "'options.R' 'appender.R' 'constants.R' 'layout.R' 'logger.R' 'scat.R' 'futile.logger-package.R'",
-      "RoxygenNote": "5.0.1",
-      "Repository": "CRAN",
-      "Encoding": "UTF-8"
-    },
-    "futile.options": {
-      "Package": "futile.options",
-      "Version": "1.0.1",
-      "Source": "Repository",
-      "Type": "Package",
-      "Title": "Futile Options Management",
-      "Date": "2018-04-20",
-      "Author": "Brian Lee Yung Rowe",
-      "Maintainer": "Brian Lee Yung Rowe <r@zatonovo.com>",
-      "Depends": [
-        "R (>= 2.8.0)"
-      ],
-      "Description": "A scoped options management framework. Used in other packages.",
-      "License": "LGPL-3",
-      "LazyLoad": "yes",
-      "NeedsCompilation": "no",
-      "Repository": "CRAN",
-      "Encoding": "UTF-8"
     },
     "future": {
       "Package": "future",
@@ -4492,7 +4388,8 @@
       "NeedsCompilation": "no",
       "Author": "Rich FitzJohn [aut, cre]",
       "Maintainer": "Rich FitzJohn <rich.fitzjohn@gmail.com>",
-      "Repository": "CRAN"
+      "Repository": "RSPM",
+      "Encoding": "UTF-8"
     },
     "igraph": {
       "Package": "igraph",
@@ -4797,31 +4694,7 @@
         "stats",
         "graphics"
       ],
-      "Repository": "CRAN"
-    },
-    "lambda.r": {
-      "Package": "lambda.r",
-      "Version": "1.2.4",
-      "Source": "Repository",
-      "Type": "Package",
-      "Title": "Modeling Data with Functional Programming",
-      "Date": "2019-09-15",
-      "Depends": [
-        "R (>= 3.0.0)"
-      ],
-      "Imports": [
-        "formatR"
-      ],
-      "Suggests": [
-        "testit"
-      ],
-      "Author": "Brian Lee Yung Rowe",
-      "Maintainer": "Brian Lee Yung Rowe <r@zatonovo.com>",
-      "Description": "A language extension to efficiently write functional programs in R. Syntax extensions include multi-part function definitions, pattern matching, guard statements, built-in (optional) type safety.",
-      "License": "LGPL-3",
-      "LazyLoad": "yes",
-      "NeedsCompilation": "no",
-      "Repository": "CRAN",
+      "Repository": "RSPM",
       "Encoding": "UTF-8"
     },
     "later": {
@@ -7261,7 +7134,8 @@
       "NeedsCompilation": "no",
       "Author": "Simon Potter [aut, trl, cre], Simon Sapin [aut], Ian Bicking [aut]",
       "Maintainer": "Simon Potter <simon@sjp.co.nz>",
-      "Repository": "CRAN"
+      "Repository": "RSPM",
+      "Encoding": "UTF-8"
     },
     "shiny": {
       "Package": "shiny",
