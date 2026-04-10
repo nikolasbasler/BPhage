@@ -133,7 +133,7 @@ cut -d "_" -f1-3 data/in_test_data > data/BPhage.bee.pool.list
 - `download_raw_reads.slrm`: If you run the test dataset, skip this script and run `download_test_dataset.slrm` instead. Downloads the raw data of this study from the SRA and rename the files. There are 471 SRA datasets with 2 files each (forward and reverse reads). The total volume is >700 GB. I didn't parallelise this, because I don't think NCBI would allow hundreds of download requests from the same source. So expect this to take a while.
     - Requires: 
         - SRA accession list: `data/BPhage_SRAs.tsv`
-    - Output: Nicely named fastq files with raw sequencing reads of all samples in `$intermediate/raw`.
+    - Output: Raw SRA sequencing reads of all samples in `$intermediate/raw` (fastq files will be extracted and renamed in viper script, see [Assembly](#assembly)).
 - `download_test_dataset.slrm`: **Only** run if you want to use the test dataset!
     - Requries: Nothing
     - Output: Test dataset in `$intermediate/raw`. Note: If files from the full dataset are present, they will be overwritten!
