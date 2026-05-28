@@ -2,7 +2,9 @@
 
 # The honey bee triad: A comprehensive catalogue of phages in the *Apis mellifera* gut microbiome
 
-This repository contains all scripts and usage instructions to reproduce the analysis for the paper by Basler et al (XXX ref). 
+This repository contains all scripts and usage instructions to reproduce the analysis for:
+
+Basler, N., De Smet, L., Bouras, G. et al. The honey bee triad: a comprehensive catalogue of phages in the Apis mellifera gut microbiome. Nat Commun (2026). [https://doi.org/10.1038/s41467-026-72757-2](https://doi.org/10.1038/s41467-026-72757-2)
 
 This pipeline is split into two parts. The first part is meant for a high-performance computer (HPC) and can be skipped, if so wanted. There is also a reduced test dataset for the HPC part. The reduced test dataset as well as a "midsave" file to skip the HPC part [available in this Zenodo record](https://doi.org/10.5281/zenodo.16937255). Predicted protein structures are [available in this Zenodo record](https://doi.org/10.5281/zenodo.18771769). 
 
