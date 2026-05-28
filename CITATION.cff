@@ -1,0 +1,61 @@
+cff-version: 1.2.0
+message: "If you use this work, please cite the following paper."
+title: "The honey bee triad: a comprehensive catalogue of phages in the Apis mellifera gut microbiome"
+type: article
+authors:
+  - family-names: Basler
+    given-names: Nikolas
+  - family-names: De Smet
+    given-names: Lina
+  - family-names: Bouras
+    given-names: George
+  - family-names: Swinnen
+    given-names: Jill
+  - family-names: Pranga
+    given-names: Katarzyna
+  - family-names: Brussaard
+    given-names: Corina
+    name-particle: "P. D."
+  - family-names: Vandamme
+    given-names: Peter
+  - family-names: de Graaf
+    given-names: Dirk
+    name-particle: "C."
+  - family-names: Matthijnssens
+    given-names: Jelle
+date-released: 2026-05-08
+journal: "Nature Communications"
+doi: "10.1038/s41467-026-72757-2"
+url: "https://doi.org/10.1038/s41467-026-72757-2"
+
+preferred-citation:
+  type: article
+  title: "The honey bee triad: a comprehensive catalogue of phages in the Apis mellifera gut microbiome"
+  authors:
+    - family-names: Basler
+      given-names: Nikolas
+    - family-names: De Smet
+      given-names: Lina
+    - family-names: Bouras
+      given-names: George
+    - family-names: Swinnen
+      given-names: Jill
+    - family-names: Pranga
+      given-names: Katarzyna
+    - family-names: Brussaard
+      given-names: Corina
+      name-particle: "P. D."
+    - family-names: Vandamme
+      given-names: Peter
+    - family-names: de Graaf
+      given-names: Dirk
+      name-particle: "C."
+    - family-names: Matthijnssens
+      given-names: Jelle
+  journal: "Nature Communications"
+  year: 2026
+  doi: "10.1038/s41467-026-72757-2"
+  url: "https://doi.org/10.1038/s41467-026-72757-2"
+  identifiers:
+    - type: doi
+      value: "10.1038/s41467-026-72757-2"
