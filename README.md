@@ -4,11 +4,13 @@
 
 This repository contains all scripts and usage instructions to reproduce the analysis for:
 
-Basler, N., De Smet, L., Bouras, G. et al. The honey bee triad: a comprehensive catalogue of phages in the Apis mellifera gut microbiome. Nat Commun (2026). [https://doi.org/10.1038/s41467-026-72757-2](https://doi.org/10.1038/s41467-026-72757-2)
 
-This pipeline is split into two parts. The first part is meant for a high-performance computer (HPC) and can be skipped, if so wanted. There is also a reduced test dataset for the HPC part. The reduced test dataset as well as a "midsave" file to skip the HPC part [available in this Zenodo record](https://doi.org/10.5281/zenodo.16937255). Predicted protein structures are [available in this Zenodo record](https://doi.org/10.5281/zenodo.18771769). 
+>Basler, N., De Smet, L., Bouras, G. et al. The honey bee triad: a comprehensive catalogue of phages in the Apis mellifera gut microbiome. Nat Commun (2026). [https://doi.org/10.1038/s41467-026-72757-2](https://doi.org/10.1038/s41467-026-72757-2)
 
-The second part is for the statistical analysis and visualisation using RStudio. If you want to skip the HPC part and only want to re-run the statistical analysis, please go straight to the ["R scripts"](#r-scripts) section of this README. The scripts from both parts pretend to be on the same computer but it is possible to clone this repo to an HPC and to a local computer, run the HPC scripts, copy the relevant output files from the HPC to the local computer and continue with the statistical analysis using the R project.
+
+This pipeline is split into two parts. **The first part** is meant for a high-performance computer (HPC) and can be skipped, if so wanted. There is also a reduced test dataset for the HPC part. The reduced test dataset as well as a "midsave" file to skip the HPC part [available in this Zenodo record](https://doi.org/10.5281/zenodo.16937255). Predicted protein structures are [available in this Zenodo record](https://doi.org/10.5281/zenodo.18771769). 
+
+**The second part** is for the statistical analysis and visualisation using RStudio. If you want to skip the HPC part and only want to re-run the statistical analysis, please go straight to the ["R scripts"](#r-scripts) section of this README. The scripts from both parts pretend to be on the same computer but it is possible to clone this repo to an HPC and to a local computer, run the HPC scripts, copy the relevant output files from the HPC to the local computer and continue with the statistical analysis using the R project.
 
 **Note**: The output of the tools and scripts will end up in the `output` folder inside the repo (which is why it's not tracked by git). The HPC scripts will create around 1.5 TB in total (or 1.5 GB if the test dataset is used), plus intermediate storage (see below). The R scripts create around 1 GB. Make sure to have enough free space or manage the output as it comes.
 
