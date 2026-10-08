@@ -16,7 +16,7 @@
 
 repo_location="$VSC_STAGING/BPhage"
 conda activate iphop
-iphop_db="/staging/leuven/stg_00029/DB/iphop_db/Aug_2023_pub_rw
+iphop_db="/staging/leuven/stg_00029/DB/iphop_db/Aug_2023_pub_rw"
 
 mkdir -p $VSC_SCRATCH/BPhage/iphop
 cd $VSC_SCRATCH/BPhage/iphop
